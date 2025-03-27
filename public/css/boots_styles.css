@@ -1,0 +1,117 @@
+/* Estilo para el botón con la clase .btn-success de Bootstrap */
+.dt-button.btn-success {
+    background-color: #28a745;       /* Verde de Bootstrap */
+    color: white;                    /* Texto blanco */
+    border: 1px solid transparent;   /* Borde transparente */
+    padding: 0.375rem 0.75rem;        /* Padding de Bootstrap */
+    font-size: 1rem;                  /* Fuente estándar */
+    font-weight: 400;                 /* Peso de la fuente */
+    line-height: 1.5;                 /* Altura de línea */
+    border-radius: 0.25rem;           /* Bordes redondeados */
+    text-align: center;               /* Alineación centrada */
+    vertical-align: middle;           /* Alineación vertical */
+    cursor: pointer;                 /* Cursor de puntero */
+    display: inline-block;            /* Mostrar como bloque en línea */
+    transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out; /* Transición suave */
+}
+
+/* Hover - Cuando el ratón pasa sobre el botón */
+.dt-button.btn-success:hover {
+    background-color: #218838 !important;  /* Verde más oscuro para el estado hover */
+    border-color: #1e7e34;                 /* Borde verde oscuro */
+}
+
+/* Active - Cuando el botón está presionado */
+.dt-button.btn-success:active {
+    background-color: #1e7e34;       /* Fondo verde oscuro */
+    border-color: #1c7430;           /* Borde más oscuro */
+}
+
+/* Focus - Cuando el botón tiene el enfoque (cuando se hace clic en él o se navega con el teclado) */
+.dt-button.btn-success:focus {
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.5); /* Sombra de enfoque de Bootstrap */
+    outline: 0;  /* Eliminamos el borde de enfoque predeterminado */
+}
+
+/* Deshabilitado - Cuando el botón está deshabilitado */
+.dt-button.btn-success:disabled {
+    background-color: #c3e6cb;   /* Fondo verde más claro */
+    border-color: #c3e6cb;        /* Borde más claro */
+    color: #6c757d;               /* Texto gris */
+    cursor: not-allowed;          /* Cursor deshabilitado */
+}
+
+/* Estilo para el botón con la clase .btn-custom */
+.dt-button.btn-custom {
+    background-color: #202c34;       /* Color base (gris oscuro) */
+    color: white;                    /* Texto blanco */
+    border: 1px solid transparent;   /* Borde transparente */
+    padding: 0.375rem 0.75rem;        /* Padding similar a Bootstrap */
+    font-size: 1rem;                  /* Fuente estándar */
+    font-weight: 400;                 /* Peso de la fuente */
+    line-height: 1.5;                 /* Altura de línea */
+    border-radius: 0.25rem;           /* Bordes redondeados */
+    text-align: center;               /* Alineación centrada */
+    vertical-align: middle;           /* Alineación vertical */
+    cursor: pointer;                 /* Cursor de puntero */
+    display: inline-block;            /* Mostrar como bloque en línea */
+    transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out; /* Transición suave */
+}
+
+/* Hover - Cuando el ratón pasa sobre el botón */
+.dt-button.btn-custom:hover {
+    background-color: #334155 !important;  /* Color más claro para el estado hover */
+    border-color: #2c3e50;                 /* Borde gris oscuro */
+}
+
+/* Active - Cuando el botón está presionado */
+.dt-button.btn-custom:active {
+    background-color: #2c3e50;       /* Fondo gris más oscuro */
+    border-color: #22303c;            /* Borde más oscuro */
+}
+
+/* Focus - Cuando el botón tiene el enfoque (cuando se hace clic en él o se navega con el teclado) */
+.dt-button.btn-custom:focus {
+    box-shadow: 0 0 0 0.2rem rgba(31, 41, 55, 0.5); /* Sombra de enfoque suave */
+    outline: 0;  /* Eliminamos el borde de enfoque predeterminado */
+}
+
+/* Deshabilitado - Cuando el botón está deshabilitado */
+.dt-button.btn-custom:disabled {
+    background-color: #b0b9c2;   /* Fondo gris más claro */
+    border-color: #b0b9c2;        /* Borde más claro */
+    color: #6c757d;               /* Texto gris */
+    cursor: not-allowed;          /* Cursor deshabilitado */
+}
+
+.swal2-confirm {
+    background-color: #111827 !important; /* Color de fondo del botón */
+    border-color: #111827 !important;     /* Borde del botón */
+    color: #ffffff !important;             /* Color del texto */
+    box-shadow: none !important;           /* Elimina el sombreado */
+}
+
+.swal2-confirm:hover {
+    background-color: #1f2937 !important; /* Color de fondo al hacer hover */
+    border-color: #1f2937 !important;     /* Borde al hacer hover */
+}
+
+.swal2-popup {
+    font-family: 'Arial', sans-serif;
+}
+
+.btn-custom {
+    background-color: #202c34;       /* Color base (gris oscuro) */
+    color: white;                    /* Texto blanco */
+    border: 1px solid transparent;   /* Borde transparente */
+    padding: 0.375rem 0.75rem;        /* Padding similar a Bootstrap */
+    font-size: 1rem;                  /* Fuente estándar */
+    font-weight: 400;                 /* Peso de la fuente */
+    line-height: 1.5;                 /* Altura de línea */
+    border-radius: 0.25rem;           /* Bordes redondeados */
+    text-align: center;               /* Alineación centrada */
+    vertical-align: middle;           /* Alineación vertical */
+    cursor: pointer;                 /* Cursor de puntero */
+    display: inline-block;            /* Mostrar como bloque en línea */
+    transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out; /* Transición suave */
+}

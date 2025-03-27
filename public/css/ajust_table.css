@@ -1,0 +1,45 @@
+/* Asegura que el contenedor del card no se desborde */
+#recipients {
+    overflow: hidden;  /* Evita el desbordamiento horizontal */
+    padding: 1rem;  /* Padding para ajustar el contenido */
+    width: 100%;
+}
+
+/* Asegura que el wrapper de la tabla se ajusta */
+#applicants_table_wrapper {
+    width: 100% !important;  /* Asegura que el wrapper ocupe todo el ancho disponible */
+}
+
+/* Asegura que la tabla ocupe el 100% del ancho sin aplastarse */
+#applicants_table {
+    width: 100% !important;  /* Hace que la tabla ocupe el 100% del ancho disponible */
+    table-layout: auto;  /* Permite que la tabla se ajuste a su contenido sin ser aplastada */
+    border-spacing: 0;
+    border-collapse: collapse;
+}
+
+/* Hacemos que las celdas se ajusten sin desbordarse */
+#applicants_table th,
+#applicants_table td {
+    white-space: nowrap; /* Evita que las celdas de la tabla se aplasten */
+}
+
+/* Fija el botón "+" de la tabla #applicants_table en una posición fija */
+#applicants_table td.DT-responsive-collapse {
+    position: sticky !important;  /* Fija el botón */
+    left: 0;  /* Lo coloca a la izquierda de la celda */
+    z-index: 1; /* Asegura que esté por encima de otras celdas */
+}
+
+/* Asegura que el botón "+" se mantenga visible incluso al hacer scroll horizontal */
+#applicants_table td.DT-responsive-collapse:before {
+    content: "\f067";  /* Icono "+" */
+    font-family: 'boxicons';  /* Asegúrate de que el icono se vea correctamente */
+    font-size: 24px;
+    color: #202c34; /* Ajusta el color si es necesario */
+}
+
+/* Opcional: Para ajustar la visibilidad del botón cuando la tabla sea pequeña */
+#applicants_table_wrapper .dataTables_scrollBody {
+    padding-left: 50px; /* Ajuste para asegurar que el botón "+" no se superponga con las columnas */
+}
