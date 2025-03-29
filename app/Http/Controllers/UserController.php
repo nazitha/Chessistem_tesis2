@@ -102,7 +102,7 @@ class UserController extends Controller
     {
         return DB::transaction(function () use ($user) {
             AuditService::logUserAction(
-                auth()->user()->email,
+                auth()->user()->correo,
                 $user,
                 'deleted'
             );
