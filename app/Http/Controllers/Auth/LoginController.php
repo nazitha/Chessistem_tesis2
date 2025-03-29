@@ -25,7 +25,8 @@ class LoginController extends Controller
         if (Auth::attempt(['correo' => $request->correo, 'password' => $request->contrasena])) {
             \Log::info('Usuario autenticado: ', ['user' => Auth::user()]);
             $request->session()->regenerate();
-            return $this->authenticated($request, Auth::user());
+          //  return $this->authenticated($request, Auth::user());
+          return redirect()->route('home'); 
         }
 
         \Log::info('Credenciales incorrectas.');

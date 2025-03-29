@@ -21,7 +21,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\AdminController;
 
-// Redirección condicional raíz
+// Redirección Home
 Route::get('/', function () {
     return auth()->check() ? redirect('/home') : redirect('/login');
 });
@@ -40,14 +40,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/home', [HomeController::class, 'index'])->name('home');
 
     // Administración
-    Route::prefix('admin')->middleware('role:1')->group(function () {
+    /*Route::prefix('admin')->middleware('role:1')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
         Route::get('/usuarios', [AdminController::class, 'userIndex'])->name('admin.users.index');
         Route::get('/usuarios/{user}/permisos', [AdminController::class, 'editPermissions'])->name('admin.users.permissions');
         Route::put('/usuarios/{user}/permisos', [AdminController::class, 'updatePermissions']);
         Route::get('/miembros', [AdminController::class, 'memberIndex'])->name('admin.members.index');
         Route::get('/historial', [AdminController::class, 'activityLog'])->name('admin.logs.index');
-    });
+    });*/
 
     // Rutas para recuperar contraseña
     Route::post('/password-recovery', [PasswordRecoveryController::class, 'recoverPassword']);

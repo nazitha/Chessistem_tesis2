@@ -10,9 +10,9 @@ class User extends Authenticatable
     use Notifiable;
 
     protected $table = 'usuarios';
-    protected $primaryKey = 'correo'; // Clave primaria personalizada
-    public $incrementing = false; // Desactiva auto-incremento
-    protected $keyType = 'string'; // Tipo de clave primaria
+    protected $primaryKey = 'id_email'; // Clave primaria personalizada
+    public $incrementing = true; // Desactiva auto-incremento
+    protected $keyType = 'int'; // Tipo de clave primaria
 
     protected $fillable = [
         'correo',
