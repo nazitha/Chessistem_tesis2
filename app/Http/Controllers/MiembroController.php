@@ -4,12 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Miembro;
 use App\Models\Academia;
-use App\Models\Usuario;
+use App\Models\User;
 use App\Models\Auditoria;
 use App\Http\Requests\MiembroRequest;
 use App\Http\Resources\MiembroResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class MiembroController extends Controller
@@ -34,7 +35,7 @@ class MiembroController extends Controller
 
     public function getAvailableEmails(): JsonResponse
     {
-        $correos = Usuario::active()
+        $correos = User::active()
             ->unlinked()
             ->get(['correo', 'rol_id']);
 
@@ -85,7 +86,7 @@ class MiembroController extends Controller
             $miembro->delete();
             
             $this->logAuditoria(
-                auth()->user()->correo,
+                Auth::user()->correo,
                 'Miembros',
                 'Eliminación',
                 $originalData,
@@ -113,6 +114,10 @@ class MiembroController extends Controller
         ?array $previo,
         $posterior
     ): void {
+        /**
+         * @var \Illuminate\Support\Facades\Auth $auth
+         * @method \App\Models\User|null user()
+         */
         Auditoria::create([
             'correo_id' => $correo,
             'tabla_afectada' => $tabla,

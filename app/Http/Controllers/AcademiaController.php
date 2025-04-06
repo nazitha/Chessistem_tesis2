@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use PDO;
+use App\Services\Conexion;
 
 class AcademiaController extends Controller
 {

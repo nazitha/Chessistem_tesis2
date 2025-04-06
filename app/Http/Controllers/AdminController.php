@@ -5,7 +5,12 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User; 
 use App\Models\Role; 
+use App\Models\Miembro;
+use App\Models\ActivityLog;
 
+/**
+ * @method void middleware(string $middleware, array $options = [])
+ */
 class AdminController extends Controller
 {
     public function __construct()
@@ -63,7 +68,7 @@ class AdminController extends Controller
      */
     public function memberIndex()
     {
-        $members = Member::paginate(10); // Ajusta según tu modelo de miembros
+        $members = Miembro::paginate(10); // Ajusta según tu modelo de miembros
         return view('admin.members.index', compact('members'));
     }
     

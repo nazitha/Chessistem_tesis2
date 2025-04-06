@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\Torneo;
 use App\Models\Miembro;
 use App\Models\CategoriaTorneo;
-use App\Models\SistemaEmparejamiento;
+use App\Models\Emparejamiento;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -56,7 +56,7 @@ class ImportarMiembrosController extends Controller
                             );
 
                             // Buscar sistema de emparejamiento
-                            $sistema = SistemaEmparejamiento::firstOrCreate(
+                            $sistema = Emparejamiento::firstOrCreate(
                                 ['sistema' => $data[4]],
                                 ['sistema' => $data[4]]
                             );

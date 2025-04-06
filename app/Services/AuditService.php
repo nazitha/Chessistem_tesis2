@@ -1,13 +1,37 @@
 <?php
 namespace App\Services;
 
-use App\Models\Audit;
+use App\Models\Auditoria;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\Permission;
+use Illuminate\Support\Facades\Auth;
 
 class AuditService
 {
+    /**
+     * Log an audit entry
+     *
+     * @param string $user
+     * @param mixed $modelo
+     * @param string $accion
+     * @param mixed|null $previo
+     * @return void
+     */
+    public static function log($user, $modelo, $accion, $previo = null)
+    {
+        Auditoria::create([
+            'usuario' => $user,
+            'modelo' => get_class($modelo),
+            'modelo_id' => $modelo->id ?? null,
+            'accion' => $accion,
+            'datos_previos' => $previo ? json_encode($previo) : null,
+            'datos_nuevos' => json_encode($modelo->getAttributes()),
+            'ip' => request()->ip(),
+            'user_agent' => request()->userAgent()
+        ]);
+    }
+
     public static function logUserAction($email, User $user, $action, $prevData = null): void
     {
         $logData = [
@@ -21,12 +45,12 @@ class AuditService
             'equipo' => request()->ip()
         ];
 
-        Audit::create($logData);
+        Auditoria::create($logData);
     }
 
     public static function logPermissionAction($email, $action, Role $role, Permission $permission): void
     {
-        Audit::create([
+        Auditoria::create([
             'correo_id' => $email,
             'tabla_afectada' => 'Permisos',
             'accion' => $action,

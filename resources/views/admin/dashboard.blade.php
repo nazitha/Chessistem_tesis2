@@ -31,10 +31,12 @@
     <!-- Incluir otros scripts según sea necesario -->
     
     <script>
-        var userData = @json([
-            'correo' => Auth::user()->correo,
-            'rol' => Auth::user()->rol_id
-        ]);
+        // User data is passed via data attributes
+        var userData = {
+            correo: '{{ Auth::user()->correo }}',
+            rol: '{{ Auth::user()->rol_id }}'
+        };
+        /* eslint-enable */
 
         // Socket.io
         var socket = io('http://192.168.100.100:3001', {
@@ -44,32 +46,33 @@
         });
 
         socket.on('connect', function() {
-                console.log('Conectado al servidor de Socket.io');
+            console.log('Conectado al servidor de Socket.io');
         });
 
         function suscribirseATabla(tabla) {
-            socket.on(refresh_${tabla}, function() {
-                console.log(Recibido evento refresh_${tabla});
-                    if (window[tabla_${tabla}]) {
-                        window[tabla_${tabla}].ajax.reload();
-                    }
-                });
-            }
-            // Suscribirse a múltiples tablas
-            suscribirseATabla('torneos');
-            suscribirseATabla('usuarios');
-            suscribirseATabla('asigpermis');
-            suscribirseATabla('academias');
-            suscribirseATabla('ciudades');
-            suscribirseATabla('federaciones');
-            suscribirseATabla('fide');
-            suscribirseATabla('miembros');
-            suscribirseATabla('inscripciones');
-
-            socket.on('disconnect', function() {
-                console.log('Desconectado del servidor de Socket.io');
+            socket.on('refresh_' + tabla, function() {
+                console.log('Recibido evento refresh_' + tabla);
+                if (window['tabla_' + tabla]) {
+                    window['tabla_' + tabla].ajax.reload();
+                }
             });
-        </script>
+        }
+        
+        // Suscribirse a múltiples tablas
+        suscribirseATabla('torneos');
+        suscribirseATabla('usuarios');
+        suscribirseATabla('asigpermis');
+        suscribirseATabla('academias');
+        suscribirseATabla('ciudades');
+        suscribirseATabla('federaciones');
+        suscribirseATabla('fide');
+        suscribirseATabla('miembros');
+        suscribirseATabla('inscripciones');
+
+        socket.on('disconnect', function() {
+            console.log('Desconectado del servidor de Socket.io');
+        });
+    </script>
 
     </script>
 @endpush

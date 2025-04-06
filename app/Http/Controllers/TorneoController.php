@@ -14,6 +14,8 @@ use App\Http\Resources\MiembroRolResource;
 use App\Http\Resources\FormatoResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use App\Services\AuditService;
 
 class TorneoController extends Controller
 {
@@ -89,15 +91,16 @@ class TorneoController extends Controller
     public function destroy(Torneo $torneo): JsonResponse
     {
         return DB::transaction(function () use ($torneo) {
-            $this->logAuditoria(auth()->user()->email, $torneo, 'eliminado');
+            $this->logAuditoria(Auth::user()->correo, $torneo, 'eliminado');
             $torneo->delete();
             return response()->json(['success' => true]);
         });
     }
 
+    
     private function logAuditoria($request, $torneo, $accion, $previo = null)
     {
-        AuditoriaService::log(
+        AuditService::log(
             user: $request->mail_log,
             modelo: $torneo,
             accion: $accion,

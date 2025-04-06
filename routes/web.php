@@ -1,5 +1,6 @@
 <?php
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AcademiaController;
 use App\Http\Controllers\CiudadController;
@@ -12,7 +13,7 @@ use App\Http\Controllers\ImportarAcademiasController;
 use App\Http\Controllers\ImportarFidesController;
 use App\Http\Controllers\ImportarInscripcionesController;
 use App\Http\Controllers\ImportarMiembrosController;
-use App\Http\Controllers\TorneoImportController;
+use App\Http\Controllers\ImportarTorneosController;
 use App\Http\Controllers\MiembroController;
 use App\Http\Controllers\PartidaController;
 use App\Http\Controllers\Auth\PasswordRecoveryController;
@@ -23,7 +24,7 @@ use App\Http\Controllers\AdminController;
 
 // Redirección Home
 Route::get('/', function () {
-    return auth()->check() ? redirect('/home') : redirect('/login');
+    return Auth::check() ? redirect('/home') : redirect('/login');
 });
 
 // Autenticación
@@ -75,7 +76,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/importar/fides', [ImportarFidesController::class, 'importar']);
     Route::post('/importar/inscripciones', [ImportarInscripcionesController::class, 'importar']);
     Route::post('/importar/miembros', [ImportarMiembrosController::class, 'importar']);
-    Route::post('/importar-torneos', [TorneoImportController::class, 'importar'])->name('torneos.importar');
+    Route::post('/importar-torneos', [ImportarTorneosController::class, 'importar'])->name('torneos.importar');
 
     // Rutas para miembros
     Route::resource('miembros', MiembroController::class);

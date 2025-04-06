@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class LoginController extends Controller
 {
@@ -20,24 +21,18 @@ class LoginController extends Controller
             'correo' => 'required|email',
             'contrasena' => 'required',
         ]);
-        \Log::info('Intentando autenticar con:', $credentials);
     
-        if (Auth::attempt(['correo' => $request->correo, 'password' => $request->contrasena])) {
-            \Log::info('Usuario autenticado: ', ['user' => Auth::user()]);
+        if (Auth::attempt(['correo' => $request->correo, 'contrasena' => $request->contrasena])) {
             $request->session()->regenerate();
-          //  return $this->authenticated($request, Auth::user());
-          return redirect()->route('home'); 
+            return redirect()->route('home'); 
         }
 
-        \Log::info('Credenciales incorrectas.');
         return back()->withErrors([
             'correo' => 'Credenciales incorrectas.',
         ]);
-
     }
 
     protected function authenticated(Request $request, $user) {
-        \Log::info('Usuario autenticado con rol: ' . $user->rol_id);
 
        /* switch ($user->rol_id) {
             case 1: // Admin

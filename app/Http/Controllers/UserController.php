@@ -14,6 +14,7 @@ use App\Http\Resources\PermissionResource;
 use App\Services\AuditService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -102,7 +103,7 @@ class UserController extends Controller
     {
         return DB::transaction(function () use ($user) {
             AuditService::logUserAction(
-                auth()->user()->correo,
+                Auth::user()->correo,
                 $user,
                 'deleted'
             );

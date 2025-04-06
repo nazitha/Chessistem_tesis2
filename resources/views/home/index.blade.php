@@ -35,10 +35,11 @@
     <!-- Socket.io -->
     <script src="https://cdn.socket.io/4.3.2/socket.io.min.js"></script>
     <script>
-        const userData = @json([
-            'correo' => Auth::user()->correo,
-            'rol' => Auth::user()->rol_id
-        ]);
+        const userData = {
+            correo: '{{ Auth::user()->correo }}',
+            rol: '{{ Auth::user()->rol_id }}'
+        };
+        /* eslint-enable */
 
         // Configuración de Socket.io
         const socket = io('http://192.168.100.100:3001', {
