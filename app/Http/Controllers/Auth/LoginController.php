@@ -17,37 +17,70 @@ class LoginController extends Controller
 
     public function login(Request $request)
     {
-        $credentials = $request->validate([
+        \Illuminate\Support\Facades\Log::info('LoginController@login - Iniciando proceso de login');
+        \Illuminate\Support\Facades\Log::info('LoginController@login - Datos recibidos:', [
+            'correo' => $request->correo,
+            'contrasena' => '******' // No logueamos la contraseña por seguridad
+        ]);
+
+        // Validar los datos
+        $request->validate([
             'correo' => 'required|email',
             'contrasena' => 'required',
         ]);
     
-        if (Auth::attempt(['correo' => $request->correo, 'contrasena' => $request->contrasena])) {
+        // Buscar el usuario por correo
+        $user = \App\Models\User::where('correo', $request->correo)->first();
+        
+        \Illuminate\Support\Facades\Log::info('LoginController@login - Usuario encontrado:', [
+            'existe' => $user ? 'sí' : 'no',
+            'estado' => $user ? ($user->usuario_estado ? 'activo' : 'inactivo') : 'N/A'
+        ]);
+
+        // Verificar si el usuario existe y está activo
+        if (!$user || !$user->usuario_estado) {
+            \Illuminate\Support\Facades\Log::info('LoginController@login - Autenticación fallida: usuario no existe o inactivo');
+            return back()->withErrors([
+                'correo' => 'Credenciales incorrectas o usuario inactivo.',
+            ]);
+        }
+        
+        // Verificar si el usuario existe y la contraseña es correcta
+        if ($user->validateCredentials(['contrasena' => $request->contrasena])) {
+            // Iniciar sesión manualmente
+            Auth::login($user);
             $request->session()->regenerate();
-            return redirect()->route('home'); 
+            \Illuminate\Support\Facades\Log::info('LoginController@login - Usuario autenticado: ' . $user->id_email);
+            return $this->authenticated($request, $user);
         }
 
+        \Illuminate\Support\Facades\Log::info('LoginController@login - Autenticación fallida: contraseña incorrecta');
         return back()->withErrors([
             'correo' => 'Credenciales incorrectas.',
         ]);
     }
 
     protected function authenticated(Request $request, $user) {
-
-       /* switch ($user->rol_id) {
+        \Illuminate\Support\Facades\Log::info('LoginController@authenticated - Usuario: ' . $user->id . ', Rol: ' . $user->rol_id);
+        
+        switch ($user->rol_id) {
             case 1: // Admin
-                return redirect()->route('admin.dashboard');
+                \Illuminate\Support\Facades\Log::info('LoginController@authenticated - Redirigiendo a home (Admin)');
+                return redirect()->route('home');
             case 2: // Evaluador
-                return redirect()->route('evaluador.dashboard');
+                \Illuminate\Support\Facades\Log::info('LoginController@authenticated - Redirigiendo a home (Evaluador)');
+                return redirect()->route('home');
             case 3: // Estudiante
-                return redirect()->route('estudiante.dashboard');
+                \Illuminate\Support\Facades\Log::info('LoginController@authenticated - Redirigiendo a home (Estudiante)');
+                return redirect()->route('home');
             case 4: // Gestor
-                return redirect()->route('gestor.dashboard');
+                \Illuminate\Support\Facades\Log::info('LoginController@authenticated - Redirigiendo a home (Gestor)');
+                return redirect()->route('home');
             default: // Rol desconocido
+                \Illuminate\Support\Facades\Log::warning('LoginController@authenticated - Rol no reconocido: ' . $user->rol_id);
                 Auth::logout();
                 return redirect('/login')->withErrors(['error' => 'Rol no reconocido.']);
-        }*/
-        return redirect()->route('home'); // Redirige a la ruta de inicio por defecto
+        }
     }
    
     public function logout(Request $request)

@@ -10,9 +10,9 @@ class User extends Authenticatable
     use Notifiable;
 
     protected $table = 'usuarios';
-    protected $primaryKey = 'id_email'; 
-    public $incrementing = true; // Desactiva auto-incremento
-    protected $keyType = 'int'; // Tipo de clave primaria
+    protected $primaryKey = 'id_email';
+    public $incrementing = true;
+    protected $keyType = 'int';
 
     protected $fillable = [
         'correo',
@@ -26,19 +26,45 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    protected $casts = [
+        'usuario_estado' => 'boolean',
+    ];
+
+    /**
+     * Get the name of the unique identifier for the user.
+     */
     public function getAuthIdentifierName()
     {
-        return 'correo';
+        return 'id_email';
     }
+
+    /**
+     * Get the unique identifier for the user.
+     */
+    public function getAuthIdentifier()
+    {
+        return $this->{$this->getAuthIdentifierName()};
+    }
+
+    /**
+     * Get the password for the user.
+     */
     public function getAuthPassword()
     {
         return $this->contrasena;
     }
 
-       protected $casts = [
-        'usuario_estado' => 'boolean',
-        'fecha_creacion' => 'datetime', // Si tienes este campo
-    ];
+    /**
+     * Validate the user's credentials.
+     */
+    public function validateCredentials(array $credentials)
+    {
+        $plain = $credentials['password'] ?? $credentials['contrasena'] ?? null;
+        if (!$plain) {
+            return false;
+        }
+        return $this->contrasena === $plain;
+    }
 
     public function scopeActive($query)
     {

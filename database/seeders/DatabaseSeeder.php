@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\Role;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -15,9 +16,23 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        // Crear roles si no existen
+        $adminRole = Role::firstOrCreate(
+            ['id' => 1],
+            [
+                'nombre' => 'Administrador',
+                'descripcion' => 'Acceso total al sistema'
+            ]
+        );
+
+        // Crear usuario administrador
+        User::firstOrCreate(
+            ['correo' => 'admin@estrellasdelajedrez.com'],
+            [
+                'contrasena' => 'admin123',
+                'rol_id' => $adminRole->id,
+                'usuario_estado' => true
+            ]
+        );
     }
 }

@@ -30,7 +30,7 @@
                 <span>Ingrese sus credenciales</span>
                 <input id="input_correo_login" type="email" placeholder="Ingrese su correo electrónico" name="correo" required>
                 <div class="password">
-                    <input type="password" placeholder="Ingrese su contraseña" name="password" id="password" required>
+                    <input type="password" placeholder="Ingrese su contraseña" name="contrasena" id="password" required>
                 </div>
                 <button type="submit">Iniciar Sesión</button>
             </form>

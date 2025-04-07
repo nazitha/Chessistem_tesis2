@@ -1,42 +1,31 @@
-<div class="modal fade" id="modal_pais_ciudadessopc" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h1 class="modal-title fs-5" id="title_add_pais">Agregar país</h1>
-      </div>
-      <div class="modal-body">
-        <form action="" id="form_add_pais_ciudades" class="needs-validation" novalidate>
-            <div class="input-group mb-3">
-                <label class="input-group-text" for="select_paises">Paises:</label>
-                <select class="form-select" id="select_paises_opcciudades">
-                  <option selected>Choose...</option>
-                  <option value="1">One</option>
-                  <option value="2">Two</option>
-                  <option value="3">Three</option>
-                </select>
+<!-- Modal de País -->
+<div class="modal fade" id="paisModal" tabindex="-1" role="dialog" aria-labelledby="paisModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="paisModalLabel">Gestión de País</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
-
-            <div class="input-group mb-3">
-                <span class="input-group-text">País:</span>
-                <input id="input_nuevo_pais_opcciudades" type="text" class="form-control" aria-label="Campo para el pais a agregar" autocomplete="off" required>
-                <div class="invalid-feedback">
-                  Por favor, ingrese el nombre del país a agregar
-                </div>
+            <div class="modal-body">
+                <form id="formPais">
+                    @csrf
+                    <div class="form-group">
+                        <label for="nombre_pais">Nombre del País</label>
+                        <input type="text" class="form-control" id="nombre_pais" name="nombre_pais" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="codigo_pais">Código del País (ISO)</label>
+                        <input type="text" class="form-control" id="codigo_pais" name="codigo_pais" maxlength="2" required>
+                        <small class="form-text text-muted">Código ISO de 2 letras (ej. ES, US, MX)</small>
+                    </div>
+                </form>
             </div>
-
             <div class="modal-footer">
-
-                <button type="submit" style="background-color: #1e2936; color: white; border: 1px 
-                    solid transparent; padding: 0.375rem 0.75rem; font-size: 1rem; 
-                    font-weight: 400; line-height: 1.5; border-radius: 0.25rem; text-align: center; 
-                    vertical-align: middle; cursor: pointer; display: inline-block; transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;"
-                    >Agregar</button>
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
-
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" onclick="guardarPais()">Guardar</button>
             </div>
-
-        </form>
-      </div>
+        </div>
     </div>
-  </div>
 </div>

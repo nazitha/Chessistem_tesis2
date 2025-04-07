@@ -10,11 +10,12 @@ use App\Http\Requests\UserUpdateRequest;
 use App\Http\Requests\PermissionRequest;
 use App\Http\Resources\UserResource;
 use App\Http\Resources\RoleResource;
-use App\Http\Resources\PermissionResource;
 use App\Services\AuditService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
@@ -111,5 +112,58 @@ class UserController extends Controller
             $user->delete();
             return response()->json(['success' => true]);
         });
+    }
+
+    /**
+     * Display the user's profile.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function profile()
+    {
+        $user = Auth::user();
+        return view('users.profile', compact('user'));
+    }
+
+    /**
+     * Asignar permisos a un usuario.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function asignarPermisos(Request $request)
+    {
+        try {
+            $request->validate([
+                'user_id' => 'required|exists:users,id',
+                'rol_id' => 'required|in:1,2,3,4',
+                'permisos' => 'required|array'
+            ]);
+
+            $user = User::findOrFail($request->user_id);
+            $user->rol_id = $request->rol_id;
+            $user->save();
+
+            // Aquí puedes agregar lógica adicional para guardar los permisos específicos
+            // en una tabla de permisos si es necesario
+
+            Log::info('Permisos asignados correctamente', [
+                'user_id' => $user->id,
+                'rol_id' => $user->rol_id,
+                'permisos' => $request->permisos
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Permisos asignados correctamente'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error al asignar permisos: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al asignar permisos: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

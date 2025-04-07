@@ -16,11 +16,23 @@ class CheckUserRole
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
     public function handle($request, Closure $next, ...$guards) {
-        Log::info('Middleware Authenticate: Verificando autenticación');
+        Log::info('CheckUserRole::handle - Inicio del middleware', [
+            'path' => $request->path(),
+            'method' => $request->method()
+        ]);
+
         if (!Auth::check()) {
-            Log::info('Usuario no autenticado, redirigiendo a login');
+            Log::error('CheckUserRole::handle - Usuario no autenticado');
             return redirect()->route('login');
         }
+
+        $user = Auth::user();
+        Log::info('CheckUserRole::handle - Usuario autenticado:', [
+            'id' => $user->id_email,
+            'correo' => $user->correo,
+            'rol' => $user->rol_id
+        ]);
+
         return $next($request);
     }
 }
