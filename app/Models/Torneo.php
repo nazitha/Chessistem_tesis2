@@ -15,6 +15,8 @@ class Torneo extends Model
         'hora_inicio',
         'categoriaTorneo_id',
         'sistema_emparejamiento_id',
+        'control_tiempo_id',
+        'federacion_id',
         'lugar',
         'no_rondas',
         'organizador_id',
@@ -77,6 +79,11 @@ class Torneo extends Model
         return $this->belongsTo(Miembro::class, 'director_torneo_id', 'cedula');
     }
 
+    public function director()
+    {
+        return $this->directorTorneo();
+    }
+
     public function arbitro()
     {
         return $this->belongsTo(Miembro::class, 'arbitro_id', 'cedula');
@@ -100,6 +107,16 @@ class Torneo extends Model
     public function participantes()
     {
         return $this->hasMany(Participante::class);
+    }
+
+    public function controlTiempo()
+    {
+        return $this->belongsTo(ControlTiempo::class, 'control_tiempo_id', 'id_control_tiempo');
+    }
+
+    public function federacion()
+    {
+        return $this->belongsTo(Federacion::class, 'federacion_id', 'acronimo');
     }
 
 }

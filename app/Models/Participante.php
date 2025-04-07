@@ -9,7 +9,7 @@ class Participante extends Model
     protected $table = 'participantes';
     public $timestamps = false;
 
-    protected $fillable = ['participante_id', 'torneo_id'];
+    protected $fillable = ['miembro_id', 'torneo_id', 'puntos', 'posicion'];
 
     public function torneo()
     {
@@ -18,6 +18,6 @@ class Participante extends Model
 
     public function miembro()
     {
-        return $this->belongsTo(Miembro::class, 'participante_id', 'cedula');
+        return $this->belongsTo(Miembro::class, 'miembro_id', 'cedula');
     }
 }

@@ -20,15 +20,20 @@ class Auditoria extends Model
         'equipo'
     ];
 
+    protected $casts = [
+        'fecha' => 'date',
+        'hora' => 'time'
+    ];
+
     protected $appends = ['tiempo'];
 
     public function getTiempoAttribute()
     {
-        return $this->fecha . ', ' . date('h:i:s A', strtotime($this->hora));
+        return $this->fecha->format('Y-m-d') . ', ' . date('h:i:s A', strtotime($this->hora));
     }
 
-    public function miembro()
+    public function usuario()
     {
-        return $this->belongsTo(Miembro::class, 'correo_id', 'correo_sistema_id');
+        return $this->belongsTo(User::class, 'correo_id', 'correo');
     }
 }

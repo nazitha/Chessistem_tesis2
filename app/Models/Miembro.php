@@ -17,6 +17,8 @@ class Miembro extends Model
         'nombres',
         'apellidos',
         'sexo',
+        'fecha_nacimiento',
+        'fecha_inscripcion',
         'estado_miembro',
         'correo_sistema_id'
     ];

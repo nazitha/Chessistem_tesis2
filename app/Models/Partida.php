@@ -21,13 +21,23 @@ class Partida extends Model
         'resultado'
     ];
 
+    protected $casts = [
+        'estado_abandono' => 'boolean',
+        'resultado' => 'float'
+    ];
+
     public function participante()
     {
-        return $this->belongsTo(Participante::class);
+        return $this->belongsTo(Miembro::class, 'participante_id', 'cedula');
     }
 
     public function torneo()
     {
-        return $this->belongsTo(Torneo::class);
+        return $this->belongsTo(Torneo::class, 'torneo_id', 'id_torneo');
+    }
+
+    public function sistemaDesempate()
+    {
+        return $this->belongsTo(SistemaDesempate::class, 'desempate_utilizado_id', 'id_desempate');
     }
 }
