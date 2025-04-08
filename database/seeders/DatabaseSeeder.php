@@ -34,5 +34,10 @@ class DatabaseSeeder extends Seeder
                 'usuario_estado' => true
             ]
         );
+
+        $this->call([
+            RoleSeeder::class,
+            UserSeeder::class,
+        ]);
     }
 }

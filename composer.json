@@ -7,8 +7,12 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "getbrevo/brevo-php": "*",
+        "google/apiclient": "*",
         "laravel/framework": "^12.0",
+        "laravel/socialite": "^5.19",
         "laravel/tinker": "^2.10.1",
+        "sendinblue/api-v3-sdk": "*",
         "symfony/http-kernel": "^7.2"
     },
     "require-dev": {

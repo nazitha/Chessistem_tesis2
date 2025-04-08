@@ -11,27 +11,37 @@
 </head>
 <body>
     <div class="container" id="container">
-        <!-- Mensajes de éxito o error -->
-        @if ($errors->any())
-            <div class="alert alert-danger">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-
         <!-- Formulario de inicio de sesión -->
         <div class="login-form">
-            <form method="POST" action="{{ route('login.submit') }}">
+            <form method="POST" action="{{ route('login.submit') }}" id="loginForm">
                 @csrf
                 <h1 id="estrellas">Estrellas del Ajedrez</h1>
                 <span>Ingrese sus credenciales</span>
-                <input id="input_correo_login" type="email" placeholder="Ingrese su correo electrónico" name="correo" required>
+                
+                <input id="input_correo_login" 
+                       type="email" 
+                       placeholder="Ingrese su correo electrónico" 
+                       name="correo" 
+                       required 
+                       value="{{ old('correo') }}">
                 <div class="password">
-                    <input type="password" placeholder="Ingrese su contraseña" name="contrasena" id="password" required>
+                    <input type="password" 
+                           placeholder="Ingrese su contraseña" 
+                           name="contrasena" 
+                           id="password" 
+                           required>
+                    <img src="{{ asset('img/icons8-hide-password-50.png') }}" 
+                         class="pass-icon" 
+                         onclick="togglePassword()" 
+                         alt="Toggle password visibility">
                 </div>
+
+                @if ($errors->any())
+                    <div class="alert alert-danger">
+                        {{ $errors->first() }}
+                    </div>
+                @endif
+
                 <button type="submit">Iniciar Sesión</button>
             </form>
         </div>
@@ -42,7 +52,7 @@
                 <div class="complement-panel complement-right">
                     <h1>Bienvenido</h1>
                     <p>¿Olvidaste tu contraseña?</p>
-                    <button class="hidden" id="register">Recuperar contraseña</button>
+                    <a href="{{ route('password.request') }}">RECUPERAR CONTRASEÑA</a>
                 </div>
 
                 <div class="complement-panel complement-left">
@@ -53,5 +63,34 @@
             </div>
         </div>
     </div>
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.querySelector('.pass-icon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.style.opacity = '0.6';
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.style.opacity = '0.9';
+            }
+        }
+
+        // Limpiar mensaje de error cuando el usuario empiece a escribir
+        document.getElementById('input_correo_login').addEventListener('input', function() {
+            const alert = document.querySelector('.alert');
+            if (alert) {
+                alert.style.display = 'none';
+            }
+        });
+
+        document.getElementById('password').addEventListener('input', function() {
+            const alert = document.querySelector('.alert');
+            if (alert) {
+                alert.style.display = 'none';
+            }
+        });
+    </script>
 </body>
 </html>

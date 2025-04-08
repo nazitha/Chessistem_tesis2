@@ -33,6 +33,12 @@ Route::get('/', function () {
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login'])->name('login.submit');
+    
+    // Rutas de recuperación de contraseña
+    Route::get('/password/reset', [PasswordRecoveryController::class, 'showForm'])->name('password.request');
+    Route::post('/password/email', [PasswordRecoveryController::class, 'recoverPassword'])->name('password.email');
+    Route::get('/password/reset/{token}', [PasswordRecoveryController::class, 'showResetForm'])->name('password.reset');
+    Route::put('/password/update', [PasswordRecoveryController::class, 'resetPassword'])->name('password.update');
 });
 
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
@@ -70,7 +76,8 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // Rutas para recuperar contraseña
-    Route::post('/password-recovery', [PasswordRecoveryController::class, 'recoverPassword']);
+    Route::get('/password-recovery', [PasswordRecoveryController::class, 'showForm'])->name('password.recovery');
+    Route::post('/password-recovery', [PasswordRecoveryController::class, 'recoverPassword'])->name('password.recovery.send');
 
     // Rutas para ciudades
     Route::resource('ciudades', CiudadController::class);
@@ -107,6 +114,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/asignar-permiso', [UserController::class, 'assignPermission']);
     Route::delete('/remover-permiso', [UserController::class, 'removePermission']);
 });
+
+// Rutas de autenticación de Google para recuperación de contraseña
+Route::get('/auth/google', [PasswordRecoveryController::class, 'redirectToGoogle'])->name('google.auth');
+Route::get('/auth/google/callback', [PasswordRecoveryController::class, 'handleGoogleCallback'])->name('google.callback');
 
 /*Route::middleware(['auth'])->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');

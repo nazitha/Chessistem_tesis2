@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Hash;
 
 class LoginController extends Controller
 {
@@ -17,12 +18,8 @@ class LoginController extends Controller
 
     public function login(Request $request)
     {
-        \Illuminate\Support\Facades\Log::info('LoginController@login - Iniciando proceso de login');
-        \Illuminate\Support\Facades\Log::info('LoginController@login - Datos recibidos:', [
-            'correo' => $request->correo,
-            'contrasena' => '******' // No logueamos la contraseña por seguridad
-        ]);
-
+        Log::info('LoginController@login - Iniciando proceso de login');
+        
         // Validar los datos
         $request->validate([
             'correo' => 'required|email',
@@ -32,29 +29,29 @@ class LoginController extends Controller
         // Buscar el usuario por correo
         $user = \App\Models\User::where('correo', $request->correo)->first();
         
-        \Illuminate\Support\Facades\Log::info('LoginController@login - Usuario encontrado:', [
+        Log::info('LoginController@login - Usuario encontrado:', [
             'existe' => $user ? 'sí' : 'no',
             'estado' => $user ? ($user->usuario_estado ? 'activo' : 'inactivo') : 'N/A'
         ]);
 
         // Verificar si el usuario existe y está activo
         if (!$user || !$user->usuario_estado) {
-            \Illuminate\Support\Facades\Log::info('LoginController@login - Autenticación fallida: usuario no existe o inactivo');
+            Log::info('LoginController@login - Autenticación fallida: usuario no existe o inactivo');
             return back()->withErrors([
                 'correo' => 'Credenciales incorrectas o usuario inactivo.',
             ]);
         }
         
-        // Verificar si el usuario existe y la contraseña es correcta
-        if ($user->validateCredentials(['contrasena' => $request->contrasena])) {
+        // Verificar la contraseña usando Hash::check
+        if (Hash::check($request->contrasena, $user->contrasena)) {
             // Iniciar sesión manualmente
             Auth::login($user);
             $request->session()->regenerate();
-            \Illuminate\Support\Facades\Log::info('LoginController@login - Usuario autenticado: ' . $user->id_email);
+            Log::info('LoginController@login - Usuario autenticado: ' . $user->id_email);
             return $this->authenticated($request, $user);
         }
 
-        \Illuminate\Support\Facades\Log::info('LoginController@login - Autenticación fallida: contraseña incorrecta');
+        Log::info('LoginController@login - Autenticación fallida: contraseña incorrecta');
         return back()->withErrors([
             'correo' => 'Credenciales incorrectas.',
         ]);

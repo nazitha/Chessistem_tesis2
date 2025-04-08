@@ -11,17 +11,16 @@ class PasswordRecoveryMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $newPassword;
+    public $token;
 
-    public function __construct($newPassword)
+    public function __construct($token)
     {
-        $this->newPassword = $newPassword;
+        $this->token = $token;
     }
 
     public function build()
     {
-        return $this->subject('Recuperación de contraseña')
-            ->view('emails.password_recovery')
-            ->from('noreply@chestsystem.com', 'Sistema Chess');
+        return $this->view('emails.password-recovery')
+                    ->subject('Recuperación de Contraseña - Estrellas del Ajedrez');
     }
 }

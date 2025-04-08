@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Hash;
 
 class User extends Authenticatable
 {
@@ -55,6 +56,16 @@ class User extends Authenticatable
     }
 
     /**
+     * Set the password attribute.
+     */
+    public function setContrasenaAttribute($value)
+    {
+        if (!empty($value)) {
+            $this->attributes['contrasena'] = Hash::make($value);
+        }
+    }
+
+    /**
      * Validate the user's credentials.
      */
     public function validateCredentials(array $credentials)
@@ -63,7 +74,7 @@ class User extends Authenticatable
         if (!$plain) {
             return false;
         }
-        return $this->contrasena === $plain;
+        return Hash::check($plain, $this->contrasena);
     }
 
     public function scopeActive($query)
