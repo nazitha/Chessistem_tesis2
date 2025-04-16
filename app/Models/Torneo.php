@@ -3,32 +3,43 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\CategoriaTorneo;
+use App\Models\Miembro;
+use App\Models\ControlTiempo;
+use App\Models\Federacion;
+use App\Models\Emparejamiento;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Torneo extends Model
 {
+    use HasFactory;
+
     protected $table = 'torneos';
     public $timestamps = false;
 
     protected $fillable = [
-        'nombre_torneo',
-        'fecha_inicio',
-        'hora_inicio',
-        'categoriaTorneo_id',
-        'sistema_emparejamiento_id',
+        'categoria_torneo_id',
+        'miembro_id',
         'control_tiempo_id',
         'federacion_id',
+        'emparejamiento_id',
+        'nombre',
+        'fecha_inicio',
+        'fecha_fin',
         'lugar',
-        'no_rondas',
-        'organizador_id',
-        'director_torneo_id',
-        'arbitro_id',
-        'arbitro_principal_id',
-        'arbitro_adjunto_id',
-        'estado_torneo'
+        'estado',
+        'descripcion',
+        'rondas',
+        'ritmo_juego',
+        'tiempo_espera',
+        'tipo_torneo',
+        'elo_minimo',
+        'elo_maximo'
     ];
 
     protected $casts = [
-        'fecha_inicio' => 'date:Y-m-d',
+        'fecha_inicio' => 'date',
         'hora_inicio' => 'datetime',
         'estado_torneo' => 'boolean'
     ];
@@ -38,14 +49,14 @@ class Torneo extends Model
         return $query->with([
             'categoria',
             'organizador',
-            'arbitro',
-            'arbitroPrincipal',
-            'arbitroAdjunto',
-            'director',
             'controlTiempo',
-            'sistemaEmparejamiento',
-            'federacion'
-         ]);
+            'directorTorneo',
+            'arbitroPrincipal',
+            'arbitro',
+            'arbitroAdjunto',
+            'federacion',
+            'emparejamiento'
+        ]);
     }
 
     // Accesores
@@ -61,17 +72,17 @@ class Torneo extends Model
 
     public function categoria()
     {
-        return $this->belongsTo(CategoriaTorneo::class, 'categoriaTorneo_id', 'id_torneo_categoria');
+        return $this->belongsTo(CategoriaTorneo::class, 'categoria_torneo_id', 'id_torneo_categoria');
     }
 
-    public function sistemaEmparejamiento()
+    public function emparejamiento(): BelongsTo
     {
-        return $this->belongsTo(Emparejamiento::class, 'sistema_emparejamiento_id', 'id_emparejamiento');
+        return $this->belongsTo(Emparejamiento::class);
     }
 
     public function organizador()
     {
-        return $this->belongsTo(Miembro::class, 'organizador_id', 'cedula');
+        return $this->belongsTo(Miembro::class, 'miembro_id', 'cedula');
     }
 
     public function directorTorneo()
@@ -101,7 +112,7 @@ class Torneo extends Model
 
     public function scopeActivo($query)
     {
-    return $query->where('estado_torneo', true);
+        return $query->where('estado_torneo', true);
     }
     
     public function participantes()

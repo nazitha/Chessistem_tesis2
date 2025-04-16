@@ -1,35 +1,31 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="min-h-screen bg-gray-100">
+<div class="min-h-screen bg-gray-50">
     <!-- Navegación superior -->
-    <nav class="bg-white shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <nav class="bg-white border-b">
+        <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between h-16">
-                <div class="flex">
-                    <div class="flex-shrink-0 flex items-center">
+                <div class="flex items-center space-x-8">
+                    <div class="flex-shrink-0">
                         <img class="h-16 w-auto" src="{{ asset('img/estrellas_del_ajedrez_logo.png') }}" alt="Escuela Estrellas del Ajedrez">
                     </div>
-                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
-                        <a href="{{ route('home') }}" class="border-indigo-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                            Dashboard
-                        </a>
-                        @if(Auth::user()->rol_id == 1)
-                        <a href="{{ route('torneos.index') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                            Torneos
-                        </a>
-                        <a href="{{ route('usuarios.index') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                            Usuarios
-                        </a>
-                        @endif
+                    <div class="flex space-x-8">
+                        <a href="{{ route('home') }}" class="border-b-2 border-indigo-500 text-gray-900 px-1 pt-1 text-sm font-medium">Home</a>
+                        <a href="{{ route('usuarios.index') }}" class="text-gray-500 hover:text-gray-700 px-1 pt-1 text-sm font-medium">Usuarios</a>
+                        <a href="{{ route('miembros.index') }}" class="text-gray-500 hover:text-gray-700 px-1 pt-1 text-sm font-medium">Miembros</a>
+                        <a href="{{ route('fides.index') }}" class="text-gray-500 hover:text-gray-700 px-1 pt-1 text-sm font-medium">FIDES</a>
+                        <a href="{{ route('torneos.index') }}" class="text-gray-500 hover:text-gray-700 px-1 pt-1 text-sm font-medium">Torneos</a>
                     </div>
                 </div>
                 <div class="flex items-center">
-                    <form method="POST" action="{{ route('logout') }}">
+                    <span class="text-gray-500 text-sm mr-4">Bienvenido, {{ Auth::user()->correo }}</span>
+                    <a href="{{ route('logout') }}" class="text-gray-500 hover:text-gray-700 text-sm font-medium" 
+                       onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                        Cerrar Sesión
+                    </a>
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
                         @csrf
-                        <button type="submit" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                            Cerrar Sesión
-                        </button>
                     </form>
                 </div>
             </div>
@@ -37,62 +33,274 @@
     </nav>
 
     <!-- Contenido principal -->
-    <div class="py-10">
-        <header>
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <h1 class="text-3xl font-bold leading-tight text-gray-900">Dashboard</h1>
-                <p class="mt-2 text-gray-600">Bienvenido al sistema de gestión de torneos de ajedrez</p>
-            </div>
-        </header>
-        <main>
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <!-- Grid de tarjetas -->
-                <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                    @foreach($dashboardCards as $card)
-                    <div class="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow duration-300">
-                        <a href="{{ route($card['route']) }}" class="block p-6">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0 bg-indigo-500 rounded-md p-3">
-                                    <i class="fas fa-{{ $card['icon'] }} text-white text-xl"></i>
-                                </div>
-                                <div class="ml-4">
-                                    <h3 class="text-lg font-medium text-gray-900">{{ $card['title'] }}</h3>
-                                    <p class="mt-1 text-sm text-gray-500">{{ $card['description'] }}</p>
-                                </div>
-                            </div>
-                        </a>
+    <div class="max-w-7xl mx-auto px-4 py-6">
+        <h1 class="text-2xl font-semibold text-gray-900">Dashboard</h1>
+        <p class="text-gray-600 mt-1">Bienvenido al sistema de gestión de torneos de ajedrez</p>
+
+        <!-- Tarjetas principales -->
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <a href="{{ route('profile') }}" class="block bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow duration-200">
+                <div class="flex items-start">
+                    <div class="p-2 bg-blue-100 rounded-lg">
+                        <i class="fas fa-user-circle text-blue-600 text-xl"></i>
                     </div>
-                    @endforeach
+                    <div class="ml-4">
+                        <h3 class="text-lg font-medium text-gray-900">Mi Perfil</h3>
+                        <p class="text-gray-600 mt-1">Edita tu perfil</p>
+                    </div>
+                </div>
+            </a>
+
+            <a href="{{ route('usuarios.index') }}" class="block bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow duration-200">
+                <div class="flex items-start">
+                    <div class="p-2 bg-blue-100 rounded-lg">
+                        <i class="fas fa-users-cog text-blue-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-lg font-medium text-gray-900">Usuarios</h3>
+                        <p class="text-gray-600 mt-1">Gestión de usuarios del sistema</p>
+                    </div>
+                </div>
+            </a>
+
+            <a href="{{ route('academias.index') }}" class="block bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow duration-200">
+                <div class="flex items-start">
+                    <div class="p-2 bg-blue-100 rounded-lg">
+                        <i class="fas fa-graduation-cap text-blue-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-lg font-medium text-gray-900">Academias</h3>
+                        <p class="text-gray-600 mt-1">Ver y editar academias</p>
+                    </div>
+                </div>
+            </a>
+
+            <a href="{{ route('torneos.index') }}" class="block bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow duration-200">
+                <div class="flex items-start">
+                    <div class="p-2 bg-blue-100 rounded-lg">
+                        <i class="fas fa-chess text-blue-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-lg font-medium text-gray-900">Torneos</h3>
+                        <p class="text-gray-600 mt-1">Administración de torneos</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Acciones Rápidas -->
+        <div class="mt-8">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-medium text-gray-900 mb-4">Acciones Rápidas</h2>
+                <div class="grid grid-cols-4 gap-4">
+                    <a href="{{ route('torneos.create') }}" class="inline-block text-center py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600">
+                        <i class="fas fa-trophy mr-2"></i>
+                        Nuevo Torneo
+                    </a>
+                    <a href="{{ route('academias.index') }}" class="inline-block text-center py-2 px-4 bg-green-500 text-white rounded hover:bg-green-600">
+                        <i class="fas fa-school mr-2"></i>
+                        Gestionar Academias
+                    </a>
+                    <a href="{{ route('miembros.index') }}" class="inline-block text-center py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600">
+                        <i class="fas fa-users mr-2"></i>
+                        Gestionar Miembros
+                    </a>
+                    <a href="{{ route('inscripciones.index') }}" class="inline-block text-center py-2 px-4 bg-gray-500 text-white rounded hover:bg-gray-600">
+                        <i class="fas fa-clipboard-list mr-2"></i>
+                        Ver Inscripciones
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estadísticas -->
+        <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Rendimiento en Torneos -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-lg font-medium text-gray-900">Rendimiento en Torneos</h2>
+                    <button class="text-gray-400 hover:text-gray-500">
+                        <i class="fas fa-expand"></i>
+                    </button>
+                </div>
+                <div class="grid grid-cols-3 gap-8">
+                    <div class="text-center">
+                        <p style="color: #FF6B00;" class="text-2xl font-semibold">0</p>
+                        <p class="text-gray-600">Partidas Jugadas</p>
+                    </div>
+                    <div class="text-center">
+                        <p style="color: #00A651;" class="text-2xl font-semibold">0</p>
+                        <p class="text-gray-600">Victorias</p>
+                    </div>
+                    <div class="text-center">
+                        <p style="color: #0D6EFD;" class="text-2xl font-semibold">1200</p>
+                        <p class="text-gray-600">Rating ELO</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Análisis de Partidas -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-lg font-medium text-gray-900">Análisis de Partidas</h2>
+                    <a href="#" class="text-blue-600 hover:text-blue-700">Ver todas las partidas</a>
+                </div>
+                <p class="text-gray-600">No hay partidas analizadas recientemente</p>
+            </div>
+        </div>
+        
+        <!-- Entrenamiento y Progreso -->
+        <div class="mt-8">
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-lg font-medium text-gray-900">Entrenamiento y Progreso</h2>
+                    <div class="flex space-x-2">
+                        <button class="text-gray-400 hover:text-gray-500">
+                            <i class="fas fa-compress"></i>
+                        </button>
+                        <button class="text-blue-500 hover:text-blue-600">
+                            <i class="fas fa-expand"></i>
+                        </button>
+                    </div>
                 </div>
 
-                @if(Auth::user()->rol_id == 1)
-                <!-- Sección de acciones rápidas para administradores -->
-                <div class="mt-8">
-                    <h2 class="text-lg font-medium text-gray-900 mb-4">Acciones Rápidas</h2>
-                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                        <a href="{{ route('torneos.create') }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
-                            <i class="fas fa-plus mr-2"></i>
-                            Nuevo Torneo
-                        </a>
-                        <a href="{{ route('academias.index') }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700">
-                            <i class="fas fa-school mr-2"></i>
-                            Gestionar Academias
-                        </a>
-                        <a href="{{ route('miembros.index') }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
-                            <i class="fas fa-users mr-2"></i>
-                            Gestionar Miembros
-                        </a>
-                        <a href="{{ route('inscripciones.index') }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700">
-                            <i class="fas fa-clipboard-list mr-2"></i>
-                            Ver Inscripciones
-                        </a>
+                <div class="flex justify-between gap-4">
+                    <!-- Ejercicios Tácticos -->
+                    <div class="w-1/3 bg-gray-50 rounded-lg p-4">
+                        <h3 class="text-base font-medium text-gray-900">Ejercicios Tácticos</h3>
+                        <p class="text-sm text-gray-500 mb-2">Completados</p>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm text-blue-500">0/100</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-1">
+                            <div class="bg-blue-500 h-1 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Aperturas -->
+                    <div class="w-1/3 bg-gray-50 rounded-lg p-4">
+                        <h3 class="text-base font-medium text-gray-900">Aperturas</h3>
+                        <p class="text-sm text-gray-500 mb-2">En progreso</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-green-500">0</span>
+                            <a href="#" class="text-sm text-blue-500 hover:text-blue-600">Practicar apertura</a>
+                        </div>
+                    </div>
+
+                    <!-- Finales -->
+                    <div class="w-1/3 bg-gray-50 rounded-lg p-4">
+                        <h3 class="text-base font-medium text-gray-900">Finales</h3>
+                        <p class="text-sm text-gray-500 mb-2">Temas dominados</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-blue-300">0/10</span>
+                            <a href="#" class="text-sm text-blue-500 hover:text-blue-600">Practicar finales</a>
+                        </div>
                     </div>
                 </div>
-                @endif
             </div>
-        </main>
+        </div>
     </div>
-</div>
+
+<!-- Footer -->
+<footer class="bg-white text-gray-900 mt-8">
+    <div class="max-w-7xl mx-auto">
+        <!-- Top Footer Section -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8 px-4 py-8">
+            <!-- About Section -->
+            <div class="space-y-3">
+                <div class="flex items-center space-x-2">
+                    <img src="{{ asset('img/estrellas_del_ajedrez_logo.png') }}" alt="Logo" class="h-8 w-auto">
+                    <h3 class="text-base font-bold">Estrellas del Ajedrez</h3>
+                </div>
+                <p class="text-gray-900 text-xs leading-relaxed">
+                    Sistema integral de gestión de torneos de ajedrez.
+                </p>
+            </div>
+
+            <!-- Soporte -->
+            <div class="space-y-3">
+                <h3 class="text-base font-bold border-b border-blue-500 pb-1">Soporte</h3>
+                <ul class="space-y-2 text-sm">
+                    <li class="flex items-center text-gray-900">
+                        <div class="h-6 w-6 rounded-full bg-blue-500/10 flex items-center justify-center mr-2">
+                            <i class="fas fa-headset text-blue-500 text-xs"></i>
+                        </div>
+                        <span>Nazarethgarcia53@gmail.com</span>
+                    </li>
+                    <li class="flex items-center text-gray-900">
+                        <div class="h-6 w-6 rounded-full bg-blue-500/10 flex items-center justify-center mr-2">
+                            <i class="fas fa-headset text-blue-500 text-xs"></i>
+                        </div>
+                        <span>engellargaespadavargas@gmail.com</span>
+                    </li>
+                    <li class="flex items-center text-gray-900">
+                        <div class="h-6 w-6 rounded-full bg-blue-500/10 flex items-center justify-center mr-2">
+                            <i class="fas fa-clock text-blue-500 text-xs"></i>
+                        </div>
+                        <span>Lun - Vie: 8:00 AM - 5:00 PM</span>
+                    </li>
+                    <li class="flex items-center text-gray-900">
+                        <div class="h-6 w-6 rounded-full bg-blue-500/10 flex items-center justify-center mr-2">
+                            <i class="fas fa-phone text-blue-500 text-xs"></i>
+                        </div>
+                        <span>+505 8440 3893</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Instructor Info -->
+            <div class="space-y-3">
+                <h3 class="text-base font-bold border-b border-blue-500 pb-1">Instructor Fide</h3>
+                <ul class="space-y-2 text-sm">
+                    <li class="flex items-center text-gray-900">
+                        <div class="h-6 w-6 rounded-full bg-blue-500/10 flex items-center justify-center mr-2">
+                            <i class="fas fa-envelope text-blue-500 text-xs"></i>
+                        </div>
+                        <span>Nazarethgarcia53@gmail.com</span>
+                    </li>
+                    <li class="flex items-center text-gray-900">
+                        <div class="h-6 w-6 rounded-full bg-blue-500/10 flex items-center justify-center mr-2">
+                            <i class="fas fa-phone text-blue-500 text-xs"></i>
+                        </div>
+                        <span>+505 8440 3892</span>
+                    </li>
+                    <li class="flex items-center text-gray-900">
+                        <div class="h-6 w-6 rounded-full bg-blue-500/10 flex items-center justify-center mr-2">
+                            <i class="fas fa-map-marker-alt text-blue-500 text-xs"></i>
+                        </div>
+                        <span>Managua, Nicaragua</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Social Links -->
+            <div class="space-y-3">
+                <h3 class="text-base font-bold border-b border-blue-500 pb-1">Síguenos</h3>
+                <div class="flex space-x-3">
+                    <a href="#" class="h-8 w-8 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 hover:bg-blue-500 hover:text-white transition-colors duration-200">
+                        <i class="fab fa-facebook-f text-sm"></i>
+                    </a>
+                    <a href="#" class="h-8 w-8 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 hover:bg-blue-500 hover:text-white transition-colors duration-200">
+                        <i class="fab fa-twitter text-sm"></i>
+                    </a>
+                    <a href="#" class="h-8 w-8 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 hover:bg-blue-500 hover:text-white transition-colors duration-200">
+                        <i class="fab fa-instagram text-sm"></i>
+                    </a>
+                </div>
+                <p class="text-gray-900 text-xs leading-relaxed">
+                    Siguenos en nuestras redes sociales, no te pierdas de las novedades.
+                </p>
+            </div>
+        </div>
+
+        <!-- Bottom Footer -->
+        <div class="border-t border-gray-800">
+            <div class="px-4 py-3 text-center text-xs text-gray-900">
+                <p>&copy; {{ date('Y') }} Escuela Estrellas del Ajedrez. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </div>
+</footer>
 
 @include('modals.miembros_modal')
 @include('modals.pais_modal')

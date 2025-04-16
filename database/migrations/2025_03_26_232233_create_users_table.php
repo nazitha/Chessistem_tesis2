@@ -8,11 +8,12 @@ return new class extends Migration {
     public function up()
     {
         Schema::create('usuarios', function (Blueprint $table) {
-            $table->id('id_email'); 
-            $table->string('correo', 40)->unique(); 
+            $table->id('id_email');
+            $table->string('correo', 40)->unique();
             $table->string('contrasena', 80);
             $table->unsignedBigInteger('rol_id')->nullable();
-            $table->boolean('usuario_estado')->default(true); 
+            $table->boolean('usuario_estado')->default(true);
+            $table->integer('intentos_updatePass')->nullable();
             $table->rememberToken();
             $table->timestamps();
 

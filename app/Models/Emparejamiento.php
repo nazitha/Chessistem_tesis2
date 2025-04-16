@@ -7,10 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 class Emparejamiento extends Model
 {
     protected $table = 'sistemas_de_emparejamiento';
-    protected $primaryKey = 'id_emparejamiento';
     public $timestamps = false;
+    protected $primaryKey = 'id_emparejamiento';
 
-    protected $fillable = ['sistema'];
+    protected $fillable = [
+        'sistema',
+        'descripcion'
+    ];
 
     public function torneos()
     {

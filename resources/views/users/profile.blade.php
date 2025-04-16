@@ -3,33 +3,29 @@
 @section('content')
 <div class="min-h-screen bg-gray-100">
     <!-- Navegación superior -->
-    <nav class="bg-white shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <nav class="bg-white border-b">
+        <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between h-16">
-                <div class="flex">
-                    <div class="flex-shrink-0 flex items-center">
+                <div class="flex items-center space-x-8">
+                    <div class="flex-shrink-0">
                         <img class="h-16 w-auto" src="{{ asset('img/estrellas_del_ajedrez_logo.png') }}" alt="Escuela Estrellas del Ajedrez">
                     </div>
-                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
-                        <a href="{{ route('home') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                            Dashboard
-                        </a>
-                        @if(Auth::user()->rol_id == 1)
-                        <a href="{{ route('torneos.index') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                            Torneos
-                        </a>
-                        <a href="{{ route('usuarios.index') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                            Usuarios
-                        </a>
-                        @endif
+                    <div class="flex space-x-8">
+                        <a href="{{ route('home') }}" class="border-b-2 border-indigo-500 text-gray-900 px-1 pt-1 text-sm font-medium">Home</a>
+                        <a href="{{ route('usuarios.index') }}" class="text-gray-500 hover:text-gray-700 px-1 pt-1 text-sm font-medium">Usuarios</a>
+                        <a href="{{ route('miembros.index') }}" class="text-gray-500 hover:text-gray-700 px-1 pt-1 text-sm font-medium">Miembros</a>
+                        <a href="{{ route('fides.index') }}" class="text-gray-500 hover:text-gray-700 px-1 pt-1 text-sm font-medium">FIDES</a>
+                        <a href="{{ route('torneos.index') }}" class="text-gray-500 hover:text-gray-700 px-1 pt-1 text-sm font-medium">Torneos</a>
                     </div>
                 </div>
                 <div class="flex items-center">
-                    <form method="POST" action="{{ route('logout') }}">
+                    <span class="text-gray-500 text-sm mr-4">Bienvenido, {{ Auth::user()->correo }}</span>
+                    <a href="{{ route('logout') }}" class="text-gray-500 hover:text-gray-700 text-sm font-medium" 
+                       onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                        Cerrar Sesión
+                    </a>
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
                         @csrf
-                        <button type="submit" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                            Cerrar Sesión
-                        </button>
                     </form>
                 </div>
             </div>
