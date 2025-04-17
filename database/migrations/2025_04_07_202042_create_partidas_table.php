@@ -15,7 +15,7 @@ return new class extends Migration
             $table->integer('no_partida')->autoIncrement();
             $table->integer('ronda')->nullable();
             $table->string('participante_id', 20)->nullable();
-            $table->integer('torneo_id')->nullable();
+            $table->unsignedBigInteger('torneo_id')->nullable();
             $table->integer('mesa')->nullable();
             $table->boolean('color')->nullable();
             $table->time('tiempo')->nullable();
@@ -29,7 +29,7 @@ return new class extends Migration
                   ->onDelete('set null');
 
             $table->foreign('torneo_id')
-                  ->references('id_torneo')
+                  ->references('id')
                   ->on('torneos')
                   ->onDelete('set null');
 
