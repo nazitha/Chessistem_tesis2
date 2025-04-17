@@ -27,7 +27,15 @@ return new class extends Migration
             $table->string('lugar', 100)->nullable()->collation('utf8mb3_spanish_ci');
             $table->integer('no_rondas')->nullable();
             $table->boolean('estado_torneo')->default(1)->nullable();
-            $table->unsignedInteger('sistema_emparejamiento_id')->nullable();
+            $table->unsignedBigInteger('sistema_emparejamiento_id')->nullable();
+            $table->boolean('usar_buchholz')->default(false);
+            $table->boolean('usar_sonneborn_berger')->default(false);
+            $table->boolean('usar_desempate_progresivo')->default(false);
+            $table->integer('numero_minimo_participantes')->default(4);
+            $table->boolean('permitir_bye')->default(true);
+            $table->boolean('alternar_colores')->default(true);
+            $table->boolean('evitar_emparejamientos_repetidos')->default(true);
+            $table->integer('maximo_emparejamientos_repetidos')->default(1);
 
             $table->foreign('categoriaTorneo_id')
                   ->references('id_torneo_categoria')

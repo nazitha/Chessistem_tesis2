@@ -2,8 +2,6 @@
 
 @section('content')
 <div class="min-h-full">
-    @include('home._navbar')
-    
     <header class="bg-white shadow" style="background-color: #f3f5f7;">
         <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
             <h1 class="text-3xl font-bold tracking-tight text-gray-900 titulo_dashboard">Dashboard</h1>

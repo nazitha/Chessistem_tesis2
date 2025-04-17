@@ -15,25 +15,38 @@ return new class extends Migration
                 $table->id();
                 $table->string('nombre', 50);
                 $table->text('descripcion')->nullable();
+                $table->timestamps();
             });
         }
 
         DB::table('roles')->insert([
             [
+                'id' => 1,
                 'nombre' => 'Administrador',
-                'descripcion' => 'Acceso total al sistema'
+                'descripcion' => 'Acceso total al sistema',
+                'created_at' => now(),
+                'updated_at' => now()
             ],
             [
+                'id' => 2,
                 'nombre' => 'Evaluador',
-                'descripcion' => 'Acceso parcial al sistema'
+                'descripcion' => 'Acceso parcial al sistema',
+                'created_at' => now(),
+                'updated_at' => now()
             ],
             [
+                'id' => 3,
                 'nombre' => 'Estudiante',   
-                'descripcion' => 'Acceso limitado al sistema'
+                'descripcion' => 'Acceso limitado al sistema',
+                'created_at' => now(),
+                'updated_at' => now()
             ],
             [
+                'id' => 4,
                 'nombre' => 'Gestor',
-                'descripcion' => 'Acceso a funciones de gestión'
+                'descripcion' => 'Acceso a funciones de gestión',
+                'created_at' => now(),
+                'updated_at' => now()
             ]
         ]);   
     }

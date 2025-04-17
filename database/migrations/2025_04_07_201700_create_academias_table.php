@@ -23,7 +23,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('ciudad_id')
-                  ->references('id')
+                  ->references('id_ciudad')
                   ->on('ciudades')
                   ->onDelete('set null');
         });

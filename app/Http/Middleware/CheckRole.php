@@ -4,7 +4,8 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Models\Role;
+use Illuminate\Support\Facades\Log;
 
 class CheckRole
 {
@@ -13,15 +14,23 @@ class CheckRole
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \Closure  $next
-     * @param  int  $role
+     * @param  string|int  ...$roles
      * @return mixed
      */
-    public function handle(Request $request, Closure $next, $role)
+    public function handle(Request $request, Closure $next, ...$roles)
     {
-        if (!Auth::check() || Auth::user()->rol_id != $role) {
-            return redirect()->route('home')->with('error', 'No tienes permiso para acceder a esta sección.');
+        if (!$request->user()) {
+            return redirect('/login');
         }
 
-        return $next($request);
+        $userRoleId = $request->user()->rol_id;
+        
+        foreach ($roles as $role) {
+            if ($userRoleId == $role) {
+                return $next($request);
+            }
+        }
+
+        return redirect('/home')->with('error', 'No tienes permiso para acceder a esta sección');
     }
 } 

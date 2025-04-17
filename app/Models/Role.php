@@ -7,13 +7,22 @@ use Illuminate\Database\Eloquent\Model;
 class Role extends Model
 {
     protected $table = 'roles';
-    public $timestamps = false;
+    protected $primaryKey = 'id';
+    public $timestamps = true;
     
-    protected $fillable = ['nombre', 'descripcion'];
+    protected $fillable = [
+        'nombre',
+        'descripcion'
+    ];
+
+    protected $dates = [
+        'created_at',
+        'updated_at'
+    ];
 
     public function usuarios()
     {
-        return $this->hasMany(User::class, 'rol_id');
+        return $this->hasMany(User::class, 'rol_id', 'id');
     }
 
     public function permisos()

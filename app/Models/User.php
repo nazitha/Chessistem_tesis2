@@ -103,5 +103,10 @@ class User extends Authenticatable
             'id' // Local key on roles table
         );
     }
+
+    public function hasRole($role)
+    {
+        return $this->rol_id == $role;
+    }
 }
 

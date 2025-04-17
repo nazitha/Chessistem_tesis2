@@ -2,36 +2,7 @@
 
 @section('content')
 <div class="min-h-screen bg-gray-50">
-    <!-- Navegación superior -->
-    <nav class="bg-white border-b">
-        <div class="max-w-7xl mx-auto px-4">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center space-x-8">
-                    <div class="flex-shrink-0">
-                        <img class="h-16 w-auto" src="{{ asset('img/estrellas_del_ajedrez_logo.png') }}" alt="Escuela Estrellas del Ajedrez">
-                    </div>
-                    <div class="flex space-x-8">
-                        <a href="{{ route('home') }}" class="border-b-2 border-indigo-500 text-gray-900 px-1 pt-1 text-sm font-medium">Home</a>
-                        <a href="{{ route('usuarios.index') }}" class="text-gray-500 hover:text-gray-700 px-1 pt-1 text-sm font-medium">Usuarios</a>
-                        <a href="{{ route('miembros.index') }}" class="text-gray-500 hover:text-gray-700 px-1 pt-1 text-sm font-medium">Miembros</a>
-                        <a href="{{ route('fides.index') }}" class="text-gray-500 hover:text-gray-700 px-1 pt-1 text-sm font-medium">FIDES</a>
-                        <a href="{{ route('torneos.index') }}" class="text-gray-500 hover:text-gray-700 px-1 pt-1 text-sm font-medium">Torneos</a>
-                    </div>
-                </div>
-                <div class="flex items-center">
-                    <span class="text-gray-500 text-sm mr-4">Bienvenido, {{ Auth::user()->correo }}</span>
-                    <a href="{{ route('logout') }}" class="text-gray-500 hover:text-gray-700 text-sm font-medium" 
-                       onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                        Cerrar Sesión
-                    </a>
-                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
-                        @csrf
-                    </form>
-                </div>
-            </div>
-        </div>
-    </nav>
-
+ 
     <!-- Contenido principal -->
     <div class="max-w-7xl mx-auto px-4 py-6">
         <h1 class="text-2xl font-semibold text-gray-900">Dashboard</h1>
@@ -201,106 +172,6 @@
         </div>
     </div>
 
-<!-- Footer -->
-<footer class="bg-white text-gray-900 mt-8">
-    <div class="max-w-7xl mx-auto">
-        <!-- Top Footer Section -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-8 px-4 py-8">
-            <!-- About Section -->
-            <div class="space-y-3">
-                <div class="flex items-center space-x-2">
-                    <img src="{{ asset('img/estrellas_del_ajedrez_logo.png') }}" alt="Logo" class="h-8 w-auto">
-                    <h3 class="text-base font-bold">Estrellas del Ajedrez</h3>
-                </div>
-                <p class="text-gray-900 text-xs leading-relaxed">
-                    Sistema integral de gestión de torneos de ajedrez.
-                </p>
-            </div>
-
-            <!-- Soporte -->
-            <div class="space-y-3">
-                <h3 class="text-base font-bold border-b border-blue-500 pb-1">Soporte</h3>
-                <ul class="space-y-2 text-sm">
-                    <li class="flex items-center text-gray-900">
-                        <div class="h-6 w-6 rounded-full bg-blue-500/10 flex items-center justify-center mr-2">
-                            <i class="fas fa-headset text-blue-500 text-xs"></i>
-                        </div>
-                        <span>Nazarethgarcia53@gmail.com</span>
-                    </li>
-                    <li class="flex items-center text-gray-900">
-                        <div class="h-6 w-6 rounded-full bg-blue-500/10 flex items-center justify-center mr-2">
-                            <i class="fas fa-headset text-blue-500 text-xs"></i>
-                        </div>
-                        <span>engellargaespadavargas@gmail.com</span>
-                    </li>
-                    <li class="flex items-center text-gray-900">
-                        <div class="h-6 w-6 rounded-full bg-blue-500/10 flex items-center justify-center mr-2">
-                            <i class="fas fa-clock text-blue-500 text-xs"></i>
-                        </div>
-                        <span>Lun - Vie: 8:00 AM - 5:00 PM</span>
-                    </li>
-                    <li class="flex items-center text-gray-900">
-                        <div class="h-6 w-6 rounded-full bg-blue-500/10 flex items-center justify-center mr-2">
-                            <i class="fas fa-phone text-blue-500 text-xs"></i>
-                        </div>
-                        <span>+505 8440 3893</span>
-                    </li>
-                </ul>
-            </div>
-
-            <!-- Instructor Info -->
-            <div class="space-y-3">
-                <h3 class="text-base font-bold border-b border-blue-500 pb-1">Instructor Fide</h3>
-                <ul class="space-y-2 text-sm">
-                    <li class="flex items-center text-gray-900">
-                        <div class="h-6 w-6 rounded-full bg-blue-500/10 flex items-center justify-center mr-2">
-                            <i class="fas fa-envelope text-blue-500 text-xs"></i>
-                        </div>
-                        <span>Nazarethgarcia53@gmail.com</span>
-                    </li>
-                    <li class="flex items-center text-gray-900">
-                        <div class="h-6 w-6 rounded-full bg-blue-500/10 flex items-center justify-center mr-2">
-                            <i class="fas fa-phone text-blue-500 text-xs"></i>
-                        </div>
-                        <span>+505 8440 3892</span>
-                    </li>
-                    <li class="flex items-center text-gray-900">
-                        <div class="h-6 w-6 rounded-full bg-blue-500/10 flex items-center justify-center mr-2">
-                            <i class="fas fa-map-marker-alt text-blue-500 text-xs"></i>
-                        </div>
-                        <span>Managua, Nicaragua</span>
-                    </li>
-                </ul>
-            </div>
-
-            <!-- Social Links -->
-            <div class="space-y-3">
-                <h3 class="text-base font-bold border-b border-blue-500 pb-1">Síguenos</h3>
-                <div class="flex space-x-3">
-                    <a href="#" class="h-8 w-8 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 hover:bg-blue-500 hover:text-white transition-colors duration-200">
-                        <i class="fab fa-facebook-f text-sm"></i>
-                    </a>
-                    <a href="#" class="h-8 w-8 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 hover:bg-blue-500 hover:text-white transition-colors duration-200">
-                        <i class="fab fa-twitter text-sm"></i>
-                    </a>
-                    <a href="#" class="h-8 w-8 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 hover:bg-blue-500 hover:text-white transition-colors duration-200">
-                        <i class="fab fa-instagram text-sm"></i>
-                    </a>
-                </div>
-                <p class="text-gray-900 text-xs leading-relaxed">
-                    Siguenos en nuestras redes sociales, no te pierdas de las novedades.
-                </p>
-            </div>
-        </div>
-
-        <!-- Bottom Footer -->
-        <div class="border-t border-gray-800">
-            <div class="px-4 py-3 text-center text-xs text-gray-900">
-                <p>&copy; {{ date('Y') }} Escuela Estrellas del Ajedrez. Todos los derechos reservados.</p>
-            </div>
-        </div>
-    </div>
-</footer>
 
 @include('modals.miembros_modal')
 @include('modals.pais_modal')

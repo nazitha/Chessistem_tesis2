@@ -10,6 +10,7 @@ use App\Models\ControlTiempo;
 use App\Models\Federacion;
 use App\Models\Emparejamiento;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Carbon\Carbon;
 
 class Torneo extends Model
 {
@@ -19,30 +20,47 @@ class Torneo extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'categoria_torneo_id',
-        'miembro_id',
+        'categoriaTorneo_id',
+        'organizador_id',
         'control_tiempo_id',
+        'director_torneo_id',
+        'arbitro_principal_id',
+        'arbitro_id',
+        'arbitro_adjunto_id',
         'federacion_id',
-        'emparejamiento_id',
-        'nombre',
+        'sistema_emparejamiento_id',
+        'nombre_torneo',
         'fecha_inicio',
-        'fecha_fin',
+        'hora_inicio',
         'lugar',
-        'estado',
-        'descripcion',
-        'rondas',
-        'ritmo_juego',
-        'tiempo_espera',
-        'tipo_torneo',
-        'elo_minimo',
-        'elo_maximo'
+        'no_rondas',
+        'estado_torneo',
+        'usar_buchholz',
+        'usar_sonneborn_berger',
+        'usar_desempate_progresivo',
+        'numero_minimo_participantes',
+        'permitir_bye',
+        'alternar_colores',
+        'evitar_emparejamientos_repetidos',
+        'maximo_emparejamientos_repetidos'
     ];
 
     protected $casts = [
         'fecha_inicio' => 'date',
-        'hora_inicio' => 'datetime',
-        'estado_torneo' => 'boolean'
+        'estado_torneo' => 'boolean',
+        'usar_buchholz' => 'boolean',
+        'usar_sonneborn_berger' => 'boolean',
+        'usar_desempate_progresivo' => 'boolean',
+        'permitir_bye' => 'boolean',
+        'evitar_emparejamientos_repetidos' => 'boolean',
+        'alternar_colores' => 'boolean'
     ];
+
+    // Mutator para hora_inicio
+    public function setHoraInicioAttribute($value)
+    {
+        $this->attributes['hora_inicio'] = $value ? date('H:i:s', strtotime($value)) : null;
+    }
 
     public function scopeWithRelations($query)
     {
@@ -72,7 +90,7 @@ class Torneo extends Model
 
     public function categoria()
     {
-        return $this->belongsTo(CategoriaTorneo::class, 'categoria_torneo_id', 'id_torneo_categoria');
+        return $this->belongsTo(CategoriaTorneo::class, 'categoriaTorneo_id', 'id_torneo_categoria');
     }
 
     public function emparejamiento(): BelongsTo
@@ -82,7 +100,7 @@ class Torneo extends Model
 
     public function organizador()
     {
-        return $this->belongsTo(Miembro::class, 'miembro_id', 'cedula');
+        return $this->belongsTo(Miembro::class, 'organizador_id', 'cedula');
     }
 
     public function directorTorneo()
