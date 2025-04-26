@@ -27,6 +27,8 @@ return new class extends Migration
             $table->string('lugar', 100)->nullable()->collation('utf8mb3_spanish_ci');
             $table->integer('no_rondas')->nullable();
             $table->boolean('estado_torneo')->default(1)->nullable();
+            $table->boolean('torneo_cancelado')->default(false);
+            $table->string('motivo_cancelacion')->nullable();
             $table->unsignedBigInteger('sistema_emparejamiento_id')->nullable();
             $table->boolean('usar_buchholz')->default(false);
             $table->boolean('usar_sonneborn_berger')->default(false);

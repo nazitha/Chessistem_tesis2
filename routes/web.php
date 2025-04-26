@@ -24,6 +24,8 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\EvaluacionController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\TorneoViewController;
+use App\Http\Controllers\TorneoParticipanteController;
+use App\Http\Controllers\TorneoRondaController;
 
 // Grupo web para todas las rutas
 Route::middleware('web')->group(function () {
@@ -60,10 +62,14 @@ Route::middleware('web')->group(function () {
         
         // Rutas de torneos
         Route::resource('torneos', TorneoController::class);
-        Route::post('torneos/{torneo}/emparejamientos', [TorneoController::class, 'generarEmparejamientos'])
-            ->name('torneos.emparejamientos');
-        Route::post('torneos/partidas/{partida}/resultado', [TorneoController::class, 'actualizarResultado'])
-            ->name('partidas.resultado');
+        Route::post('torneos/{torneo}/participantes', [TorneoParticipanteController::class, 'store'])
+            ->name('torneos.participantes.store');
+        Route::delete('torneos/{torneo}/participantes/{participante}', [TorneoParticipanteController::class, 'destroy'])
+            ->name('torneos.participantes.destroy');
+        Route::post('torneos/{torneo}/rondas', [TorneoRondaController::class, 'store'])
+            ->name('torneos.rondas.store');
+        Route::post('torneos/partidas/{partida}/resultado', [TorneoRondaController::class, 'registrarResultado'])
+            ->name('torneos.partidas.resultado');
         Route::get('mis-torneos', [TorneoController::class, 'misTorneos'])->name('torneos.estudiante');
 
         Route::post('/asignar-permisos', [UserController::class, 'asignarPermisos'])->name('asignar.permisos');

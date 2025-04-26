@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ChestSystem Login</title>
-    <link rel="stylesheet" href="css/login.css">
-    <link rel="icon" href="img/estrellas_del_ajedrez_logo.jpeg" type="image/x-icon">
+    <link rel="stylesheet" href="{{ asset('css/login.css') }}">
+    <link rel="icon" href="{{ asset('img/estrellas_del_ajedrez_logo.jpeg') }}" type="image/x-icon">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
@@ -13,7 +13,7 @@
     <div class="container" id="container">
         <!-- Formulario de inicio de sesión -->
         <div class="login-form">
-            <form method="POST" action="{{ route('login.submit') }}" id="loginForm">
+            <form method="POST" action="/login" id="loginForm">
                 @csrf
                 <h1 id="estrellas">Estrellas del Ajedrez</h1>
                 <span>Ingrese sus credenciales</span>

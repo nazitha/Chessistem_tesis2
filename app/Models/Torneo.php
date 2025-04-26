@@ -35,6 +35,8 @@ class Torneo extends Model
         'lugar',
         'no_rondas',
         'estado_torneo',
+        'torneo_cancelado',
+        'motivo_cancelacion',
         'usar_buchholz',
         'usar_sonneborn_berger',
         'usar_desempate_progresivo',
@@ -48,6 +50,7 @@ class Torneo extends Model
     protected $casts = [
         'fecha_inicio' => 'date',
         'estado_torneo' => 'boolean',
+        'torneo_cancelado' => 'boolean',
         'usar_buchholz' => 'boolean',
         'usar_sonneborn_berger' => 'boolean',
         'usar_desempate_progresivo' => 'boolean',
@@ -55,6 +58,18 @@ class Torneo extends Model
         'evitar_emparejamientos_repetidos' => 'boolean',
         'alternar_colores' => 'boolean'
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($torneo) {
+            // Verificar si la fecha del torneo ya pasó
+            if ($torneo->fecha_inicio && $torneo->fecha_inicio->startOfDay()->isPast()) {
+                $torneo->estado_torneo = false;
+            }
+        });
+    }
 
     // Mutator para hora_inicio
     public function setHoraInicioAttribute($value)
@@ -85,17 +100,43 @@ class Torneo extends Model
 
     public function getEstadoAttribute(): string
     {
-        return $this->estado_torneo ? 'Activo' : 'Finalizado';
+        if ($this->torneo_cancelado) {
+            return 'Cancelado';
+        }
+        
+        if ($this->fecha_inicio && $this->fecha_inicio->startOfDay()->isPast()) {
+            return 'Finalizado';
+        }
+        
+        return $this->estado_torneo ? 'Activo' : 'Inactivo';
+    }
+
+    public function getEstadoClaseAttribute(): string
+    {
+        if ($this->torneo_cancelado) {
+            return 'bg-red-100 text-red-800';
+        }
+        
+        if ($this->fecha_inicio && $this->fecha_inicio->startOfDay()->isPast()) {
+            return 'bg-gray-100 text-gray-800';
+        }
+        
+        return $this->estado_torneo ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800';
+    }
+
+    public function participantes()
+    {
+        return $this->hasMany(ParticipanteTorneo::class, 'torneo_id');
+    }
+
+    public function rondas()
+    {
+        return $this->hasMany(RondaTorneo::class, 'torneo_id')->orderBy('numero_ronda');
     }
 
     public function categoria()
     {
         return $this->belongsTo(CategoriaTorneo::class, 'categoriaTorneo_id', 'id_torneo_categoria');
-    }
-
-    public function emparejamiento(): BelongsTo
-    {
-        return $this->belongsTo(Emparejamiento::class);
     }
 
     public function organizador()
@@ -108,9 +149,9 @@ class Torneo extends Model
         return $this->belongsTo(Miembro::class, 'director_torneo_id', 'cedula');
     }
 
-    public function director()
+    public function arbitroPrincipal()
     {
-        return $this->directorTorneo();
+        return $this->belongsTo(Miembro::class, 'arbitro_principal_id', 'cedula');
     }
 
     public function arbitro()
@@ -118,24 +159,9 @@ class Torneo extends Model
         return $this->belongsTo(Miembro::class, 'arbitro_id', 'cedula');
     }
 
-    public function arbitroPrincipal()
-    {
-        return $this->belongsTo(Miembro::class, 'arbitro_principal_id', 'cedula');
-    }
-
     public function arbitroAdjunto()
     {
         return $this->belongsTo(Miembro::class, 'arbitro_adjunto_id', 'cedula');
-    }
-
-    public function scopeActivo($query)
-    {
-        return $query->where('estado_torneo', true);
-    }
-    
-    public function participantes()
-    {
-        return $this->hasMany(Participante::class);
     }
 
     public function controlTiempo()
@@ -143,9 +169,20 @@ class Torneo extends Model
         return $this->belongsTo(ControlTiempo::class, 'control_tiempo_id', 'id_control_tiempo');
     }
 
+    public function emparejamiento()
+    {
+        return $this->belongsTo(Emparejamiento::class, 'sistema_emparejamiento_id', 'id_emparejamiento');
+    }
+
     public function federacion()
     {
         return $this->belongsTo(Federacion::class, 'federacion_id', 'acronimo');
+    }
+
+    public function getMiembrosDisponiblesAttribute()
+    {
+        $participantesIds = $this->participantes()->pluck('miembro_id');
+        return Miembro::whereNotIn('cedula', $participantesIds)->get();
     }
 
 }

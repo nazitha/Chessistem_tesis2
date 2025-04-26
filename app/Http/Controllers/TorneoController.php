@@ -198,6 +198,7 @@ class TorneoController extends Controller
 
     public function show(Torneo $torneo)
     {
+        // Cargar las relaciones necesarias
         $torneo->load([
             'categoria',
             'organizador',
@@ -208,10 +209,18 @@ class TorneoController extends Controller
             'arbitroAdjunto',
             'federacion',
             'emparejamiento',
-            'participantes'
+            'participantes.miembro',
+            'rondas.partidas.jugadorBlancas',
+            'rondas.partidas.jugadorNegras'
         ]);
 
-        return view('torneos.show', compact('torneo'));
+        // Obtener miembros que no están participando en este torneo
+        $participantesIds = $torneo->participantes()->pluck('miembro_id')->toArray();
+        $miembrosDisponibles = Miembro::whereNotIn('cedula', $participantesIds)
+            ->orderBy('nombres')
+            ->get();
+
+        return view('torneos.show', compact('torneo', 'miembrosDisponibles'));
     }
 
     public function edit(Torneo $torneo)
@@ -252,10 +261,46 @@ class TorneoController extends Controller
                 ->route('torneos.index')
                 ->with('success', 'Torneo eliminado exitosamente.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Error al eliminar el torneo: ' . $e->getMessage());
+            Log::error('Error al eliminar torneo: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
+            
+            return back()->with('error', 'Error al eliminar el torneo. Por favor, intente nuevamente.');
         }
     }
-    
+
+    public function cancelar(Request $request, Torneo $torneo)
+    {
+        try {
+            if ($torneo->fecha_inicio->isPast()) {
+                return back()->with('error', 'No se puede cancelar un torneo que ya ha finalizado.');
+            }
+
+            if ($torneo->torneo_cancelado) {
+                return back()->with('error', 'El torneo ya está cancelado.');
+            }
+
+            $request->validate([
+                'motivo_cancelacion' => 'required|string|max:255'
+            ]);
+
+            $torneo->update([
+                'torneo_cancelado' => true,
+                'estado_torneo' => false,
+                'motivo_cancelacion' => $request->motivo_cancelacion
+            ]);
+
+            return redirect()
+                ->route('torneos.index')
+                ->with('success', 'Torneo cancelado exitosamente.');
+
+        } catch (\Exception $e) {
+            Log::error('Error al cancelar torneo: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
+            
+            return back()->with('error', 'Error al cancelar el torneo. Por favor, intente nuevamente.');
+        }
+    }
+
     private function logAuditoria($request, $torneo, $accion, $previo = null)
     {
         AuditService::log(

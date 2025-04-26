@@ -68,9 +68,9 @@ class Miembro extends Model
         return $this->hasMany(Torneo::class, 'arbitro_id', 'cedula');
     }
 
-    public function participantes()
+    public function participacionesTorneo()
     {
-        return $this->hasMany(Participante::class, 'participante_id', 'cedula');
+        return $this->hasMany(ParticipanteTorneo::class, 'miembro_id', 'cedula');
     }
 
     public function scopeWithUsuarioRol($query)
