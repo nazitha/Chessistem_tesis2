@@ -268,6 +268,8 @@
                                                     @else
                                                         {{ $partida->resultado === 2 ? '1' : ($partida->resultado === 1 ? '0' : '½') }}
                                                     @endif
+                                                @else
+                                                    *
                                                 @endif
                                             @elseif(!$partida->jugador_negras_id)
                                                 +
@@ -344,72 +346,83 @@
                                 <span class="text-sm text-gray-500">({{ $ronda->fecha_hora->format('d/m/Y H:i') }})</span>
                             </h4>
                             <div class="overflow-x-auto">
-                                <table class="min-w-full">
-                                    <thead>
-                                        <tr class="bg-gray-50">
-                                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">M.</th>
-                                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">No.</th>
-                                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">Blancas</th>
-                                            <th class="px-3 py-2 text-center text-xs font-medium text-gray-500">Elo</th>
-                                            <th class="px-3 py-2 text-center text-xs font-medium text-gray-500">Pts.</th>
-                                            <th class="px-3 py-2 text-center text-xs font-medium text-gray-500">Resultado</th>
-                                            <th class="px-3 py-2 text-center text-xs font-medium text-gray-500">Pts.</th>
-                                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">Negras</th>
-                                            <th class="px-3 py-2 text-center text-xs font-medium text-gray-500">Elo</th>
-                                            <th class="px-3 py-2 text-center text-xs font-medium text-gray-500">No.</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($ronda->partidas as $partida)
-                                            <tr class="hover:bg-gray-50">
-                                                <td class="px-3 py-2 text-sm text-gray-500">{{ $partida->mesa }}</td>
-                                                <td class="px-3 py-2 text-sm text-gray-900">{{ $loop->iteration }}</td>
-                                                <td class="px-3 py-2 text-sm font-medium text-blue-600">
-                                                    {{ $partida->jugadorBlancas->nombres }} {{ $partida->jugadorBlancas->apellidos }}
-                                                </td>
-                                                <td class="px-3 py-2 text-sm text-center text-gray-500">
-                                                    {{ $partida->jugadorBlancas->elo ?? '0' }}
-                                                </td>
-                                                <td class="px-3 py-2 text-sm text-center text-gray-500">
-                                                    {{ $partida->jugadorBlancas->participanteTorneo ? number_format($partida->jugadorBlancas->participanteTorneo->puntos, 1) : '0.0' }}
-                                                </td>
-                                                <td class="px-3 py-2 text-center">
-                                                    @if(!$ronda->completada)
-                                                        <form method="POST" action="{{ route('torneos.partidas.resultado', $partida->id) }}" class="inline-flex space-x-2 items-center justify-center">
-                                                            @csrf
-                                                            <input type="text" 
-                                                                   name="resultado_texto" 
-                                                                   class="rounded border-gray-300 text-sm w-20" 
-                                                                   placeholder="1-0/0-1/½-½"
-                                                                   value="{{ $partida->getResultadoTexto() !== '*' ? $partida->getResultadoTexto() : '' }}">
-                                                            <button type="submit" class="px-2 py-1 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded">
-                                                                Guardar
-                                                            </button>
-                                                        </form>
-                                                    @else
-                                                        <span class="text-sm font-medium">{{ $partida->getResultadoTexto() }}</span>
-                                                    @endif
-                                                </td>
-                                                <td class="px-3 py-2 text-sm text-center text-gray-500">
-                                                    {{ $partida->jugadorNegras ? ($partida->jugadorNegras->participanteTorneo ? number_format($partida->jugadorNegras->participanteTorneo->puntos, 1) : '0.0') : '-' }}
-                                                </td>
-                                                <td class="px-3 py-2 text-sm font-medium text-blue-600">
-                                                    @if($partida->jugadorNegras)
-                                                        {{ $partida->jugadorNegras->nombres }} {{ $partida->jugadorNegras->apellidos }}
-                                                    @else
-                                                        <span class="text-gray-500">BYE</span>
-                                                    @endif
-                                                </td>
-                                                <td class="px-3 py-2 text-sm text-center text-gray-500">
-                                                    {{ $partida->jugadorNegras ? ($partida->jugadorNegras->elo ?? '0') : '-' }}
-                                                </td>
-                                                <td class="px-3 py-2 text-sm text-gray-900">
-                                                    {{ $partida->jugadorNegras ? ($loop->iteration + 1) : '-' }}
-                                                </td>
+                                <form method="POST" action="{{ route('torneos.rondas.resultados', $ronda->id) }}" class="mb-4">
+                                    @csrf
+                                    <table class="min-w-full">
+                                        <thead>
+                                            <tr class="bg-gray-50">
+                                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">M.</th>
+                                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">No.</th>
+                                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">Blancas</th>
+                                                <th class="px-3 py-2 text-center text-xs font-medium text-gray-500">Elo</th>
+                                                <th class="px-3 py-2 text-center text-xs font-medium text-gray-500">Pts.</th>
+                                                <th class="px-3 py-2 text-center text-xs font-medium text-gray-500">Resultado</th>
+                                                <th class="px-3 py-2 text-center text-xs font-medium text-gray-500">Pts.</th>
+                                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">Negras</th>
+                                                <th class="px-3 py-2 text-center text-xs font-medium text-gray-500">Elo</th>
+                                                <th class="px-3 py-2 text-center text-xs font-medium text-gray-500">No.</th>
                                             </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($ronda->partidas as $partida)
+                                                <tr class="hover:bg-gray-50">
+                                                    <td class="px-3 py-2 text-sm text-gray-500">{{ $partida->mesa }}</td>
+                                                    <td class="px-3 py-2 text-sm text-gray-900">{{ $loop->iteration }}</td>
+                                                    <td class="px-3 py-2 text-sm font-medium text-blue-600">
+                                                        {{ $partida->jugadorBlancas->nombres }} {{ $partida->jugadorBlancas->apellidos }}
+                                                    </td>
+                                                    <td class="px-3 py-2 text-sm text-center text-gray-500">
+                                                        {{ $partida->jugadorBlancas->elo ?? '0' }}
+                                                    </td>
+                                                    <td class="px-3 py-2 text-sm text-center text-gray-500">
+                                                        @php
+                                                            $participanteTorneo = $partida->jugadorBlancas->participanteTorneo()->where('torneo_id', $torneo->id)->first();
+                                                        @endphp
+                                                        {{ $participanteTorneo ? number_format($participanteTorneo->puntos, 1) : '0.0' }}
+                                                    </td>
+                                                    <td class="px-3 py-2 text-center">
+                                                        @if(!$ronda->completada)
+                                                            <input type="text" 
+                                                                   name="resultados[{{ $partida->id }}]" 
+                                                                   class="rounded border-gray-300 text-sm w-20" 
+                                                                   placeholder="1-0/0-1/½/1/2"
+                                                                   value="{{ $partida->getResultadoTexto() !== '*' ? $partida->getResultadoTexto() : '' }}"
+                                                                   autocomplete="off">
+                                                        @else
+                                                            <span class="text-sm font-medium">{{ $partida->getResultadoTexto() }}</span>
+                                                        @endif
+                                                    </td>
+                                                    <td class="px-3 py-2 text-sm text-center text-gray-500">
+                                                        @php
+                                                            $participanteTorneoNegras = $partida->jugadorNegras ? $partida->jugadorNegras->participanteTorneo()->where('torneo_id', $torneo->id)->first() : null;
+                                                        @endphp
+                                                        {{ $participanteTorneoNegras ? number_format($participanteTorneoNegras->puntos, 1) : '0.0' }}
+                                                    </td>
+                                                    <td class="px-3 py-2 text-sm font-medium text-blue-600">
+                                                        @if($partida->jugadorNegras)
+                                                            {{ $partida->jugadorNegras->nombres }} {{ $partida->jugadorNegras->apellidos }}
+                                                        @else
+                                                            <span class="text-gray-500">BYE</span>
+                                                        @endif
+                                                    </td>
+                                                    <td class="px-3 py-2 text-sm text-center text-gray-500">
+                                                        {{ $partida->jugadorNegras ? ($partida->jugadorNegras->elo ?? '0') : '-' }}
+                                                    </td>
+                                                    <td class="px-3 py-2 text-sm text-gray-900">
+                                                        {{ $partida->jugadorNegras ? ($loop->iteration + 1) : '-' }}
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                    @if(!$ronda->completada)
+                                        <div class="mt-4 flex justify-end">
+                                            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded">
+                                                Guardar Todos los Resultados
+                                            </button>
+                                        </div>
+                                    @endif
+                                </form>
                             </div>
                         </div>
                     @endforeach

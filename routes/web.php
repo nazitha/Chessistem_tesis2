@@ -70,6 +70,8 @@ Route::middleware('web')->group(function () {
             ->name('torneos.rondas.store');
         Route::post('torneos/partidas/{partida}/resultado', [TorneoRondaController::class, 'registrarResultado'])
             ->name('torneos.partidas.resultado');
+        Route::post('torneos/rondas/{ronda}/resultados', [TorneoRondaController::class, 'guardarResultadosRonda'])
+            ->name('torneos.rondas.resultados');
         Route::get('mis-torneos', [TorneoController::class, 'misTorneos'])->name('torneos.estudiante');
         Route::put('torneos/{torneo}/cancelar', [TorneoController::class, 'cancelar'])->name('torneos.cancelar');
 

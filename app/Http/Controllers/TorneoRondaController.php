@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Torneo;
+use Illuminate\Http\Request;
 use App\Models\RondaTorneo;
 use App\Models\PartidaTorneo;
-use App\Services\SwissPairingService;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+
+use App\Models\Torneo;
 use App\Models\ParticipanteTorneo;
+use App\Models\Participante;
+use App\Services\SwissPairingService;
 
 class TorneoRondaController extends Controller
 {
@@ -69,47 +71,47 @@ class TorneoRondaController extends Controller
                 'resultado_texto' => 'required|string'
             ]);
 
-            // Convertir el texto del resultado a número
-            $resultadoTexto = trim($request->resultado_texto);
-            $resultado = null;
-
-            switch ($resultadoTexto) {
-                case '1-0':
-                    $resultado = 1;
-                    break;
-                case '0-1':
-                    $resultado = 2;
-                    break;
-                case '½-½':
-                case '1/2-1/2':
-                case '0.5-0.5':
-                    $resultado = 3;
-                    break;
-                default:
-                    return redirect()->back()->with('error', 'Formato de resultado inválido. Use 1-0, 0-1 o ½-½');
-            }
-
             DB::beginTransaction();
 
             try {
+                Log::info('=== Iniciando registro de resultado ===');
+                Log::info('Partida ID: ' . $partida->id);
+                Log::info('Resultado texto recibido: ' . $request->resultado_texto);
+                Log::info('Jugador Blancas ID: ' . $partida->jugador_blancas_id);
+                Log::info('Jugador Negras ID: ' . ($partida->jugador_negras_id ?? 'BYE'));
+
                 // 1. Actualizar el resultado de esta partida específica
                 $partida = PartidaTorneo::lockForUpdate()->find($partida->id);
                 if (!$partida) {
                     throw new \Exception('Partida no encontrada');
                 }
                 
-                $partida->resultado = $resultado;
-                $partida->save();
+                try {
+                    $resultadoAnterior = $partida->resultado;
+                    $partida->setResultadoFromTexto($request->resultado_texto);
+                    $partida->save();
+
+                    Log::info('Resultado anterior: ' . $resultadoAnterior);
+                    Log::info('Nuevo resultado (código): ' . $partida->resultado);
+                    Log::info('Nuevo resultado (texto): ' . $partida->getResultadoTexto());
+                } catch (\InvalidArgumentException $e) {
+                    Log::error('Error al establecer resultado: ' . $e->getMessage());
+                    return redirect()->back()->with('error', $e->getMessage());
+                }
 
                 // 2. Actualizar puntos de los jugadores involucrados
                 if ($partida->jugador_blancas_id) {
+                    Log::info('=== Actualizando puntos jugador blancas ===');
+                    Log::info('ID: ' . $partida->jugador_blancas_id);
                     $this->actualizarPuntosJugador($partida->jugador_blancas_id, $partida->ronda->torneo_id);
                 }
                 if ($partida->jugador_negras_id) {
+                    Log::info('=== Actualizando puntos jugador negras ===');
+                    Log::info('ID: ' . $partida->jugador_negras_id);
                     $this->actualizarPuntosJugador($partida->jugador_negras_id, $partida->ronda->torneo_id);
                 }
 
-                // 3. Verificar si la ronda está completa
+                // 3. Verificar si la ronda está completa y actualizar estado
                 $ronda = $partida->ronda;
                 $partidasSinResultado = PartidaTorneo::where('ronda_id', $ronda->id)
                     ->whereNull('resultado')
@@ -119,9 +121,12 @@ class TorneoRondaController extends Controller
                     })
                     ->count();
 
+                Log::info('Partidas sin resultado en la ronda: ' . $partidasSinResultado);
+
                 if ($partidasSinResultado === 0) {
                     $ronda->completada = true;
                     $ronda->save();
+                    Log::info('Ronda marcada como completada');
 
                     // Actualizar criterios de desempate
                     $torneo = $ronda->torneo;
@@ -137,10 +142,17 @@ class TorneoRondaController extends Controller
                 }
 
                 DB::commit();
+                Log::info('=== Transacción completada exitosamente ===');
+                
+                // Forzar recarga de relaciones
+                $partida->load(['jugadorBlancas.participanteTorneo', 'jugadorNegras.participanteTorneo']);
+                
                 return redirect()->back()->with('success', 'Resultado registrado exitosamente.');
 
             } catch (\Exception $e) {
                 DB::rollBack();
+                Log::error('Error en la transacción: ' . $e->getMessage());
+                Log::error('Stack trace: ' . $e->getTraceAsString());
                 throw $e;
             }
 
@@ -152,48 +164,163 @@ class TorneoRondaController extends Controller
         }
     }
 
+    public function guardarResultadosRonda(Request $request, RondaTorneo $ronda)
+    {
+        try {
+            $request->validate([
+                'resultados' => 'required|array',
+                'resultados.*' => 'required|string'
+            ]);
+
+            DB::beginTransaction();
+
+            try {
+                Log::info('=== Iniciando registro de resultados de ronda ===');
+                Log::info('Ronda ID: ' . $ronda->id);
+                Log::info('Resultados recibidos: ' . json_encode($request->resultados));
+
+                foreach ($request->resultados as $partidaId => $resultado) {
+                    $partida = PartidaTorneo::lockForUpdate()->find($partidaId);
+                    
+                    if (!$partida || $partida->ronda_id !== $ronda->id) {
+                        throw new \Exception('Partida no encontrada o no pertenece a esta ronda');
+                    }
+
+                    Log::info("Procesando partida ID: {$partidaId}");
+                    Log::info("Resultado recibido: {$resultado}");
+                    
+                    $resultadoAnterior = $partida->resultado;
+                    $partida->setResultadoFromTexto($resultado);
+                    $partida->save();
+
+                    Log::info("Resultado anterior: {$resultadoAnterior}");
+                    Log::info("Nuevo resultado (código): {$partida->resultado}");
+                    Log::info("Nuevo resultado (texto): " . $partida->getResultadoTexto());
+
+                    // Actualizar puntos de los jugadores
+                    if ($partida->jugador_blancas_id) {
+                        $this->actualizarPuntosJugador($partida->jugador_blancas_id, $ronda->torneo_id);
+                    }
+                    if ($partida->jugador_negras_id) {
+                        $this->actualizarPuntosJugador($partida->jugador_negras_id, $ronda->torneo_id);
+                    }
+                }
+
+                // Verificar si la ronda está completa
+                $partidasSinResultado = PartidaTorneo::where('ronda_id', $ronda->id)
+                    ->whereNull('resultado')
+                    ->where(function($query) {
+                        $query->whereNotNull('jugador_negras_id')
+                              ->orWhereNull('jugador_negras_id');
+                    })
+                    ->count();
+
+                if ($partidasSinResultado === 0) {
+                    $ronda->completada = true;
+                    $ronda->save();
+                    Log::info('Ronda marcada como completada');
+
+                    // Actualizar criterios de desempate
+                    $torneo = $ronda->torneo;
+                    if ($torneo->usar_buchholz) {
+                        $this->actualizarBuchholz($torneo);
+                    }
+                    if ($torneo->usar_sonneborn_berger) {
+                        $this->actualizarSonnebornBerger($torneo);
+                    }
+                    if ($torneo->usar_desempate_progresivo) {
+                        $this->actualizarProgresivo($torneo);
+                    }
+                }
+
+                DB::commit();
+                Log::info('=== Transacción completada exitosamente ===');
+
+                return redirect()->back()->with('success', 'Resultados guardados exitosamente.');
+
+            } catch (\Exception $e) {
+                DB::rollBack();
+                Log::error('Error en la transacción: ' . $e->getMessage());
+                Log::error('Stack trace: ' . $e->getTraceAsString());
+                throw $e;
+            }
+
+        } catch (\Exception $e) {
+            Log::error('Error al guardar resultados: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
+            
+            return redirect()->back()->with('error', 'Error al guardar los resultados: ' . $e->getMessage());
+        }
+    }
+
     private function actualizarPuntosJugador($jugadorId, $torneoId)
     {
-        $participante = ParticipanteTorneo::where('torneo_id', $torneoId)
-            ->where('miembro_id', $jugadorId)
-            ->lockForUpdate()
-            ->first();
+        try {
+            DB::beginTransaction();
 
-        if (!$participante) {
-            return;
-        }
+            $participante = ParticipanteTorneo::where('torneo_id', $torneoId)
+                ->where('miembro_id', $jugadorId)
+                ->lockForUpdate()
+                ->first();
 
-        $puntosTotales = 0;
-        
-        // Obtener todas las partidas del jugador en este torneo
-        $partidas = PartidaTorneo::whereHas('ronda', function($query) use ($torneoId) {
-            $query->where('torneo_id', $torneoId);
-        })->where(function($query) use ($jugadorId) {
-            $query->where('jugador_blancas_id', $jugadorId)
-                  ->orWhere('jugador_negras_id', $jugadorId);
-        })->get();
-
-        foreach ($partidas as $p) {
-            if ($p->resultado === null) continue;
-
-            // Partida de BYE
-            if (!$p->jugador_negras_id && $p->jugador_blancas_id === $jugadorId) {
-                $puntosTotales += 1;
-                continue;
+            if (!$participante) {
+                DB::rollBack();
+                return;
             }
 
-            // Partidas normales
-            if ($p->jugador_blancas_id === $jugadorId) {
-                if ($p->resultado === 1) $puntosTotales += 1;      // Victoria con blancas
-                elseif ($p->resultado === 3) $puntosTotales += 0.5; // Tablas
-            } elseif ($p->jugador_negras_id === $jugadorId) {
-                if ($p->resultado === 2) $puntosTotales += 1;      // Victoria con negras
-                elseif ($p->resultado === 3) $puntosTotales += 0.5; // Tablas
-            }
-        }
+            $puntosTotales = 0;
+            
+            // Obtener todas las partidas del jugador en este torneo
+            $partidas = PartidaTorneo::whereHas('ronda', function($query) use ($torneoId) {
+                $query->where('torneo_id', $torneoId);
+            })->where(function($query) use ($jugadorId) {
+                $query->where('jugador_blancas_id', $jugadorId)
+                      ->orWhere('jugador_negras_id', $jugadorId);
+            })->get();
 
-        $participante->puntos = $puntosTotales;
-        $participante->save();
+            foreach ($partidas as $p) {
+                if ($p->resultado === null) continue;
+
+                // Partida de BYE
+                if (!$p->jugador_negras_id && $p->jugador_blancas_id === $jugadorId) {
+                    $puntosTotales += 1.0;
+                    continue;
+                }
+
+                // Partidas normales
+                if ($p->jugador_blancas_id === $jugadorId) {
+                    if ($p->resultado === 1) $puntosTotales += 1.0;      // Victoria con blancas
+                    elseif ($p->resultado === 3) $puntosTotales += 0.5;  // Tablas
+                } elseif ($p->jugador_negras_id === $jugadorId) {
+                    if ($p->resultado === 2) $puntosTotales += 1.0;      // Victoria con negras
+                    elseif ($p->resultado === 3) $puntosTotales += 0.5;  // Tablas
+                }
+            }
+
+            // Actualizar en participantes_torneo
+            $participante->puntos = $puntosTotales;
+            $participante->save();
+            
+            // Actualizar también en la tabla participantes si existe
+            $participanteAntiguo = Participante::where('torneo_id', $torneoId)
+                ->where('miembro_id', $jugadorId)
+                ->first();
+            
+            if ($participanteAntiguo) {
+                $participanteAntiguo->puntos = $puntosTotales;
+                $participanteAntiguo->save();
+            }
+
+            DB::commit();
+            
+            // Forzar la recarga del modelo para asegurar que los cambios sean visibles
+            $participante->refresh();
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error al actualizar puntos del jugador: ' . $e->getMessage());
+            throw $e;
+        }
     }
 
     private function actualizarBuchholz(Torneo $torneo)

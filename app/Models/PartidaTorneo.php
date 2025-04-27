@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Models\RondaTorneo;
+use App\Models\Miembro;
+use Illuminate\Support\Facades\Log;
 
 class PartidaTorneo extends Model
 {
@@ -23,6 +26,8 @@ class PartidaTorneo extends Model
         'resultado' => 'integer',
         'mesa' => 'integer'
     ];
+
+    protected $with = ['jugadorBlancas', 'jugadorNegras'];
 
     public function ronda(): BelongsTo
     {
@@ -51,13 +56,51 @@ class PartidaTorneo extends Model
 
         switch ($this->resultado) {
             case 1:
-                return '1-0';
+                return '1-0'; // Victoria blancas
             case 2:
-                return '0-1';
+                return '0-1'; // Victoria negras
             case 3:
-                return '½-½';
+                return '½-½'; // Tablas
             default:
                 return '*';
         }
+    }
+
+    public function setResultadoFromTexto($texto)
+    {
+        $texto = trim($texto);
+        Log::info('Procesando resultado texto: ' . $texto);
+        
+        // Normalizar formatos alternativos
+        $texto = str_replace(['1/2', '0.5', '½'], '½', $texto);
+        
+        // Remover espacios entre caracteres
+        $texto = str_replace(' ', '', $texto);
+        
+        switch ($texto) {
+            case '1-0':
+            case '10':
+            case '1':
+                $this->resultado = 1;
+                break;
+            case '0-1':
+            case '01':
+            case '0':
+                $this->resultado = 2;
+                break;
+            case '½-½':
+            case '½½':
+            case '1/2-1/2':
+            case '0.5-0.5':
+            case '=':
+            case '½':
+                $this->resultado = 3;
+                break;
+            default:
+                Log::error('Formato de resultado inválido: ' . $texto);
+                throw new \InvalidArgumentException('Formato de resultado inválido. Use 1-0, 0-1, ½-½ o ½');
+        }
+        
+        Log::info('Resultado establecido a: ' . $this->resultado);
     }
 } 
