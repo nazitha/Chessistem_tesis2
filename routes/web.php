@@ -43,7 +43,7 @@ Route::middleware('web')->group(function () {
         Route::get('/password/reset', [PasswordRecoveryController::class, 'showForm'])->name('password.request');
         Route::post('/password/email', [PasswordRecoveryController::class, 'recoverPassword'])->name('password.email');
         Route::get('/password/reset/{token}', [PasswordRecoveryController::class, 'showResetForm'])->name('password.reset');
-        Route::put('/password/update', [PasswordRecoveryController::class, 'resetPassword'])->name('password.update');
+        Route::post('/password/update', [PasswordRecoveryController::class, 'resetPassword'])->name('password.reset.update');
     });
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
