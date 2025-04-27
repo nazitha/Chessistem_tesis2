@@ -65,8 +65,8 @@
                 <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                     <dt class="text-sm font-medium text-gray-500">Estado</dt>
                     <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $torneo->estado_torneo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                            {{ $torneo->estado_torneo ? 'Activo' : 'Finalizado' }}
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $torneo->estadoClase }}">
+                            {{ $torneo->estado }}
                         </span>
                     </dd>
                 </div>
@@ -185,65 +185,135 @@
     </div>
 
     <!-- Sección de Participantes -->
-    <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
-        <div class="px-4 py-5 sm:px-6 flex justify-between items-center">
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6 mt-8">
+        <div class="px-6 py-5 sm:px-8 flex justify-between items-center">
             <h3 class="text-lg leading-6 font-medium text-gray-900">
                 Participantes
                 <span class="ml-2 text-sm text-gray-500">({{ $torneo->participantes->count() }} registrados)</span>
             </h3>
+            @if($torneo->estado_torneo && !$torneo->torneo_cancelado)
+                <button type="button"
+                        onclick="mostrarModalParticipantes()"
+                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <i class="fas fa-user-plus mr-2"></i>
+                    Agregar Participantes
+                </button>
+            @endif
         </div>
-        
         <div class="border-t border-gray-200">
-            @if($torneo->participantes->count() > 0)
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Puntos</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Buchholz</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">S-B</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progresivo</th>
-                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @foreach($torneo->participantes as $participante)
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                        {{ $participante->miembro->nombres }} {{ $participante->miembro->apellidos }}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {{ $participante->puntos }}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {{ $participante->buchholz }}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {{ $participante->sonneborn_berger }}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {{ $participante->progresivo }}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        @if($torneo->estado_torneo && !$torneo->torneo_cancelado)
-                                            <button type="button"
-                                                    onclick="confirmarRetiroParticipante('{{ $participante->id }}')"
-                                                    class="text-red-600 hover:text-red-900">
-                                                Retirar
-                                            </button>
+            <div class="overflow-x-auto px-6 sm:px-8 py-4">
+                <table class="min-w-full">
+                    <thead>
+                        <tr class="bg-gray-100">
+                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-600 w-12">No.</th>
+                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-600">Nombre</th>
+                            <th class="px-3 py-2 text-right text-xs font-medium text-gray-600 w-16">Elo</th>
+                            <th class="px-3 py-2 text-center text-xs font-medium text-gray-600 w-16">FED</th>
+                            @for ($i = 1; $i <= $torneo->no_rondas; $i++)
+                                <th class="px-3 py-2 text-center text-xs font-medium text-gray-600 w-16">{{ $i }}.Rd</th>
+                            @endfor
+                            <th class="px-3 py-2 text-right text-xs font-medium text-gray-600 w-16">Pts.</th>
+                            @if($torneo->usar_buchholz)
+                                <th class="px-3 py-2 text-right text-xs font-medium text-gray-600 w-16">Des 1</th>
+                            @endif
+                            @if($torneo->usar_sonneborn_berger)
+                                <th class="px-3 py-2 text-right text-xs font-medium text-gray-600 w-16">Des 2</th>
+                            @endif
+                            @if($torneo->usar_desempate_progresivo)
+                                <th class="px-3 py-2 text-right text-xs font-medium text-gray-600 w-16">Des 3</th>
+                            @endif
+                            @if($torneo->estado_torneo && !$torneo->torneo_cancelado)
+                                <th class="px-3 py-2 text-right text-xs font-medium text-gray-600 w-24">Acciones</th>
+                            @endif
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($torneo->participantes()->orderBy('posicion')->get() as $index => $participante)
+                            <tr class="{{ $index % 2 == 0 ? 'bg-gray-50' : 'bg-white' }}">
+                                <td class="px-3 py-2 text-sm text-blue-600">{{ $index + 1 }}</td>
+                                <td class="px-3 py-2 text-sm text-blue-600">
+                                    {{ $participante->miembro->nombres }} {{ $participante->miembro->apellidos }}
+                                </td>
+                                <td class="px-3 py-2 text-sm text-right text-gray-900">
+                                    {{ $participante->miembro->elo ?? '' }}
+                                </td>
+                                <td class="px-3 py-2 text-sm text-center text-gray-900">
+                                    {{ $participante->miembro->federacion ?? 'NCA' }}
+                                </td>
+                                @foreach($torneo->rondas as $ronda)
+                                    @php
+                                        $partida = $ronda->partidas->first(function($p) use ($participante) {
+                                            return $p->jugador_blancas_id === $participante->miembro_id || 
+                                                   $p->jugador_negras_id === $participante->miembro_id;
+                                        });
+                                        
+                                        if ($partida) {
+                                            $esBlancas = $partida->jugador_blancas_id === $participante->miembro_id;
+                                            $oponente = $esBlancas ? $partida->jugadorNegras : $partida->jugadorBlancas;
+                                            $oponenteIndex = $torneo->participantes()
+                                                ->where('miembro_id', $oponente ? $oponente->cedula : null)
+                                                ->first();
+                                            $oponenteNumero = $oponenteIndex ? $torneo->participantes()
+                                                ->where('puntos', '>', $oponenteIndex->puntos)
+                                                ->count() + 1 : null;
+                                        }
+                                    @endphp
+                                    <td class="px-3 py-2 text-sm text-center {{ !$partida || $partida->resultado === null ? 'text-gray-500' : 'text-gray-900' }}">
+                                        @if($partida)
+                                            @if($oponente)
+                                                {{ $oponenteNumero }}{{ $esBlancas ? 'b' : 'w' }}
+                                                @if($partida->resultado !== null)
+                                                    @if($esBlancas)
+                                                        {{ $partida->resultado === 1 ? '1' : ($partida->resultado === 2 ? '0' : '½') }}
+                                                    @else
+                                                        {{ $partida->resultado === 2 ? '1' : ($partida->resultado === 1 ? '0' : '½') }}
+                                                    @endif
+                                                @endif
+                                            @elseif(!$partida->jugador_negras_id)
+                                                +
+                                            @else
+                                                -0
+                                            @endif
+                                        @else
+                                            -
                                         @endif
                                     </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            @else
-                <div class="px-6 py-4 text-center text-sm text-gray-500">
-                    No hay participantes registrados en este torneo.
-                </div>
-            @endif
+                                @endforeach
+                                @for($i = $torneo->rondas->count() + 1; $i <= $torneo->no_rondas; $i++)
+                                    <td class="px-3 py-2 text-sm text-center text-gray-500">-</td>
+                                @endfor
+                                <td class="px-3 py-2 text-sm text-right font-medium">
+                                    {{ number_format($participante->puntos, 1) }}
+                                </td>
+                                @if($torneo->usar_buchholz)
+                                    <td class="px-3 py-2 text-sm text-right text-gray-900">
+                                        {{ number_format($participante->buchholz, 2) }}
+                                    </td>
+                                @endif
+                                @if($torneo->usar_sonneborn_berger)
+                                    <td class="px-3 py-2 text-sm text-right text-gray-900">
+                                        {{ number_format($participante->sonneborn_berger, 2) }}
+                                    </td>
+                                @endif
+                                @if($torneo->usar_desempate_progresivo)
+                                    <td class="px-3 py-2 text-sm text-right text-gray-900">
+                                        {{ number_format($participante->progresivo, 2) }}
+                                    </td>
+                                @endif
+                                @if($torneo->estado_torneo && !$torneo->torneo_cancelado)
+                                    <td class="px-3 py-2 text-sm text-right">
+                                        <button type="button"
+                                                onclick="confirmarRetiroParticipante('{{ $participante->id }}')"
+                                                class="text-red-600 hover:text-red-900">
+                                            Retirar
+                                        </button>
+                                    </td>
+                                @endif
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -252,7 +322,7 @@
         <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
             <div class="px-4 py-5 sm:px-6 flex justify-between items-center">
                 <h3 class="text-lg leading-6 font-medium text-gray-900">
-                    Rondas
+                    Rondas y Resultados
                     <span class="ml-2 text-sm text-gray-500">({{ $torneo->rondas->count() }} de {{ $torneo->no_rondas }})</span>
                 </h3>
                 @if($torneo->estado_torneo && !$torneo->torneo_cancelado && $torneo->rondas->count() < $torneo->no_rondas)
@@ -267,51 +337,82 @@
 
             <div class="border-t border-gray-200">
                 @if($torneo->rondas->count() > 0)
-                    <div class="overflow-x-auto">
-                        @foreach($torneo->rondas as $ronda)
-                            <div class="px-4 py-5 sm:p-6">
-                                <h4 class="text-lg font-medium text-gray-900 mb-4">
-                                    Ronda {{ $ronda->numero_ronda }}
-                                    <span class="text-sm text-gray-500">({{ $ronda->fecha_hora->format('d/m/Y H:i') }})</span>
-                                </h4>
-                                <div class="space-y-4">
-                                    @foreach($ronda->partidas as $partida)
-                                        <div class="flex items-center justify-between bg-gray-50 p-4 rounded-lg">
-                                            <div class="flex items-center space-x-4">
-                                                <span class="text-sm font-medium">Mesa {{ $partida->mesa }}</span>
-                                                <span class="text-sm">{{ $partida->jugadorBlancas->nombres }}</span>
-                                                <span class="text-sm font-medium">vs</span>
-                                                <span class="text-sm">{{ $partida->jugadorNegras ? $partida->jugadorNegras->nombres : 'BYE' }}</span>
-                                            </div>
-                                            @if(!$ronda->completada)
-                                                <div class="flex items-center space-x-2">
-                                                    <button type="button"
-                                                            onclick="registrarResultado('{{ $partida->id }}', 1)"
-                                                            class="text-white bg-green-500 hover:bg-green-600 px-2 py-1 rounded text-sm">
-                                                        1-0
-                                                    </button>
-                                                    <button type="button"
-                                                            onclick="registrarResultado('{{ $partida->id }}', 3)"
-                                                            class="text-white bg-gray-500 hover:bg-gray-600 px-2 py-1 rounded text-sm">
-                                                        ½-½
-                                                    </button>
-                                                    <button type="button"
-                                                            onclick="registrarResultado('{{ $partida->id }}', 2)"
-                                                            class="text-white bg-green-500 hover:bg-green-600 px-2 py-1 rounded text-sm">
-                                                        0-1
-                                                    </button>
-                                                </div>
-                                            @else
-                                                <span class="text-sm font-medium">
-                                                    {{ $partida->getResultadoTexto() }}
-                                                </span>
-                                            @endif
-                                        </div>
-                                    @endforeach
-                                </div>
+                    @foreach($torneo->rondas as $ronda)
+                        <div class="px-4 py-5 sm:p-6">
+                            <h4 class="text-lg font-medium text-gray-900 mb-4">
+                                Ronda {{ $ronda->numero_ronda }}
+                                <span class="text-sm text-gray-500">({{ $ronda->fecha_hora->format('d/m/Y H:i') }})</span>
+                            </h4>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full">
+                                    <thead>
+                                        <tr class="bg-gray-50">
+                                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">M.</th>
+                                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">No.</th>
+                                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">Blancas</th>
+                                            <th class="px-3 py-2 text-center text-xs font-medium text-gray-500">Elo</th>
+                                            <th class="px-3 py-2 text-center text-xs font-medium text-gray-500">Pts.</th>
+                                            <th class="px-3 py-2 text-center text-xs font-medium text-gray-500">Resultado</th>
+                                            <th class="px-3 py-2 text-center text-xs font-medium text-gray-500">Pts.</th>
+                                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">Negras</th>
+                                            <th class="px-3 py-2 text-center text-xs font-medium text-gray-500">Elo</th>
+                                            <th class="px-3 py-2 text-center text-xs font-medium text-gray-500">No.</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($ronda->partidas as $partida)
+                                            <tr class="hover:bg-gray-50">
+                                                <td class="px-3 py-2 text-sm text-gray-500">{{ $partida->mesa }}</td>
+                                                <td class="px-3 py-2 text-sm text-gray-900">{{ $loop->iteration }}</td>
+                                                <td class="px-3 py-2 text-sm font-medium text-blue-600">
+                                                    {{ $partida->jugadorBlancas->nombres }} {{ $partida->jugadorBlancas->apellidos }}
+                                                </td>
+                                                <td class="px-3 py-2 text-sm text-center text-gray-500">
+                                                    {{ $partida->jugadorBlancas->elo ?? '0' }}
+                                                </td>
+                                                <td class="px-3 py-2 text-sm text-center text-gray-500">
+                                                    {{ $partida->jugadorBlancas->participanteTorneo ? number_format($partida->jugadorBlancas->participanteTorneo->puntos, 1) : '0.0' }}
+                                                </td>
+                                                <td class="px-3 py-2 text-center">
+                                                    @if(!$ronda->completada)
+                                                        <form method="POST" action="{{ route('torneos.partidas.resultado', $partida->id) }}" class="inline-flex space-x-2 items-center justify-center">
+                                                            @csrf
+                                                            <input type="text" 
+                                                                   name="resultado_texto" 
+                                                                   class="rounded border-gray-300 text-sm w-20" 
+                                                                   placeholder="1-0/0-1/½-½"
+                                                                   value="{{ $partida->getResultadoTexto() !== '*' ? $partida->getResultadoTexto() : '' }}">
+                                                            <button type="submit" class="px-2 py-1 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded">
+                                                                Guardar
+                                                            </button>
+                                                        </form>
+                                                    @else
+                                                        <span class="text-sm font-medium">{{ $partida->getResultadoTexto() }}</span>
+                                                    @endif
+                                                </td>
+                                                <td class="px-3 py-2 text-sm text-center text-gray-500">
+                                                    {{ $partida->jugadorNegras ? ($partida->jugadorNegras->participanteTorneo ? number_format($partida->jugadorNegras->participanteTorneo->puntos, 1) : '0.0') : '-' }}
+                                                </td>
+                                                <td class="px-3 py-2 text-sm font-medium text-blue-600">
+                                                    @if($partida->jugadorNegras)
+                                                        {{ $partida->jugadorNegras->nombres }} {{ $partida->jugadorNegras->apellidos }}
+                                                    @else
+                                                        <span class="text-gray-500">BYE</span>
+                                                    @endif
+                                                </td>
+                                                <td class="px-3 py-2 text-sm text-center text-gray-500">
+                                                    {{ $partida->jugadorNegras ? ($partida->jugadorNegras->elo ?? '0') : '-' }}
+                                                </td>
+                                                <td class="px-3 py-2 text-sm text-gray-900">
+                                                    {{ $partida->jugadorNegras ? ($loop->iteration + 1) : '-' }}
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
                             </div>
-                        @endforeach
-                    </div>
+                        </div>
+                    @endforeach
                 @else
                     <div class="px-6 py-4 text-center text-sm text-gray-500">
                         No se han generado rondas aún.
@@ -400,7 +501,7 @@ function confirmarRetiroParticipante(participanteId) {
     if (confirm('¿Está seguro que desea retirar a este participante del torneo?')) {
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = `{{ url('torneos/' . $torneo->id . '/participantes') }}/${participanteId}`;
+        form.action = `/torneos/{{ $torneo->id }}/participantes/${participanteId}`;
         form.innerHTML = `@csrf @method('DELETE')`;
         document.body.appendChild(form);
         form.submit();
@@ -411,23 +512,72 @@ function generarEmparejamientos() {
     if (confirm('¿Está seguro que desea generar los emparejamientos para la siguiente ronda?')) {
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = `{{ route('torneos.rondas.store', $torneo) }}`;
+        form.action = `{{ route('torneos.rondas.store', ['torneo' => $torneo->id]) }}`;
         form.innerHTML = `@csrf`;
         document.body.appendChild(form);
         form.submit();
     }
 }
 
-function registrarResultado(partidaId, resultado) {
+function registrarResultado(partidaId, resultado, buttonElement) {
+    // Deshabilitar todos los botones del grupo
+    const botonesGrupo = buttonElement.parentElement.querySelectorAll('button');
+    botonesGrupo.forEach(btn => {
+        btn.classList.remove('bg-green-600', 'bg-blue-600');
+        if (btn !== buttonElement) {
+            btn.classList.add('bg-gray-500');
+            btn.classList.add('opacity-50');
+        }
+    });
+
+    // Resaltar el botón seleccionado
+    buttonElement.classList.remove('bg-gray-500', 'opacity-50');
+    buttonElement.classList.add('bg-blue-600');
+
+    // Crear el formulario para enviar
     const form = document.createElement('form');
     form.method = 'POST';
-    form.action = `{{ url('torneos/partidas') }}/${partidaId}/resultado`;
-    form.innerHTML = `
-        @csrf
-        <input type="hidden" name="resultado" value="${resultado}">
-    `;
+    form.action = `/torneos/partidas/${partidaId}/resultado`;
+    
+    // Agregar CSRF token
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = '_token';
+    csrfInput.value = csrfToken;
+    form.appendChild(csrfInput);
+
+    // Agregar el resultado
+    const resultadoInput = document.createElement('input');
+    resultadoInput.type = 'hidden';
+    resultadoInput.name = 'resultado';
+    resultadoInput.value = resultado;
+    form.appendChild(resultadoInput);
+
+    // Enviar el formulario
     document.body.appendChild(form);
     form.submit();
+}
+
+function getResultadoTexto(resultado) {
+    switch(parseInt(resultado)) {
+        case 1: return '1-0';
+        case 2: return '0-1';
+        case 3: return '½-½';
+        default: return '*';
+    }
+}
+
+function verificarRondaCompletada() {
+    // Verificar si quedan botones de resultado en la ronda actual
+    const botonesRestantes = document.querySelectorAll('.ronda-actual .resultado-buttons');
+    if (botonesRestantes.length === 0) {
+        // Mostrar el botón de generar siguiente ronda si corresponde
+        const btnGenerarRonda = document.querySelector('.btn-generar-ronda');
+        if (btnGenerarRonda) {
+            btnGenerarRonda.classList.remove('hidden');
+        }
+    }
 }
 
 // Cerrar modal al hacer clic fuera

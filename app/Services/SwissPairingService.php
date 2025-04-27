@@ -3,8 +3,8 @@
 namespace App\Services;
 
 use App\Models\Torneo;
-use App\Models\Participante;
-use App\Models\Partida;
+use App\Models\ParticipanteTorneo;
+use App\Models\PartidaTorneo;
 use Illuminate\Support\Collection;
 
 class SwissPairingService
@@ -17,7 +17,11 @@ class SwissPairingService
     {
         $this->torneo = $torneo;
         $this->participantes = $torneo->participantes()->with('miembro')->get();
-        $this->partidasAnteriores = $torneo->partidas()->get();
+        $this->partidasAnteriores = collect();
+        
+        foreach ($torneo->rondas as $ronda) {
+            $this->partidasAnteriores = $this->partidasAnteriores->merge($ronda->partidas);
+        }
     }
 
     public function generarEmparejamientos(int $ronda): array
@@ -45,20 +49,15 @@ class SwissPairingService
 
             if ($oponente) {
                 $emparejamientos[] = [
-                    'participante1' => $participante,
-                    'participante2' => $oponente,
-                    'mesa' => count($emparejamientos) + 1,
-                    'ronda' => $ronda
+                    'blancas' => $participante,
+                    'negras' => $oponente
                 ];
                 $participantesEmparejados->push($participante->id, $oponente->id);
             } elseif ($this->torneo->permitir_bye) {
                 // Asignar bye si está permitido
                 $emparejamientos[] = [
-                    'participante1' => $participante,
-                    'participante2' => null,
-                    'mesa' => count($emparejamientos) + 1,
-                    'ronda' => $ronda,
-                    'bye' => true
+                    'blancas' => $participante,
+                    'negras' => null
                 ];
                 $participantesEmparejados->push($participante->id);
             }
@@ -68,11 +67,11 @@ class SwissPairingService
     }
 
     private function buscarOponente(
-        Participante $participante,
+        ParticipanteTorneo $participante,
         Collection $participantesOrdenados,
         Collection $participantesEmparejados,
         int $ronda
-    ): ?Participante {
+    ): ?ParticipanteTorneo {
         $diferenciaPuntosMaxima = 1;
         $intentos = 0;
         $maxIntentos = 3;
@@ -91,8 +90,8 @@ class SwissPairingService
     }
 
     private function esOponenteValido(
-        Participante $participante,
-        Participante $oponente,
+        ParticipanteTorneo $participante,
+        ParticipanteTorneo $oponente,
         Collection $participantesEmparejados,
         int $ronda,
         int $diferenciaPuntosMaxima
@@ -114,14 +113,12 @@ class SwissPairingService
 
         // Verificar emparejamientos anteriores si está configurado
         if ($this->torneo->evitar_emparejamientos_repetidos) {
-            $emparejamientosAnteriores = $this->partidasAnteriores
-                ->where('ronda', '<', $ronda)
-                ->filter(function ($partida) use ($participante, $oponente) {
-                    return ($partida->participante_id === $participante->miembro_id && 
-                            $partida->oponente_id === $oponente->miembro_id) ||
-                           ($partida->participante_id === $oponente->miembro_id && 
-                            $partida->oponente_id === $participante->miembro_id);
-                });
+            $emparejamientosAnteriores = $this->partidasAnteriores->filter(function ($partida) use ($participante, $oponente) {
+                return ($partida->jugador_blancas_id === $participante->miembro_id && 
+                        $partida->jugador_negras_id === $oponente->miembro_id) ||
+                       ($partida->jugador_blancas_id === $oponente->miembro_id && 
+                        $partida->jugador_negras_id === $participante->miembro_id);
+            });
 
             if ($emparejamientosAnteriores->count() >= $this->torneo->maximo_emparejamientos_repetidos) {
                 return false;
@@ -130,19 +127,24 @@ class SwissPairingService
 
         // Verificar colores si está configurado
         if ($this->torneo->alternar_colores) {
-            $ultimaPartida = $this->partidasAnteriores
-                ->where('participante_id', $participante->miembro_id)
-                ->sortByDesc('ronda')
-                ->first();
+            // Obtener la última partida del participante
+            $ultimaPartidaParticipante = $this->partidasAnteriores->filter(function ($partida) use ($participante) {
+                return $partida->jugador_blancas_id === $participante->miembro_id ||
+                       $partida->jugador_negras_id === $participante->miembro_id;
+            })->sortByDesc('ronda')->first();
 
-            if ($ultimaPartida && $ultimaPartida->color === true) {
-                // El último color fue blancas, buscar oponente que jugó negras
-                $ultimaPartidaOponente = $this->partidasAnteriores
-                    ->where('participante_id', $oponente->miembro_id)
-                    ->sortByDesc('ronda')
-                    ->first();
+            // Obtener la última partida del oponente
+            $ultimaPartidaOponente = $this->partidasAnteriores->filter(function ($partida) use ($oponente) {
+                return $partida->jugador_blancas_id === $oponente->miembro_id ||
+                       $partida->jugador_negras_id === $oponente->miembro_id;
+            })->sortByDesc('ronda')->first();
 
-                if ($ultimaPartidaOponente && $ultimaPartidaOponente->color === true) {
+            if ($ultimaPartidaParticipante && $ultimaPartidaOponente) {
+                $participanteJugoBlancas = $ultimaPartidaParticipante->jugador_blancas_id === $participante->miembro_id;
+                $oponenteJugoBlancas = $ultimaPartidaOponente->jugador_blancas_id === $oponente->miembro_id;
+
+                // Si ambos jugaron con el mismo color en su última partida
+                if ($participanteJugoBlancas === $oponenteJugoBlancas) {
                     return false;
                 }
             }

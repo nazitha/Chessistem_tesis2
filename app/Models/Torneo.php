@@ -17,6 +17,7 @@ class Torneo extends Model
     use HasFactory;
 
     protected $table = 'torneos';
+    protected $primaryKey = 'id';
     public $timestamps = false;
 
     protected $fillable = [

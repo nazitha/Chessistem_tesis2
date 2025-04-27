@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class PartidaTorneo extends Model
 {
     protected $table = 'partidas_torneo';
+    protected $primaryKey = 'id';
 
     protected $fillable = [
         'ronda_id',
@@ -38,13 +39,25 @@ class PartidaTorneo extends Model
         return $this->belongsTo(Miembro::class, 'jugador_negras_id', 'cedula');
     }
 
-    public function getResultadoTexto(): string
+    public function getResultadoTexto()
     {
-        return match($this->resultado) {
-            1 => '1-0',
-            2 => '0-1',
-            3 => '½-½',
-            default => '*'
-        };
+        if ($this->resultado === null) {
+            return '*';
+        }
+
+        if (!$this->jugador_negras_id) {
+            return '+'; // BYE
+        }
+
+        switch ($this->resultado) {
+            case 1:
+                return '1-0';
+            case 2:
+                return '0-1';
+            case 3:
+                return '½-½';
+            default:
+                return '*';
+        }
     }
 } 
