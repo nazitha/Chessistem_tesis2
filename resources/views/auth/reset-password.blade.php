@@ -11,9 +11,8 @@
 <body>
     <div class="container">
         <div class="login-form">
-            <form method="POST" action="{{ route('password.update') }}">
+            <form method="POST" action="{{ route('password.reset.update') }}">
                 @csrf
-                @method('PUT')
                 <input type="hidden" name="token" value="{{ $token }}">
                 
                 <h1 id="estrellas">Estrellas del Ajedrez</h1>
@@ -88,6 +87,16 @@
                 toggleIcon.style.opacity = '0.9';
             }
         }
+
+        // Agregar evento para mostrar datos del formulario
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const formData = new FormData(this);
+            const data = {};
+            for (let [key, value] of formData.entries()) {
+                data[key] = key.includes('password') ? '******' : value;
+            }
+            console.log('Datos del formulario:', data);
+        });
     </script>
 </body>
 </html> 
