@@ -5,11 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\RondaTorneo;
 use App\Models\PartidaTorneo;
+use App\Models\ParticipanteTorneo;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 use App\Models\Torneo;
-use App\Models\ParticipanteTorneo;
 use App\Models\Participante;
 use App\Services\SwissPairingService;
 
@@ -331,10 +331,20 @@ class TorneoRondaController extends Controller
                 foreach ($ronda->partidas as $partida) {
                     if ($partida->jugador_blancas_id === $participante->miembro_id) {
                         if ($partida->jugador_negras_id) { // No contar bye
-                            $buchholz += $partida->jugadorNegras->puntos;
+                            $oponente = ParticipanteTorneo::where('torneo_id', $torneo->id)
+                                ->where('miembro_id', $partida->jugador_negras_id)
+                                ->first();
+                            if ($oponente) {
+                                $buchholz += $oponente->puntos;
+                            }
                         }
                     } elseif ($partida->jugador_negras_id === $participante->miembro_id) {
-                        $buchholz += $partida->jugadorBlancas->puntos;
+                        $oponente = ParticipanteTorneo::where('torneo_id', $torneo->id)
+                            ->where('miembro_id', $partida->jugador_blancas_id)
+                            ->first();
+                        if ($oponente) {
+                            $buchholz += $oponente->puntos;
+                        }
                     }
                 }
             }
@@ -350,17 +360,27 @@ class TorneoRondaController extends Controller
                 foreach ($ronda->partidas as $partida) {
                     if ($partida->jugador_blancas_id === $participante->miembro_id) {
                         if ($partida->jugador_negras_id) { // No contar bye
-                            if ($partida->resultado === 1) { // Victoria
-                                $sonnebornBerger += $partida->jugadorNegras->puntos;
-                            } elseif ($partida->resultado === 3) { // Tablas
-                                $sonnebornBerger += $partida->jugadorNegras->puntos / 2;
+                            $oponente = ParticipanteTorneo::where('torneo_id', $torneo->id)
+                                ->where('miembro_id', $partida->jugador_negras_id)
+                                ->first();
+                            if ($oponente) {
+                                if ($partida->resultado === 1) { // Victoria
+                                    $sonnebornBerger += $oponente->puntos;
+                                } elseif ($partida->resultado === 3) { // Tablas
+                                    $sonnebornBerger += $oponente->puntos / 2;
+                                }
                             }
                         }
                     } elseif ($partida->jugador_negras_id === $participante->miembro_id) {
-                        if ($partida->resultado === 2) { // Victoria
-                            $sonnebornBerger += $partida->jugadorBlancas->puntos;
-                        } elseif ($partida->resultado === 3) { // Tablas
-                            $sonnebornBerger += $partida->jugadorBlancas->puntos / 2;
+                        $oponente = ParticipanteTorneo::where('torneo_id', $torneo->id)
+                            ->where('miembro_id', $partida->jugador_blancas_id)
+                            ->first();
+                        if ($oponente) {
+                            if ($partida->resultado === 2) { // Victoria
+                                $sonnebornBerger += $oponente->puntos;
+                            } elseif ($partida->resultado === 3) { // Tablas
+                                $sonnebornBerger += $oponente->puntos / 2;
+                            }
                         }
                     }
                 }

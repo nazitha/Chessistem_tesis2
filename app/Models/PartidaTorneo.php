@@ -96,9 +96,16 @@ class PartidaTorneo extends Model
             case '½':
                 $this->resultado = 3;
                 break;
+            case '+':
+                if (!$this->jugador_negras_id) {
+                    $this->resultado = 1; // Victoria por BYE
+                } else {
+                    throw new \InvalidArgumentException('No se puede usar "+" cuando hay dos jugadores.');
+                }
+                break;
             default:
                 Log::error('Formato de resultado inválido: ' . $texto);
-                throw new \InvalidArgumentException('Formato de resultado inválido. Use 1-0, 0-1, ½-½ o ½');
+                throw new \InvalidArgumentException('Formato de resultado inválido. Use 1-0, 0-1, ½-½, ½ o + (para BYE)');
         }
         
         Log::info('Resultado establecido a: ' . $this->resultado);

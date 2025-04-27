@@ -228,9 +228,9 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($torneo->participantes()->orderBy('posicion')->get() as $index => $participante)
+                        @foreach($torneo->participantes()->orderBy('numero_inicial')->get() as $index => $participante)
                             <tr class="{{ $index % 2 == 0 ? 'bg-gray-50' : 'bg-white' }}">
-                                <td class="px-3 py-2 text-sm text-blue-600">{{ $index + 1 }}</td>
+                                <td class="px-3 py-2 text-sm text-blue-600">{{ $participante->numero_inicial }}</td>
                                 <td class="px-3 py-2 text-sm text-blue-600">
                                     {{ $participante->miembro->nombres }} {{ $participante->miembro->apellidos }}
                                 </td>
@@ -250,18 +250,16 @@
                                         if ($partida) {
                                             $esBlancas = $partida->jugador_blancas_id === $participante->miembro_id;
                                             $oponente = $esBlancas ? $partida->jugadorNegras : $partida->jugadorBlancas;
-                                            $oponenteIndex = $torneo->participantes()
-                                                ->where('miembro_id', $oponente ? $oponente->cedula : null)
-                                                ->first();
-                                            $oponenteNumero = $oponenteIndex ? $torneo->participantes()
-                                                ->where('puntos', '>', $oponenteIndex->puntos)
-                                                ->count() + 1 : null;
+                                            $oponenteParticipante = $oponente ? $torneo->participantes()
+                                                ->where('miembro_id', $oponente->cedula)
+                                                ->first() : null;
+                                            $oponenteNumero = $oponenteParticipante ? $oponenteParticipante->numero_inicial : null;
                                         }
                                     @endphp
                                     <td class="px-3 py-2 text-sm text-center {{ !$partida || $partida->resultado === null ? 'text-gray-500' : 'text-gray-900' }}">
                                         @if($partida)
                                             @if($oponente)
-                                                {{ $oponenteNumero }}{{ $esBlancas ? 'b' : 'w' }}
+                                                {{ $oponenteNumero }}{{ $esBlancas ? 'w' : 'b' }}
                                                 @if($partida->resultado !== null)
                                                     @if($esBlancas)
                                                         {{ $partida->resultado === 1 ? '1' : ($partida->resultado === 2 ? '0' : '½') }}
@@ -431,6 +429,107 @@
                         No se han generado rondas aún.
                     </div>
                 @endif
+            </div>
+        </div>
+    @endif
+
+    <!-- Tabla de Clasificación Final -->
+    @if($torneo->rondas->count() == $torneo->no_rondas)
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
+            <div class="px-4 py-5 sm:px-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">
+                    Clasificación Final
+                </h3>
+            </div>
+            <div class="border-t border-gray-200">
+                <div class="overflow-x-auto px-6 sm:px-8 py-4">
+                    <table class="min-w-full">
+                        <thead>
+                            <tr class="bg-gray-100">
+                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-600 w-12">Pos.</th>
+                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-600 w-12">No.</th>
+                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-600">Nombre</th>
+                                <th class="px-3 py-2 text-right text-xs font-medium text-gray-600 w-16">Elo</th>
+                                <th class="px-3 py-2 text-center text-xs font-medium text-gray-600 w-16">FED</th>
+                                <th class="px-3 py-2 text-right text-xs font-medium text-gray-600 w-16">Pts.</th>
+                                @if($torneo->usar_buchholz)
+                                    <th class="px-3 py-2 text-right text-xs font-medium text-gray-600 w-16">Buchholz</th>
+                                @endif
+                                @if($torneo->usar_sonneborn_berger)
+                                    <th class="px-3 py-2 text-right text-xs font-medium text-gray-600 w-16">S-B</th>
+                                @endif
+                                @if($torneo->usar_desempate_progresivo)
+                                    <th class="px-3 py-2 text-right text-xs font-medium text-gray-600 w-16">Prog.</th>
+                                @endif
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @php
+                                $participantesOrdenados = $torneo->participantes()
+                                    ->orderByDesc('puntos')
+                                    ->orderByDesc('buchholz')
+                                    ->orderByDesc('sonneborn_berger')
+                                    ->orderByDesc('progresivo')
+                                    ->get();
+                                $posicion = 1;
+                                $puntosAnteriores = null;
+                                $buchholzAnterior = null;
+                                $sonnebornAnterior = null;
+                                $progresivoAnterior = null;
+                                $posicionMostrada = 1;
+                            @endphp
+
+                            @foreach($participantesOrdenados as $participante)
+                                @php
+                                    if ($puntosAnteriores !== $participante->puntos ||
+                                        ($torneo->usar_buchholz && $buchholzAnterior !== $participante->buchholz) ||
+                                        ($torneo->usar_sonneborn_berger && $sonnebornAnterior !== $participante->sonneborn_berger) ||
+                                        ($torneo->usar_desempate_progresivo && $progresivoAnterior !== $participante->progresivo)) {
+                                        $posicionMostrada = $posicion;
+                                    }
+                                    $puntosAnteriores = $participante->puntos;
+                                    $buchholzAnterior = $participante->buchholz;
+                                    $sonnebornAnterior = $participante->sonneborn_berger;
+                                    $progresivoAnterior = $participante->progresivo;
+                                @endphp
+                                <tr class="{{ $loop->even ? 'bg-gray-50' : 'bg-white' }}">
+                                    <td class="px-3 py-2 text-sm font-medium">{{ $posicionMostrada }}</td>
+                                    <td class="px-3 py-2 text-sm text-blue-600">{{ $participante->numero_inicial }}</td>
+                                    <td class="px-3 py-2 text-sm text-blue-600">
+                                        {{ $participante->miembro->nombres }} {{ $participante->miembro->apellidos }}
+                                    </td>
+                                    <td class="px-3 py-2 text-sm text-right text-gray-900">
+                                        {{ $participante->miembro->elo ?? '' }}
+                                    </td>
+                                    <td class="px-3 py-2 text-sm text-center text-gray-900">
+                                        {{ $participante->miembro->federacion ?? 'NCA' }}
+                                    </td>
+                                    <td class="px-3 py-2 text-sm text-right font-medium">
+                                        {{ number_format($participante->puntos, 1) }}
+                                    </td>
+                                    @if($torneo->usar_buchholz)
+                                        <td class="px-3 py-2 text-sm text-right text-gray-900">
+                                            {{ number_format($participante->buchholz, 2) }}
+                                        </td>
+                                    @endif
+                                    @if($torneo->usar_sonneborn_berger)
+                                        <td class="px-3 py-2 text-sm text-right text-gray-900">
+                                            {{ number_format($participante->sonneborn_berger, 2) }}
+                                        </td>
+                                    @endif
+                                    @if($torneo->usar_desempate_progresivo)
+                                        <td class="px-3 py-2 text-sm text-right text-gray-900">
+                                            {{ number_format($participante->progresivo, 2) }}
+                                        </td>
+                                    @endif
+                                </tr>
+                                @php
+                                    $posicion++;
+                                @endphp
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     @endif
