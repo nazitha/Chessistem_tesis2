@@ -26,75 +26,101 @@ class SwissPairingService
 
     public function generarEmparejamientos(int $ronda): array
     {
-        // Ordenar participantes por puntos
+        // 1. Ordenar jugadores por puntos y elo
         $participantesOrdenados = $this->participantes
             ->sortByDesc('puntos')
+            ->sortByDesc(function($participante) {
+                return $participante->miembro->elo ?? 0;
+            })
             ->values();
 
         $emparejamientos = [];
         $participantesEmparejados = collect();
+        $grupo = $participantesOrdenados;
 
-        foreach ($participantesOrdenados as $participante) {
-            if ($participantesEmparejados->contains($participante->id)) {
-                continue;
+        // 2. Manejar número impar de participantes
+        if ($grupo->count() % 2 !== 0 && $this->torneo->permitir_bye) {
+            // Asignar bye al jugador con menor puntuación
+            $jugadorBye = $grupo->last();
+            $emparejamientos[] = [
+                'blancas' => $jugadorBye,
+                'negras' => null
+            ];
+            $participantesEmparejados->push($jugadorBye->id);
+            $grupo = $grupo->filter(function($p) use ($jugadorBye) {
+                return $p->id !== $jugadorBye->id;
+            });
+        }
+
+        // 3. Realizar emparejamientos
+        while ($grupo->isNotEmpty()) {
+            $jugadorA = $grupo->first();
+            $oponenteEncontrado = false;
+
+            // Buscar oponente que no haya jugado antes y balancee colores
+            foreach ($grupo->skip(1) as $jugadorB) {
+                if ($this->esOponenteValido($jugadorA, $jugadorB, $participantesEmparejados, $ronda)) {
+                    $emparejamientos[] = [
+                        'blancas' => $jugadorA,
+                        'negras' => $jugadorB
+                    ];
+                    $participantesEmparejados->push($jugadorA->id, $jugadorB->id);
+                    $grupo = $grupo->filter(function($p) use ($jugadorA, $jugadorB) {
+                        return $p->id !== $jugadorA->id && $p->id !== $jugadorB->id;
+                    });
+                    $oponenteEncontrado = true;
+                    break;
+                }
             }
 
-            // Buscar oponente
-            $oponente = $this->buscarOponente(
-                $participante,
-                $participantesOrdenados,
-                $participantesEmparejados,
-                $ronda
-            );
+            // Si no se encontró oponente, intentar bajar al siguiente grupo
+            if (!$oponenteEncontrado) {
+                $diferenciaPuntosMaxima = 1;
+                $intentos = 0;
+                $maxIntentos = 3;
 
-            if ($oponente) {
-                $emparejamientos[] = [
-                    'blancas' => $participante,
-                    'negras' => $oponente
-                ];
-                $participantesEmparejados->push($participante->id, $oponente->id);
-            } elseif ($this->torneo->permitir_bye) {
-                // Asignar bye si está permitido
-                $emparejamientos[] = [
-                    'blancas' => $participante,
-                    'negras' => null
-                ];
-                $participantesEmparejados->push($participante->id);
+                while ($intentos < $maxIntentos && !$oponenteEncontrado) {
+                    foreach ($grupo->skip(1) as $jugadorB) {
+                        if (abs($jugadorA->puntos - $jugadorB->puntos) <= $diferenciaPuntosMaxima &&
+                            $this->esOponenteValido($jugadorA, $jugadorB, $participantesEmparejados, $ronda)) {
+                            $emparejamientos[] = [
+                                'blancas' => $jugadorA,
+                                'negras' => $jugadorB
+                            ];
+                            $participantesEmparejados->push($jugadorA->id, $jugadorB->id);
+                            $grupo = $grupo->filter(function($p) use ($jugadorA, $jugadorB) {
+                                return $p->id !== $jugadorA->id && $p->id !== $jugadorB->id;
+                            });
+                            $oponenteEncontrado = true;
+                            break;
+                        }
+                    }
+                    $diferenciaPuntosMaxima++;
+                    $intentos++;
+                }
+
+                // Si aún no se encontró oponente, asignar bye si está permitido
+                if (!$oponenteEncontrado && $this->torneo->permitir_bye) {
+                    $emparejamientos[] = [
+                        'blancas' => $jugadorA,
+                        'negras' => null
+                    ];
+                    $participantesEmparejados->push($jugadorA->id);
+                    $grupo = $grupo->filter(function($p) use ($jugadorA) {
+                        return $p->id !== $jugadorA->id;
+                    });
+                }
             }
         }
 
         return $emparejamientos;
     }
 
-    private function buscarOponente(
-        ParticipanteTorneo $participante,
-        Collection $participantesOrdenados,
-        Collection $participantesEmparejados,
-        int $ronda
-    ): ?ParticipanteTorneo {
-        $diferenciaPuntosMaxima = 1;
-        $intentos = 0;
-        $maxIntentos = 3;
-
-        while ($intentos < $maxIntentos) {
-            foreach ($participantesOrdenados as $posibleOponente) {
-                if ($this->esOponenteValido($participante, $posibleOponente, $participantesEmparejados, $ronda, $diferenciaPuntosMaxima)) {
-                    return $posibleOponente;
-                }
-            }
-            $diferenciaPuntosMaxima++;
-            $intentos++;
-        }
-
-        return null;
-    }
-
     private function esOponenteValido(
         ParticipanteTorneo $participante,
         ParticipanteTorneo $oponente,
         Collection $participantesEmparejados,
-        int $ronda,
-        int $diferenciaPuntosMaxima
+        int $ronda
     ): bool {
         // No emparejar consigo mismo
         if ($participante->id === $oponente->id) {
@@ -106,12 +132,7 @@ class SwissPairingService
             return false;
         }
 
-        // Verificar diferencia de puntos
-        if (abs($participante->puntos - $oponente->puntos) > $diferenciaPuntosMaxima) {
-            return false;
-        }
-
-        // Verificar emparejamientos anteriores si está configurado
+        // Verificar emparejamientos anteriores
         if ($this->torneo->evitar_emparejamientos_repetidos) {
             $emparejamientosAnteriores = $this->partidasAnteriores->filter(function ($partida) use ($participante, $oponente) {
                 return ($partida->jugador_blancas_id === $participante->miembro_id && 
@@ -125,15 +146,13 @@ class SwissPairingService
             }
         }
 
-        // Verificar colores si está configurado
+        // Verificar colores
         if ($this->torneo->alternar_colores) {
-            // Obtener la última partida del participante
             $ultimaPartidaParticipante = $this->partidasAnteriores->filter(function ($partida) use ($participante) {
                 return $partida->jugador_blancas_id === $participante->miembro_id ||
                        $partida->jugador_negras_id === $participante->miembro_id;
             })->sortByDesc('ronda')->first();
 
-            // Obtener la última partida del oponente
             $ultimaPartidaOponente = $this->partidasAnteriores->filter(function ($partida) use ($oponente) {
                 return $partida->jugador_blancas_id === $oponente->miembro_id ||
                        $partida->jugador_negras_id === $oponente->miembro_id;
@@ -143,7 +162,6 @@ class SwissPairingService
                 $participanteJugoBlancas = $ultimaPartidaParticipante->jugador_blancas_id === $participante->miembro_id;
                 $oponenteJugoBlancas = $ultimaPartidaOponente->jugador_blancas_id === $oponente->miembro_id;
 
-                // Si ambos jugaron con el mismo color en su última partida
                 if ($participanteJugoBlancas === $oponenteJugoBlancas) {
                     return false;
                 }

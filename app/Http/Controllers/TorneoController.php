@@ -165,7 +165,8 @@ class TorneoController extends Controller
                 'usar_desempate_progresivo',
                 'permitir_bye',
                 'alternar_colores',
-                'evitar_emparejamientos_repetidos'
+                'evitar_emparejamientos_repetidos',
+                'es_por_equipos'
             ];
 
             foreach ($campos_booleanos as $campo) {

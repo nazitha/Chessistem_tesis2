@@ -36,7 +36,8 @@ class TorneoRequest extends FormRequest
             'permitir_bye' => 'sometimes|boolean',
             'alternar_colores' => 'sometimes|boolean',
             'evitar_emparejamientos_repetidos' => 'sometimes|boolean',
-            'maximo_emparejamientos_repetidos' => 'sometimes|integer|min:1|max:3'
+            'maximo_emparejamientos_repetidos' => 'sometimes|integer|min:1|max:3',
+            'es_por_equipos' => 'sometimes|boolean'
         ];
     }
 

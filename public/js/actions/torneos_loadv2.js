@@ -1363,4 +1363,13 @@ $(document).ready(function() {
         });
     }
 
+    const modalParticipantes = document.getElementById('modal-participantes');
+    if (modalParticipantes) {
+        modalParticipantes.addEventListener('click', function(e) {
+            if (e.target === this) {
+                cerrarModalParticipantes();
+            }
+        });
+    }
+
 });
