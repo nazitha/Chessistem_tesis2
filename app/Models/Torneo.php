@@ -17,6 +17,7 @@ class Torneo extends Model
     use HasFactory;
 
     protected $table = 'torneos';
+    protected $primaryKey = 'id';
     public $timestamps = false;
 
     protected $fillable = [
@@ -44,7 +45,8 @@ class Torneo extends Model
         'permitir_bye',
         'alternar_colores',
         'evitar_emparejamientos_repetidos',
-        'maximo_emparejamientos_repetidos'
+        'maximo_emparejamientos_repetidos',
+        'es_por_equipos'
     ];
 
     protected $casts = [
@@ -56,7 +58,8 @@ class Torneo extends Model
         'usar_desempate_progresivo' => 'boolean',
         'permitir_bye' => 'boolean',
         'evitar_emparejamientos_repetidos' => 'boolean',
-        'alternar_colores' => 'boolean'
+        'alternar_colores' => 'boolean',
+        'es_por_equipos' => 'boolean'
     ];
 
     protected static function boot()
@@ -183,6 +186,11 @@ class Torneo extends Model
     {
         $participantesIds = $this->participantes()->pluck('miembro_id');
         return Miembro::whereNotIn('cedula', $participantesIds)->get();
+    }
+
+    public function equipos()
+    {
+        return $this->hasMany(\App\Models\EquipoTorneo::class, 'torneo_id');
     }
 
 }

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class RondaTorneo extends Model
 {
     protected $table = 'rondas_torneo';
+    protected $primaryKey = 'id';
 
     protected $fillable = [
         'torneo_id',
@@ -29,6 +30,6 @@ class RondaTorneo extends Model
 
     public function partidas(): HasMany
     {
-        return $this->hasMany(PartidaTorneo::class, 'ronda_id');
+        return $this->hasMany(PartidaTorneo::class, 'ronda_id')->orderBy('mesa');
     }
 } 

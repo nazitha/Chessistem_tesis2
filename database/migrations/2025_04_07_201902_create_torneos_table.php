@@ -38,6 +38,7 @@ return new class extends Migration
             $table->boolean('alternar_colores')->default(true);
             $table->boolean('evitar_emparejamientos_repetidos')->default(true);
             $table->integer('maximo_emparejamientos_repetidos')->default(1);
+            $table->boolean('es_por_equipos')->default(false)->after('no_rondas');
 
             $table->foreign('categoriaTorneo_id')
                   ->references('id_torneo_categoria')

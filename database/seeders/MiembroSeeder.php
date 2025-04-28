@@ -50,6 +50,46 @@ class MiembroSeeder extends Seeder
                 'fecha_inscripcion' => now(),
                 'estado_miembro' => true,
                 'correo_sistema_id' => 'ana@estrellasdelajedrez.com'
+            ],
+            [
+                'cedula' => '001-120392-0005E',
+                'nombres' => 'Carlos Eduardo',
+                'apellidos' => 'Sánchez Flores',
+                'sexo' => 'M',
+                'fecha_nacimiento' => '1992-03-12',
+                'fecha_inscripcion' => now(),
+                'estado_miembro' => true,
+                'correo_sistema_id' => 'carlos@estrellasdelajedrez.com'
+            ],
+            [
+                'cedula' => '001-050688-0006F',
+                'nombres' => 'Laura Isabel',
+                'apellidos' => 'Torres Mendoza',
+                'sexo' => 'F',
+                'fecha_nacimiento' => '1988-06-05',
+                'fecha_inscripcion' => now(),
+                'estado_miembro' => true,
+                'correo_sistema_id' => 'laura@estrellasdelajedrez.com'
+            ],
+            [
+                'cedula' => '001-230195-0007G',
+                'nombres' => 'Miguel Ángel',
+                'apellidos' => 'Ramírez Castro',
+                'sexo' => 'M',
+                'fecha_nacimiento' => '1995-01-23',
+                'fecha_inscripcion' => now(),
+                'estado_miembro' => true,
+                'correo_sistema_id' => 'miguel@estrellasdelajedrez.com'
+            ],
+            [
+                'cedula' => '001-180487-0008H',
+                'nombres' => 'Patricia Elena',
+                'apellidos' => 'Díaz Vargas',
+                'sexo' => 'F',
+                'fecha_nacimiento' => '1987-04-18',
+                'fecha_inscripcion' => now(),
+                'estado_miembro' => true,
+                'correo_sistema_id' => 'patricia@estrellasdelajedrez.com'
             ]
         ];
 

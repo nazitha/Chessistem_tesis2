@@ -12,6 +12,7 @@ class ParticipanteTorneo extends Model
     protected $fillable = [
         'torneo_id',
         'miembro_id',
+        'numero_inicial',
         'puntos',
         'posicion',
         'buchholz',
@@ -25,7 +26,8 @@ class ParticipanteTorneo extends Model
         'buchholz' => 'float',
         'sonneborn_berger' => 'float',
         'progresivo' => 'float',
-        'activo' => 'boolean'
+        'activo' => 'boolean',
+        'numero_inicial' => 'integer'
     ];
 
     public function torneo(): BelongsTo

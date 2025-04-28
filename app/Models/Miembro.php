@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Miembro extends Model
 {
@@ -20,7 +21,11 @@ class Miembro extends Model
         'fecha_nacimiento',
         'fecha_inscripcion',
         'estado_miembro',
-        'correo_sistema_id'
+        'correo_sistema_id',
+        'telefono',
+        'correo',
+        'elo',
+        'federacion'
     ];
     
     protected $casts = [
@@ -69,6 +74,11 @@ class Miembro extends Model
     }
 
     public function participacionesTorneo()
+    {
+        return $this->hasMany(ParticipanteTorneo::class, 'miembro_id', 'cedula');
+    }
+
+    public function participanteTorneo()
     {
         return $this->hasMany(ParticipanteTorneo::class, 'miembro_id', 'cedula');
     }
