@@ -122,7 +122,6 @@ Route::middleware('web')->group(function () {
 
         // Rutas para gestión de equipos en torneos por equipos
         Route::prefix('torneos/{torneo}/equipos')->name('equipos.')->group(function () {
-            Route::get('/', [EquipoTorneoController::class, 'index'])->name('index');
             Route::post('/', [EquipoTorneoController::class, 'store'])->name('store');
             Route::get('{equipo}', [EquipoTorneoController::class, 'show'])->name('show');
             Route::get('{equipo}/editar', [EquipoTorneoController::class, 'edit'])->name('edit');

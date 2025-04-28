@@ -77,7 +77,7 @@ class EquipoTorneoController extends Controller
                 ]);
             }
             DB::commit();
-            return redirect()->route('equipos.index', $torneoId)->with('success', 'Equipo registrado correctamente.');
+            return redirect()->route('torneos.show', $torneoId)->with('success', 'Equipo registrado correctamente.');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withErrors(['mensaje' => 'Error al registrar el equipo: ' . $e->getMessage()])->withInput();
@@ -157,5 +157,27 @@ class EquipoTorneoController extends Controller
     {
         // Lógica temporal de eliminación
         return back()->with('success', 'Eliminación de equipo (en construcción)');
+    }
+
+    public function update(Request $request, $torneoId, $equipoId)
+    {
+        $equipo = EquipoTorneo::findOrFail($equipoId);
+        $request->validate([
+            'nombre' => 'required|string|max:255|unique:equipos_torneo,nombre,' . $equipoId . ',id,torneo_id,' . $torneoId,
+            'capitan_id' => 'nullable|exists:miembros,cedula',
+            'federacion' => 'nullable|string|max:255',
+            'logo' => 'nullable|image|max:2048',
+            'notas' => 'nullable|string|max:1000',
+        ]);
+        $equipo->nombre = $request->nombre;
+        $equipo->capitan_id = $request->capitan_id;
+        $equipo->federacion = $request->federacion;
+        $equipo->notas = $request->notas;
+        if ($request->hasFile('logo')) {
+            $logoPath = $request->file('logo')->store('logos', 'public');
+            $equipo->logo = $logoPath;
+        }
+        $equipo->save();
+        return redirect()->route('torneos.show', $torneoId)->with('success', 'Equipo actualizado correctamente.');
     }
 } 

@@ -210,15 +210,34 @@
                                     @if(is_countable($equipo->jugadores) && count($equipo->jugadores))
                                         <ul class="list-disc ml-4">
                                             @foreach($equipo->jugadores as $jugador)
-                                                <li>{{ $jugador->miembro->nombres }} {{ $jugador->miembro->apellidos }} (Tablero {{ $jugador->tablero }})</li>
+                                                <li>
+                                                    {{ $jugador->miembro->nombres }} {{ $jugador->miembro->apellidos }} (Tablero {{ $jugador->tablero }})
+                                                </li>
                                             @endforeach
                                         </ul>
                                     @else
                                         <span class="text-gray-400">Sin jugadores</span>
                                     @endif
                                 </td>
-                                <td class="px-3 py-2">
-                                    <a href="{{ route('equipos.show', [$torneo->id, $equipo->id]) }}" class="text-blue-600 hover:underline">Ver</a>
+                                <td class="px-3 py-2 space-x-2">
+                                    <a href="{{ route('equipos.show', [$torneo->id, $equipo->id]) }}" title="Ver" class="inline-block text-blue-600 hover:text-blue-800 text-xl align-middle">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <button type="button" onclick="abrirModalEditarEquipo({{ $equipo->id }})" title="Editar" class="inline-block text-yellow-600 hover:text-yellow-800 text-xl align-middle">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <form action="{{ route('equipos.destroy', [$torneo->id, $equipo->id]) }}" method="POST" class="inline" onsubmit="return confirm('¿Eliminar equipo completo?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" title="Eliminar" class="inline-block text-red-600 hover:text-red-800 text-xl align-middle">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </form>
+                                    @if($torneo->estado_torneo && !$torneo->torneo_cancelado)
+                                        <button type="button" onclick="abrirModalAgregarJugador({{ $equipo->id }})" class="inline-block text-green-600 hover:text-green-800 text-xl align-middle" title="Agregar jugador">
+                                            <i class="fas fa-user-plus"></i>
+                                        </button>
+                                    @endif
                                 </td>
                             </tr>
                             @empty
@@ -233,7 +252,7 @@
         </div>
         <!-- Modal de registro de equipo -->
         <div x-show="open" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-40" style="display: none;">
-            <div @click.away="open = false" class="bg-white rounded-xl shadow-2xl w-full max-w-2xl p-8 relative flex flex-col">
+            <div @click.away="open = false" class="bg-white rounded-xl shadow-2xl w-full max-w-md sm:max-w-lg md:max-w-2xl p-4 sm:p-8 relative flex flex-col max-h-screen overflow-y-auto">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-bold">Registrar Equipo</h2>
                     <button @click="open = false" class="text-gray-400 hover:text-gray-600 text-3xl leading-none">&times;</button>
@@ -298,6 +317,27 @@
                         </div>
                         @error('jugadores')<span class="text-red-500 text-xs">{{ $message }}</span>@enderror
                     </div>
+                    <div class="mt-6 border-t pt-4">
+                        <h3 class="text-base font-bold mb-2">Jugadores actuales</h3>
+                        @if($equipo->jugadores->count())
+                            <ul class="space-y-2">
+                                @foreach($equipo->jugadores as $jugador)
+                                    <li class="flex items-center justify-between">
+                                        <span>{{ $jugador->miembro->nombres }} {{ $jugador->miembro->apellidos }} (Tablero {{ $jugador->tablero }})</span>
+                                        <form action="{{ route('equipos.removeJugador', [$torneo->id, $equipo->id, $jugador->id]) }}" method="POST" class="inline" onsubmit="return confirm('¿Eliminar jugador de este equipo?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-red-600 hover:text-red-800 text-base align-middle" title="Eliminar jugador">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </form>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        @else
+                            <span class="text-gray-400">Sin jugadores</span>
+                        @endif
+                    </div>
                     <div class="flex justify-end space-x-2 pt-4">
                         <button type="button" @click="open = false" class="px-5 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 font-semibold">Cancelar</button>
                         <button type="submit" class="px-5 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 font-semibold flex items-center gap-2">
@@ -310,6 +350,7 @@
     </div>
     @endif
 
+    @if(!$torneo->es_por_equipos)
     <!-- Sección de Participantes -->
     <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6 mt-8">
         <div class="px-6 py-5 sm:px-8 flex justify-between items-center">
@@ -400,14 +441,9 @@
                                             @else
                                                 -0
                                             @endif
-                                        @else
-                                            -
                                         @endif
                                     </td>
                                 @endforeach
-                                @for($i = $torneo->rondas->count() + 1; $i <= $torneo->no_rondas; $i++)
-                                    <td class="px-3 py-2 text-sm text-center text-gray-500">-</td>
-                                @endfor
                                 <td class="px-3 py-2 text-sm text-right font-medium">
                                     {{ number_format($participante->puntos, 1) }}
                                 </td>
@@ -426,22 +462,17 @@
                                         {{ number_format($participante->progresivo, 2) }}
                                     </td>
                                 @endif
-                                @if($torneo->estado_torneo && !$torneo->torneo_cancelado)
-                                    <td class="px-3 py-2 text-sm text-right">
-                                        <button type="button"
-                                                onclick="confirmarRetiroParticipante('{{ $participante->id }}')"
-                                                class="text-red-600 hover:text-red-900">
-                                            Retirar
-                                        </button>
-                                    </td>
-                                @endif
                             </tr>
+                            @php
+                                $posicion++;
+                            @endphp
                         @endforeach
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
+    @endif
 
     <!-- Sección de Rondas -->
     @if($torneo->participantes->count() >= 2)
@@ -686,6 +717,196 @@
 </div>
 @endif
 
+{{-- Corrección de botones y validación de tablero --}}
+@if($torneo->es_por_equipos)
+    @foreach($torneo->equipos as $equipo)
+        <div id="modal-editar-equipo-{{ $equipo->id }}" class="fixed inset-0 bg-gray-900 bg-opacity-40 hidden items-center justify-center z-50">
+            <div class="bg-white rounded-xl shadow-2xl w-full max-w-md sm:max-w-lg md:max-w-2xl p-4 sm:p-8 relative flex flex-col max-h-screen overflow-y-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">Editar Equipo</h2>
+                    <button type="button" onclick="cerrarModalEditarEquipo({{ $equipo->id }})" class="text-gray-400 hover:text-gray-600 text-3xl leading-none">&times;</button>
+                </div>
+                <form method="POST" action="{{ route('equipos.update', [$torneo->id, $equipo->id]) }}" enctype="multipart/form-data" class="space-y-6">
+                    @csrf
+                    @method('PUT')
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-semibold mb-1">Nombre del Equipo <span class="text-red-500">*</span></label>
+                            <input type="text" name="nombre" value="{{ $equipo->nombre }}" class="mt-1 block w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold mb-1">Capitán</label>
+                            <select name="capitan_id" class="mt-1 block w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                <option value="">-- Selecciona --</option>
+                                @foreach($miembrosDisponibles as $miembro)
+                                    <option value="{{ $miembro->cedula }}" @if($equipo->capitan_id == $miembro->cedula) selected @endif>{{ $miembro->nombres }} {{ $miembro->apellidos }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold mb-1">Federación</label>
+                            <input type="text" name="federacion" value="{{ $equipo->federacion }}" class="mt-1 block w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold mb-1">Logo</label>
+                            <input type="file" name="logo" accept="image/*" class="mt-1 block w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                            @if($equipo->logo)
+                                <img src="{{ asset('storage/' . $equipo->logo) }}" alt="Logo actual" class="h-10 mt-2">
+                            @endif
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold mb-1">Notas</label>
+                        <textarea name="notas" rows="2" class="mt-1 block w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">{{ $equipo->notas }}</textarea>
+                    </div>
+                    <div class="flex justify-end space-x-2 pt-4">
+                        <button type="button" onclick="cerrarModalEditarEquipo({{ $equipo->id }})" class="px-5 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 font-semibold">Cancelar</button>
+                        <button type="submit" class="px-5 py-2 rounded-lg bg-yellow-600 text-white hover:bg-yellow-700 font-semibold flex items-center gap-2">
+                            <i class="fas fa-save"></i> Guardar Cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- Modal VER EQUIPO -->
+        <div id="modal-ver-equipo-{{ $equipo->id }}" class="fixed inset-0 bg-gray-900 bg-opacity-40 hidden items-center justify-center z-50">
+            <div class="bg-white rounded-xl shadow-2xl w-full max-w-md sm:max-w-lg md:max-w-2xl p-4 sm:p-8 relative flex flex-col max-h-screen overflow-y-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">Detalles del Equipo</h2>
+                    <button type="button" onclick="cerrarModalVerEquipo({{ $equipo->id }})" class="text-gray-400 hover:text-gray-600 text-3xl leading-none">&times;</button>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <span class="font-semibold">Nombre del Equipo:</span> {{ $equipo->nombre }}
+                    </div>
+                    <div>
+                        <span class="font-semibold">Capitán:</span> {{ $equipo->capitan ? $equipo->capitan->nombres . ' ' . $equipo->capitan->apellidos : '-' }}
+                    </div>
+                    <div>
+                        <span class="font-semibold">Federación:</span> {{ $equipo->federacion ?? '-' }}
+                    </div>
+                    <div>
+                        <span class="font-semibold">Notas:</span> {{ $equipo->notas ?? '-' }}
+                    </div>
+                    @if($equipo->logo)
+                        <div>
+                            <span class="font-semibold">Logo:</span><br>
+                            <img src="{{ asset('storage/' . $equipo->logo) }}" alt="Logo del equipo" class="h-16 mt-2">
+                        </div>
+                    @endif
+                    <div>
+                        <span class="font-semibold">Jugadores:</span>
+                        @if($equipo->jugadores->count())
+                            <ul class="mt-2 space-y-2">
+                                @foreach($equipo->jugadores as $jugador)
+                                    <li class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b pb-2">
+                                        <div>
+                                            <span class="font-medium">{{ $jugador->miembro->nombres }} {{ $jugador->miembro->apellidos }}</span>
+                                            <span class="text-gray-500">(Tablero {{ $jugador->tablero }})</span>
+                                        </div>
+                                        <div class="text-xs text-gray-600">
+                                            ELO: <span class="font-semibold">{{ $jugador->miembro->elo ?? '-' }}</span> |
+                                            FED: <span class="font-semibold">{{ $jugador->miembro->federacion ?? 'NCA' }}</span>
+                                        </div>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        @else
+                            <span class="text-gray-400">Sin jugadores</span>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Modal AGREGAR JUGADOR -->
+        <div id="modal-agregar-jugador-{{ $equipo->id }}" class="fixed inset-0 bg-gray-900 bg-opacity-40 hidden items-center justify-center z-50">
+            <div class="bg-white rounded-xl shadow-2xl w-full max-w-md sm:max-w-lg md:max-w-2xl p-4 sm:p-8 relative flex flex-col max-h-screen overflow-y-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold">Agregar jugador a {{ $equipo->nombre }}</h2>
+                    <button type="button" onclick="cerrarModalAgregarJugador({{ $equipo->id }})" class="text-gray-400 hover:text-gray-600 text-3xl leading-none">&times;</button>
+                </div>
+                <form method="POST" action="{{ route('equipos.addJugador', [$torneo->id, $equipo->id]) }}" id="form-agregar-jugador-{{ $equipo->id }}">
+                    @csrf
+                    <div class="mb-4">
+                        <label class="block text-sm font-semibold mb-1">Jugador</label>
+                        <select name="miembro_id" class="block w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" required>
+                            <option value="">-- Selecciona jugador --</option>
+                            @foreach($miembrosDisponibles as $miembro)
+                                @if(!$equipo->jugadores->pluck('miembro_id')->contains($miembro->cedula))
+                                    <option value="{{ $miembro->cedula }}">{{ $miembro->nombres }} {{ $miembro->apellidos }}</option>
+                                @endif
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-semibold mb-1">Tablero</label>
+                        <input name="tablero" type="number" min="1" class="block w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" required placeholder="Ej: 1">
+                        <div class="text-xs text-red-500 mt-1 hidden" id="tablero-ocupado-{{ $equipo->id }}">Ese tablero ya está ocupado en este equipo.</div>
+                    </div>
+                    @if($equipo->jugadores->count() == 9)
+                        <div class="mb-2 text-yellow-600 text-sm font-semibold">Este será el último jugador permitido para este equipo.</div>
+                    @endif
+                    <div class="flex justify-end space-x-2 pt-4">
+                        <button type="button" onclick="cerrarModalAgregarJugador({{ $equipo->id }})" class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 font-semibold">Cancelar</button>
+                        <button type="submit" class="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 font-semibold flex items-center gap-2" id="btn-agregar-jugador-{{ $equipo->id }}">
+                            <i class="fas fa-user-plus"></i> Agregar
+                        </button>
+                    </div>
+                </form>
+                <div class="mt-6 border-t pt-4">
+                    <h3 class="text-base font-bold mb-2">Jugadores actuales</h3>
+                    @if($equipo->jugadores->count())
+                        <ul class="space-y-2">
+                            @foreach($equipo->jugadores as $jugador)
+                                <li class="flex items-center justify-between">
+                                    <span>{{ $jugador->miembro->nombres }} {{ $jugador->miembro->apellidos }} (Tablero {{ $jugador->tablero }})</span>
+                                    <form action="{{ route('equipos.removeJugador', [$torneo->id, $equipo->id, $jugador->id]) }}" method="POST" class="inline" onsubmit="return confirm('¿Eliminar jugador de este equipo?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="text-red-600 hover:text-red-800 text-base align-middle" title="Eliminar jugador">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </form>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @else
+                        <span class="text-gray-400">Sin jugadores</span>
+                    @endif
+                </div>
+            </div>
+        </div>
+    @endforeach
+@endif
+<script>
+function abrirModalEditarEquipo(equipoId) {
+    document.getElementById('modal-editar-equipo-' + equipoId).style.display = 'flex';
+}
+function cerrarModalEditarEquipo(equipoId) {
+    document.getElementById('modal-editar-equipo-' + equipoId).style.display = 'none';
+}
+function abrirModalVerEquipo(equipoId) {
+    document.getElementById('modal-ver-equipo-' + equipoId).style.display = 'flex';
+}
+function cerrarModalVerEquipo(equipoId) {
+    document.getElementById('modal-ver-equipo-' + equipoId).style.display = 'none';
+}
+function abrirModalAgregarJugador(equipoId) {
+    document.getElementById('modal-agregar-jugador-' + equipoId).style.display = 'flex';
+}
+function cerrarModalAgregarJugador(equipoId) {
+    document.getElementById('modal-agregar-jugador-' + equipoId).style.display = 'none';
+}
+// Reemplaza el onclick del botón de ver
+const verBtns = document.querySelectorAll('a[title="Ver"]');
+verBtns.forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const equipoId = this.getAttribute('href').split('/').pop();
+        abrirModalVerEquipo(equipoId);
+    });
+});
+</script>
 @endsection
 
 @push('styles')
