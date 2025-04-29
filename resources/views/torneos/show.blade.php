@@ -223,7 +223,7 @@
                                     <a href="{{ route('equipos.show', [$torneo->id, $equipo->id]) }}" title="Ver" class="inline-block text-blue-600 hover:text-blue-800 text-xl align-middle">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <button type="button" onclick="abrirModalEditarEquipo({{ $equipo->id }})" title="Editar" class="inline-block text-yellow-600 hover:text-yellow-800 text-xl align-middle">
+                                    <button type="button" data-equipo-id="{{ $equipo->id }}" class="btn-editar-equipo inline-block text-yellow-600 hover:text-yellow-800 text-xl align-middle" title="Editar">
                                         <i class="fas fa-edit"></i>
                                     </button>
                                     <form action="{{ route('equipos.destroy', [$torneo->id, $equipo->id]) }}" method="POST" class="inline" onsubmit="return confirm('¿Eliminar equipo completo?')">
@@ -234,7 +234,7 @@
                                         </button>
                                     </form>
                                     @if($torneo->estado_torneo && !$torneo->torneo_cancelado)
-                                        <button type="button" onclick="abrirModalAgregarJugador({{ $equipo->id }})" class="inline-block text-green-600 hover:text-green-800 text-xl align-middle" title="Agregar jugador">
+                                        <button type="button" data-equipo-id="{{ $equipo->id }}" class="btn-agregar-jugador inline-block text-green-600 hover:text-green-800 text-xl align-middle" title="Agregar jugador">
                                             <i class="fas fa-user-plus"></i>
                                         </button>
                                     @endif
@@ -255,7 +255,7 @@
             <div @click.away="open = false" class="bg-white rounded-xl shadow-2xl w-full max-w-md sm:max-w-lg md:max-w-2xl p-4 sm:p-8 relative flex flex-col max-h-screen overflow-y-auto">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-bold">Registrar Equipo</h2>
-                    <button @click="open = false" class="text-gray-400 hover:text-gray-600 text-3xl leading-none">&times;</button>
+                    <button type="button" data-equipo-id="{{ $equipo->id }}" class="btn-cerrar-editar text-gray-400 hover:text-gray-600 text-3xl leading-none">&times;</button>
                 </div>
                 @if($errors->any() && old('modal_origen') === 'equipo')
                     <div class="mb-4 p-3 bg-red-100 text-red-700 rounded">
@@ -339,7 +339,7 @@
                         @endif
                     </div>
                     <div class="flex justify-end space-x-2 pt-4">
-                        <button type="button" @click="open = false" class="px-5 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 font-semibold">Cancelar</button>
+                        <button type="button" data-equipo-id="{{ $equipo->id }}" class="btn-cerrar-editar px-5 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 font-semibold">Cancelar</button>
                         <button type="submit" class="px-5 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 font-semibold flex items-center gap-2">
                             <i class="fas fa-save"></i> Registrar
                         </button>
@@ -353,6 +353,10 @@
     @if(!$torneo->es_por_equipos)
     <!-- Sección de Participantes -->
     <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6 mt-8">
+        @php
+            $posicion = 1;
+            $posicionMostrada = 1;
+        @endphp
         <div class="px-6 py-5 sm:px-8 flex justify-between items-center">
             <h3 class="text-lg leading-6 font-medium text-gray-900">
                 Participantes
@@ -599,6 +603,14 @@
                 </h3>
             </div>
             <div class="border-t border-gray-200">
+                @php
+                    $posicion = 1;
+                    $posicionMostrada = 1;
+                    $puntosAnteriores = null;
+                    $buchholzAnterior = null;
+                    $sonnebornAnterior = null;
+                    $progresivoAnterior = null;
+                @endphp
                 <div class="overflow-x-auto px-6 sm:px-8 py-4">
                     <table class="min-w-full">
                         <thead>
@@ -621,22 +633,12 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @php
-                                $participantesOrdenados = $torneo->participantes()
-                                    ->orderByDesc('puntos')
-                                    ->orderByDesc('buchholz')
-                                    ->orderByDesc('sonneborn_berger')
-                                    ->orderByDesc('progresivo')
-                                    ->get();
-                                $posicion = 1;
-                                $puntosAnteriores = null;
-                                $buchholzAnterior = null;
-                                $sonnebornAnterior = null;
-                                $progresivoAnterior = null;
-                                $posicionMostrada = 1;
-                            @endphp
-
-                            @foreach($participantesOrdenados as $participante)
+                            @foreach($torneo->participantes()
+                                ->orderByDesc('puntos')
+                                ->orderByDesc('buchholz')
+                                ->orderByDesc('sonneborn_berger')
+                                ->orderByDesc('progresivo')
+                                ->get() as $participante)
                                 @php
                                     if ($puntosAnteriores !== $participante->puntos ||
                                         ($torneo->usar_buchholz && $buchholzAnterior !== $participante->buchholz) ||
@@ -724,7 +726,7 @@
             <div class="bg-white rounded-xl shadow-2xl w-full max-w-md sm:max-w-lg md:max-w-2xl p-4 sm:p-8 relative flex flex-col max-h-screen overflow-y-auto">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-bold">Editar Equipo</h2>
-                    <button type="button" onclick="cerrarModalEditarEquipo({{ $equipo->id }})" class="text-gray-400 hover:text-gray-600 text-3xl leading-none">&times;</button>
+                    <button type="button" data-equipo-id="{{ $equipo->id }}" class="btn-cerrar-editar text-gray-400 hover:text-gray-600 text-3xl leading-none">&times;</button>
                 </div>
                 <form method="POST" action="{{ route('equipos.update', [$torneo->id, $equipo->id]) }}" enctype="multipart/form-data" class="space-y-6">
                     @csrf
@@ -760,7 +762,7 @@
                         <textarea name="notas" rows="2" class="mt-1 block w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">{{ $equipo->notas }}</textarea>
                     </div>
                     <div class="flex justify-end space-x-2 pt-4">
-                        <button type="button" onclick="cerrarModalEditarEquipo({{ $equipo->id }})" class="px-5 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 font-semibold">Cancelar</button>
+                        <button type="button" data-equipo-id="{{ $equipo->id }}" class="btn-cerrar-editar px-5 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 font-semibold">Cancelar</button>
                         <button type="submit" class="px-5 py-2 rounded-lg bg-yellow-600 text-white hover:bg-yellow-700 font-semibold flex items-center gap-2">
                             <i class="fas fa-save"></i> Guardar Cambios
                         </button>
@@ -773,7 +775,7 @@
             <div class="bg-white rounded-xl shadow-2xl w-full max-w-md sm:max-w-lg md:max-w-2xl p-4 sm:p-8 relative flex flex-col max-h-screen overflow-y-auto">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-bold">Detalles del Equipo</h2>
-                    <button type="button" onclick="cerrarModalVerEquipo({{ $equipo->id }})" class="text-gray-400 hover:text-gray-600 text-3xl leading-none">&times;</button>
+                    <button type="button" data-equipo-id="{{ $equipo->id }}" class="btn-cerrar-ver text-gray-400 hover:text-gray-600 text-3xl leading-none">&times;</button>
                 </div>
                 <div class="space-y-4">
                     <div>
@@ -823,7 +825,7 @@
             <div class="bg-white rounded-xl shadow-2xl w-full max-w-md sm:max-w-lg md:max-w-2xl p-4 sm:p-8 relative flex flex-col max-h-screen overflow-y-auto">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-xl font-bold">Agregar jugador a {{ $equipo->nombre }}</h2>
-                    <button type="button" onclick="cerrarModalAgregarJugador({{ $equipo->id }})" class="text-gray-400 hover:text-gray-600 text-3xl leading-none">&times;</button>
+                    <button type="button" data-equipo-id="{{ $equipo->id }}" class="btn-cerrar-agregar text-gray-400 hover:text-gray-600 text-3xl leading-none">&times;</button>
                 </div>
                 <form method="POST" action="{{ route('equipos.addJugador', [$torneo->id, $equipo->id]) }}" id="form-agregar-jugador-{{ $equipo->id }}">
                     @csrf
@@ -847,7 +849,7 @@
                         <div class="mb-2 text-yellow-600 text-sm font-semibold">Este será el último jugador permitido para este equipo.</div>
                     @endif
                     <div class="flex justify-end space-x-2 pt-4">
-                        <button type="button" onclick="cerrarModalAgregarJugador({{ $equipo->id }})" class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 font-semibold">Cancelar</button>
+                        <button type="button" data-equipo-id="{{ $equipo->id }}" class="btn-cerrar-agregar px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 font-semibold">Cancelar</button>
                         <button type="submit" class="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 font-semibold flex items-center gap-2" id="btn-agregar-jugador-{{ $equipo->id }}">
                             <i class="fas fa-user-plus"></i> Agregar
                         </button>
@@ -904,6 +906,48 @@ verBtns.forEach(btn => {
         e.preventDefault();
         const equipoId = this.getAttribute('href').split('/').pop();
         abrirModalVerEquipo(equipoId);
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Botones de editar equipo
+    document.querySelectorAll('.btn-editar-equipo').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const equipoId = this.getAttribute('data-equipo-id');
+            abrirModalEditarEquipo(equipoId);
+        });
+    });
+
+    // Botones de agregar jugador
+    document.querySelectorAll('.btn-agregar-jugador').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const equipoId = this.getAttribute('data-equipo-id');
+            abrirModalAgregarJugador(equipoId);
+        });
+    });
+
+    // Botones de cerrar modal editar
+    document.querySelectorAll('.btn-cerrar-editar').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const equipoId = this.getAttribute('data-equipo-id');
+            cerrarModalEditarEquipo(equipoId);
+        });
+    });
+
+    // Botones de cerrar modal ver
+    document.querySelectorAll('.btn-cerrar-ver').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const equipoId = this.getAttribute('data-equipo-id');
+            cerrarModalVerEquipo(equipoId);
+        });
+    });
+
+    // Botones de cerrar modal agregar
+    document.querySelectorAll('.btn-cerrar-agregar').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const equipoId = this.getAttribute('data-equipo-id');
+            cerrarModalAgregarJugador(equipoId);
+        });
     });
 });
 </script>
