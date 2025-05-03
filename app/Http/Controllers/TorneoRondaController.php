@@ -209,12 +209,42 @@ class TorneoRondaController extends Controller
                     if ($torneo->usar_desempate_progresivo) {
                         $this->actualizarProgresivo($torneo);
                     }
+
+                    // Verificar si es la última ronda
+                    if ($ronda->numero_ronda === $torneo->no_rondas) {
+                        DB::commit();
+                        return redirect()
+                            ->route('torneos.show', $torneo)
+                            ->with('success', '¡Torneo completado! Se muestra la clasificación final.');
+                    }
+
+                    // Generar la siguiente ronda
+                    $siguienteRonda = RondaTorneo::create([
+                        'torneo_id' => $torneo->id,
+                        'numero_ronda' => $ronda->numero_ronda + 1,
+                        'fecha_hora' => now()
+                    ]);
+
+                    if ($torneo->es_por_equipos) {
+                        $this->generarEmparejamientosEquipos($torneo, $siguienteRonda);
+                    } else {
+                        $this->generarEmparejamientosIndividuales($torneo, $siguienteRonda);
+                    }
                 }
 
                 DB::commit();
                 Log::info('=== Transacción completada exitosamente ===');
 
-                return redirect()->back()->with('success', 'Resultados guardados exitosamente.');
+                // Redirigir a la siguiente ronda si existe
+                if (isset($siguienteRonda)) {
+                    return redirect()
+                        ->route('torneos.rondas.show', [$torneo, $siguienteRonda])
+                        ->with('success', 'Resultados guardados y siguiente ronda generada exitosamente.');
+                }
+
+                return redirect()
+                    ->route('torneos.rondas.show', [$torneo, $ronda])
+                    ->with('success', 'Resultados guardados exitosamente.');
 
             } catch (\Exception $e) {
                 DB::rollBack();
@@ -392,5 +422,19 @@ class TorneoRondaController extends Controller
             }
             $participante->update(['progresivo' => $progresivo]);
         }
+    }
+
+    /**
+     * Muestra una ronda individual con el detalle del torneo y navegación entre rondas.
+     */
+    public function show(Torneo $torneo, RondaTorneo $ronda)
+    {
+        // Obtener todas las rondas para navegación
+        $rondas = $torneo->rondas()->orderBy('numero_ronda')->get();
+        // Participantes y partidas de la ronda
+        $partidas = $ronda->partidas()->with(['jugadorBlancas.elo', 'jugadorNegras.elo'])->get();
+        // Para la tabla de clasificación
+        $participantes = $torneo->participantes()->with(['miembro.elo', 'miembro.fide'])->orderBy('numero_inicial')->get();
+        return view('torneos.ronda', compact('torneo', 'ronda', 'rondas', 'partidas', 'participantes'));
     }
 } 
