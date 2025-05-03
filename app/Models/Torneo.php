@@ -11,6 +11,7 @@ use App\Models\Federacion;
 use App\Models\Emparejamiento;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Torneo extends Model
 {
@@ -29,7 +30,6 @@ class Torneo extends Model
         'arbitro_id',
         'arbitro_adjunto_id',
         'federacion_id',
-        'sistema_emparejamiento_id',
         'nombre_torneo',
         'fecha_inicio',
         'hora_inicio',
@@ -38,6 +38,7 @@ class Torneo extends Model
         'estado_torneo',
         'torneo_cancelado',
         'motivo_cancelacion',
+        'sistema_emparejamiento_id',
         'usar_buchholz',
         'usar_sonneborn_berger',
         'usar_desempate_progresivo',
@@ -46,20 +47,39 @@ class Torneo extends Model
         'alternar_colores',
         'evitar_emparejamientos_repetidos',
         'maximo_emparejamientos_repetidos',
-        'es_por_equipos'
+        'es_por_equipos',
+        'max_byes_por_jugador',
+        'diferencia_maxima_puntos'
     ];
 
     protected $casts = [
-        'fecha_inicio' => 'date',
         'estado_torneo' => 'boolean',
         'torneo_cancelado' => 'boolean',
         'usar_buchholz' => 'boolean',
         'usar_sonneborn_berger' => 'boolean',
         'usar_desempate_progresivo' => 'boolean',
         'permitir_bye' => 'boolean',
-        'evitar_emparejamientos_repetidos' => 'boolean',
         'alternar_colores' => 'boolean',
-        'es_por_equipos' => 'boolean'
+        'evitar_emparejamientos_repetidos' => 'boolean',
+        'es_por_equipos' => 'boolean',
+        'fecha_inicio' => 'date',
+        'hora_inicio' => 'datetime'
+    ];
+
+    protected $attributes = [
+        'estado_torneo' => true,
+        'torneo_cancelado' => false,
+        'usar_buchholz' => false,
+        'usar_sonneborn_berger' => false,
+        'usar_desempate_progresivo' => false,
+        'numero_minimo_participantes' => 4,
+        'permitir_bye' => true,
+        'alternar_colores' => true,
+        'evitar_emparejamientos_repetidos' => true,
+        'maximo_emparejamientos_repetidos' => 1,
+        'es_por_equipos' => false,
+        'max_byes_por_jugador' => 1,
+        'diferencia_maxima_puntos' => 2
     ];
 
     protected static function boot()
@@ -190,7 +210,16 @@ class Torneo extends Model
 
     public function equipos()
     {
-        return $this->hasMany(\App\Models\EquipoTorneo::class, 'torneo_id');
+        return $this->hasMany(EquipoTorneo::class, 'torneo_id');
     }
 
+    public function equipoMatches()
+    {
+        return $this->hasMany(EquipoMatch::class, 'torneo_id');
+    }
+
+    public function partidas()
+    {
+        return $this->hasManyThrough(PartidaTorneo::class, RondaTorneo::class);
+    }
 }

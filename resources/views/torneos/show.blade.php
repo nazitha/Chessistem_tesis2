@@ -406,10 +406,10 @@
                                     {{ $participante->miembro->nombres }} {{ $participante->miembro->apellidos }}
                                 </td>
                                 <td class="px-3 py-2 text-sm text-right text-gray-900">
-                                    {{ $participante->miembro->elo ?? '' }}
+                                    {{ $participante->miembro->elo->elo ?? '-' }}
                                 </td>
                                 <td class="px-3 py-2 text-sm text-center text-gray-900">
-                                    {{ $participante->miembro->federacion ?? 'NCA' }}
+                                    {{ $participante->miembro->fide->fed_id ?? 'NCA' }}
                                 </td>
                                 @foreach($torneo->rondas as $ronda)
                                     @php
@@ -464,6 +464,15 @@
                                 @if($torneo->usar_desempate_progresivo)
                                     <td class="px-3 py-2 text-sm text-right text-gray-900">
                                         {{ number_format($participante->progresivo, 2) }}
+                                    </td>
+                                @endif
+                                @if($torneo->estado_torneo && !$torneo->torneo_cancelado)
+                                    <td class="px-3 py-2 text-sm text-center">
+                                        <form action="{{ route('torneos.participantes.destroy', [$torneo->id, $participante->id]) }}" method="POST" onsubmit="return confirm('¿Seguro que deseas retirar este participante?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-red-600 hover:underline">Retirar</button>
+                                        </form>
                                     </td>
                                 @endif
                             </tr>
@@ -531,7 +540,7 @@
                                                         {{ $partida->jugadorBlancas->nombres }} {{ $partida->jugadorBlancas->apellidos }}
                                                     </td>
                                                     <td class="px-3 py-2 text-sm text-center text-gray-500">
-                                                        {{ $partida->jugadorBlancas->elo ?? '0' }}
+                                                        {{ $partida->jugadorBlancas->elo->elo ?? '0' }}
                                                     </td>
                                                     <td class="px-3 py-2 text-sm text-center text-gray-500">
                                                         @php
@@ -565,7 +574,7 @@
                                                         @endif
                                                     </td>
                                                     <td class="px-3 py-2 text-sm text-center text-gray-500">
-                                                        {{ $partida->jugadorNegras ? ($partida->jugadorNegras->elo ?? '0') : '-' }}
+                                                        {{ $partida->jugadorNegras ? ($partida->jugadorNegras->elo->elo ?? '0') : '-' }}
                                                     </td>
                                                     <td class="px-3 py-2 text-sm text-gray-900">
                                                         {{ $partida->jugadorNegras ? ($loop->iteration + 1) : '-' }}
@@ -658,10 +667,10 @@
                                         {{ $participante->miembro->nombres }} {{ $participante->miembro->apellidos }}
                                     </td>
                                     <td class="px-3 py-2 text-sm text-right text-gray-900">
-                                        {{ $participante->miembro->elo ?? '' }}
+                                        {{ $participante->miembro->elo->elo ?? '-' }}
                                     </td>
                                     <td class="px-3 py-2 text-sm text-center text-gray-900">
-                                        {{ $participante->miembro->federacion ?? 'NCA' }}
+                                        {{ $participante->miembro->fide->fed_id ?? 'NCA' }}
                                     </td>
                                     <td class="px-3 py-2 text-sm text-right font-medium">
                                         {{ number_format($participante->puntos, 1) }}

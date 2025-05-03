@@ -55,7 +55,19 @@ class Miembro extends Model
 
     public function fide()
     {
-        return $this->hasOne(Fide::class, 'cedula_ajedrecista_id', 'cedula');
+        return $this->hasOne(\App\Models\Fide::class, 'cedula_ajedrecista_id', 'cedula');
+    }
+
+    public function elo()
+    {
+        return $this->hasOneThrough(
+            \App\Models\PuntajeElo::class,
+            \App\Models\Fide::class,
+            'cedula_ajedrecista_id', // Foreign key on fides table...
+            'fide_id_miembro',       // Foreign key on puntajes_elo table...
+            'cedula',                // Local key on miembros table...
+            'fide_id'                // Local key on fides table...
+        );
     }
 
     public function torneosOrganizados()
