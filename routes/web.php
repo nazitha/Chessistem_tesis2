@@ -130,6 +130,10 @@ Route::middleware('web')->group(function () {
             Route::post('{equipo}/jugadores', [EquipoTorneoController::class, 'addJugador'])->name('addJugador');
             Route::delete('{equipo}/jugadores/{jugador}', [EquipoTorneoController::class, 'removeJugador'])->name('removeJugador');
         });
+
+        // Nueva ruta para ver una ronda individual
+        Route::get('torneos/{torneo}/rondas/{ronda}', [TorneoRondaController::class, 'show'])
+            ->name('torneos.rondas.show');
     });
 
     // Rutas de autenticación de Google para recuperación de contraseña

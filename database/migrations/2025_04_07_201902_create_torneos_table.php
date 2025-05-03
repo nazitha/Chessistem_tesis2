@@ -26,6 +26,7 @@ return new class extends Migration
             $table->time('hora_inicio')->nullable();
             $table->string('lugar', 100)->nullable()->collation('utf8mb3_spanish_ci');
             $table->integer('no_rondas')->nullable();
+            $table->boolean('es_por_equipos')->default(false);
             $table->boolean('estado_torneo')->default(1)->nullable();
             $table->boolean('torneo_cancelado')->default(false);
             $table->string('motivo_cancelacion')->nullable();
@@ -38,7 +39,6 @@ return new class extends Migration
             $table->boolean('alternar_colores')->default(true);
             $table->boolean('evitar_emparejamientos_repetidos')->default(true);
             $table->integer('maximo_emparejamientos_repetidos')->default(1);
-            $table->boolean('es_por_equipos')->default(false)->after('no_rondas');
 
             $table->foreign('categoriaTorneo_id')
                   ->references('id_torneo_categoria')

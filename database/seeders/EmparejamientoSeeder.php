@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\Emparejamiento;
+use Illuminate\Support\Facades\DB;
 
 class EmparejamientoSeeder extends Seeder
 {
@@ -23,15 +23,10 @@ class EmparejamientoSeeder extends Seeder
             [
                 'id_emparejamiento' => 3,
                 'sistema' => 'Eliminación Directa',
-                'descripcion' => 'Sistema de eliminación simple'
+                'descripcion' => 'Sistema de eliminación directa'
             ]
         ];
 
-        foreach ($sistemas as $sistema) {
-            Emparejamiento::firstOrCreate(
-                ['id_emparejamiento' => $sistema['id_emparejamiento']],
-                $sistema
-            );
-        }
+        DB::table('sistemas_de_emparejamiento')->insert($sistemas);
     }
 } 

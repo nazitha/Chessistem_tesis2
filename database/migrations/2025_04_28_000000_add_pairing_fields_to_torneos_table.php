@@ -9,14 +9,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('torneos', function (Blueprint $table) {
-            $table->boolean('es_por_equipos')->default(false)->after('no_rondas');
+            $table->integer('max_byes_por_jugador')->default(1)->after('permitir_bye');
+            $table->integer('diferencia_maxima_puntos')->default(2)->after('max_byes_por_jugador');
         });
     }
 
     public function down(): void
     {
         Schema::table('torneos', function (Blueprint $table) {
-            $table->dropColumn('es_por_equipos');
+            $table->dropColumn('max_byes_por_jugador');
+            $table->dropColumn('diferencia_maxima_puntos');
         });
     }
 }; 

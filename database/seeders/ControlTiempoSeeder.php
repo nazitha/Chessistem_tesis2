@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\ControlTiempo;
+use Illuminate\Support\Facades\DB;
 
 class ControlTiempoSeeder extends Seeder
 {
@@ -13,34 +13,35 @@ class ControlTiempoSeeder extends Seeder
             [
                 'id_control_tiempo' => 1,
                 'formato' => 'Blitz',
-                'control_tiempo' => '5+3',
-                'descrip_control_tiempo' => 'Partidas rápidas de 5 minutos con incremento de 3 segundos'
+                'control_tiempo' => '3+2',
+                'descrip_control_tiempo' => '3 minutos por jugador con 2 segundos de incremento por movimiento'
             ],
             [
                 'id_control_tiempo' => 2,
                 'formato' => 'Rápido',
-                'control_tiempo' => '15+10',
-                'descrip_control_tiempo' => 'Partidas rápidas de 15 minutos con incremento de 10 segundos'
+                'control_tiempo' => '10+5',
+                'descrip_control_tiempo' => '10 minutos por jugador con 5 segundos de incremento por movimiento'
             ],
             [
                 'id_control_tiempo' => 3,
                 'formato' => 'Clásico',
                 'control_tiempo' => '90+30',
-                'descrip_control_tiempo' => 'Partidas clásicas de 90 minutos con incremento de 30 segundos'
+                'descrip_control_tiempo' => '90 minutos por jugador con 30 segundos de incremento por movimiento'
             ],
             [
                 'id_control_tiempo' => 4,
-                'formato' => 'Escolar',
-                'control_tiempo' => '30+0',
-                'descrip_control_tiempo' => 'Partidas escolares de 30 minutos a finish'
+                'formato' => 'Semi-Rápido',
+                'control_tiempo' => '15+10',
+                'descrip_control_tiempo' => '15 minutos por jugador con 10 segundos de incremento por movimiento'
+            ],
+            [
+                'id_control_tiempo' => 5,
+                'formato' => 'Clásico FIDE',
+                'control_tiempo' => '120+30',
+                'descrip_control_tiempo' => '120 minutos por jugador con 30 segundos de incremento por movimiento'
             ]
         ];
 
-        foreach ($controles as $control) {
-            ControlTiempo::firstOrCreate(
-                ['id_control_tiempo' => $control['id_control_tiempo']],
-                $control
-            );
-        }
+        DB::table('controles_tiempo')->insert($controles);
     }
 } 

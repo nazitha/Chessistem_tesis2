@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\CategoriaTorneo;
+use Illuminate\Support\Facades\DB;
 
 class CategoriaTorneoSeeder extends Seeder
 {
@@ -12,51 +12,36 @@ class CategoriaTorneoSeeder extends Seeder
         $categorias = [
             [
                 'id_torneo_categoria' => 1,
-                'categoria_torneo' => 'Sub-8',
-                'descrip_categoria_torneo' => 'Categoría para jugadores menores de 8 años'
+                'categoria_torneo' => 'Absoluto',
+                'descrip_categoria_torneo' => 'Torneo abierto para todas las categorías'
             ],
             [
                 'id_torneo_categoria' => 2,
-                'categoria_torneo' => 'Sub-10',
-                'descrip_categoria_torneo' => 'Categoría para jugadores menores de 10 años'
+                'categoria_torneo' => 'Sub-2000',
+                'descrip_categoria_torneo' => 'Torneo para jugadores con ELO menor a 2000'
             ],
             [
                 'id_torneo_categoria' => 3,
-                'categoria_torneo' => 'Sub-12',
-                'descrip_categoria_torneo' => 'Categoría para jugadores menores de 12 años'
+                'categoria_torneo' => 'Sub-1800',
+                'descrip_categoria_torneo' => 'Torneo para jugadores con ELO menor a 1800'
             ],
             [
                 'id_torneo_categoria' => 4,
-                'categoria_torneo' => 'Sub-14',
-                'descrip_categoria_torneo' => 'Categoría para jugadores menores de 14 años'
+                'categoria_torneo' => 'Sub-1600',
+                'descrip_categoria_torneo' => 'Torneo para jugadores con ELO menor a 1600'
             ],
             [
                 'id_torneo_categoria' => 5,
-                'categoria_torneo' => 'Sub-16',
-                'descrip_categoria_torneo' => 'Categoría para jugadores menores de 16 años'
+                'categoria_torneo' => 'Juvenil',
+                'descrip_categoria_torneo' => 'Torneo para jugadores menores de 20 años'
             ],
             [
                 'id_torneo_categoria' => 6,
-                'categoria_torneo' => 'Absoluto',
-                'descrip_categoria_torneo' => 'Categoría abierta para todos los jugadores'
-            ],
-            [
-                'id_torneo_categoria' => 7,
                 'categoria_torneo' => 'Femenino',
-                'descrip_categoria_torneo' => 'Categoría exclusiva para jugadoras'
-            ],
-            [
-                'id_torneo_categoria' => 8,
-                'categoria_torneo' => 'Senior',
-                'descrip_categoria_torneo' => 'Categoría para jugadores mayores de 50 años'
+                'descrip_categoria_torneo' => 'Torneo exclusivo para jugadoras'
             ]
         ];
 
-        foreach ($categorias as $categoria) {
-            CategoriaTorneo::firstOrCreate(
-                ['id_torneo_categoria' => $categoria['id_torneo_categoria']],
-                $categoria
-            );
-        }
+        DB::table('categorias_torneo')->insert($categorias);
     }
 } 

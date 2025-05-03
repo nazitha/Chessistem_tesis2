@@ -6,12 +6,15 @@ use Illuminate\Http\Request;
 use App\Models\RondaTorneo;
 use App\Models\PartidaTorneo;
 use App\Models\ParticipanteTorneo;
+use App\Models\EquipoMatch;
+use App\Models\PartidaIndividual;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 use App\Models\Torneo;
 use App\Models\Participante;
 use App\Services\SwissPairingService;
+use App\Services\TeamPairingService;
 
 class TorneoRondaController extends Controller
 {
@@ -22,8 +25,14 @@ class TorneoRondaController extends Controller
                 return back()->with('error', 'Ya se han generado todas las rondas del torneo.');
             }
 
-            if ($torneo->participantes()->count() < 2) {
-                return back()->with('error', 'Se necesitan al menos 2 participantes para generar emparejamientos.');
+            if ($torneo->es_por_equipos) {
+                if ($torneo->equipos()->count() < 2) {
+                    return back()->with('error', 'Se necesitan al menos 2 equipos para generar emparejamientos.');
+                }
+            } else {
+                if ($torneo->participantes()->count() < 2) {
+                    return back()->with('error', 'Se necesitan al menos 2 participantes para generar emparejamientos.');
+                }
             }
 
             DB::beginTransaction();
@@ -35,18 +44,10 @@ class TorneoRondaController extends Controller
                 'fecha_hora' => now()
             ]);
 
-            // Generar emparejamientos
-            $service = new SwissPairingService($torneo);
-            $emparejamientos = $service->generarEmparejamientos($ronda->numero_ronda);
-
-            // Guardar partidas
-            foreach ($emparejamientos as $index => $emparejamiento) {
-                PartidaTorneo::create([
-                    'ronda_id' => $ronda->id,
-                    'jugador_blancas_id' => $emparejamiento['blancas']->miembro_id,
-                    'jugador_negras_id' => isset($emparejamiento['negras']) ? $emparejamiento['negras']->miembro_id : null,
-                    'mesa' => $index + 1
-                ]);
+            if ($torneo->es_por_equipos) {
+                $this->generarEmparejamientosEquipos($torneo, $ronda);
+            } else {
+                $this->generarEmparejamientosIndividuales($torneo, $ronda);
             }
 
             DB::commit();
@@ -64,103 +65,80 @@ class TorneoRondaController extends Controller
         }
     }
 
+    private function generarEmparejamientosIndividuales(Torneo $torneo, RondaTorneo $ronda)
+    {
+        $service = new SwissPairingService($torneo);
+        $emparejamientos = $service->generarEmparejamientos($ronda);
+
+        foreach ($emparejamientos as $index => $emparejamiento) {
+            PartidaTorneo::create([
+                'ronda_id' => $ronda->id,
+                'jugador_blancas_id' => $emparejamiento['blancas']->miembro_id,
+                'jugador_negras_id' => isset($emparejamiento['negras']) ? $emparejamiento['negras']->miembro_id : null,
+                'mesa' => $index + 1
+            ]);
+        }
+    }
+
+    private function generarEmparejamientosEquipos(Torneo $torneo, RondaTorneo $ronda)
+    {
+        $service = new TeamPairingService($torneo);
+        $emparejamientos = $service->generarEmparejamientos($ronda->numero_ronda);
+
+        foreach ($emparejamientos as $index => $emparejamiento) {
+            $match = EquipoMatch::create([
+                'torneo_id' => $torneo->id,
+                'ronda' => $ronda->numero_ronda,
+                'equipo_a_id' => $emparejamiento['equipo_a']->id,
+                'equipo_b_id' => $emparejamiento['equipo_b']->id,
+                'mesa' => $index + 1
+            ]);
+
+            foreach ($emparejamiento['tableros'] as $tablero) {
+                PartidaIndividual::create([
+                    'equipo_match_id' => $match->id,
+                    'jugador_blancas_id' => $tablero['blancas']->jugadores[$tablero['tablero'] - 1]->miembro_id,
+                    'jugador_negras_id' => $tablero['negras']->jugadores[$tablero['tablero'] - 1]->miembro_id,
+                    'tablero' => $tablero['tablero']
+                ]);
+            }
+        }
+    }
+
     public function registrarResultado(Request $request, PartidaTorneo $partida)
     {
         try {
-            $request->validate([
-                'resultado_texto' => 'required|string'
-            ]);
-
             DB::beginTransaction();
 
-            try {
-                Log::info('=== Iniciando registro de resultado ===');
-                Log::info('Partida ID: ' . $partida->id);
-                Log::info('Resultado texto recibido: ' . $request->resultado_texto);
-                Log::info('Jugador Blancas ID: ' . $partida->jugador_blancas_id);
-                Log::info('Jugador Negras ID: ' . ($partida->jugador_negras_id ?? 'BYE'));
+            $partida->update([
+                'resultado' => $request->resultado
+            ]);
 
-                // 1. Actualizar el resultado de esta partida específica
-                $partida = PartidaTorneo::lockForUpdate()->find($partida->id);
-                if (!$partida) {
-                    throw new \Exception('Partida no encontrada');
-                }
-                
-                try {
-                    $resultadoAnterior = $partida->resultado;
-                    $partida->setResultadoFromTexto($request->resultado_texto);
-                    $partida->save();
+            // Actualizar puntajes de los participantes
+            $this->actualizarPuntajes($partida);
 
-                    Log::info('Resultado anterior: ' . $resultadoAnterior);
-                    Log::info('Nuevo resultado (código): ' . $partida->resultado);
-                    Log::info('Nuevo resultado (texto): ' . $partida->getResultadoTexto());
-                } catch (\InvalidArgumentException $e) {
-                    Log::error('Error al establecer resultado: ' . $e->getMessage());
-                    return redirect()->back()->with('error', $e->getMessage());
-                }
+            DB::commit();
 
-                // 2. Actualizar puntos de los jugadores involucrados
-                if ($partida->jugador_blancas_id) {
-                    Log::info('=== Actualizando puntos jugador blancas ===');
-                    Log::info('ID: ' . $partida->jugador_blancas_id);
-                    $this->actualizarPuntosJugador($partida->jugador_blancas_id, $partida->ronda->torneo_id);
-                }
-                if ($partida->jugador_negras_id) {
-                    Log::info('=== Actualizando puntos jugador negras ===');
-                    Log::info('ID: ' . $partida->jugador_negras_id);
-                    $this->actualizarPuntosJugador($partida->jugador_negras_id, $partida->ronda->torneo_id);
-                }
-
-                // 3. Verificar si la ronda está completa y actualizar estado
-                $ronda = $partida->ronda;
-                $partidasSinResultado = PartidaTorneo::where('ronda_id', $ronda->id)
-                    ->whereNull('resultado')
-                    ->where(function($query) {
-                        $query->whereNotNull('jugador_negras_id')
-                              ->orWhereNull('jugador_negras_id');
-                    })
-                    ->count();
-
-                Log::info('Partidas sin resultado en la ronda: ' . $partidasSinResultado);
-
-                if ($partidasSinResultado === 0) {
-                    $ronda->completada = true;
-                    $ronda->save();
-                    Log::info('Ronda marcada como completada');
-
-                    // Actualizar criterios de desempate
-                    $torneo = $ronda->torneo;
-                    if ($torneo->usar_buchholz) {
-                        $this->actualizarBuchholz($torneo);
-                    }
-                    if ($torneo->usar_sonneborn_berger) {
-                        $this->actualizarSonnebornBerger($torneo);
-                    }
-                    if ($torneo->usar_desempate_progresivo) {
-                        $this->actualizarProgresivo($torneo);
-                    }
-                }
-
-                DB::commit();
-                Log::info('=== Transacción completada exitosamente ===');
-                
-                // Forzar recarga de relaciones
-                $partida->load(['jugadorBlancas.participanteTorneo', 'jugadorNegras.participanteTorneo']);
-                
-                return redirect()->back()->with('success', 'Resultado registrado exitosamente.');
-
-            } catch (\Exception $e) {
-                DB::rollBack();
-                Log::error('Error en la transacción: ' . $e->getMessage());
-                Log::error('Stack trace: ' . $e->getTraceAsString());
-                throw $e;
-            }
-
+            return back()->with('success', 'Resultado registrado exitosamente.');
         } catch (\Exception $e) {
+            DB::rollBack();
             Log::error('Error al registrar resultado: ' . $e->getMessage());
-            Log::error('Stack trace: ' . $e->getTraceAsString());
-            
-            return redirect()->back()->with('error', 'Error al registrar el resultado: ' . $e->getMessage());
+            return back()->with('error', 'Error al registrar el resultado.');
+        }
+    }
+
+    private function actualizarPuntajes(PartidaTorneo $partida)
+    {
+        $blancas = $partida->jugadorBlancas;
+        $negras = $partida->jugadorNegras;
+
+        if ($partida->resultado === 1) { // Victoria blancas
+            $blancas->increment('puntos', 1);
+        } elseif ($partida->resultado === 2) { // Victoria negras
+            $negras->increment('puntos', 1);
+        } else { // Empate
+            $blancas->increment('puntos', 0.5);
+            $negras->increment('puntos', 0.5);
         }
     }
 
@@ -231,12 +209,42 @@ class TorneoRondaController extends Controller
                     if ($torneo->usar_desempate_progresivo) {
                         $this->actualizarProgresivo($torneo);
                     }
+
+                    // Verificar si es la última ronda
+                    if ($ronda->numero_ronda === $torneo->no_rondas) {
+                        DB::commit();
+                        return redirect()
+                            ->route('torneos.show', $torneo)
+                            ->with('success', '¡Torneo completado! Se muestra la clasificación final.');
+                    }
+
+                    // Generar la siguiente ronda
+                    $siguienteRonda = RondaTorneo::create([
+                        'torneo_id' => $torneo->id,
+                        'numero_ronda' => $ronda->numero_ronda + 1,
+                        'fecha_hora' => now()
+                    ]);
+
+                    if ($torneo->es_por_equipos) {
+                        $this->generarEmparejamientosEquipos($torneo, $siguienteRonda);
+                    } else {
+                        $this->generarEmparejamientosIndividuales($torneo, $siguienteRonda);
+                    }
                 }
 
                 DB::commit();
                 Log::info('=== Transacción completada exitosamente ===');
 
-                return redirect()->back()->with('success', 'Resultados guardados exitosamente.');
+                // Redirigir a la siguiente ronda si existe
+                if (isset($siguienteRonda)) {
+                    return redirect()
+                        ->route('torneos.rondas.show', [$torneo, $siguienteRonda])
+                        ->with('success', 'Resultados guardados y siguiente ronda generada exitosamente.');
+                }
+
+                return redirect()
+                    ->route('torneos.rondas.show', [$torneo, $ronda])
+                    ->with('success', 'Resultados guardados exitosamente.');
 
             } catch (\Exception $e) {
                 DB::rollBack();
@@ -414,5 +422,19 @@ class TorneoRondaController extends Controller
             }
             $participante->update(['progresivo' => $progresivo]);
         }
+    }
+
+    /**
+     * Muestra una ronda individual con el detalle del torneo y navegación entre rondas.
+     */
+    public function show(Torneo $torneo, RondaTorneo $ronda)
+    {
+        // Obtener todas las rondas para navegación
+        $rondas = $torneo->rondas()->orderBy('numero_ronda')->get();
+        // Participantes y partidas de la ronda
+        $partidas = $ronda->partidas()->with(['jugadorBlancas.elo', 'jugadorNegras.elo'])->get();
+        // Para la tabla de clasificación
+        $participantes = $torneo->participantes()->with(['miembro.elo', 'miembro.fide'])->orderBy('numero_inicial')->get();
+        return view('torneos.ronda', compact('torneo', 'ronda', 'rondas', 'partidas', 'participantes'));
     }
 } 
