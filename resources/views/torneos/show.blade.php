@@ -478,22 +478,13 @@
     @endif
 
     <!-- Sección de Rondas -->
-    @if($torneo->participantes->count() >= 2)
+    @if($torneo->rondas->count() > 0)
         <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
             <div class="px-4 py-5 sm:px-6 flex justify-between items-center">
                 <h3 class="text-lg leading-6 font-medium text-gray-900">
                     Rondas y Resultados
                     <span class="ml-2 text-sm text-gray-500">({{ $torneo->rondas->count() }} de {{ $torneo->no_rondas }})</span>
                 </h3>
-                @if($torneo->estado_torneo && !$torneo->torneo_cancelado && $torneo->rondas->count() < $torneo->no_rondas)
-                    <form method="POST" action="{{ route('torneos.rondas.store', $torneo) }}">
-                        @csrf
-                        <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                            <i class="fas fa-chess-knight mr-2"></i>
-                            Generar Ronda {{ $torneo->rondas->count() + 1 }}
-                        </button>
-                    </form>
-                @endif
             </div>
             <div class="border-t border-gray-200">
                 <div class="p-4 flex flex-wrap gap-2">
@@ -610,6 +601,48 @@
                 </div>
             </div>
         </div>
+    @endif
+
+    @if($torneo->es_por_equipos && isset($equipos) && count($equipos) > 0)
+        <h2 class="text-2xl font-bold text-center my-4">Tabla de Clasificación de Equipos</h2>
+        <table class="min-w-full bg-white border border-gray-300">
+            <thead>
+                <tr>
+                    <th class="px-4 py-2 border-b">Posición</th>
+                    <th class="px-4 py-2 border-b">Equipo</th>
+                    <th class="px-4 py-2 border-b">Puntos Ronda</th>
+                    <th class="px-4 py-2 border-b">Puntos Totales</th>
+                    @if($torneo->usar_buchholz)
+                        <th class="px-4 py-2 border-b">Buchholz</th>
+                    @endif
+                    @if($torneo->usar_sonneborn_berger)
+                        <th class="px-4 py-2 border-b">Sonneborn-Berger</th>
+                    @endif
+                    @if($torneo->usar_desempate_progresivo)
+                        <th class="px-4 py-2 border-b">Progresivo</th>
+                    @endif
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($equipos as $index => $equipo)
+                    <tr>
+                        <td class="px-4 py-2 border-b">{{ $index + 1 }}</td>
+                        <td class="px-4 py-2 border-b">{{ $equipo->nombre }}</td>
+                        <td class="px-4 py-2 border-b">{{ $equipo->puntos_ronda }}</td>
+                        <td class="px-4 py-2 border-b">{{ $equipo->puntos_totales }}</td>
+                        @if($torneo->usar_buchholz)
+                            <td class="px-4 py-2 border-b">{{ $equipo->buchholz ?? 0 }}</td>
+                        @endif
+                        @if($torneo->usar_sonneborn_berger)
+                            <td class="px-4 py-2 border-b">{{ $equipo->sonneborn ?? 0 }}</td>
+                        @endif
+                        @if($torneo->usar_desempate_progresivo)
+                            <td class="px-4 py-2 border-b">{{ $equipo->progresivo ?? 0 }}</td>
+                        @endif
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
     @endif
 </div>
 
