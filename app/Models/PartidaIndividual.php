@@ -26,4 +26,26 @@ class PartidaIndividual extends Model
     {
         return $this->belongsTo(Miembro::class, 'jugador_b_id', 'cedula');
     }
+
+    public function match()
+    {
+        return $this->belongsTo(\App\Models\EquipoMatch::class, 'equipo_match_id');
+    }
+
+    public function getResultadoTexto()
+    {
+        if ($this->resultado === null) {
+            return '*';
+        }
+        switch ($this->resultado) {
+            case 1:
+                return '1-0';
+            case 0:
+                return '0-1';
+            case 0.5:
+                return '½-½';
+            default:
+                return '*';
+        }
+    }
 } 
