@@ -16,7 +16,9 @@
             </div>
             <div class="mt-2 md:mt-0 flex flex-col items-end">
                 <a href="{{ route('torneos.show', $torneo) }}" class="text-blue-500 hover:underline mb-2">&larr; Volver al torneo</a>
+
                 @if($torneo->estado_torneo && !$torneo->torneo_cancelado && $ronda->numero_ronda == $torneo->rondas->max('numero_ronda') && $ronda->numero_ronda < $torneo->no_rondas && $ronda->completada)
+
                     <form method="POST" action="{{ route('torneos.rondas.store', $torneo) }}" class="inline">
                         @csrf
                         <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
@@ -44,6 +46,7 @@
     <!-- Partidas de la ronda -->
     <div class="bg-white shadow rounded-lg p-4 mb-4">
         <h3 class="text-lg font-semibold mb-2">Partidas de la Ronda {{ $ronda->numero_ronda }}</h3>
+
         @if(session('warnings'))
             <div class="mb-4 p-2 bg-yellow-100 text-yellow-800 rounded">
                 <b>Advertencias de emparejamiento:</b>
@@ -241,6 +244,7 @@
                     </tbody>
                 </table>
             @endif
+
             @if(!$ronda->completada)
                 <div class="mt-4 flex justify-end">
                     <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded">
@@ -292,5 +296,6 @@
             </tbody>
         </table>
     @endif
+
 </div>
 @endsection 

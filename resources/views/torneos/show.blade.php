@@ -485,6 +485,7 @@
                     Rondas y Resultados
                     <span class="ml-2 text-sm text-gray-500">({{ $torneo->rondas->count() }} de {{ $torneo->no_rondas }})</span>
                 </h3>
+
             </div>
             <div class="border-t border-gray-200">
                 <div class="p-4 flex flex-wrap gap-2">

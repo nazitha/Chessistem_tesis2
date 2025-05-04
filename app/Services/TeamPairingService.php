@@ -8,6 +8,7 @@ use App\Models\EquipoMatch;
 use App\Models\PartidaIndividual;
 use Illuminate\Support\Collection;
 use App\Traits\PairingValidations;
+
 use Illuminate\Support\Facades\Log;
 
 class TeamPairingService
@@ -32,7 +33,9 @@ class TeamPairingService
 
     public function generarEmparejamientos(int $ronda): array
     {
+
         Log::info('== INICIO GENERAR EMPAREJAMIENTOS EQUIPOS ==');
+
         // 1. Ordenar equipos por puntaje
         $equiposOrdenados = $this->equipos
             ->sortByDesc('puntos')
@@ -48,6 +51,7 @@ class TeamPairingService
             $oponenteEncontrado = false;
 
             foreach ($equiposDisponibles->skip(1) as $equipoB) {
+
                 if ($equipoA->id === $equipoB->id) continue;
                 if ($this->esOponenteValido($equipoA, $equipoB, $ronda)) {
                     Log::info('Emparejando equipoA: ' . $equipoA->nombre . ' con equipoB: ' . $equipoB->nombre);
@@ -76,6 +80,7 @@ class TeamPairingService
                         ]);
                     }
 
+
                     $equiposDisponibles = $equiposDisponibles->filter(function($e) use ($equipoA, $equipoB) {
                         return $e->id !== $equipoA->id && $e->id !== $equipoB->id;
                     });
@@ -86,7 +91,9 @@ class TeamPairingService
             }
 
             if (!$oponenteEncontrado) {
+
                 Log::info('No se encontró oponente para equipo: ' . $equipoA->nombre);
+
                 $this->moverEquipoFlotante($equipoA, $equiposDisponibles);
             }
         }
@@ -95,6 +102,7 @@ class TeamPairingService
         if ($equiposDisponibles->count() === 1 && !$byeAsignado) {
             $equipoBye = $equiposDisponibles->first();
             if ($this->validarByeRepetido($equipoBye)) {
+
                 Log::info('Asignando BYE a equipo: ' . $equipoBye->nombre);
                 $match = EquipoMatch::create([
                     'torneo_id' => $this->torneo->id,
@@ -114,17 +122,22 @@ class TeamPairingService
                         'tablero' => $jugador->tablero
                     ]);
                 }
+
                 $byeAsignado = true;
             }
         }
 
+
         Log::info('Emparejamientos generados: ' . count($emparejamientos));
+
         return $emparejamientos;
     }
 
     private function esOponenteValido($equipoA, $equipoB, $ronda): bool
     {
+
         return !$this->yaSeEnfrentaronEquipos($equipoA, $equipoB);
+
     }
 
     private function yaSeEnfrentaronEquipos($equipoA, $equipoB): bool
@@ -138,6 +151,7 @@ class TeamPairingService
     private function asignarColoresTableros($equipoA, $equipoB, $ronda): array
     {
         $tableros = [];
+
         // Filtrar y reindexar: solo un jugador por cada número de tablero (del 1 al N), forzando a entero
         $jugadoresA = $equipoA->jugadores
             ->filter(function($j) { return $j->tablero !== null; })
@@ -173,6 +187,7 @@ class TeamPairingService
                 ];
             }
         }
+
         return $tableros;
     }
 

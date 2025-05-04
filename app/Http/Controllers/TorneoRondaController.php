@@ -82,6 +82,7 @@ class TorneoRondaController extends Controller
 
     private function generarEmparejamientosEquipos(Torneo $torneo, RondaTorneo $ronda)
     {
+
         // Validación para evitar duplicados
         if (\App\Models\EquipoMatch::where('torneo_id', $torneo->id)->where('ronda', $ronda->numero_ronda)->exists()) {
             // Ya existen matches para esta ronda, no crear de nuevo
@@ -93,6 +94,7 @@ class TorneoRondaController extends Controller
         if (property_exists($service, 'warnings') && !empty($service->warnings)) {
             session()->flash('warnings', $service->warnings);
         }
+
         foreach ($emparejamientos as $index => $emparejamiento) {
             $match = EquipoMatch::create([
                 'torneo_id' => $torneo->id,
@@ -101,6 +103,7 @@ class TorneoRondaController extends Controller
                 'equipo_b_id' => $emparejamiento['equipo_b']->id,
                 'mesa' => $index + 1
             ]);
+
             foreach ($emparejamiento['tableros'] as $tablero) {
                 PartidaIndividual::create([
                     'equipo_match_id' => $match->id,
@@ -318,11 +321,12 @@ class TorneoRondaController extends Controller
                         ->with('success', 'Resultados guardados y siguiente ronda generada exitosamente.');
                 }
 
+
                 // Recalcular criterios de desempate de equipos si aplica
                 if ($torneo->es_por_equipos && ($torneo->usar_buchholz || $torneo->usar_sonneborn_berger || $torneo->usar_desempate_progresivo)) {
                     // Forzar recálculo de la tabla de clasificación (show) al recargar
                 }
-                return redirect()
+              return redirection ()
                     ->route('torneos.rondas.show', [$torneo, $ronda])
                     ->with('success', 'Resultados guardados exitosamente.');
 
@@ -595,6 +599,6 @@ class TorneoRondaController extends Controller
             }
             $equipos = $equipos->sortByDesc('puntos_totales');
         }
-        return view('torneos.ronda', compact('torneo', 'ronda', 'rondas', 'partidas', 'participantes', 'equipos'));
+        return vew('torneos.ronda', compact('torneo', 'ronda', 'rondas', 'partidas', 'participantes', 'equipos'));
     }
 } 
