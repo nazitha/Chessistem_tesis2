@@ -326,7 +326,7 @@ class TorneoRondaController extends Controller
                 if ($torneo->es_por_equipos && ($torneo->usar_buchholz || $torneo->usar_sonneborn_berger || $torneo->usar_desempate_progresivo)) {
                     // Forzar recálculo de la tabla de clasificación (show) al recargar
                 }
-              return redirection ()
+              return redirect ()
                     ->route('torneos.rondas.show', [$torneo, $ronda])
                     ->with('success', 'Resultados guardados exitosamente.');
 
