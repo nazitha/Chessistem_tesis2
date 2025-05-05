@@ -123,6 +123,10 @@
                                         $colorA = ($ronda->numero_ronda % 2 === 1) ? ($esImpar ? 'blancas' : 'negras') : ($esImpar ? 'negras' : 'blancas');
                                         $colorB = $colorA === 'blancas' ? 'negras' : 'blancas';
 
+                                        // Obtener jugadores del tablero actual
+                                        $jugadorA = $jugadoresA->firstWhere('tablero', $partida->tablero);
+                                        $jugadorB = $jugadoresB->firstWhere('tablero', $partida->tablero);
+
                                         // Resultado Chess-Results
                                         $resA = $partida->resultado == 1 ? 1 : ($partida->resultado == 0.5 ? 0.5 : ($partida->resultado === null ? null : 0));
                                         $resB = $partida->resultado == 0 ? 1 : ($partida->resultado == 0.5 ? 0.5 : ($partida->resultado === null ? null : 0));
@@ -133,8 +137,8 @@
                                     @endphp
                                     <tr>
                                         <td class="px-2 py-1 text-center">{{ $partida->tablero }}</td>
-                                        <td class="px-2 py-1">{{ $partida->jugadorA->nombres ?? '-' }} {{ $partida->jugadorA->apellidos ?? '' }}</td>
-                                        <td class="px-2 py-1 text-center">{{ $partida->jugadorA->elo->elo ?? '-' }}</td>
+                                        <td class="px-2 py-1">{{ $jugadorA->miembro->nombres ?? '-' }} {{ $jugadorA->miembro->apellidos ?? '' }}</td>
+                                        <td class="px-2 py-1 text-center">{{ $jugadorA->miembro->elo->elo ?? '-' }}</td>
                                         <td class="px-2 py-1 text-center">
                                             <span style="display:inline-block;width:16px;height:16px;border-radius:3px;vertical-align:middle;@if($colorA == 'blancas')background:#fff;border:1px solid #aaa;@else background:#222;@endif"></span>
                                         </td>
@@ -156,8 +160,8 @@
                                         <td class="px-2 py-1 text-center">
                                             <span style="display:inline-block;width:16px;height:16px;border-radius:3px;vertical-align:middle;@if($colorB == 'blancas')background:#fff;border:1px solid #aaa;@else background:#222;@endif"></span>
                                         </td>
-                                        <td class="px-2 py-1">{{ $partida->jugadorB->nombres ?? '-' }} {{ $partida->jugadorB->apellidos ?? '' }}</td>
-                                        <td class="px-2 py-1 text-center">{{ $partida->jugadorB->elo->elo ?? '-' }}</td>
+                                        <td class="px-2 py-1">{{ $jugadorB->miembro->nombres ?? '-' }} {{ $jugadorB->miembro->apellidos ?? '' }}</td>
+                                        <td class="px-2 py-1 text-center">{{ $jugadorB->miembro->elo->elo ?? '-' }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>

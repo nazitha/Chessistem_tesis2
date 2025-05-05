@@ -15,15 +15,6 @@
                 Volver
             </a>
 
-            @if(!$torneo->es_por_equipos && $torneo->estado_torneo && !$torneo->torneo_cancelado)
-                <button type="button"
-                        onclick="mostrarModalParticipantes()"
-                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                    <i class="fas fa-user-plus mr-2"></i>
-                    Agregar Participantes
-                </button>
-            @endif
-
             @if(Auth::user()->rol_id == 1 || Auth::user()->rol_id == 4)
                 <a href="{{ route('torneos.edit', $torneo) }}" 
                    class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
@@ -186,7 +177,7 @@
                             Registrar Equipo
                         </button>
                     @endif
-                    @if($torneo->estado_torneo && !$torneo->torneo_cancelado && $torneo->equipos->count() >= 4)
+                    @if(!$torneo->es_por_equipos && $torneo->estado_torneo && !$torneo->torneo_cancelado && $torneo->participantes->count() >= 4)
                         <form method="POST" action="{{ route('torneos.rondas.store', $torneo) }}">
                             @csrf
                             <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
@@ -352,14 +343,23 @@
                 Participantes
                 <span class="ml-2 text-sm text-gray-500">({{ $torneo->participantes->count() }} registrados)</span>
             </h3>
-            @if(!$torneo->es_por_equipos && $torneo->estado_torneo && !$torneo->torneo_cancelado)
+            <div class="flex gap-2">
                 <button type="button"
                         onclick="mostrarModalParticipantes()"
                         class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                     <i class="fas fa-user-plus mr-2"></i>
                     Agregar Participantes
                 </button>
-            @endif
+                @if(!$torneo->es_por_equipos && $torneo->estado_torneo && !$torneo->torneo_cancelado && $torneo->participantes->count() >= 4)
+                    <form method="POST" action="{{ route('torneos.rondas.store', $torneo) }}">
+                        @csrf
+                        <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            <i class="fas fa-chess-board mr-2"></i>
+                            Generar Emparejamiento
+                        </button>
+                    </form>
+                @endif
+            </div>
         </div>
         <div class="border-t border-gray-200">
             <div class="overflow-x-auto px-6 sm:px-8 py-4">
@@ -506,7 +506,7 @@
     @endif
 
     <!-- Tabla de Clasificación Final -->
-    @if($torneo->rondas->count() == $torneo->no_rondas)
+    @if(!$torneo->es_por_equipos && $torneo->rondas->count() == $torneo->no_rondas)
         <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
             <div class="px-4 py-5 sm:px-6">
                 <h3 class="text-lg leading-6 font-medium text-gray-900">
@@ -604,14 +604,13 @@
         </div>
     @endif
 
-    @if($torneo->es_por_equipos && isset($equipos) && count($equipos) > 0)
+    @if($torneo->es_por_equipos && isset($equipos) && $equipos->count() > 0)
         <h2 class="text-2xl font-bold text-center my-4">Tabla de Clasificación de Equipos</h2>
         <table class="min-w-full bg-white border border-gray-300">
             <thead>
                 <tr>
                     <th class="px-4 py-2 border-b">Posición</th>
                     <th class="px-4 py-2 border-b">Equipo</th>
-                    <th class="px-4 py-2 border-b">Puntos Ronda</th>
                     <th class="px-4 py-2 border-b">Puntos Totales</th>
                     @if($torneo->usar_buchholz)
                         <th class="px-4 py-2 border-b">Buchholz</th>
@@ -629,7 +628,6 @@
                     <tr>
                         <td class="px-4 py-2 border-b">{{ $index + 1 }}</td>
                         <td class="px-4 py-2 border-b">{{ $equipo->nombre }}</td>
-                        <td class="px-4 py-2 border-b">{{ $equipo->puntos_ronda }}</td>
                         <td class="px-4 py-2 border-b">{{ $equipo->puntos_totales }}</td>
                         @if($torneo->usar_buchholz)
                             <td class="px-4 py-2 border-b">{{ $equipo->buchholz ?? 0 }}</td>
