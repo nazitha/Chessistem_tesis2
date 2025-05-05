@@ -71,12 +71,23 @@ class TorneoRondaController extends Controller
         $emparejamientos = $service->generarEmparejamientos($ronda);
 
         foreach ($emparejamientos as $index => $emparejamiento) {
-            PartidaTorneo::create([
-                'ronda_id' => $ronda->id,
-                'jugador_blancas_id' => $emparejamiento['blancas']->miembro_id,
-                'jugador_negras_id' => isset($emparejamiento['negras']) ? $emparejamiento['negras']->miembro_id : null,
-                'mesa' => $index + 1
-            ]);
+            if (is_null($emparejamiento['negras'])) {
+                // BYE: jugador blancas descansa
+                PartidaTorneo::create([
+                    'ronda_id' => $ronda->id,
+                    'jugador_blancas_id' => $emparejamiento['blancas']->miembro_id,
+                    'jugador_negras_id' => null,
+                    'resultado' => 1, // Victoria por bye
+                    'mesa' => 0 // Mesa especial para bye
+                ]);
+            } else {
+                PartidaTorneo::create([
+                    'ronda_id' => $ronda->id,
+                    'jugador_blancas_id' => $emparejamiento['blancas']->miembro_id,
+                    'jugador_negras_id' => $emparejamiento['negras']->miembro_id,
+                    'mesa' => $index + 1
+                ]);
+            }
         }
     }
 
@@ -112,6 +123,37 @@ class TorneoRondaController extends Controller
                     'tablero' => $tablero['tablero']
                 ]);
             }
+
+            $puntajeA = 0;
+            $puntajeB = 0;
+            foreach ($match->partidas as $partida) {
+                if ($partida->match->equipo_a_id === $match->equipo_a_id) {
+                    $puntajeA += $partida->resultado ?? 0;
+                } elseif ($partida->match->equipo_b_id === $match->equipo_a_id) {
+                    $puntajeA += $partida->resultado !== null ? 1 - $partida->resultado : 0;
+                }
+                if ($partida->match->equipo_b_id === $match->equipo_b_id) {
+                    $puntajeB += $partida->resultado ?? 0;
+                } elseif ($partida->match->equipo_a_id === $match->equipo_b_id) {
+                    $puntajeB += $partida->resultado !== null ? 1 - $partida->resultado : 0;
+                }
+            }
+
+            $match->puntos_equipo_a = $puntajeA;
+            $match->puntos_equipo_b = $puntajeB;
+            // Asignar resultado_match
+            \Log::info("Calculando resultado_match para match {$match->id}: puntos A = {$puntajeA}, puntos B = {$puntajeB}");
+            if ($puntajeA > $puntajeB) {
+                $match->resultado_match = 1; // Gana equipo A
+            } elseif ($puntajeB > $puntajeA) {
+                $match->resultado_match = 2; // Gana equipo B
+            } elseif ($puntajeA == $puntajeB && $match->equipo_b_id !== null) {
+                $match->resultado_match = 0; // Empate (si no es BYE)
+            } else {
+                $match->resultado_match = null; // BYE o sin resultado
+            }
+            \Log::info("Match {$match->id} resultado_match: " . var_export($match->resultado_match, true));
+            $match->save();
         }
     }
 
@@ -221,8 +263,36 @@ class TorneoRondaController extends Controller
                         \Log::info('Resultado guardado en partida ID ' . $partida->id . ': resultado=' . var_export($partida->resultado, true));
                         $partida->save();
                     }
+                }
+                // Recalcular puntos y resultado_match para todos los matches de la ronda
+                foreach ($matches as $match) {
+                    $puntajeA = 0;
+                    $puntajeB = 0;
+                    foreach ($match->partidas as $partida) {
+                        if ($partida->jugador_a_id && $partida->jugador_b_id) {
+                            if ($partida->resultado === 1) {
+                                $puntajeA += 1;
+                            } elseif ($partida->resultado === 0) {
+                                $puntajeB += 1;
+                            } elseif ($partida->resultado === 0.5) {
+                                $puntajeA += 0.5;
+                                $puntajeB += 0.5;
+                            }
+                        }
+                    }
                     $match->puntos_equipo_a = $puntajeA;
                     $match->puntos_equipo_b = $puntajeB;
+                    // Asignar resultado_match
+                    if ($puntajeA > $puntajeB) {
+                        $match->resultado_match = 1; // Gana equipo A
+                    } elseif ($puntajeB > $puntajeA) {
+                        $match->resultado_match = 2; // Gana equipo B
+                    } elseif ($puntajeA == $puntajeB && $match->equipo_b_id !== null) {
+                        $match->resultado_match = 0; // Empate (si no es BYE)
+                    } else {
+                        $match->resultado_match = null; // BYE o sin resultado
+                    }
+                    \Log::info("[RECALCULO] Match {$match->id} resultado_match: " . var_export($match->resultado_match, true));
                     $match->save();
                 }
                 $ronda->completada = true;
@@ -363,12 +433,11 @@ class TorneoRondaController extends Controller
             $puntosTotales = 0;
             
             // Obtener todas las partidas del jugador en este torneo
-            $partidas = PartidaTorneo::whereHas('ronda', function($query) use ($torneoId) {
-                $query->where('torneo_id', $torneoId);
-            })->where(function($query) use ($jugadorId) {
-                $query->where('jugador_blancas_id', $jugadorId)
-                      ->orWhere('jugador_negras_id', $jugadorId);
-            })->get();
+            $partidas = PartidaTorneo::where('jugador_blancas_id', $jugadorId)
+                ->orWhere('jugador_negras_id', $jugadorId)
+                ->whereHas('ronda', function($query) use ($torneoId) {
+                    $query->where('torneo_id', $torneoId);
+                })->get();
 
             foreach ($partidas as $p) {
                 if ($p->resultado === null) continue;
@@ -522,13 +591,11 @@ class TorneoRondaController extends Controller
         // Si es por equipos, cargar equipos con sus puntos acumulados
         if ($torneo->es_por_equipos) {
             $equipos = $torneo->equipos()->with(['jugadores.miembro.elo'])->get();
+            $puntosTotalesEquipos = [];
+            // PRIMER BUCLE: Calcular puntos de ronda y totales
             foreach ($equipos as $equipo) {
                 $puntos_ronda = 0;
                 $puntos_totales = 0;
-                $buchholz = 0;
-                $sonneborn = 0;
-                $progresivo = 0;
-                $acumulado = 0;
                 // Sumar puntos de tableros de la ronda actual
                 $partidas_ronda = \App\Models\PartidaIndividual::whereHas('match', function($q) use ($equipo, $ronda) {
                     $q->where(function($q2) use ($equipo) {
@@ -555,50 +622,54 @@ class TorneoRondaController extends Controller
                 }
                 $equipo->puntos_ronda = $puntos_ronda;
                 $equipo->puntos_totales = $puntos_totales;
-                // Cálculo de criterios de desempate para equipos
-                if ($torneo->usar_buchholz || $torneo->usar_sonneborn_berger || $torneo->usar_desempate_progresivo) {
-                    $matches_jugados = \App\Models\EquipoMatch::where('torneo_id', $torneo->id)
-                        ->where(function($q) use ($equipo) {
-                            $q->where('equipo_a_id', $equipo->id)->orWhere('equipo_b_id', $equipo->id);
-                        })
-                        ->where('ronda', '<=', $ronda->numero_ronda)
-                        ->get();
-                    $acumulado = 0;
-                    foreach ($matches_jugados as $match) {
-                        // Determinar oponente
-                        $oponente = $match->equipo_a_id === $equipo->id ? $match->equipoB : $match->equipoA;
-                        // Puntos del equipo en este match
-                        $puntos_equipo = $match->equipo_a_id === $equipo->id ? $match->puntos_equipo_a : $match->puntos_equipo_b;
-                        // Puntos del oponente en el torneo
-                        $puntos_oponente = 0;
-                        if ($oponente) {
-                            // Suma todos los puntos de tableros del oponente
-                            $partidas_oponente = \App\Models\PartidaIndividual::whereHas('match', function($q) use ($oponente) {
-                                $q->where('equipo_a_id', $oponente->id)->orWhere('equipo_b_id', $oponente->id);
-                            })->get();
-                            foreach ($partidas_oponente as $p) {
-                                if ($p->match->equipo_a_id === $oponente->id) {
-                                    $puntos_oponente += $p->resultado ?? 0;
-                                } elseif ($p->match->equipo_b_id === $oponente->id) {
-                                    $puntos_oponente += $p->resultado !== null ? 1 - $p->resultado : 0;
-                                }
-                            }
-                        }
-                        if ($torneo->usar_buchholz) {
-                            $buchholz += $puntos_oponente;
-                        }
-                        if ($torneo->usar_sonneborn_berger) {
-                            $sonneborn += $puntos_oponente * $puntos_equipo;
-                        }
-                        if ($torneo->usar_desempate_progresivo) {
-                            $acumulado += $puntos_equipo;
-                            $progresivo += $acumulado;
+                $puntosTotalesEquipos[$equipo->id] = $puntos_totales;
+            }
+            // SEGUNDO BUCLE: Calcular desempates
+            foreach ($equipos as $equipo) {
+                $buchholz = 0;
+                $sonneborn = 0;
+                $progresivo = 0;
+                $acumulado = 0;
+                $matches_jugados = \App\Models\EquipoMatch::where('torneo_id', $torneo->id)
+                    ->where(function($q) use ($equipo) {
+                        $q->where('equipo_a_id', $equipo->id)->orWhere('equipo_b_id', $equipo->id);
+                    })
+                    ->where('ronda', '<=', $ronda->numero_ronda)
+                    ->orderBy('ronda')
+                    ->get();
+                foreach ($matches_jugados as $match) {
+                    $esA = $match->equipo_a_id === $equipo->id;
+                    $oponente = $esA ? $match->equipoB : $match->equipoA;
+                    $puntos_equipo = $esA ? $match->puntos_equipo_a : $match->puntos_equipo_b;
+                    $puntos_oponente = $oponente ? ($puntosTotalesEquipos[$oponente->id] ?? 0) : 0;
+                    // Buchholz: suma los puntos totales de los rivales enfrentados
+                    if ($oponente) {
+                        $buchholz += $puntos_oponente;
+                    }
+                    // Sonneborn-Berger: victoria suma puntos del rival, empate suma la mitad
+                    \Log::info("Equipo {$equipo->nombre} - Match {$match->id} resultado_match: " . var_export($match->resultado_match, true) . ", puntos_oponente: {$puntos_oponente}");
+                    if ($match->resultado_match !== null && $oponente) {
+                        if (($esA && $match->resultado_match == 1) || (!$esA && $match->resultado_match == 2)) {
+                            $sonneborn += $puntos_oponente;
+                            \Log::info("SB: Victoria. Suma {$puntos_oponente} a {$equipo->nombre}");
+                        } elseif ($match->resultado_match == 0) {
+                            $sonneborn += $puntos_oponente / 2;
+                            \Log::info("SB: Empate. Suma " . ($puntos_oponente/2) . " a {$equipo->nombre}");
                         }
                     }
+                    // Progresivo: suma acumulativa de puntos por ronda
+                    $acumulado += $puntos_equipo ?? 0;
+                    $progresivo += $acumulado;
                 }
+                \Log::info("Equipo {$equipo->nombre}: Buchholz={$buchholz}, Sonneborn-Berger={$sonneborn}, Progresivo={$progresivo}");
+                $equipo->buchholz = $buchholz;
+                $equipo->sonneborn = $sonneborn;
+                $equipo->progresivo = $progresivo;
             }
             $equipos = $equipos->sortByDesc('puntos_totales');
+        } else {
+            $equipos = collect(); // O un array vacío para individuales
         }
-        return vew('torneos.ronda', compact('torneo', 'ronda', 'rondas', 'partidas', 'participantes', 'equipos'));
+        return view('torneos.ronda', compact('torneo', 'ronda', 'rondas', 'partidas', 'participantes', 'equipos'));
     }
 } 

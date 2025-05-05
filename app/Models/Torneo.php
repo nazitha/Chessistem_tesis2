@@ -220,6 +220,13 @@ class Torneo extends Model
 
     public function partidas()
     {
-        return $this->hasManyThrough(PartidaTorneo::class, RondaTorneo::class);
+        return $this->hasManyThrough(
+            PartidaTorneo::class,
+            RondaTorneo::class,
+            'torneo_id',    // Foreign key on RondaTorneo table
+            'ronda_id',     // Foreign key on PartidaTorneo table
+            'id',           // Local key on Torneo table
+            'id'            // Local key on RondaTorneo table
+        );
     }
 }
