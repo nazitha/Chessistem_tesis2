@@ -1,0 +1,12 @@
+/* Estilo para el botón personalizado */
+.swal-btn-success {
+    background-color: #111827 !important; /* Color de fondo del botón */
+    border-color: #111827 !important;     /* Borde del botón */
+    color: #ffffff !important;             /* Color del texto */
+    box-shadow: none !important;           /* Elimina el sombreado */
+}
+
+.swal-btn-success:hover {
+    background-color: #1f2937 !important; /* Color de fondo al hacer hover */
+    border-color: #1f2937 !important;     /* Borde al hacer hover */
+}

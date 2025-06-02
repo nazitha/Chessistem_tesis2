@@ -1,0 +1,84 @@
+/*Overrides for Tailwind CSS */
+
+/*Form fields*/
+.dataTables_wrapper select,
+.dataTables_wrapper .dataTables_filter input {
+    color: #1e2936; /* text-gray-700 */
+    padding-left: 1rem; /* pl-4 */
+    padding-right: 1rem; /* pl-4 */
+    padding-top: .5rem; /* pl-2 */
+    padding-bottom: .5rem; /* pl-2 */
+    line-height: 1.25; /* leading-tight */
+    border-width: 2px; /* border-2 */
+    border-radius: .25rem; /* border-radius */
+    border-color: #edf2f7; /* border-gray-200 */
+    background-color: #edf2f7; /* bg-gray-200 */
+}
+
+/*Row Hover*/
+table.dataTable.hover tbody tr:hover,
+table.dataTable.display tbody tr:hover {
+    background-color: #ebf4ff; /* bg-indigo-100 */
+}
+
+/*Pagination Buttons*/
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    font-weight: 700; /* font-bold */
+    border-radius: .25rem; /* rounded */
+    border: 1px solid transparent; /* border border-transparent */
+}
+
+/*Pagination Buttons - Current selected */
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    color: #fff !important; /* text-white */
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .1), 0 1px 2px 0 rgba(0, 0, 0, .06); /* shadow */
+    font-weight: 700; /* font-bold */
+    border-radius: .25rem; /* rounded */
+    background: #1e2936 !important; /* bg-indigo-500 -> nuevo color */
+    border: 1px solid transparent; /* border border-transparent */
+}
+
+/* Aumentamos la especificidad del selector para los botones de paginación en hover */
+div.dataTables_wrapper div.dataTables_paginate .paginate_button:hover {
+    color: #fff !important; /* Asegura que el texto se haga blanco */
+    background-color: #1e2936 !important; /* Cambia el fondo a un gris oscuro */
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .1), 0 1px 2px 0 rgba(0, 0, 0, .06); /* Sombra */
+    font-weight: 700; /* Peso de la fuente */
+    border-radius: .25rem; /* Redondea los bordes */
+    border: 1px solid transparent; /* Borde transparente */
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+    background-color: #4a5568 !important; /* Fondo ligeramente más claro en hover */
+    border-color: #4a5568 !important; /* Borde coincide con el fondo */
+    color: #fff !important; /* El color del texto sigue siendo blanco */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2); /* Sombra más pronunciada en hover */
+}
+
+/* Estilo para los botones deshabilitados */
+.dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
+    color: #aaa !important; /* Color gris para el texto */
+    background-color: #f5f5f5 !important; /* Fondo claro para el botón deshabilitado */
+    border-color: #ddd !important; /* Borde gris claro */
+    cursor: not-allowed !important; /* Mostrar el cursor como deshabilitado */
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.disabled:hover {
+    background-color: #f5f5f5 !important; /* El fondo no cambia cuando se pasa el cursor */
+    color: #aaa !important; /* El color del texto no cambia en el hover */
+    cursor: not-allowed !important; /* Mantener el cursor deshabilitado */
+}
+
+
+/*Add padding to bottom border */
+table.dataTable.no-footer {
+    border-bottom: 1px solid #e2e8f0; /* border-b-1 border-gray-300 */
+    margin-top: 0.75em;
+    margin-bottom: 0.75em;
+}
+
+/*Change colour of responsive icon*/
+table.dataTable.dtr-inline.collapsed>tbody>tr>td:first-child:before,
+table.dataTable.dtr-inline.collapsed>tbody>tr>th:first-child:before {
+    background-color: #1e2936 !important; /* bg-indigo-500 -> nuevo color */
+}
