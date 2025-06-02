@@ -5,7 +5,10 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Mail\PasswordResetMail;
 use App\Models\User;
+<<<<<<< HEAD
 use App\Models\Usuario;
+=======
+>>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -83,14 +86,18 @@ class PasswordRecoveryController extends Controller
 
     public function showResetForm($token)
     {
+<<<<<<< HEAD
         Log::info('=== INICIO DE SHOW RESET FORM ===');
         Log::info('Token recibido:', ['token' => $token]);
 
+=======
+>>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
         $reset = DB::table('password_resets')
             ->where('token', $token)
             ->where('expires_at', '>', now())
             ->first();
 
+<<<<<<< HEAD
         Log::info('Resultado de la búsqueda del token:', [
             'token_encontrado' => $reset ? true : false,
             'token' => $token,
@@ -99,16 +106,23 @@ class PasswordRecoveryController extends Controller
 
         if (!$reset) {
             Log::error('Token no válido o expirado en showResetForm');
+=======
+        if (!$reset) {
+>>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
             return redirect()->route('password.request')
                 ->withErrors(['email' => 'Este enlace de recuperación es inválido o ha expirado.']);
         }
 
+<<<<<<< HEAD
         Log::info('Token válido, mostrando formulario de reset');
+=======
+>>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
         return view('auth.reset-password', ['token' => $token, 'email' => $reset->correo]);
     }
 
     public function resetPassword(Request $request)
     {
+<<<<<<< HEAD
         try {
             Log::info('=== INICIO DE RESET PASSWORD ===');
             Log::info('Datos del formulario:', [
@@ -195,6 +209,42 @@ class PasswordRecoveryController extends Controller
             ]);
             return back()->withErrors(['email' => 'Ocurrió un error al actualizar la contraseña.']);
         }
+=======
+        $validator = Validator::make($request->all(), [
+            'token' => 'required',
+            'email' => 'required|email',
+            'password' => 'required|min:8|confirmed'
+        ]);
+
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+
+        $reset = DB::table('password_resets')
+            ->where('token', $request->token)
+            ->where('correo', $request->email)
+            ->where('expires_at', '>', now())
+            ->first();
+
+        if (!$reset) {
+            return back()->withErrors(['email' => 'Este enlace de recuperación es inválido o ha expirado.']);
+        }
+
+        $user = User::where('correo', $request->email)->first();
+
+        if (!$user) {
+            return back()->withErrors(['email' => 'No encontramos una cuenta con ese correo electrónico.']);
+        }
+
+        $user->contrasena = $request->password;
+        $user->save();
+
+        // Eliminar todos los tokens de recuperación para este usuario
+        DB::table('password_resets')->where('correo', $request->email)->delete();
+
+        return redirect()->route('login')
+            ->with('status', 'Tu contraseña ha sido actualizada correctamente. Ya puedes iniciar sesión.');
+>>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
     }
 
     public function sendResetLinkEmail(Request $request)

@@ -1363,4 +1363,16 @@ $(document).ready(function() {
         });
     }
 
+<<<<<<< HEAD
+=======
+    const modalParticipantes = document.getElementById('modal-participantes');
+    if (modalParticipantes) {
+        modalParticipantes.addEventListener('click', function(e) {
+            if (e.target === this) {
+                cerrarModalParticipantes();
+            }
+        });
+    }
+
+>>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
 });

@@ -26,6 +26,10 @@ return new class extends Migration
             $table->time('hora_inicio')->nullable();
             $table->string('lugar', 100)->nullable()->collation('utf8mb3_spanish_ci');
             $table->integer('no_rondas')->nullable();
+<<<<<<< HEAD
+=======
+            $table->boolean('es_por_equipos')->default(false);
+>>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
             $table->boolean('estado_torneo')->default(1)->nullable();
             $table->boolean('torneo_cancelado')->default(false);
             $table->string('motivo_cancelacion')->nullable();

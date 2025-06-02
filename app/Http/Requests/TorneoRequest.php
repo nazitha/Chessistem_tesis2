@@ -36,7 +36,12 @@ class TorneoRequest extends FormRequest
             'permitir_bye' => 'sometimes|boolean',
             'alternar_colores' => 'sometimes|boolean',
             'evitar_emparejamientos_repetidos' => 'sometimes|boolean',
+<<<<<<< HEAD
             'maximo_emparejamientos_repetidos' => 'sometimes|integer|min:1|max:3'
+=======
+            'maximo_emparejamientos_repetidos' => 'sometimes|integer|min:1|max:3',
+            'es_por_equipos' => 'sometimes|boolean'
+>>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
         ];
     }
 

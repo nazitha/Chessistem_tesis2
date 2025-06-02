@@ -1,7 +1,10 @@
+<<<<<<< HEAD
 @php
     use App\Helpers\PermissionHelper;
 @endphp
 
+=======
+>>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
 <div class="hidden md:block">
     <div class="ml-10 flex items-baseline space-x-4">
         <!-- Home -->
@@ -13,6 +16,7 @@
         </a>
 
         <!-- Menú Usuarios -->
+<<<<<<< HEAD
         @if(PermissionHelper::canViewModule('usuarios'))
             <div x-data="{ open: false }" class="relative" @click.outside="open = false">
                 <button type="button" 
@@ -38,6 +42,39 @@
                 </div>
             </div>
         @endif
+=======
+        <div x-data="{ open: false }" class="relative" @click.outside="open = false">
+            <button type="button" 
+                    @click="open = !open; activeMenuItem = 'Usuarios'"
+                    :class="activeMenuItem === 'Usuarios' ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
+                    class="rounded-md px-3 py-2 text-sm font-medium">
+                Usuarios
+            </button>
+            
+            <div x-show="open" x-transition class="absolute left-0 z-10 mt-2 w-56 origin-top-left rounded-md bg-white shadow-lg">
+                <div class="py-1">
+                    <a href="#" 
+                       @click="open = false; activeMenuItem = 'Usuarios'"
+                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                       id="usuarios_opcion">
+                        Usuarios
+                    </a>
+                    <a href="#" 
+                       @click="open = false; activeMenuItem = 'Usuarios'"
+                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                       id="asigpermis_opcion">
+                        Asignación de permisos
+                    </a>
+                    <a href="#" 
+                       @click="open = false; activeMenuItem = 'Usuarios'"
+                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                       id="historial_opcion">
+                        Historial de cambios
+                    </a>
+                </div>
+            </div>
+        </div>
+>>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
 
         <!-- Menú Miembros -->
         <div x-data="{ open: false }" class="relative" @click.outside="open = false">

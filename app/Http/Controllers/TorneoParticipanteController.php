@@ -21,10 +21,23 @@ class TorneoParticipanteController extends Controller
 
             DB::beginTransaction();
 
+<<<<<<< HEAD
             foreach ($request->participantes as $miembroId) {
                 ParticipanteTorneo::create([
                     'torneo_id' => $torneo->id,
                     'miembro_id' => $miembroId
+=======
+            // Obtener el último número inicial usado en este torneo
+            $ultimoNumero = ParticipanteTorneo::where('torneo_id', $torneo->id)
+                ->max('numero_inicial') ?? 0;
+
+            foreach ($request->participantes as $miembroId) {
+                $ultimoNumero++;
+                ParticipanteTorneo::create([
+                    'torneo_id' => $torneo->id,
+                    'miembro_id' => $miembroId,
+                    'numero_inicial' => $ultimoNumero
+>>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
                 ]);
             }
 
