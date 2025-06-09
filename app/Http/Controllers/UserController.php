@@ -11,10 +11,7 @@ use App\Http\Requests\PermissionRequest;
 use App\Http\Resources\UserResource;
 use App\Http\Resources\RoleResource;
 use App\Services\AuditService;
-<<<<<<< HEAD
 use App\Services\PermissionService;
-=======
->>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -23,7 +20,6 @@ use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
-<<<<<<< HEAD
     public function index()
     {
         try {
@@ -45,15 +41,6 @@ class UserController extends Controller
             Log::error('UserController@index - Error al listar usuarios: ' . $e->getMessage());
             return redirect()->route('home')->with('error', 'Error al obtener la lista de usuarios');
         }
-=======
-    public function index(): JsonResponse
-    {
-        $users = User::with(['role.permissions'])
-            ->orderBy('correo')
-            ->get();
-
-        return UserResource::collection($users)->response();
->>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
     }
 
     public function getRoles(): JsonResponse
@@ -64,13 +51,10 @@ class UserController extends Controller
 
     public function store(UserStoreRequest $request): JsonResponse
     {
-<<<<<<< HEAD
         if (!PermissionService::hasPermission('usuarios.create')) {
             return response()->json(['error' => 'No tienes permiso para crear usuarios'], 403);
         }
 
-=======
->>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
         return DB::transaction(function () use ($request) {
             $user = User::create($request->validated());
             
@@ -87,13 +71,10 @@ class UserController extends Controller
 
     public function update(UserUpdateRequest $request, User $user): JsonResponse
     {
-<<<<<<< HEAD
         if (!PermissionService::hasPermission('usuarios.update')) {
             return response()->json(['error' => 'No tienes permiso para editar usuarios'], 403);
         }
 
-=======
->>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
         return DB::transaction(function () use ($request, $user) {
             $originalData = $user->getOriginal();
             $user->update($request->validated());
@@ -144,13 +125,10 @@ class UserController extends Controller
 
     public function destroy(User $user): JsonResponse
     {
-<<<<<<< HEAD
         if (!PermissionService::hasPermission('usuarios.delete')) {
             return response()->json(['error' => 'No tienes permiso para eliminar usuarios'], 403);
         }
 
-=======
->>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
         return DB::transaction(function () use ($user) {
             AuditService::logUserAction(
                 Auth::user()->correo,

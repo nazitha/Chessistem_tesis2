@@ -1,8 +1,6 @@
 <?php
 
 namespace App\Http\Controllers;
-
-<<<<<<< HEAD
 use App\Models\Torneo;
 use App\Models\RondaTorneo;
 use App\Models\PartidaTorneo;
@@ -11,22 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-=======
-use Illuminate\Http\Request;
-use App\Models\RondaTorneo;
-use App\Models\PartidaTorneo;
-use App\Models\ParticipanteTorneo;
-use App\Models\EquipoMatch;
-use App\Models\PartidaIndividual;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
-use App\Models\Torneo;
-use App\Models\Participante;
-use App\Services\SwissPairingService;
-use App\Services\TeamPairingService;
-
->>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
 class TorneoRondaController extends Controller
 {
     public function store(Request $request, Torneo $torneo)
@@ -36,19 +19,8 @@ class TorneoRondaController extends Controller
                 return back()->with('error', 'Ya se han generado todas las rondas del torneo.');
             }
 
-<<<<<<< HEAD
             if ($torneo->participantes()->count() < 2) {
                 return back()->with('error', 'Se necesitan al menos 2 participantes para generar emparejamientos.');
-=======
-            if ($torneo->es_por_equipos) {
-                if ($torneo->equipos()->count() < 2) {
-                    return back()->with('error', 'Se necesitan al menos 2 equipos para generar emparejamientos.');
-                }
-            } else {
-                if ($torneo->participantes()->count() < 2) {
-                    return back()->with('error', 'Se necesitan al menos 2 participantes para generar emparejamientos.');
-                }
->>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
             }
 
             DB::beginTransaction();
@@ -60,7 +32,6 @@ class TorneoRondaController extends Controller
                 'fecha_hora' => now()
             ]);
 
-<<<<<<< HEAD
             // Generar emparejamientos
             $service = new SwissPairingService($torneo);
             $emparejamientos = $service->generarEmparejamientos();
@@ -73,22 +44,12 @@ class TorneoRondaController extends Controller
                     'jugador_negras_id' => $emparejamiento['negras']->miembro_id ?? null,
                     'mesa' => $index + 1
                 ]);
-=======
-            if ($torneo->es_por_equipos) {
-                $this->generarEmparejamientosEquipos($torneo, $ronda);
-            } else {
-                $this->generarEmparejamientosIndividuales($torneo, $ronda);
->>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
             }
 
             DB::commit();
 
             return redirect()
-<<<<<<< HEAD
                 ->route('torneos.show', $torneo)
-=======
-                ->route('torneos.rondas.show', [$torneo, $ronda])
->>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
                 ->with('success', 'Ronda generada exitosamente.');
 
         } catch (\Exception $e) {
@@ -100,13 +61,6 @@ class TorneoRondaController extends Controller
         }
     }
 
-<<<<<<< HEAD
-    public function registrarResultado(Request $request, PartidaTorneo $partida)
-    {
-        try {
-            $request->validate([
-                'resultado' => 'required|in:1,2,3' // 1=victoria blancas, 2=victoria negras, 3=tablas
-=======
     private function generarEmparejamientosIndividuales(Torneo $torneo, RondaTorneo $ronda)
     {
         $service = new SwissPairingService($torneo);
@@ -254,58 +208,10 @@ class TorneoRondaController extends Controller
             $request->validate([
                 'resultados' => 'required|array',
                 'resultados.*' => 'present|string'
->>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
             ]);
 
             DB::beginTransaction();
 
-<<<<<<< HEAD
-            $partida->update(['resultado' => $request->resultado]);
-
-            // Actualizar puntuaciones
-            switch ($request->resultado) {
-                case 1: // Victoria blancas
-                    $partida->jugadorBlancas->increment('puntos');
-                    break;
-                case 2: // Victoria negras
-                    $partida->jugadorNegras->increment('puntos');
-                    break;
-                case 3: // Tablas
-                    $partida->jugadorBlancas->increment('puntos', 0.5);
-                    $partida->jugadorNegras->increment('puntos', 0.5);
-                    break;
-            }
-
-            // Verificar si la ronda está completa
-            $ronda = $partida->ronda;
-            if ($ronda->partidas()->whereNull('resultado')->count() === 0) {
-                $ronda->update(['completada' => true]);
-                
-                // Actualizar criterios de desempate
-                $torneo = $ronda->torneo;
-                if ($torneo->usar_buchholz) {
-                    $this->actualizarBuchholz($torneo);
-                }
-                if ($torneo->usar_sonneborn_berger) {
-                    $this->actualizarSonnebornBerger($torneo);
-                }
-                if ($torneo->usar_desempate_progresivo) {
-                    $this->actualizarProgresivo($torneo);
-                }
-            }
-
-            DB::commit();
-
-            return redirect()
-                ->route('torneos.show', $partida->ronda->torneo)
-                ->with('success', 'Resultado registrado exitosamente.');
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Error al registrar resultado: ' . $e->getMessage());
-            
-            return back()->with('error', 'Error al registrar el resultado. Por favor, intente nuevamente.');
-=======
             $torneo = $ronda->torneo;
             if ($torneo->es_por_equipos) {
                 // Guardar resultados en PartidaIndividual y actualizar puntos de equipos
@@ -571,7 +477,6 @@ class TorneoRondaController extends Controller
             DB::rollBack();
             Log::error('Error al actualizar puntos del jugador: ' . $e->getMessage());
             throw $e;
->>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
         }
     }
 
@@ -583,12 +488,6 @@ class TorneoRondaController extends Controller
                 foreach ($ronda->partidas as $partida) {
                     if ($partida->jugador_blancas_id === $participante->miembro_id) {
                         if ($partida->jugador_negras_id) { // No contar bye
-<<<<<<< HEAD
-                            $buchholz += $partida->jugadorNegras->puntos;
-                        }
-                    } elseif ($partida->jugador_negras_id === $participante->miembro_id) {
-                        $buchholz += $partida->jugadorBlancas->puntos;
-=======
                             $oponente = ParticipanteTorneo::where('torneo_id', $torneo->id)
                                 ->where('miembro_id', $partida->jugador_negras_id)
                                 ->first();
@@ -603,7 +502,6 @@ class TorneoRondaController extends Controller
                         if ($oponente) {
                             $buchholz += $oponente->puntos;
                         }
->>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
                     }
                 }
             }
@@ -619,19 +517,6 @@ class TorneoRondaController extends Controller
                 foreach ($ronda->partidas as $partida) {
                     if ($partida->jugador_blancas_id === $participante->miembro_id) {
                         if ($partida->jugador_negras_id) { // No contar bye
-<<<<<<< HEAD
-                            if ($partida->resultado === 1) { // Victoria
-                                $sonnebornBerger += $partida->jugadorNegras->puntos;
-                            } elseif ($partida->resultado === 3) { // Tablas
-                                $sonnebornBerger += $partida->jugadorNegras->puntos / 2;
-                            }
-                        }
-                    } elseif ($partida->jugador_negras_id === $participante->miembro_id) {
-                        if ($partida->resultado === 2) { // Victoria
-                            $sonnebornBerger += $partida->jugadorBlancas->puntos;
-                        } elseif ($partida->resultado === 3) { // Tablas
-                            $sonnebornBerger += $partida->jugadorBlancas->puntos / 2;
-=======
                             $oponente = ParticipanteTorneo::where('torneo_id', $torneo->id)
                                 ->where('miembro_id', $partida->jugador_negras_id)
                                 ->first();
@@ -653,7 +538,6 @@ class TorneoRondaController extends Controller
                             } elseif ($partida->resultado === 3) { // Tablas
                                 $sonnebornBerger += $oponente->puntos / 2;
                             }
->>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
                         }
                     }
                 }
@@ -688,8 +572,6 @@ class TorneoRondaController extends Controller
             $participante->update(['progresivo' => $progresivo]);
         }
     }
-<<<<<<< HEAD
-=======
 
     /**
      * Muestra una ronda individual con el detalle del torneo y navegación entre rondas.
@@ -786,5 +668,4 @@ class TorneoRondaController extends Controller
         }
         return view('torneos.ronda', compact('torneo', 'ronda', 'rondas', 'partidas', 'participantes', 'equipos'));
     }
->>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
 } 

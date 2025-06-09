@@ -26,10 +26,6 @@ use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\TorneoViewController;
 use App\Http\Controllers\TorneoParticipanteController;
 use App\Http\Controllers\TorneoRondaController;
-<<<<<<< HEAD
-=======
-use App\Http\Controllers\EquipoTorneoController;
->>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
 
 // Grupo web para todas las rutas
 Route::middleware('web')->group(function () {
@@ -74,14 +70,10 @@ Route::middleware('web')->group(function () {
             ->name('torneos.rondas.store');
         Route::post('torneos/partidas/{partida}/resultado', [TorneoRondaController::class, 'registrarResultado'])
             ->name('torneos.partidas.resultado');
-<<<<<<< HEAD
-        Route::get('mis-torneos', [TorneoController::class, 'misTorneos'])->name('torneos.estudiante');
-=======
         Route::post('torneos/rondas/{ronda}/resultados', [TorneoRondaController::class, 'guardarResultadosRonda'])
             ->name('torneos.rondas.resultados');
         Route::get('mis-torneos', [TorneoController::class, 'misTorneos'])->name('torneos.estudiante');
         Route::put('torneos/{torneo}/cancelar', [TorneoController::class, 'cancelar'])->name('torneos.cancelar');
->>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
 
         Route::post('/asignar-permisos', [UserController::class, 'asignarPermisos'])->name('asignar.permisos');
 
@@ -126,24 +118,6 @@ Route::middleware('web')->group(function () {
         // Rutas para permisos
         Route::post('/asignar-permiso', [UserController::class, 'assignPermission']);
         Route::delete('/remover-permiso', [UserController::class, 'removePermission']);
-<<<<<<< HEAD
-=======
-
-        // Rutas para gestión de equipos en torneos por equipos
-        Route::prefix('torneos/{torneo}/equipos')->name('equipos.')->group(function () {
-            Route::post('/', [EquipoTorneoController::class, 'store'])->name('store');
-            Route::get('{equipo}', [EquipoTorneoController::class, 'show'])->name('show');
-            Route::get('{equipo}/editar', [EquipoTorneoController::class, 'edit'])->name('edit');
-            Route::put('{equipo}', [EquipoTorneoController::class, 'update'])->name('update');
-            Route::delete('{equipo}', [EquipoTorneoController::class, 'destroy'])->name('destroy');
-            Route::post('{equipo}/jugadores', [EquipoTorneoController::class, 'addJugador'])->name('addJugador');
-            Route::delete('{equipo}/jugadores/{jugador}', [EquipoTorneoController::class, 'removeJugador'])->name('removeJugador');
-        });
-
-        // Nueva ruta para ver una ronda individual
-        Route::get('torneos/{torneo}/rondas/{ronda}', [TorneoRondaController::class, 'show'])
-            ->name('torneos.rondas.show');
->>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
     });
 
     // Rutas de autenticación de Google para recuperación de contraseña

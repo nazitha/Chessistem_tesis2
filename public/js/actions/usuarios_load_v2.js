@@ -25,7 +25,6 @@ $(document).ready(function() {
             window.tabla_usuarios = $('#tabla-usuarios').DataTable({
                 responsive: true,
                 "ajax": {
-<<<<<<< HEAD
                     "url": "/usuarios",
                     "method": "GET",
                     "dataSrc": ""
@@ -39,128 +38,20 @@ $(document).ready(function() {
                             return data ? 'Activo' : 'Inactivo';
                         }
                     },
-=======
-                    "url": "Http/Controlllers/UserController.php",
-                    "method": "POST",
-                    "data": { opcion: 1 },
-                    "dataSrc": ""
-                },
-                "columns": [
-                    {"data": "correo"},
-                    { "data": "rol" },
-                    { "data": "Permisos" },
-                    { "data": "Estado" },
->>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
                     {
                         "data": null,
                         "render": function(data, type, row) {
                             return `
-<<<<<<< HEAD
                                 <button class="btn btn-primary btn-sm" onclick="editarUsuario(${row.id_email})">Editar</button>
                                 <button class="btn btn-danger btn-sm" onclick="eliminarUsuario(${row.id_email})">Eliminar</button>
                             `;
-=======
-                            <button 
-                                class="btn btn-light btnEditar_user"
-                                style="
-                                    background-color: #1e2936;
-                                    color: white;
-                                    border: 1px solid transparent;
-                                    padding: 0.375rem 0.75rem;
-                                    font-size: 1rem;
-                                    font-weight: 400;
-                                    line-height: 1.5;
-                                    border-radius: 0.25rem 0 0 0.25rem; /* Bordes redondeados a la izquierda */
-                                    text-align: center;
-                                    vertical-align: middle;
-                                    cursor: pointer;
-                                    transition: background-color 0.3s ease;
-                                    display: inline-block; /* Asegura que los botones estén en línea */
-                                    margin-right: -1px; /* Elimina el espacio entre los botones */
-                                "
-                                onmouseover="this.style.backgroundColor='#374151'"
-                                onmouseout="this.style.backgroundColor='#1e2936'"
-                            >
-                                Editar
-                            </button>
-                            <button 
-                                class="btn btn-danger btn-sm btnEliminar_usuario"
-                                style="
-                                    background-color: #1e2936;
-                                    color: white;
-                                    border: 1px solid transparent;
-                                    padding: 0.375rem 0.75rem;
-                                    font-size: 1rem;
-                                    font-weight: 400;
-                                    line-height: 1.5;
-                                    border-radius: 0 0.25rem 0.25rem 0; /* Bordes redondeados a la derecha */
-                                    text-align: center;
-                                    vertical-align: middle;
-                                    cursor: pointer;
-                                    transition: background-color 0.3s ease;
-                                    display: inline-block; /* Asegura que los botones estén en línea */
-                                    margin-left: -1px; /* Elimina el espacio entre los botones */
-                                "
-                                onmouseover="this.style.backgroundColor='#374151'"
-                                onmouseout="this.style.backgroundColor='#1e2936'"
-                            >
-                                Eliminar
-                            </button>`;             
->>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
                         }
                     }
                 ],
                 "language": {
-<<<<<<< HEAD
                     "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
                 }
             });
-=======
-                    "url": "actions/spanish.json"
-                },
-                "dom": 'Bfrtip',
-                "buttons": [
-                    {
-                        text: 'Nuevo',
-                        className: 'btn btn-custom',
-                        style: 'background-color: #1e2936; color: white; border: 1px solid transparent; padding: 0.375rem 0.75rem; font-size: 1rem; ' +
-                               'font-weight: 400; line-height: 1.5; border-radius: 0.25rem 0 0 0.25rem; text-align: center; vertical-align: middle; ' +
-                               'cursor: pointer; transition: background-color 0.3s ease;',
-                        action: function (e, dt, node, config) {
-                            $("#form_add_users").trigger("reset");
-                            $("#form_add_users").removeClass("was-validated");
-                            $(".modal-header").css("background-color", "#1e2936");
-                            $(".modal-header").css("color", "#ffffff");
-                            $("#title_add_users").text("Nuevo usuario");
-        
-                            opcion = 4;
-        
-                            document.getElementById('switch_add_user').checked = true;
-                            cambiarColorSwitch(document.getElementById('switch_add_user'));
-
-                            document.getElementById('div_newpass_edit').closest('div').style.display = 'none';
-                            document.getElementById('div_confirmpass_edit').closest('div').style.display = 'none';
-                            document.getElementById('div_setpass').closest('div').style.display = 'flex';
-        
-                            $('#modal_add_users').modal('show');
-                        }
-                    },
-                    {
-                        extend: 'excelHtml5',
-                        text: 'Exportar a Excel',
-                        titleAttr: 'Exportar a Excel',
-                        title: 'Lista de usuarios',
-                        className: 'btn btn-custom',
-                        style: 'background-color: #1e2936; color: white; border: 1px solid transparent; padding: 0.375rem 0.75rem; font-size: 1rem; ' +
-                               'font-weight: 400; line-height: 1.5; border-radius: 0.25rem 0 0 0.25rem; text-align: center; vertical-align: middle; ' +
-                               'cursor: pointer; transition: background-color 0.3s ease;',
-                        exportOptions: {
-                            columns: ':not(:last-child)'  // Excluir la última columna
-                        }
-                    }
-                ]
-            }).columns.adjust().responsive.recalc();
->>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
         }
 
     });
