@@ -50,6 +50,8 @@ class MiembroSeeder extends Seeder
                 'fecha_inscripcion' => now(),
                 'estado_miembro' => true,
                 'correo_sistema_id' => 'ana@estrellasdelajedrez.com'
+<<<<<<< HEAD
+=======
             ],
             [
                 'cedula' => '001-120392-0005E',
@@ -90,6 +92,7 @@ class MiembroSeeder extends Seeder
                 'fecha_inscripcion' => now(),
                 'estado_miembro' => true,
                 'correo_sistema_id' => 'patricia@estrellasdelajedrez.com'
+>>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
             ]
         ];
 

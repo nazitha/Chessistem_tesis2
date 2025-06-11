@@ -11,6 +11,7 @@ use App\Http\Requests\PermissionRequest;
 use App\Http\Resources\UserResource;
 use App\Http\Resources\RoleResource;
 use App\Services\AuditService;
+use App\Services\PermissionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -19,13 +20,27 @@ use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
-    public function index(): JsonResponse
+    public function index()
     {
-        $users = User::with(['role.permissions'])
-            ->orderBy('correo')
-            ->get();
+        try {
+            Log::info('UserController@index - Iniciando listado de usuarios');
+            
+            // Validar que el usuario tenga permiso para ver usuarios
+            if (!PermissionService::hasPermission('usuarios.read')) {
+                return redirect()->route('home')->with('error', 'No tienes permiso para acceder a esta sección');
+            }
+            
+            $users = User::with(['rol.permissions'])
+                ->orderBy('correo')
+                ->get();
 
-        return UserResource::collection($users)->response();
+            Log::info('UserController@index - Usuarios encontrados: ' . $users->count());
+            
+            return view('admin.users.index', compact('users'));
+        } catch (\Exception $e) {
+            Log::error('UserController@index - Error al listar usuarios: ' . $e->getMessage());
+            return redirect()->route('home')->with('error', 'Error al obtener la lista de usuarios');
+        }
     }
 
     public function getRoles(): JsonResponse
@@ -36,6 +51,10 @@ class UserController extends Controller
 
     public function store(UserStoreRequest $request): JsonResponse
     {
+        if (!PermissionService::hasPermission('usuarios.create')) {
+            return response()->json(['error' => 'No tienes permiso para crear usuarios'], 403);
+        }
+
         return DB::transaction(function () use ($request) {
             $user = User::create($request->validated());
             
@@ -52,6 +71,10 @@ class UserController extends Controller
 
     public function update(UserUpdateRequest $request, User $user): JsonResponse
     {
+        if (!PermissionService::hasPermission('usuarios.update')) {
+            return response()->json(['error' => 'No tienes permiso para editar usuarios'], 403);
+        }
+
         return DB::transaction(function () use ($request, $user) {
             $originalData = $user->getOriginal();
             $user->update($request->validated());
@@ -102,6 +125,10 @@ class UserController extends Controller
 
     public function destroy(User $user): JsonResponse
     {
+        if (!PermissionService::hasPermission('usuarios.delete')) {
+            return response()->json(['error' => 'No tienes permiso para eliminar usuarios'], 403);
+        }
+
         return DB::transaction(function () use ($user) {
             AuditService::logUserAction(
                 Auth::user()->correo,

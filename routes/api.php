@@ -5,7 +5,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TorneoController;
 use App\Http\Controllers\PairingSimulationController;
 use App\Http\Controllers\PartidaController;
-
 /*
 |--------------------------------------------------------------------------
 | API Routes

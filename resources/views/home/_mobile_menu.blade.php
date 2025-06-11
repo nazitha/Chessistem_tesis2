@@ -1,3 +1,7 @@
+@php
+    use App\Helpers\PermissionHelper;
+@endphp
+
 <div x-show="openMobileMenu" class="md:hidden">
     <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
         <!-- Home -->
@@ -10,36 +14,30 @@
         </a>
 
         <!-- Menú Usuarios -->
-        <div x-data="{ open: false }" class="relative">
-            <button @click="open = !open; activeMenuItem = 'Usuarios'" 
-                    class="w-full flex justify-between items-center px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
-                Usuarios
-                <svg class="h-5 w-5 transform transition-transform" :class="{ 'rotate-180': open }" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                </svg>
-            </button>
-            
-            <div x-show="open" x-collapse class="ml-4 space-y-1">
-                <a href="#"
-                   @click="activeMenuItem = 'Usuarios'; openMobileMenu = false"
-                   class="block px-3 py-2 text-sm font-medium text-gray-400 hover:bg-gray-700 hover:text-white"
-                   id="usuarios_opcion_movil">
+        @if(PermissionHelper::canViewModule('usuarios'))
+            <div x-data="{ open: false }" class="relative">
+                <button @click="open = !open; activeMenuItem = 'Usuarios'" 
+                        class="w-full flex justify-between items-center px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
                     Usuarios
-                </a>
-                <a href="#"
-                   @click="activeMenuItem = 'Usuarios'; openMobileMenu = false"
-                   class="block px-3 py-2 text-sm font-medium text-gray-400 hover:bg-gray-700 hover:text-white"
-                   id="asigpermis_opcion_movil">
-                    Asignación de permisos
-                </a>
-                <a href="#"
-                   @click="activeMenuItem = 'Usuarios'; openMobileMenu = false"
-                   class="block px-3 py-2 text-sm font-medium text-gray-400 hover:bg-gray-700 hover:text-white"
-                   id="historial_opcion_movil">
-                    Historial de cambios
-                </a>
+                    <svg class="h-5 w-5 transform transition-transform" :class="{ 'rotate-180': open }" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                    </svg>
+                </button>
+                
+                <div x-show="open" x-collapse class="ml-4 space-y-1">
+                    <a href="{{ route('usuarios.index') }}"
+                       @click="activeMenuItem = 'Usuarios'; openMobileMenu = false"
+                       class="block px-3 py-2 text-sm font-medium text-gray-400 hover:bg-gray-700 hover:text-white">
+                        Gestión de Usuarios
+                    </a>
+                    <a href="{{ route('roles.index') }}"
+                       @click="activeMenuItem = 'Usuarios'; openMobileMenu = false"
+                       class="block px-3 py-2 text-sm font-medium text-gray-400 hover:bg-gray-700 hover:text-white">
+                        Gestión de Roles
+                    </a>
+                </div>
             </div>
-        </div>
+        @endif
 
         <!-- Menú Miembros -->
         <div x-data="{ open: false }" class="relative">

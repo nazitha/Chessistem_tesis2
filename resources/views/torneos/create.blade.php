@@ -161,6 +161,8 @@
                                        required>
                             </div>
 
+<<<<<<< HEAD
+=======
                             <div class="col-span-6 sm:col-span-3 flex items-center mt-6">
                                 <input type="hidden" name="es_por_equipos" value="0">
                                 <input type="checkbox" name="es_por_equipos" id="es_por_equipos" value="1"
@@ -168,6 +170,7 @@
                                 <label for="es_por_equipos" class="ml-2 block text-sm text-gray-700">Torneo por equipos</label>
                             </div>
 
+>>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
                             <div class="col-span-6 sm:col-span-3">
                                 <label for="categoriaTorneo_id" class="block text-sm font-medium text-gray-700 flex items-center">
                                     <span class="mr-2">🏆</span> Categoría *

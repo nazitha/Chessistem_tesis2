@@ -11,14 +11,20 @@ use App\Models\Federacion;
 use App\Models\Emparejamiento;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Carbon\Carbon;
+<<<<<<< HEAD
+=======
 use Illuminate\Database\Eloquent\Relations\HasMany;
+>>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
 
 class Torneo extends Model
 {
     use HasFactory;
 
     protected $table = 'torneos';
+<<<<<<< HEAD
+=======
     protected $primaryKey = 'id';
+>>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
     public $timestamps = false;
 
     protected $fillable = [
@@ -30,6 +36,10 @@ class Torneo extends Model
         'arbitro_id',
         'arbitro_adjunto_id',
         'federacion_id',
+<<<<<<< HEAD
+        'sistema_emparejamiento_id',
+=======
+>>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
         'nombre_torneo',
         'fecha_inicio',
         'hora_inicio',
@@ -38,7 +48,10 @@ class Torneo extends Model
         'estado_torneo',
         'torneo_cancelado',
         'motivo_cancelacion',
+<<<<<<< HEAD
+=======
         'sistema_emparejamiento_id',
+>>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
         'usar_buchholz',
         'usar_sonneborn_berger',
         'usar_desempate_progresivo',
@@ -46,6 +59,13 @@ class Torneo extends Model
         'permitir_bye',
         'alternar_colores',
         'evitar_emparejamientos_repetidos',
+<<<<<<< HEAD
+        'maximo_emparejamientos_repetidos'
+    ];
+
+    protected $casts = [
+        'fecha_inicio' => 'date',
+=======
         'maximo_emparejamientos_repetidos',
         'es_por_equipos',
         'max_byes_por_jugador',
@@ -53,12 +73,17 @@ class Torneo extends Model
     ];
 
     protected $casts = [
+>>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
         'estado_torneo' => 'boolean',
         'torneo_cancelado' => 'boolean',
         'usar_buchholz' => 'boolean',
         'usar_sonneborn_berger' => 'boolean',
         'usar_desempate_progresivo' => 'boolean',
         'permitir_bye' => 'boolean',
+<<<<<<< HEAD
+        'evitar_emparejamientos_repetidos' => 'boolean',
+        'alternar_colores' => 'boolean'
+=======
         'alternar_colores' => 'boolean',
         'evitar_emparejamientos_repetidos' => 'boolean',
         'es_por_equipos' => 'boolean',
@@ -80,6 +105,7 @@ class Torneo extends Model
         'es_por_equipos' => false,
         'max_byes_por_jugador' => 1,
         'diferencia_maxima_puntos' => 2
+>>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
     ];
 
     protected static function boot()
@@ -208,6 +234,8 @@ class Torneo extends Model
         return Miembro::whereNotIn('cedula', $participantesIds)->get();
     }
 
+<<<<<<< HEAD
+=======
     public function equipos()
     {
         return $this->hasMany(EquipoTorneo::class, 'torneo_id');
@@ -229,4 +257,5 @@ class Torneo extends Model
             'id'            // Local key on RondaTorneo table
         );
     }
+>>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
 }

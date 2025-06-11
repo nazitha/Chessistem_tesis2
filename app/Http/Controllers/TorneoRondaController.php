@@ -1,20 +1,14 @@
 <?php
 
 namespace App\Http\Controllers;
-
-use Illuminate\Http\Request;
+use App\Models\Torneo;
 use App\Models\RondaTorneo;
 use App\Models\PartidaTorneo;
-use App\Models\ParticipanteTorneo;
-use App\Models\EquipoMatch;
-use App\Models\PartidaIndividual;
+use App\Services\SwissPairingService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-use App\Models\Torneo;
-use App\Models\Participante;
-use App\Services\SwissPairingService;
-use App\Services\TeamPairingService;
 
 class TorneoRondaController extends Controller
 {
@@ -25,14 +19,8 @@ class TorneoRondaController extends Controller
                 return back()->with('error', 'Ya se han generado todas las rondas del torneo.');
             }
 
-            if ($torneo->es_por_equipos) {
-                if ($torneo->equipos()->count() < 2) {
-                    return back()->with('error', 'Se necesitan al menos 2 equipos para generar emparejamientos.');
-                }
-            } else {
-                if ($torneo->participantes()->count() < 2) {
-                    return back()->with('error', 'Se necesitan al menos 2 participantes para generar emparejamientos.');
-                }
+            if ($torneo->participantes()->count() < 2) {
+                return back()->with('error', 'Se necesitan al menos 2 participantes para generar emparejamientos.');
             }
 
             DB::beginTransaction();
@@ -44,16 +32,24 @@ class TorneoRondaController extends Controller
                 'fecha_hora' => now()
             ]);
 
-            if ($torneo->es_por_equipos) {
-                $this->generarEmparejamientosEquipos($torneo, $ronda);
-            } else {
-                $this->generarEmparejamientosIndividuales($torneo, $ronda);
+            // Generar emparejamientos
+            $service = new SwissPairingService($torneo);
+            $emparejamientos = $service->generarEmparejamientos();
+
+            // Guardar partidas
+            foreach ($emparejamientos as $index => $emparejamiento) {
+                PartidaTorneo::create([
+                    'ronda_id' => $ronda->id,
+                    'jugador_blancas_id' => $emparejamiento['blancas']->miembro_id,
+                    'jugador_negras_id' => $emparejamiento['negras']->miembro_id ?? null,
+                    'mesa' => $index + 1
+                ]);
             }
 
             DB::commit();
 
             return redirect()
-                ->route('torneos.rondas.show', [$torneo, $ronda])
+                ->route('torneos.show', $torneo)
                 ->with('success', 'Ronda generada exitosamente.');
 
         } catch (\Exception $e) {
