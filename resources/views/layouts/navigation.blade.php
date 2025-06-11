@@ -15,26 +15,26 @@
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('home') }}">
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
+                        {{-- <x-application-logo class="block h-9 w-auto fill-current text-gray-800" /> --}}
                     </a>
                 </div>
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-                    <x-nav-link :href="route('home')" :active="request()->routeIs('home')">
+                    <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'text-blue-600 font-bold' : 'text-gray-700' }}">
                         {{ __('Inicio') }}
-                    </x-nav-link>
+                    </a>
                     
                     @if($canViewUsuarios)
-                        <x-nav-link :href="route('usuarios.index')" :active="request()->routeIs('usuarios.*')">
+                        <a href="{{ route('usuarios.index') }}" class="{{ request()->routeIs('usuarios.*') ? 'text-blue-600 font-bold' : 'text-gray-700' }}">
                             {{ __('Usuarios') }}
-                        </x-nav-link>
+                        </a>
                     @endif
                     
                     @if(PermissionHelper::canViewModule('roles'))
-                        <x-nav-link :href="route('roles.index')" :active="request()->routeIs('roles.*')">
+                        <a href="{{ route('roles.index') }}" class="{{ request()->routeIs('roles.*') ? 'text-blue-600 font-bold' : 'text-gray-700' }}">
                             {{ __('Roles') }}
-                        </x-nav-link>
+                        </a>
                     @endif
                 </div>
             </div>

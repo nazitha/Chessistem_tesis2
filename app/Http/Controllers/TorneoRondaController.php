@@ -8,6 +8,8 @@ use App\Services\SwissPairingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Models\EquipoMatch;
+use App\Models\PartidaIndividual;
 
 
 class TorneoRondaController extends Controller
@@ -34,7 +36,7 @@ class TorneoRondaController extends Controller
 
             // Generar emparejamientos
             $service = new SwissPairingService($torneo);
-            $emparejamientos = $service->generarEmparejamientos();
+            $emparejamientos = $service->generarEmparejamientos($ronda);
 
             // Guardar partidas
             foreach ($emparejamientos as $index => $emparejamiento) {

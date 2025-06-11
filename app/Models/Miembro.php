@@ -3,10 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-<<<<<<< HEAD
-=======
 use Illuminate\Database\Eloquent\Relations\HasMany;
->>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
 
 class Miembro extends Model
 {
@@ -24,15 +21,11 @@ class Miembro extends Model
         'fecha_nacimiento',
         'fecha_inscripcion',
         'estado_miembro',
-<<<<<<< HEAD
-        'correo_sistema_id'
-=======
         'correo_sistema_id',
         'telefono',
         'correo',
         'elo',
         'federacion'
->>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
     ];
     
     protected $casts = [
@@ -62,9 +55,6 @@ class Miembro extends Model
 
     public function fide()
     {
-<<<<<<< HEAD
-        return $this->hasOne(Fide::class, 'cedula_ajedrecista_id', 'cedula');
-=======
         return $this->hasOne(\App\Models\Fide::class, 'cedula_ajedrecista_id', 'cedula');
     }
 
@@ -78,7 +68,6 @@ class Miembro extends Model
             'cedula',                // Local key on miembros table...
             'fide_id'                // Local key on fides table...
         );
->>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
     }
 
     public function torneosOrganizados()
@@ -101,14 +90,11 @@ class Miembro extends Model
         return $this->hasMany(ParticipanteTorneo::class, 'miembro_id', 'cedula');
     }
 
-<<<<<<< HEAD
-=======
     public function participanteTorneo()
     {
         return $this->hasMany(ParticipanteTorneo::class, 'miembro_id', 'cedula');
     }
 
->>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
     public function scopeWithUsuarioRol($query)
     {   
       return $query->with(['usuario.rol']);

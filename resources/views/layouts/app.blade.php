@@ -1,10 +1,7 @@
-<<<<<<< HEAD
 @php
     use App\Helpers\PermissionHelper;
 @endphp
 
-=======
->>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
 <!DOCTYPE html>
 <html lang="es" class="h-full">
 <head>
@@ -34,10 +31,7 @@
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<<<<<<< HEAD
-=======
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
->>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
     
     <!-- Estilos personalizados -->
     <link rel="stylesheet" href="{{ asset('css/tailwind_datatables.css') }}">
@@ -55,13 +49,9 @@
                     </div>
                     <div class="flex space-x-8">
                         <a href="{{ route('home') }}" class="border-b-2 border-indigo-500 text-gray-900 px-1 pt-1 text-sm font-medium">Home</a>
-<<<<<<< HEAD
                         @if(PermissionHelper::canViewModule('usuarios'))
                             <a href="{{ route('usuarios.index') }}" class="text-gray-500 hover:text-gray-700 px-1 pt-1 text-sm font-medium">Usuarios</a>
                         @endif
-=======
-                        <a href="{{ route('usuarios.index') }}" class="text-gray-500 hover:text-gray-700 px-1 pt-1 text-sm font-medium">Usuarios</a>
->>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
                         <a href="{{ route('miembros.index') }}" class="text-gray-500 hover:text-gray-700 px-1 pt-1 text-sm font-medium">Miembros</a>
                         <a href="{{ route('fides.index') }}" class="text-gray-500 hover:text-gray-700 px-1 pt-1 text-sm font-medium">FIDES</a>
                         <a href="{{ route('torneos.index') }}" class="text-gray-500 hover:text-gray-700 px-1 pt-1 text-sm font-medium">Torneos</a>

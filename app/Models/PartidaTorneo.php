@@ -4,20 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-<<<<<<< HEAD
-=======
 use App\Models\RondaTorneo;
 use App\Models\Miembro;
 use Illuminate\Support\Facades\Log;
->>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
 
 class PartidaTorneo extends Model
 {
     protected $table = 'partidas_torneo';
-<<<<<<< HEAD
-=======
     protected $primaryKey = 'id';
->>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
 
     protected $fillable = [
         'ronda_id',
@@ -33,11 +27,8 @@ class PartidaTorneo extends Model
         'mesa' => 'integer'
     ];
 
-<<<<<<< HEAD
-=======
     protected $with = ['jugadorBlancas', 'jugadorNegras'];
 
->>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
     public function ronda(): BelongsTo
     {
         return $this->belongsTo(RondaTorneo::class, 'ronda_id');
@@ -53,16 +44,6 @@ class PartidaTorneo extends Model
         return $this->belongsTo(Miembro::class, 'jugador_negras_id', 'cedula');
     }
 
-<<<<<<< HEAD
-    public function getResultadoTexto(): string
-    {
-        return match($this->resultado) {
-            1 => '1-0',
-            2 => '0-1',
-            3 => '½-½',
-            default => '*'
-        };
-=======
     public function getResultadoTexto()
     {
         if ($this->resultado === null) {
@@ -128,6 +109,5 @@ class PartidaTorneo extends Model
         }
         
         Log::info('Resultado establecido a: ' . $this->resultado);
->>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
     }
 } 

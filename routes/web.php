@@ -74,6 +74,8 @@ Route::middleware('web')->group(function () {
             ->name('torneos.rondas.resultados');
         Route::get('mis-torneos', [TorneoController::class, 'misTorneos'])->name('torneos.estudiante');
         Route::put('torneos/{torneo}/cancelar', [TorneoController::class, 'cancelar'])->name('torneos.cancelar');
+        Route::get('torneos/{torneo}/rondas/{ronda}', [TorneoRondaController::class, 'show'])
+            ->name('torneos.rondas.show');
 
         Route::post('/asignar-permisos', [UserController::class, 'asignarPermisos'])->name('asignar.permisos');
 

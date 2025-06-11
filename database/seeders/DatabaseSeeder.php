@@ -4,13 +4,9 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use App\Models\Role;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-<<<<<<< HEAD
-=======
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
->>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
 
 class DatabaseSeeder extends Seeder
 {
@@ -19,36 +15,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-<<<<<<< HEAD
-        // User::factory(10)->create();
-
-        // Crear roles si no existen
-        $adminRole = Role::firstOrCreate(
-            ['id' => 1],
-            [
-                'nombre' => 'Administrador',
-                'descripcion' => 'Acceso total al sistema'
-            ]
-        );
-
-        // Crear usuario administrador
-        User::firstOrCreate(
-            ['correo' => 'admin@estrellasdelajedrez.com'],
-            [
-                'contrasena' => 'admin123',
-                'rol_id' => $adminRole->id,
-                'usuario_estado' => true
-            ]
-        );
-
-        $this->call([
-            RoleSeeder::class,
-            UserSeeder::class,
-            CategoriaTorneoSeeder::class,
-            ControlTiempoSeeder::class,
-            MiembroSeeder::class,
-            EmparejamientoSeeder::class,
-=======
         // Disable foreign key checks
         DB::statement('SET FOREIGN_KEY_CHECKS=0');
 
@@ -106,7 +72,6 @@ class DatabaseSeeder extends Seeder
             EmparejamientoSeeder::class,
             ParticipantesSeeder::class,
             FideEloSeeder::class,
->>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
         ]);
     }
 }

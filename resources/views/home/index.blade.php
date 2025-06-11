@@ -1,16 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<<<<<<< HEAD
-@php
-    use App\Helpers\PermissionHelper;
-@endphp
-
 <div class="min-h-screen bg-gray-50">
-=======
-<div class="min-h-screen bg-gray-50">
- 
->>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
     <!-- Contenido principal -->
     <div class="max-w-7xl mx-auto px-4 py-6">
         <h1 class="text-2xl font-semibold text-gray-900">Dashboard</h1>
@@ -30,21 +21,6 @@
                 </div>
             </a>
 
-<<<<<<< HEAD
-            @if(PermissionHelper::canViewModule('usuarios'))
-                <a href="{{ route('usuarios.index') }}" class="block bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow duration-200">
-                    <div class="flex items-start">
-                        <div class="p-2 bg-blue-100 rounded-lg">
-                            <i class="fas fa-users-cog text-blue-600 text-xl"></i>
-                        </div>
-                        <div class="ml-4">
-                            <h3 class="text-lg font-medium text-gray-900">Usuarios</h3>
-                            <p class="text-gray-600 mt-1">Gestión de usuarios del sistema</p>
-                        </div>
-                    </div>
-                </a>
-            @endif
-=======
             <a href="{{ route('usuarios.index') }}" class="block bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow duration-200">
                 <div class="flex items-start">
                     <div class="p-2 bg-blue-100 rounded-lg">
@@ -56,7 +32,6 @@
                     </div>
                 </div>
             </a>
->>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
 
             <a href="{{ route('academias.index') }}" class="block bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow duration-200">
                 <div class="flex items-start">
@@ -195,11 +170,7 @@
             </div>
         </div>
     </div>
-<<<<<<< HEAD
 </div>
-=======
-
->>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
 
 @include('modals.miembros_modal')
 @include('modals.pais_modal')
