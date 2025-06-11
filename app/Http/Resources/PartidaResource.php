@@ -12,27 +12,18 @@ class PartidaResource extends JsonResource
         return [
             'no_partida' => $this->no_partida,
             'ronda' => $this->ronda,
+            'ronda_torneo_id' => $this->ronda_torneo_id,
+            'participante_id' => $this->participante_id,
+            'torneo_id' => $this->torneo_id,
             'mesa' => $this->mesa,
-            'participante' => [
-                'cedula' => $this->participante->cedula,
-                'nombres' => $this->participante->nombres,
-                'apellidos' => $this->participante->apellidos
-            ],
-            'torneo' => [
-                'id' => $this->torneo->id_torneo,
-                'nombre' => $this->torneo->nombre_torneo
-            ],
-            'color' => $this->color ? 'Blancas' : 'Negras',
+            'color' => $this->color,
             'tiempo' => $this->tiempo,
-            'sistema_desempate' => $this->whenLoaded('sistemaDesempate', function () {
-                return [
-                    'id' => $this->sistemaDesempate->id_desempate,
-                    'nombre' => $this->sistemaDesempate->sistema_desempate
-                ];
-            }),
+            'desempate_utilizado_id' => $this->desempate_utilizado_id,
             'estado_abandono' => $this->estado_abandono,
             'resultado' => $this->resultado,
-            'resultado_texto' => $this->getResultadoTexto()
+            'participante' => new MiembroResource($this->whenLoaded('participante')),
+            'torneo' => new TorneoResource($this->whenLoaded('torneo')),
+            'sistema_desempate' => new SistemaDesempateResource($this->whenLoaded('sistemaDesempate')),
         ];
     }
 
