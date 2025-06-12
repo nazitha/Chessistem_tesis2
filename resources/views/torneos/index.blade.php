@@ -53,8 +53,26 @@
                                 {{ $torneo->categoria->categoria_torneo }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $torneo->estadoClase }}">
-                                    {{ $torneo->estado }}
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                    @if($torneo->torneo_cancelado)
+                                        bg-red-100 text-red-800
+                                    @elseif($torneo->fecha_inicio && $torneo->fecha_inicio->isPast())
+                                        bg-gray-100 text-gray-800
+                                    @elseif(!$torneo->estado_torneo)
+                                        bg-yellow-100 text-yellow-800
+                                    @else
+                                        bg-green-100 text-green-800
+                                    @endif
+                                ">
+                                    @if($torneo->torneo_cancelado)
+                                        Cancelado
+                                    @elseif($torneo->fecha_inicio && $torneo->fecha_inicio->isPast())
+                                        Finalizado
+                                    @elseif(!$torneo->estado_torneo)
+                                        Borrador
+                                    @else
+                                        Activo
+                                    @endif
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -152,23 +170,26 @@
 <div id="modal-cancelacion" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center">
     <div class="bg-white rounded-lg p-6 max-w-sm mx-auto">
         <h3 class="text-lg font-medium text-gray-900 mb-4">Cancelar Torneo</h3>
-        <div class="mb-4">
-            <label for="motivo_cancelacion" class="block text-sm font-medium text-gray-700">Motivo de la cancelación</label>
-            <textarea id="motivo_cancelacion" name="motivo_cancelacion" rows="3" 
-                      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"></textarea>
-        </div>
-        <div class="flex justify-end space-x-3">
-            <button type="button" 
-                    onclick="cerrarModalCancelacion()"
-                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
-                Cancelar
-            </button>
-            <button type="button"
-                    id="btn-confirmar-cancelacion"
-                    class="px-4 py-2 text-sm font-medium text-white bg-orange-600 rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
-                Confirmar Cancelación
-            </button>
-        </div>
+        <form id="form-cancelar-torneo" method="POST">
+            @csrf
+            @method('PUT')
+            <div class="mb-4">
+                <label for="motivo_cancelacion" class="block text-sm font-medium text-gray-700">Motivo de la cancelación</label>
+                <textarea id="motivo_cancelacion" name="motivo_cancelacion" rows="3" required
+                          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"></textarea>
+            </div>
+            <div class="flex flex-row gap-4 mt-2">
+                <button type="button" 
+                        onclick="cerrarModalCancelacion()"
+                        class="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                    Cancelar
+                </button>
+                <button type="submit"
+                        class="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+                    Confirmar Cancelación
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 @endsection
@@ -240,21 +261,13 @@ document.getElementById('modal-confirmacion').addEventListener('click', function
 
 function confirmarCancelacion(torneoId) {
     const modal = document.getElementById('modal-cancelacion');
-    const btnConfirmar = document.getElementById('btn-confirmar-cancelacion');
+    const form = document.getElementById('form-cancelar-torneo');
     const motivoInput = document.getElementById('motivo_cancelacion');
-    
+    // Cambia la acción del formulario al torneo correcto
+    form.action = `/torneos/${torneoId}/cancelar`;
     modal.classList.remove('hidden');
     modal.classList.add('flex');
-    
-    btnConfirmar.onclick = function() {
-        const form = document.getElementById('form-cancelar-' + torneoId);
-        const motivoHidden = document.createElement('input');
-        motivoHidden.type = 'hidden';
-        motivoHidden.name = 'motivo_cancelacion';
-        motivoHidden.value = motivoInput.value;
-        form.appendChild(motivoHidden);
-        form.submit();
-    };
+    motivoInput.value = '';
 }
 
 function cerrarModalCancelacion() {

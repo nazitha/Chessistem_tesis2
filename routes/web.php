@@ -29,6 +29,10 @@ use App\Http\Controllers\TorneoRondaController;
 
 // Grupo web para todas las rutas
 Route::middleware('web')->group(function () {
+    // Rutas para duplicar torneos (deben ir antes de las rutas resource de torneos)
+    Route::get('/torneos/lista-para-duplicar', [TorneoController::class, 'listaParaDuplicar'])->name('torneos.listaParaDuplicar');
+    Route::get('/torneos/{id}/datos-para-duplicar', [TorneoController::class, 'datosParaDuplicar'])->name('torneos.datosParaDuplicar');
+
     // Redirección Home
     Route::get('/', function () {
         return Auth::check() ? redirect('/home') : redirect('/login');

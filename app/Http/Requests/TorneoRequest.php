@@ -44,21 +44,21 @@ class TorneoRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'nombre_torneo.required' => 'El nombre del torneo es obligatorio',
-            'fecha_inicio.required' => 'La fecha de inicio es obligatoria',
-            'hora_inicio.required' => 'La hora de inicio es obligatoria',
+            'nombre_torneo.required' => 'El nombre del torneo es obligatorio.',
+            'fecha_inicio.required' => 'La fecha de inicio es obligatoria.',
+            'hora_inicio.required' => 'La hora de inicio es obligatoria.',
             'hora_inicio.date_format' => 'La hora debe estar en formato HH:MM',
-            'lugar.required' => 'El lugar del torneo es obligatorio',
-            'categoriaTorneo_id.required' => 'La categoría es obligatoria',
-            'no_rondas.required' => 'El número de rondas es obligatorio',
+            'lugar.required' => 'El lugar del torneo es obligatorio.',
+            'categoriaTorneo_id.required' => 'La categoría es obligatoria.',
+            'no_rondas.required' => 'El número de rondas es obligatorio.',
             'no_rondas.min' => 'El número de rondas debe ser al menos 1',
-            'sistema_emparejamiento_id.required' => 'El sistema de emparejamiento es obligatorio',
-            'control_tiempo_id.required' => 'El control de tiempo es obligatorio',
-            'organizador_id.required' => 'El organizador es obligatorio',
-            'director_torneo_id.required' => 'El director del torneo es obligatorio',
-            'arbitro_principal_id.required' => 'El árbitro principal es obligatorio',
-            'arbitro_id.required' => 'El árbitro es obligatorio',
-            'arbitro_adjunto_id.required' => 'El árbitro adjunto es obligatorio'
+            'sistema_emparejamiento_id.required' => 'El sistema de emparejamiento es obligatorio.',
+            'control_tiempo_id.required' => 'El control de tiempo es obligatorio.',
+            'organizador_id.required' => 'El organizador es obligatorio.',
+            'director_torneo_id.required' => 'El director del torneo es obligatorio.',
+            'arbitro_principal_id.required' => 'El árbitro principal es obligatorio.',
+            'arbitro_id.required' => 'El árbitro es obligatorio.',
+            'arbitro_adjunto_id.required' => 'El árbitro adjunto es obligatorio.',
         ];
     }
 }

@@ -145,6 +145,10 @@ class TorneoController extends Controller
             // Preparar los datos del torneo
             $datos = $request->validated();
             
+            // Si viene como borrador, marcar el estado_torneo como false
+            if ($request->has('borrador')) {
+                $datos['estado_torneo'] = false;
+            }
             // Asegurar que los campos booleanos estén presentes
             $datos = array_merge([
                 'estado_torneo' => true,
@@ -181,9 +185,10 @@ class TorneoController extends Controller
 
             DB::commit();
 
+            $mensaje = $request->has('borrador') ? 'Torneo guardado como borrador.' : 'Torneo creado exitosamente.';
             return redirect()
                 ->route('torneos.index')
-                ->with('success', 'Torneo creado exitosamente.');
+                ->with('success', $mensaje);
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -242,10 +247,13 @@ class TorneoController extends Controller
     public function update(TorneoRequest $request, Torneo $torneo)
     {
         try {
-            $torneo->update($request->validated());
+            $datos = $request->validated();
+            // Siempre activar el torneo al actualizar
+            $datos['estado_torneo'] = true;
+            $torneo->update($datos);
             return redirect()
                 ->route('torneos.show', $torneo)
-                ->with('success', 'Torneo actualizado exitosamente.');
+                ->with('success', 'Torneo actualizado y activado exitosamente.');
         } catch (\Exception $e) {
             return back()
                 ->withInput()
@@ -309,5 +317,39 @@ class TorneoController extends Controller
             accion: $accion,
             previo: $previo
         );
+    }
+
+    public function listaParaDuplicar()
+    {
+        $torneos = \App\Models\Torneo::orderBy('fecha_inicio', 'desc')
+            ->take(10)
+            ->get(['id_torneo', 'nombre_torneo', 'fecha_inicio', 'categoriaTorneo_id']);
+        foreach ($torneos as $torneo) {
+            $torneo->categoria = $torneo->categoria ? $torneo->categoria->categoria_torneo : '';
+        }
+        return response()->json($torneos);
+    }
+
+    public function datosParaDuplicar($id)
+    {
+        $torneo = \App\Models\Torneo::findOrFail($id);
+        return response()->json([
+            'nombre_torneo' => $torneo->nombre_torneo,
+            'fecha_inicio' => $torneo->fecha_inicio ? $torneo->fecha_inicio->format('Y-m-d') : '',
+            'hora_inicio' => $torneo->hora_inicio,
+            'lugar' => $torneo->lugar,
+            'organizador_id' => $torneo->organizador_id,
+            'director_torneo_id' => $torneo->director_torneo_id,
+            'arbitro_principal_id' => $torneo->arbitro_principal_id,
+            'arbitro_id' => $torneo->arbitro_id,
+            'arbitro_adjunto_id' => $torneo->arbitro_adjunto_id,
+            'categoriaTorneo_id' => $torneo->categoriaTorneo_id,
+            'no_rondas' => $torneo->no_rondas,
+            'sistema_emparejamiento_id' => $torneo->sistema_emparejamiento_id,
+            'control_tiempo_id' => $torneo->control_tiempo_id,
+            'usar_buchholz' => $torneo->usar_buchholz,
+            'usar_sonneborn_berger' => $torneo->usar_sonneborn_berger,
+            'usar_desempate_progresivo' => $torneo->usar_desempate_progresivo
+        ]);
     }
 }

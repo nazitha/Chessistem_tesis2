@@ -46,48 +46,25 @@ $(document).ready(function() {
                     {
                         "data": null,
                         "render": function(data, type, row) {
+                            let editarBtn = '';
+                            // Solo mostrar el botón de editar si el estado es Activo o Cancelado
+                            if (row.estado === "Activo" || row.estado === "Cancelado") {
+                                editarBtn = `
+                                    <button 
+                                        class="btn btn-danger btn-sm btnEditar_torneo"
+                                        style="background-color: #1e2936; color: white; border: 1px solid transparent; padding: 0.375rem 0.75rem; font-size: 1rem; font-weight: 400; line-height: 1.5; border-radius: 0.25rem 0 0 0.25rem; text-align: center; vertical-align: middle; cursor: pointer; transition: background-color 0.3s ease; display: inline-block; margin-right: -1px;"
+                                        onmouseover="this.style.backgroundColor='#374151'"
+                                        onmouseout="this.style.backgroundColor='#1e2936'"
+                                    >
+                                        Editar
+                                    </button>
+                                `;
+                            }
                             return `
-                                <button 
-                                    class="btn btn-danger btn-sm btnEditar_torneo"
-                                    style="
-                                        background-color: #1e2936;
-                                        color: white;
-                                        border: 1px solid transparent;
-                                        padding: 0.375rem 0.75rem;
-                                        font-size: 1rem;
-                                        font-weight: 400;
-                                        line-height: 1.5;
-                                        border-radius: 0.25rem 0 0 0.25rem; /* Bordes redondeados a la izquierda */
-                                        text-align: center;
-                                        vertical-align: middle;
-                                        cursor: pointer;
-                                        transition: background-color 0.3s ease;
-                                        display: inline-block; /* Asegura que los botones estén en línea */
-                                        margin-right: -1px; /* Elimina el espacio entre los botones */
-                                    "
-                                    onmouseover="this.style.backgroundColor='#374151'"
-                                    onmouseout="this.style.backgroundColor='#1e2936'"
-                                >
-                                   Editar
-                                </button>
+                                ${editarBtn}
                                 <button 
                                     class="btn btn-danger btn-sm btnEliminar_torneo"
-                                    style="
-                                        background-color: #1e2936;
-                                        color: white;
-                                        border: 1px solid transparent;
-                                        padding: 0.375rem 0.75rem;
-                                        font-size: 1rem;
-                                        font-weight: 400;
-                                        line-height: 1.5;
-                                        border-radius: 0 0.25rem 0.25rem 0; /* Bordes redondeados a la derecha */
-                                        text-align: center;
-                                        vertical-align: middle;
-                                        cursor: pointer;
-                                        transition: background-color 0.3s ease;
-                                        display: inline-block; /* Asegura que los botones estén en línea */
-                                        margin-left: -1px; /* Elimina el espacio entre los botones */
-                                    "
+                                    style="background-color: #1e2936; color: white; border: 1px solid transparent; padding: 0.375rem 0.75rem; font-size: 1rem; font-weight: 400; line-height: 1.5; border-radius: 0 0.25rem 0.25rem 0; text-align: center; vertical-align: middle; cursor: pointer; transition: background-color 0.3s ease; display: inline-block; margin-left: -1px;"
                                     onmouseover="this.style.backgroundColor='#374151'"
                                     onmouseout="this.style.backgroundColor='#1e2936'"
                                 >
@@ -1363,8 +1340,6 @@ $(document).ready(function() {
         });
     }
 
-<<<<<<< HEAD
-=======
     const modalParticipantes = document.getElementById('modal-participantes');
     if (modalParticipantes) {
         modalParticipantes.addEventListener('click', function(e) {
@@ -1373,6 +1348,4 @@ $(document).ready(function() {
             }
         });
     }
-
->>>>>>> e3a9c6968744e5bafed350125d9065973360a91b
 });
