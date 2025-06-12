@@ -344,12 +344,14 @@
                 <span class="ml-2 text-sm text-gray-500">({{ $torneo->participantes->count() }} registrados)</span>
             </h3>
             <div class="flex gap-2">
+                @if($torneo->estado_torneo && !$torneo->torneo_cancelado)
                 <button type="button"
                         onclick="mostrarModalParticipantes()"
                         class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                     <i class="fas fa-user-plus mr-2"></i>
                     Agregar Participantes
                 </button>
+                @endif
                 @if(!$torneo->es_por_equipos && $torneo->estado_torneo && !$torneo->torneo_cancelado && $torneo->participantes->count() >= 4)
                     <form method="POST" action="{{ route('torneos.rondas.store', $torneo) }}">
                         @csrf
@@ -507,6 +509,7 @@
 </div>
 
 <!-- Modal de Agregar Participantes -->
+@if($torneo->estado_torneo && !$torneo->torneo_cancelado)
 <div id="modal-participantes" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center">
     <div class="bg-white rounded-lg p-6 max-w-lg w-full mx-4">
         <div class="flex justify-between items-center mb-4">
@@ -550,6 +553,7 @@
         </form>
     </div>
 </div>
+@endif
 
 <!-- Tabla de Clasificación Final -->
 @if(!$torneo->es_por_equipos && $torneo->rondas->count() == $torneo->no_rondas)

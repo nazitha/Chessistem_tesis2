@@ -5,16 +5,17 @@
     <div class="md:grid md:grid-cols-3 md:gap-6">
         <div class="md:col-span-1">
             <div class="px-4 sm:px-0">
-                <h3 class="text-lg font-medium leading-6 text-gray-900">Crear Nuevo Torneo</h3>
+                <h3 class="text-lg font-medium leading-6 text-gray-900">Editar Torneo</h3>
                 <p class="mt-1 text-sm text-gray-600">
-                    Complete la información del torneo. Los campos marcados con * son obligatorios.
+                    Modifique la información del torneo. Los campos marcados con * son obligatorios.
                 </p>
             </div>
         </div>
 
         <div class="mt-5 md:mt-0 md:col-span-2">
-            <form action="{{ route('torneos.store') }}" method="POST" id="formCrearTorneo">
+            <form action="{{ route('torneos.update', $torneo) }}" method="POST" id="formEditarTorneo">
                 @csrf
+                @method('PUT')
                 <div class="shadow sm:rounded-md sm:overflow-hidden">
                     <!-- Información del Torneo -->
                     <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
@@ -32,7 +33,7 @@
                                 <input type="text" name="nombre_torneo" id="nombre_torneo" 
                                        class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                                        placeholder="Ejemplo: Torneo Nacional de Ajedrez 2024"
-                                       required>
+                                       value="{{ old('nombre_torneo', $torneo->nombre_torneo) }}" required>
                                 @error('nombre_torneo')
                                     <span class="text-red-600 text-xs">{{ $message }}</span>
                                 @enderror
@@ -44,7 +45,7 @@
                                 </label>
                                 <input type="date" name="fecha_inicio" id="fecha_inicio" 
                                        class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                                       required>
+                                       value="{{ old('fecha_inicio', $torneo->fecha_inicio ? $torneo->fecha_inicio->format('Y-m-d') : '' ) }}" required>
                                 @error('fecha_inicio')
                                     <span class="text-red-600 text-xs">{{ $message }}</span>
                                 @enderror
@@ -56,7 +57,7 @@
                                 </label>
                                 <input type="time" name="hora_inicio" id="hora_inicio" 
                                        class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                                       required>
+                                       value="{{ old('hora_inicio', $torneo->hora_inicio) }}" required>
                                 @error('hora_inicio')
                                     <span class="text-red-600 text-xs">{{ $message }}</span>
                                 @enderror
@@ -69,7 +70,7 @@
                                 <input type="text" name="lugar" id="lugar" 
                                        class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                                        placeholder="Ejemplo: Biblioteca Nacional, Managua"
-                                       required>
+                                       value="{{ old('lugar', $torneo->lugar) }}" required>
                                 @error('lugar')
                                     <span class="text-red-600 text-xs">{{ $message }}</span>
                                 @enderror
@@ -91,7 +92,7 @@
                                         required>
                                     <option value="">Seleccione un organizador</option>
                                     @foreach($miembros as $miembro)
-                                        <option value="{{ $miembro->cedula }}">{{ $miembro->nombres }} {{ $miembro->apellidos }}</option>
+                                        <option value="{{ $miembro->cedula }}" {{ old('organizador_id', $torneo->organizador_id) == $miembro->cedula ? 'selected' : '' }}>{{ $miembro->nombres }} {{ $miembro->apellidos }}</option>
                                     @endforeach
                                 </select>
                                 @error('organizador_id')
@@ -106,7 +107,7 @@
                                         required>
                                     <option value="">Seleccione un director</option>
                                     @foreach($miembros as $miembro)
-                                        <option value="{{ $miembro->cedula }}">{{ $miembro->nombres }} {{ $miembro->apellidos }}</option>
+                                        <option value="{{ $miembro->cedula }}" {{ old('director_torneo_id', $torneo->director_torneo_id) == $miembro->cedula ? 'selected' : '' }}>{{ $miembro->nombres }} {{ $miembro->apellidos }}</option>
                                     @endforeach
                                 </select>
                                 @error('director_torneo_id')
@@ -121,7 +122,7 @@
                                         required>
                                     <option value="">Seleccione un árbitro principal</option>
                                     @foreach($miembros as $miembro)
-                                        <option value="{{ $miembro->cedula }}">{{ $miembro->nombres }} {{ $miembro->apellidos }}</option>
+                                        <option value="{{ $miembro->cedula }}" {{ old('arbitro_principal_id', $torneo->arbitro_principal_id) == $miembro->cedula ? 'selected' : '' }}>{{ $miembro->nombres }} {{ $miembro->apellidos }}</option>
                                     @endforeach
                                 </select>
                                 @error('arbitro_principal_id')
@@ -136,7 +137,7 @@
                                         required>
                                     <option value="">Seleccione un árbitro</option>
                                     @foreach($miembros as $miembro)
-                                        <option value="{{ $miembro->cedula }}">{{ $miembro->nombres }} {{ $miembro->apellidos }}</option>
+                                        <option value="{{ $miembro->cedula }}" {{ old('arbitro_id', $torneo->arbitro_id) == $miembro->cedula ? 'selected' : '' }}>{{ $miembro->nombres }} {{ $miembro->apellidos }}</option>
                                     @endforeach
                                 </select>
                                 @error('arbitro_id')
@@ -151,7 +152,7 @@
                                         required>
                                     <option value="">Seleccione un árbitro adjunto</option>
                                     @foreach($miembros as $miembro)
-                                        <option value="{{ $miembro->cedula }}">{{ $miembro->nombres }} {{ $miembro->apellidos }}</option>
+                                        <option value="{{ $miembro->cedula }}" {{ old('arbitro_adjunto_id', $torneo->arbitro_adjunto_id) == $miembro->cedula ? 'selected' : '' }}>{{ $miembro->nombres }} {{ $miembro->apellidos }}</option>
                                     @endforeach
                                 </select>
                                 @error('arbitro_adjunto_id')
@@ -175,7 +176,7 @@
                                 </label>
                                 <input type="number" name="no_rondas" id="no_rondas" min="3" max="9"
                                        class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                                       required>
+                                       value="{{ old('no_rondas', $torneo->no_rondas) }}" required>
                                 @error('no_rondas')
                                     <span class="text-red-600 text-xs">{{ $message }}</span>
                                 @enderror
@@ -190,7 +191,7 @@
                                         required>
                                     <option value="">Seleccione una categoría</option>
                                     @foreach($categorias as $categoria)
-                                        <option value="{{ $categoria->id_torneo_categoria }}">{{ $categoria->categoria_torneo }}</option>
+                                        <option value="{{ $categoria->id_torneo_categoria }}" {{ old('categoriaTorneo_id', $torneo->categoriaTorneo_id) == $categoria->id_torneo_categoria ? 'selected' : '' }}>{{ $categoria->categoria_torneo }}</option>
                                     @endforeach
                                 </select>
                                 @error('categoriaTorneo_id')
@@ -207,7 +208,7 @@
                                         required>
                                     <option value="">Seleccione un sistema</option>
                                     @foreach($emparejamientos as $sistema)
-                                        <option value="{{ $sistema->id_emparejamiento }}">{{ $sistema->sistema }}</option>
+                                        <option value="{{ $sistema->id_emparejamiento }}" {{ old('sistema_emparejamiento_id', $torneo->sistema_emparejamiento_id) == $sistema->id_emparejamiento ? 'selected' : '' }}>{{ $sistema->sistema }}</option>
                                     @endforeach
                                 </select>
                                 @error('sistema_emparejamiento_id')
@@ -224,7 +225,7 @@
                                         required>
                                     <option value="">Seleccione un control de tiempo</option>
                                     @foreach($controlesTiempo as $control)
-                                        <option value="{{ $control->id_control_tiempo }}">{{ $control->formato }} ({{ $control->control_tiempo }})</option>
+                                        <option value="{{ $control->id_control_tiempo }}" {{ old('control_tiempo_id', $torneo->control_tiempo_id) == $control->id_control_tiempo ? 'selected' : '' }}>{{ $control->formato }} ({{ $control->control_tiempo }})</option>
                                     @endforeach
                                 </select>
                                 @error('control_tiempo_id')
@@ -249,46 +250,33 @@
                         <div class="space-y-4">
                             <div class="flex items-center">
                                 <input type="checkbox" name="usar_buchholz" id="usar_buchholz" value="1"
-                                       class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
+                                       class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
+                                       {{ old('usar_buchholz', $torneo->usar_buchholz) ? 'checked' : '' }}>
                                 <label for="usar_buchholz" class="ml-2 block text-sm text-gray-700">Buchholz</label>
                             </div>
                             <div class="flex items-center">
                                 <input type="checkbox" name="usar_sonneborn_berger" id="usar_sonneborn_berger" value="1"
-                                       class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
+                                       class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
+                                       {{ old('usar_sonneborn_berger', $torneo->usar_sonneborn_berger) ? 'checked' : '' }}>
                                 <label for="usar_sonneborn_berger" class="ml-2 block text-sm text-gray-700">Sonneborn-Berger</label>
                             </div>
                             <div class="flex items-center">
                                 <input type="checkbox" name="usar_desempate_progresivo" id="usar_desempate_progresivo" value="1"
-                                       class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
+                                       class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
+                                       {{ old('usar_desempate_progresivo', $torneo->usar_desempate_progresivo) ? 'checked' : '' }}>
                                 <label for="usar_desempate_progresivo" class="ml-2 block text-sm text-gray-700">Progresivo</label>
                             </div>
                         </div>
-
-                        <!-- Campos ocultos con valores por defecto -->
-                        <input type="hidden" name="estado_torneo" value="1">
-                        <input type="hidden" name="permitir_bye" value="1">
-                        <input type="hidden" name="alternar_colores" value="1">
-                        <input type="hidden" name="evitar_emparejamientos_repetidos" value="1">
-                        <input type="hidden" name="maximo_emparejamientos_repetidos" value="1">
-                        <input type="hidden" name="numero_minimo_participantes" value="4">
                     </div>
 
                     <div class="px-4 py-3 bg-gray-50 text-right sm:px-6 space-x-3">
-                        <button type="button" id="btnGuardarBorrador"
-                                class="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                            Guardar como borrador
-                        </button>
-                        <button type="button" id="btnVistaPrevia"
-                                class="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                            Vista previa
-                        </button>
                         <a href="{{ route('torneos.index') }}" 
                            class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                             Cancelar
                         </a>
                         <button type="submit"
                                 class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                            Crear Torneo
+                            Actualizar Torneo
                         </button>
                     </div>
                 </div>
@@ -306,35 +294,6 @@
             <li>Sonneborn-Berger: Suma de puntos de oponentes vencidos + mitad de puntos de oponentes empatados</li>
             <li>Progresivo: Suma acumulativa de puntos ronda a ronda</li>
         </ul>
-    </div>
-</div>
-
-<!-- Modal de Vista Previa -->
-<div id="modalVistaPrevia" class="fixed inset-0 bg-gray-900 bg-opacity-40 hidden items-center justify-center z-50">
-    <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl p-6 relative">
-        <h2 class="text-2xl font-bold mb-4">Vista previa del torneo</h2>
-        <table class="w-full text-sm mb-4">
-            <tbody>
-                <tr><td class="font-semibold pr-2">Nombre:</td><td id="prev-nombre"></td></tr>
-                <tr><td class="font-semibold pr-2">Fecha de inicio:</td><td id="prev-fecha"></td></tr>
-                <tr><td class="font-semibold pr-2">Hora de inicio:</td><td id="prev-hora"></td></tr>
-                <tr><td class="font-semibold pr-2">Lugar:</td><td id="prev-lugar"></td></tr>
-                <tr><td class="font-semibold pr-2">Organizador:</td><td id="prev-organizador"></td></tr>
-                <tr><td class="font-semibold pr-2">Director:</td><td id="prev-director"></td></tr>
-                <tr><td class="font-semibold pr-2">Árbitro Principal:</td><td id="prev-arbitro-principal"></td></tr>
-                <tr><td class="font-semibold pr-2">Árbitro:</td><td id="prev-arbitro"></td></tr>
-                <tr><td class="font-semibold pr-2">Árbitro Adjunto:</td><td id="prev-arbitro-adjunto"></td></tr>
-                <tr><td class="font-semibold pr-2">Categoría:</td><td id="prev-categoria"></td></tr>
-                <tr><td class="font-semibold pr-2">N° Rondas:</td><td id="prev-rondas"></td></tr>
-                <tr><td class="font-semibold pr-2">Sistema de Emparejamiento:</td><td id="prev-sistema"></td></tr>
-                <tr><td class="font-semibold pr-2">Control de Tiempo:</td><td id="prev-control"></td></tr>
-                <tr><td class="font-semibold pr-2">Criterios de Desempate:</td><td id="prev-desempate"></td></tr>
-            </tbody>
-        </table>
-        <div class="flex justify-end space-x-2">
-            <button type="button" onclick="cerrarModalVistaPrevia()" class="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 font-semibold">Cerrar</button>
-        </div>
-        <button onclick="cerrarModalVistaPrevia()" class="absolute top-2 right-2 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
     </div>
 </div>
 @endsection
@@ -372,94 +331,63 @@ document.addEventListener('DOMContentLoaded', function() {
     // Validación de fechas
     const fechaInicio = document.getElementById('fecha_inicio');
     const horaInicio = document.getElementById('hora_inicio');
-    const formCrearTorneo = document.getElementById('formCrearTorneo');
+    const formEditarTorneo = document.getElementById('formEditarTorneo');
 
     // Establecer fecha mínima como hoy
-    fechaInicio.min = new Date().toISOString().split('T')[0];
-    horaInicio.value = '09:00';
+    if(fechaInicio) fechaInicio.min = new Date().toISOString().split('T')[0];
+    if(horaInicio && !horaInicio.value) horaInicio.value = '09:00';
 
     // Validación en tiempo real
     const campos = ['nombre_torneo', 'lugar', 'no_rondas'];
     campos.forEach(campo => {
         const elemento = document.getElementById(campo);
         const error = document.getElementById('error_' + campo);
-        
-        elemento.addEventListener('input', function() {
-            if (!this.value) {
-                error.textContent = 'Este campo es obligatorio';
-                error.classList.remove('hidden');
-                this.classList.add('border-red-500');
-            } else {
-                error.classList.add('hidden');
-                this.classList.remove('border-red-500');
-            }
-        });
-    });
-
-    // Vista previa mejorada
-    document.getElementById('btnVistaPrevia').addEventListener('click', function() {
-        // Obtener valores del formulario
-        const getText = (id) => {
-            const el = document.getElementById(id);
-            return el ? el.options ? el.options[el.selectedIndex]?.text : el.value : '';
-        };
-        document.getElementById('prev-nombre').textContent = getText('nombre_torneo');
-        document.getElementById('prev-fecha').textContent = getText('fecha_inicio');
-        document.getElementById('prev-hora').textContent = getText('hora_inicio');
-        document.getElementById('prev-lugar').textContent = getText('lugar');
-        document.getElementById('prev-organizador').textContent = getText('organizador_id');
-        document.getElementById('prev-director').textContent = getText('director_torneo_id');
-        document.getElementById('prev-arbitro-principal').textContent = getText('arbitro_principal_id');
-        document.getElementById('prev-arbitro').textContent = getText('arbitro_id');
-        document.getElementById('prev-arbitro-adjunto').textContent = getText('arbitro_adjunto_id');
-        document.getElementById('prev-categoria').textContent = getText('categoriaTorneo_id');
-        document.getElementById('prev-rondas').textContent = getText('no_rondas');
-        document.getElementById('prev-sistema').textContent = getText('sistema_emparejamiento_id');
-        document.getElementById('prev-control').textContent = getText('control_tiempo_id');
-        // Criterios de desempate
-        let desempate = [];
-        if(document.getElementById('usar_buchholz').checked) desempate.push('Buchholz');
-        if(document.getElementById('usar_sonneborn_berger').checked) desempate.push('Sonneborn-Berger');
-        if(document.getElementById('usar_desempate_progresivo').checked) desempate.push('Progresivo');
-        document.getElementById('prev-desempate').textContent = desempate.length ? desempate.join(', ') : 'Ninguno';
-        // Mostrar modal
-        document.getElementById('modalVistaPrevia').classList.remove('hidden');
-        document.getElementById('modalVistaPrevia').classList.add('flex');
-    });
-    window.cerrarModalVistaPrevia = function() {
-        document.getElementById('modalVistaPrevia').classList.add('hidden');
-        document.getElementById('modalVistaPrevia').classList.remove('flex');
-    }
-
-    // Guardar como borrador
-    document.getElementById('btnGuardarBorrador').addEventListener('click', function() {
-        const form = document.getElementById('formCrearTorneo');
-        let input = document.getElementById('input_borrador');
-        if (!input) {
-            input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = 'borrador';
-            input.id = 'input_borrador';
-            form.appendChild(input);
+        if(elemento) {
+            elemento.addEventListener('input', function() {
+                if (!this.value) {
+                    error.textContent = 'Este campo es obligatorio';
+                    error.classList.remove('hidden');
+                    this.classList.add('border-red-500');
+                } else {
+                    error.classList.add('hidden');
+                    this.classList.remove('border-red-500');
+                }
+            });
         }
-        input.value = '1';
-        form.submit();
     });
 
     // Tooltip para criterios de desempate
     const tooltip = document.getElementById('criterios-info');
     const tooltipButton = document.querySelector('[data-tooltip-target="criterios-info"]');
+    if(tooltipButton) {
+        tooltipButton.addEventListener('mouseenter', () => {
+            tooltip.classList.remove('invisible', 'opacity-0');
+            const rect = tooltipButton.getBoundingClientRect();
+            tooltip.style.top = `${rect.bottom + 5}px`;
+            tooltip.style.left = `${rect.left}px`;
+        });
 
-    tooltipButton.addEventListener('mouseenter', () => {
-        tooltip.classList.remove('invisible', 'opacity-0');
-        const rect = tooltipButton.getBoundingClientRect();
-        tooltip.style.top = `${rect.bottom + 5}px`;
-        tooltip.style.left = `${rect.left}px`;
-    });
+        tooltipButton.addEventListener('mouseleave', () => {
+            tooltip.classList.add('invisible', 'opacity-0');
+        });
+    }
 
-    tooltipButton.addEventListener('mouseleave', () => {
-        tooltip.classList.add('invisible', 'opacity-0');
-    });
+    const btnPublicar = document.getElementById('btnPublicarTorneo');
+    if (btnPublicar) {
+        btnPublicar.addEventListener('click', function() {
+            const form = document.getElementById('formEditarTorneo');
+            let input = document.getElementById('input_publicar');
+            if (!input) {
+                input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'publicar';
+                input.id = 'input_publicar';
+                form.appendChild(input);
+            }
+            input.value = '1';
+            form.submit();
+        });
+    }
 });
 </script>
 @endpush 
