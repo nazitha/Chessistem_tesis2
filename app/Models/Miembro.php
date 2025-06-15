@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\User;
+use App\Models\Ciudad;
+use App\Models\Academia;
 
 class Miembro extends Model
 {
@@ -103,6 +106,21 @@ class Miembro extends Model
     public function scopeExcluirRol($query, $rolId)
     {
       return $query->whereHas('usuario', fn($q) => $q->where('rol_id', '!=', $rolId));
+    }
+
+    public function usuario()
+    {
+        return $this->belongsTo(User::class, 'correo_sistema_id', 'id_email');
+    }
+
+    public function ciudad()
+    {
+        return $this->belongsTo(Ciudad::class, 'ciudad_id', 'id_ciudad');
+    }
+
+    public function academia()
+    {
+        return $this->belongsTo(Academia::class, 'academia_id', 'nombre_academia');
     }
 
 }
