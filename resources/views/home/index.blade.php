@@ -6,11 +6,13 @@
     use Illuminate\Support\Facades\Log;
     
     $canViewTorneos = PermissionHelper::canViewModule('torneos');
+    $canViewMiembros = PermissionHelper::canViewModule('miembros');
     
     // Debug de permisos
     Log::info('Vista home: Verificando permisos', [
         'can_view_torneos' => $canViewTorneos,
-        'can_create_torneos' => PermissionHelper::canCreate('torneos')
+        'can_create_torneos' => PermissionHelper::canCreate('torneos'),
+        'can_view_miembros' => $canViewMiembros
     ]);
 @endphp
 
@@ -88,10 +90,12 @@
                         <i class="fas fa-school mr-2"></i>
                         Gestionar Academias
                     </a>
-                    <a href="{{ route('miembros.index') }}" class="inline-block text-center py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600">
-                        <i class="fas fa-users mr-2"></i>
-                        Gestionar Miembros
-                    </a>
+                    @if($canViewMiembros)
+                        <a href="{{ route('miembros.index') }}" class="inline-block text-center py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600">
+                            <i class="fas fa-users mr-2"></i>
+                            Gestionar Miembros
+                        </a>
+                    @endif
                     <a href="{{ route('inscripciones.index') }}" class="inline-block text-center py-2 px-4 bg-gray-500 text-white rounded hover:bg-gray-600">
                         <i class="fas fa-clipboard-list mr-2"></i>
                         Ver Inscripciones

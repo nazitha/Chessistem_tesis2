@@ -1,6 +1,8 @@
 @php
     use App\Helpers\PermissionHelper;
+    use App\Services\PermissionService;
     $canViewTorneos = PermissionHelper::canViewModule('torneos');
+    $canViewMiembros = PermissionHelper::canViewModule('miembros');
 @endphp
 
 <!DOCTYPE html>
@@ -53,7 +55,9 @@
                         @if(PermissionHelper::canViewModule('usuarios'))
                             <a href="{{ route('usuarios.index') }}" class="text-gray-500 hover:text-gray-700 px-1 pt-1 text-sm font-medium">Usuarios</a>
                         @endif
-                        <a href="{{ route('miembros.index') }}" class="text-gray-500 hover:text-gray-700 px-1 pt-1 text-sm font-medium">Miembros</a>
+                        @if($canViewMiembros)
+                            <a href="{{ route('miembros.index') }}" class="text-gray-500 hover:text-gray-700 px-1 pt-1 text-sm font-medium">Miembros</a>
+                        @endif
                         <a href="{{ route('fides.index') }}" class="text-gray-500 hover:text-gray-700 px-1 pt-1 text-sm font-medium">FIDES</a>
                         @if($canViewTorneos)
                             <a href="{{ route('torneos.index') }}" class="text-gray-500 hover:text-gray-700 px-1 pt-1 text-sm font-medium">Torneos</a>

@@ -15,13 +15,13 @@ use Carbon\Carbon;
 
 class MiembroController extends Controller
 {
-    public function index(): JsonResponse
+    public function index()
     {
         $miembros = Miembro::with(['usuario.rol', 'ciudad.departamento.pais', 'academia'])
             ->orderBy('cedula')
             ->get();
 
-        return response()->json(MiembroResource::collection($miembros));
+        return view('miembros.index', compact('miembros'));
     }
 
     public function getAcademias(): JsonResponse
