@@ -1,6 +1,19 @@
 @extends('layouts.app')
 
 @section('content')
+@php
+    use App\Helpers\PermissionHelper;
+    use Illuminate\Support\Facades\Log;
+    
+    $canViewTorneos = PermissionHelper::canViewModule('torneos');
+    
+    // Debug de permisos
+    Log::info('Vista home: Verificando permisos', [
+        'can_view_torneos' => $canViewTorneos,
+        'can_create_torneos' => PermissionHelper::canCreate('torneos')
+    ]);
+@endphp
+
 <div class="min-h-screen bg-gray-50">
     <!-- Contenido principal -->
     <div class="max-w-7xl mx-auto px-4 py-6">
@@ -45,17 +58,19 @@
                 </div>
             </a>
 
-            <a href="{{ route('torneos.index') }}" class="block bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow duration-200">
-                <div class="flex items-start">
-                    <div class="p-2 bg-blue-100 rounded-lg">
-                        <i class="fas fa-chess text-blue-600 text-xl"></i>
+            @if($canViewTorneos)
+                <a href="{{ route('torneos.index') }}" class="block bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow duration-200">
+                    <div class="flex items-start">
+                        <div class="p-2 bg-blue-100 rounded-lg">
+                            <i class="fas fa-chess text-blue-600 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-medium text-gray-900">Torneos</h3>
+                            <p class="text-gray-600 mt-1">Administración de torneos</p>
+                        </div>
                     </div>
-                    <div class="ml-4">
-                        <h3 class="text-lg font-medium text-gray-900">Torneos</h3>
-                        <p class="text-gray-600 mt-1">Administración de torneos</p>
-                    </div>
-                </div>
-            </a>
+                </a>
+            @endif
         </div>
 
         <!-- Acciones Rápidas -->
@@ -63,10 +78,12 @@
             <div class="bg-white rounded-lg shadow-lg p-6">
                 <h2 class="text-xl font-medium text-gray-900 mb-4">Acciones Rápidas</h2>
                 <div class="grid grid-cols-4 gap-4">
-                    <a href="{{ route('torneos.create') }}" class="inline-block text-center py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600">
-                        <i class="fas fa-trophy mr-2"></i>
-                        Nuevo Torneo
-                    </a>
+                    @if($canViewTorneos && PermissionHelper::canCreate('torneos'))
+                        <a href="{{ route('torneos.create') }}" class="inline-block text-center py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600">
+                            <i class="fas fa-trophy mr-2"></i>
+                            Nuevo Torneo
+                        </a>
+                    @endif
                     <a href="{{ route('academias.index') }}" class="inline-block text-center py-2 px-4 bg-green-500 text-white rounded hover:bg-green-600">
                         <i class="fas fa-school mr-2"></i>
                         Gestionar Academias
@@ -171,9 +188,4 @@
         </div>
     </div>
 </div>
-
-@include('modals.miembros_modal')
-@include('modals.pais_modal')
-@include('modals.partidasbusqueda_modal')
-@include('modals.torneo_modal')
 @endsection
