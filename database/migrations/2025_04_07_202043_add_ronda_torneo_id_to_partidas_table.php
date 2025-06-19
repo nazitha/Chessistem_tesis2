@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('partidas', function (Blueprint $table) {
-            $table->integer('ronda_torneo_id')->nullable()->after('ronda');
+            $table->unsignedBigInteger('ronda_torneo_id')->nullable()->after('ronda');
             $table->foreign('ronda_torneo_id')
-                  ->references('id_torneo')
+                  ->references('id')
                   ->on('torneos')
                   ->onDelete('cascade');
         });

@@ -22,7 +22,7 @@ class Auditoria extends Model
 
     protected $casts = [
         'fecha' => 'date',
-        'hora' => 'time'
+        'hora' => 'string'
     ];
 
     protected $appends = ['tiempo'];
