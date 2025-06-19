@@ -9,6 +9,10 @@ class Academia extends Model
 {
     protected $table = 'academias';
     
+    protected $primaryKey = 'id_academia';
+
+    public $timestamps = false;
+    
     protected $fillable = [
         'nombre_academia',
         'correo_academia',
@@ -23,23 +27,28 @@ class Academia extends Model
         'estado_academia' => 'boolean'
     ];
 
+    public function getRouteKeyName()
+    {
+        return 'id_academia';
+    }
+
     public function ciudad(): BelongsTo
     {
-        return $this->belongsTo(Ciudad::class, 'ciudad_id');
+        return $this->belongsTo(Ciudad::class, 'ciudad_id', 'id_ciudad');
     }
 
     public function departamento()
     {
-        return $this->throughCiudad()->hasDepartamento();
+        return $this->ciudad->departamento();
     }
-    
-    protected function throughCiudad()
+
+    public function pais()
     {
-        return $this->belongsTo(Ciudad::class, 'ciudad_id');
+        return $this->ciudad->departamento->pais();
     }
 
     public function scopeActive($query)
     {
-    return $query->where('estado_academia', true);
+        return $query->where('estado_academia', true);
     }
 }

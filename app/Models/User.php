@@ -108,5 +108,10 @@ class User extends Authenticatable
     {
         return $this->rol_id == $role;
     }
+
+    public function miembro()
+    {
+        return $this->hasOne(Miembro::class, 'correo_sistema_id', 'correo');
+    }
 }
 

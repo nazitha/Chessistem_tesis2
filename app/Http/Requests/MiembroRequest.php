@@ -21,15 +21,15 @@ class MiembroRequest extends FormRequest
             'estado_miembro' => 'required|boolean',
             'telefono' => 'nullable|string|max:20',
             'club' => 'nullable|string|max:255',
-            'correo' => 'nullable|exists:usuarios,correo',
+            'correo_sistema_id' => 'nullable|exists:usuarios,correo',
             'ciudad_id' => 'nullable|exists:ciudades,id',
-            'academia' => 'required|string|max:255'
+            'academia_id' => 'required|exists:academias,id'
         ];
 
         if ($this->isMethod('post')) {
             $rules['cedula'] = 'required|unique:miembros';
         } else {
-            $rules['cedula'] = 'required|unique:miembros,cedula,' . $this->miembro->cedula;
+            $rules['cedula'] = 'required|unique:miembros,cedula,' . $this->miembro->cedula . ',cedula';
         }
 
         return $rules;

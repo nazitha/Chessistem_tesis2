@@ -52,8 +52,9 @@
                         @if(PermissionHelper::canViewModule('usuarios'))
                             <a href="{{ route('usuarios.index') }}" class="text-gray-500 hover:text-gray-700 px-1 pt-1 text-sm font-medium">Usuarios</a>
                         @endif
+                        <a href="{{ route('usuarios.index') }}" class="text-gray-500 hover:text-gray-700 px-1 pt-1 text-sm font-medium">Usuarios</a>
                         <a href="{{ route('miembros.index') }}" class="text-gray-500 hover:text-gray-700 px-1 pt-1 text-sm font-medium">Miembros</a>
-                        <a href="{{ route('fides.index') }}" class="text-gray-500 hover:text-gray-700 px-1 pt-1 text-sm font-medium">FIDES</a>
+                        <a href="{{ route('academias.index') }}" class="text-gray-500 hover:text-gray-700 px-1 pt-1 text-sm font-medium">Academias</a>
                         <a href="{{ route('torneos.index') }}" class="text-gray-500 hover:text-gray-700 px-1 pt-1 text-sm font-medium">Torneos</a>
                     </div>
                 </div>
@@ -93,5 +94,22 @@
     <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.html5.min.js"></script>
 
     @stack('scripts')
+
+    <!-- Modal para Detalle de Miembro -->
+    <div class="modal fade" id="modalDetalleMiembro" tabindex="-1" role="dialog" aria-labelledby="detalleMiembroLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="detalleMiembroLabel">Detalle del Miembro</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <!-- Aquí se cargará el contenido de la vista show.blade.php -->
+          </div>
+        </div>
+      </div>
+    </div>
 </body>
 </html>

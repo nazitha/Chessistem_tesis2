@@ -2,141 +2,163 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Academia;
+use App\Models\Ciudad;
+use App\Models\Auditoria;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use PDO;
-use App\Services\Conexion;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class AcademiaController extends Controller
 {
-    private function getConexion()
+    public function index()
     {
-        $objeto = new Conexion();
-        return $objeto->Conectar();
+        $academias = Academia::with(['ciudad.departamento.pais'])
+            ->orderBy('nombre_academia')
+            ->get();
+
+        return view('academias.index', compact('academias'));
     }
 
-    public function index(Request $request)
+    public function create()
     {
-        $conexion = $this->getConexion();
-        $consulta = "
-            SELECT
-                nombre_academia,
-                correo_academia,
-                telefono_academia,
-                representante_academia,
-                direccion_academia,
-                CONCAT(nombre_ciudad, ', ', IFNULL(nombre_depto, '-'), ' (', IFNULL(nombre_pais, '-'), ')') AS ciudad_id,
-                CASE 
-                    WHEN estado_academia = 0 THEN 'Inactivo'
-                    WHEN estado_academia = 1 THEN 'Activo'
-                END AS estado_academia
-            FROM academias
-                LEFT JOIN ciudades ON ciudades.id_ciudad = academias.ciudad_id
-                LEFT JOIN departamentos ON departamentos.id_depto = ciudades.depto_id
-                LEFT JOIN paises ON paises.id_pais = departamentos.pais_id
-            ORDER BY nombre_academia
-        ";
-        $resultado = $conexion->prepare($consulta);
-        $resultado->execute();
-        $data = $resultado->fetchAll(PDO::FETCH_ASSOC);
-        return response()->json($data);
-    }
-
-    public function cargarCiudades(Request $request)
-    {
-        $conexion = $this->getConexion();
-        $consulta = "
-            SELECT
-                id_ciudad,
-                nombre_ciudad,
-                id_depto,
-                nombre_depto,
-                id_pais,
-                nombre_pais,
-                CONCAT(nombre_ciudad, ', ', IFNULL(nombre_depto, '-'), ' (', IFNULL(nombre_pais, '-'), ')') AS opc
-            FROM ciudades
-            LEFT JOIN departamentos ON ciudades.depto_id = departamentos.id_depto
-            LEFT JOIN paises ON departamentos.pais_id = paises.id_pais
-            ORDER BY opc
-        ";
-        $resultado = $conexion->prepare($consulta);
-        $resultado->execute();
-        $data = $resultado->fetchAll(PDO::FETCH_ASSOC);
-        return response()->json($data);
+        $ciudades = Ciudad::with(['departamento.pais'])
+            ->orderBy('nombre_ciudad')
+            ->get();
+        return view('academias.create', compact('ciudades'));
     }
 
     public function store(Request $request)
     {
-        $conexion = $this->getConexion();
-        $consulta = "
-            INSERT INTO academias 
-                (nombre_academia, correo_academia, telefono_academia, representante_academia, direccion_academia, ciudad_id, estado_academia) 
-            VALUES 
-                (:academia, :correo, :telefono, :director, :direccion, :ciudadValue, :estado)
-        ";
-        $resultado = $conexion->prepare($consulta);
-        $resultado->bindParam(':academia', $request->academia, PDO::PARAM_STR);
-        $resultado->bindParam(':correo', $request->correo, PDO::PARAM_STR);
-        $resultado->bindParam(':telefono', $request->telefono, PDO::PARAM_INT);
-        $resultado->bindParam(':director', $request->director, PDO::PARAM_STR);
-        $resultado->bindParam(':direccion', $request->direccion, PDO::PARAM_STR);
-        $resultado->bindParam(':ciudadValue', $request->ciudadValue, PDO::PARAM_INT);
-        $resultado->bindParam(':estado', $request->estado, PDO::PARAM_BOOL);
+        $request->validate([
+            'nombre_academia' => 'required|string|max:255|unique:academias',
+            'correo_academia' => 'required|email|max:255',
+            'telefono_academia' => 'required|string|max:20',
+            'representante_academia' => 'required|string|max:255',
+            'direccion_academia' => 'required|string|max:255',
+            'ciudad_id' => 'required|exists:ciudades,id_ciudad',
+            'estado_academia' => 'required|boolean'
+        ]);
 
-        if ($resultado->execute()) {
-            return response()->json(["success" => true]);
-        } else {
-            return response()->json(["success" => false, "error" => $resultado->errorInfo()]);
+        try {
+            return DB::transaction(function () use ($request) {
+                $academia = Academia::create($request->all());
+                
+                $this->logAuditoria(
+                    Auth::user()->correo,
+                    'Academias',
+                    'Inserción',
+                    null,
+                    $academia->toArray()
+                );
+
+                return redirect()->route('academias.show', $academia->id_academia)
+                    ->with('success', '¡Academia creada exitosamente!');
+            });
+        } catch (\Exception $e) {
+            Log::error('Error al crear academia: ' . $e->getMessage());
+            return redirect()->route('academias.create')
+                ->withInput()
+                ->with('error', 'Error al crear la academia: ' . $e->getMessage());
         }
     }
 
-    public function update(Request $request)
+    public function show($id)
     {
-        $conexion = $this->getConexion();
-        $consulta = "
-            UPDATE academias
-            SET
-                nombre_academia = :academia,
-                correo_academia = :correo,
-                telefono_academia = :telefono,
-                representante_academia = :director,
-                direccion_academia = :direccion,
-                ciudad_id = :ciudadValue,
-                estado_academia = :estado
-            WHERE
-                nombre_academia = :search
-        ";
-        $resultado = $conexion->prepare($consulta);
-        $resultado->bindParam(':academia', $request->academia, PDO::PARAM_STR);
-        $resultado->bindParam(':correo', $request->correo, PDO::PARAM_STR);
-        $resultado->bindParam(':telefono', $request->telefono, PDO::PARAM_INT);
-        $resultado->bindParam(':director', $request->director, PDO::PARAM_STR);
-        $resultado->bindParam(':direccion', $request->direccion, PDO::PARAM_STR);
-        $resultado->bindParam(':ciudadValue', $request->ciudadValue, PDO::PARAM_INT);
-        $resultado->bindParam(':estado', $request->estado, PDO::PARAM_BOOL);
-        $resultado->bindParam(':search', $request->search, PDO::PARAM_STR);
+        $academia = Academia::with(['ciudad.departamento.pais'])->findOrFail($id);
+        return view('academias.show', compact('academia'));
+    }
 
-        if ($resultado->execute()) {
-            return response()->json(["success" => true]);
-        } else {
-            return response()->json(["success" => false, "error" => $resultado->errorInfo()]);
+    public function edit($id)
+    {
+        $academia = Academia::findOrFail($id);
+        $ciudades = Ciudad::with(['departamento.pais'])
+            ->orderBy('nombre_ciudad')
+            ->get();
+        return view('academias.edit', compact('academia', 'ciudades'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $academia = Academia::findOrFail($id);
+        
+        $request->validate([
+            'nombre_academia' => 'required|string|max:255|unique:academias,nombre_academia,' . $id . ',id_academia',
+            'correo_academia' => 'required|email|max:255',
+            'telefono_academia' => 'required|string|max:20',
+            'representante_academia' => 'required|string|max:255',
+            'direccion_academia' => 'required|string|max:255',
+            'ciudad_id' => 'required|exists:ciudades,id_ciudad',
+            'estado_academia' => 'required|boolean'
+        ]);
+
+        try {
+            return DB::transaction(function () use ($request, $academia) {
+                $originalData = $academia->toArray();
+                $academia->update($request->all());
+                
+                $this->logAuditoria(
+                    Auth::user()->correo,
+                    'Academias',
+                    'Modificación',
+                    $originalData,
+                    $academia->toArray()
+                );
+
+                return redirect()->route('academias.show', $academia->id_academia)
+                    ->with('success', '¡Academia actualizada exitosamente!');
+            });
+        } catch (\Exception $e) {
+            Log::error('Error al actualizar academia: ' . $e->getMessage());
+            return redirect()->route('academias.edit', $academia->id_academia)
+                ->withInput()
+                ->with('error', 'Error al actualizar la academia: ' . $e->getMessage());
         }
     }
 
-    public function destroy(Request $request)
+    public function destroy($id)
     {
-        $conexion = $this->getConexion();
-        $consulta = "
-            DELETE FROM academias 
-            WHERE nombre_academia = :search
-        ";
-        $resultado = $conexion->prepare($consulta);
-        $resultado->bindParam(':search', $request->search, PDO::PARAM_STR);
+        try {
+            return DB::transaction(function () use ($id) {
+                $academia = Academia::findOrFail($id);
+                $originalData = $academia->toArray();
+                $academia->delete();
+                
+                $this->logAuditoria(
+                    Auth::user()->correo,
+                    'Academias',
+                    'Eliminación',
+                    $originalData,
+                    null
+                );
 
-        if ($resultado->execute()) {
-            return response()->json(["success" => true]);
-        } else {
-            return response()->json(["success" => false, "error" => $resultado->errorInfo()]);
+                return redirect()->route('academias.index')
+                    ->with('success', '¡Academia eliminada exitosamente!');
+            });
+        } catch (\Exception $e) {
+            Log::error('Error al eliminar academia: ' . $e->getMessage());
+            return redirect()->route('academias.index')
+                ->with('error', 'Error al eliminar la academia: ' . $e->getMessage());
         }
+    }
+
+    private function logAuditoria(
+        string $correo,
+        string $tabla,
+        string $accion,
+        ?array $previo,
+        ?array $posterior
+    ): void {
+        Auditoria::create([
+            'correo_id' => $correo,
+            'tabla_afectada' => $tabla,
+            'accion' => $accion,
+            'valor_previo' => $previo ? json_encode($previo) : '[-]',
+            'valor_posterior' => $posterior ? json_encode($posterior) : '[-]',
+            'fecha' => now()->toDateString(),
+            'hora' => now()->toTimeString(),
+            'equipo' => request()->ip()
+        ]);
     }
 }

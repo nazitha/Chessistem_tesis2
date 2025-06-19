@@ -24,6 +24,7 @@ class Miembro extends Model
         'fecha_nacimiento',
         'fecha_inscripcion',
         'estado_miembro',
+        'academia_id',
         'correo_sistema_id',
         'telefono',
         'correo',
@@ -110,7 +111,7 @@ class Miembro extends Model
 
     public function usuario()
     {
-        return $this->belongsTo(User::class, 'correo_sistema_id', 'id_email');
+        return $this->belongsTo(User::class, 'correo_sistema_id', 'correo');
     }
 
     public function ciudad()
@@ -120,7 +121,7 @@ class Miembro extends Model
 
     public function academia()
     {
-        return $this->belongsTo(Academia::class, 'academia_id', 'nombre_academia');
+        return $this->belongsTo(\App\Models\Academia::class, 'academia_id');
     }
 
 }

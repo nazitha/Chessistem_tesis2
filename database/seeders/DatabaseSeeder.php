@@ -7,6 +7,7 @@ use App\Models\Role;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Database\Seeders\AcademiaSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -73,5 +74,7 @@ class DatabaseSeeder extends Seeder
             ParticipantesSeeder::class,
             FideEloSeeder::class,
         ]);
+
+        $this->call(AcademiaSeeder::class);
     }
 }
