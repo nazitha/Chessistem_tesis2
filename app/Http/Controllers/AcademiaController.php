@@ -24,6 +24,9 @@ class AcademiaController extends Controller
     public function create()
     {
         $ciudades = Ciudad::with(['departamento.pais'])
+            ->whereHas('departamento.pais', function ($query) {
+                $query->where(DB::raw('LOWER(nombre_pais)'), 'nicaragua');
+            })
             ->orderBy('nombre_ciudad')
             ->get();
         return view('academias.create', compact('ciudades'));
@@ -53,7 +56,7 @@ class AcademiaController extends Controller
                     $academia->toArray()
                 );
 
-                return redirect()->route('academias.show', $academia->id_academia)
+                return redirect()->route('academias.show', $academia)
                     ->with('success', '¡Academia creada exitosamente!');
             });
         } catch (\Exception $e) {
@@ -64,27 +67,27 @@ class AcademiaController extends Controller
         }
     }
 
-    public function show($id)
+    public function show(Academia $academia)
     {
-        $academia = Academia::with(['ciudad.departamento.pais'])->findOrFail($id);
-        return view('academias.show', compact('academia'));
+        $academia->load(['ciudad.departamento.pais']);
+        return view('academias.show', ['academia' => $academia]);
     }
 
-    public function edit($id)
+    public function edit(Academia $academia)
     {
-        $academia = Academia::findOrFail($id);
         $ciudades = Ciudad::with(['departamento.pais'])
+            ->whereHas('departamento.pais', function ($query) {
+                $query->where(DB::raw('LOWER(nombre_pais)'), 'nicaragua');
+            })
             ->orderBy('nombre_ciudad')
             ->get();
-        return view('academias.edit', compact('academia', 'ciudades'));
+        return view('academias.edit', ['academia' => $academia, 'ciudades' => $ciudades]);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, Academia $academia)
     {
-        $academia = Academia::findOrFail($id);
-        
         $request->validate([
-            'nombre_academia' => 'required|string|max:255|unique:academias,nombre_academia,' . $id . ',id_academia',
+            'nombre_academia' => 'required|string|max:255|unique:academias,nombre_academia,' . $academia->id_academia . ',id_academia',
             'correo_academia' => 'required|email|max:255',
             'telefono_academia' => 'required|string|max:20',
             'representante_academia' => 'required|string|max:255',
@@ -106,22 +109,21 @@ class AcademiaController extends Controller
                     $academia->toArray()
                 );
 
-                return redirect()->route('academias.show', $academia->id_academia)
+                return redirect()->route('academias.show', $academia)
                     ->with('success', '¡Academia actualizada exitosamente!');
             });
         } catch (\Exception $e) {
             Log::error('Error al actualizar academia: ' . $e->getMessage());
-            return redirect()->route('academias.edit', $academia->id_academia)
+            return redirect()->route('academias.edit', $academia)
                 ->withInput()
                 ->with('error', 'Error al actualizar la academia: ' . $e->getMessage());
         }
     }
 
-    public function destroy($id)
+    public function destroy(Academia $academia)
     {
         try {
-            return DB::transaction(function () use ($id) {
-                $academia = Academia::findOrFail($id);
+            return DB::transaction(function () use ($academia) {
                 $originalData = $academia->toArray();
                 $academia->delete();
                 

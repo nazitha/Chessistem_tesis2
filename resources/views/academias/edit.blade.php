@@ -3,7 +3,7 @@
 @section('content')
 <div class="max-w-4xl mx-auto mt-10">
     <div class="flex justify-between items-center mb-4">
-        <a href="{{ route('academias.show', $academia->id_academia) }}" class="inline-flex items-center px-4 py-2 bg-white text-sm font-medium rounded-md text-gray-700 border border-gray-300 hover:bg-gray-50">
+        <a href="{{ route('academias.index')}}" class="inline-flex items-center px-4 py-2 bg-white text-sm font-medium rounded-md text-gray-700 border border-gray-300 hover:bg-gray-50">
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
             </svg>
@@ -88,8 +88,8 @@
                     <select name="estado_academia" id="estado_academia"
                             class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
                             required>
-                        <option value="1" {{ old('estado_academia', $academia->estado_academia) ? 'selected' : '' }}>Activo</option>
-                        <option value="0" {{ old('estado_academia', $academia->estado_academia) ? '' : 'selected' }}>Inactivo</option>
+                        <option value="1" {{ old('estado_academia', $academia->estado_academia) == 1 ? 'selected' : '' }}>Activo</option>
+                        <option value="0" {{ old('estado_academia', $academia->estado_academia) == 0 ? 'selected' : '' }}>Inactivo</option>
                     </select>
                 </div>
             </div>
