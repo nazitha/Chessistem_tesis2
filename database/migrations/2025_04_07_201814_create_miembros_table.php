@@ -27,7 +27,10 @@ return new class extends Migration
                   ->on('usuarios')
                   ->onDelete('set null');
 
-            $table->foreign('academia_id')->references('id')->on('academias')->onDelete('set null');
+            $table->foreign('academia_id')
+                  ->references('id_academia')
+                  ->on('academias')
+                  ->onDelete('set null');
         });
     }
 

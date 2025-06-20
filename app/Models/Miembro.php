@@ -121,7 +121,7 @@ class Miembro extends Model
 
     public function academia()
     {
-        return $this->belongsTo(\App\Models\Academia::class, 'academia_id');
+        return $this->belongsTo(Academia::class, 'academia_id', 'id_academia');
     }
 
 }

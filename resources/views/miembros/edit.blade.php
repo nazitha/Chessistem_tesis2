@@ -65,7 +65,7 @@
                     <select name="academia_id" class="form-input w-full rounded border-gray-300" required>
                         <option value="">-</option>
                         @foreach($academias as $academia)
-                            <option value="{{ $academia->id }}" @if(old('academia_id', $miembro->academia_id) == $academia->id) selected @endif>{{ $academia->nombre_academia }}</option>
+                            <option value="{{ $academia->id_academia }}" @if(old('academia_id', $miembro->academia_id) == $academia->id_academia) selected @endif>{{ $academia->nombre_academia }}</option>
                         @endforeach
                     </select>
                 </div>

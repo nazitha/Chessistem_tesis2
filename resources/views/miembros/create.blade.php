@@ -79,7 +79,7 @@
                     <select name="academia_id" class="form-select w-full rounded border-gray-300" required>
                         <option value="">Seleccione...</option>
                         @foreach($academias as $academia)
-                            <option value="{{ $academia->id }}" {{ old('academia_id') == $academia->id ? 'selected' : '' }}>
+                            <option value="{{ $academia->id_academia }}" {{ old('academia_id') == $academia->id_academia ? 'selected' : '' }}>
                                 {{ $academia->nombre_academia }}
                             </option>
                         @endforeach
