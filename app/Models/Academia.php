@@ -9,6 +9,10 @@ class Academia extends Model
 {
     protected $table = 'academias';
     
+    protected $primaryKey = 'id_academia';
+
+    public $timestamps = false;
+    
     protected $fillable = [
         'nombre_academia',
         'correo_academia',
@@ -23,23 +27,45 @@ class Academia extends Model
         'estado_academia' => 'boolean'
     ];
 
+    /**
+     * Get the route key for the model.
+     *
+     * @return string
+     */
+    public function getRouteKeyName()
+    {
+        return 'id_academia';
+    }
+
+    /**
+     * Retrieve the model for a bound value.
+     *
+     * @param  mixed  $value
+     * @param  string|null  $field
+     * @return \Illuminate\Database\Eloquent\Model|null
+     */
+    public function resolveRouteBinding($value, $field = null)
+    {
+        return $this->where('id_academia', $value)->firstOrFail();
+    }
+
     public function ciudad(): BelongsTo
     {
-        return $this->belongsTo(Ciudad::class, 'ciudad_id');
+        return $this->belongsTo(Ciudad::class, 'ciudad_id', 'id_ciudad');
     }
 
     public function departamento()
     {
-        return $this->throughCiudad()->hasDepartamento();
+        return $this->ciudad->departamento();
     }
-    
-    protected function throughCiudad()
+
+    public function pais()
     {
-        return $this->belongsTo(Ciudad::class, 'ciudad_id');
+        return $this->ciudad->departamento->pais();
     }
 
     public function scopeActive($query)
     {
-    return $query->where('estado_academia', true);
+        return $query->where('estado_academia', true);
     }
 }

@@ -62,7 +62,9 @@ Route::middleware('web')->group(function () {
 
         // Rutas de administración
         Route::resource('usuarios', UserController::class);
-        Route::resource('academias', AcademiaController::class);
+        Route::resource('academias', AcademiaController::class)->parameters([
+            'academias' => 'academia'
+        ]);
         
         // Rutas de torneos
         Route::resource('torneos', TorneoController::class);

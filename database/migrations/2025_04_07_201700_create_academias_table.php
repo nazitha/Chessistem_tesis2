@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('academias', function (Blueprint $table) {
-            $table->id();
+            $table->id('id_academia');
             $table->string('nombre_academia', 100);
             $table->string('correo_academia', 100)->nullable();
             $table->string('telefono_academia', 20)->nullable();
@@ -20,7 +20,6 @@ return new class extends Migration
             $table->string('direccion_academia', 255)->nullable();
             $table->unsignedBigInteger('ciudad_id')->nullable();
             $table->boolean('estado_academia')->default(true);
-            $table->timestamps();
 
             $table->foreign('ciudad_id')
                   ->references('id_ciudad')

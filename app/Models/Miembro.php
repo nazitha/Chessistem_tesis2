@@ -24,6 +24,7 @@ class Miembro extends Model
         'fecha_nacimiento',
         'fecha_inscripcion',
         'estado_miembro',
+        'academia_id',
         'correo_sistema_id',
         'telefono',
         'correo',

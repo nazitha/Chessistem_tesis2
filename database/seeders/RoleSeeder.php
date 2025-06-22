@@ -17,8 +17,18 @@ class RoleSeeder extends Seeder
             ],
             [
                 'id' => 2,
-                'nombre' => 'Usuario',
-                'descripcion' => 'Usuario regular'
+                'nombre' => 'Evaluador',
+                'descripcion' => 'Evaluador del sistema'
+            ],
+            [
+                'id' => 3,
+                'nombre' => 'Estudiante',
+                'descripcion' => 'Estudiante del sistema'
+            ],
+            [
+                'id' => 4,
+                'nombre' => 'Gestor',
+                'descripcion' => 'Gestor del sistema'
             ]
         ];
 

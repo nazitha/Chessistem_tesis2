@@ -20,10 +20,16 @@ return new class extends Migration
             $table->date('fecha_inscripcion')->nullable();
             $table->boolean('estado_miembro')->nullable();
             $table->string('correo_sistema_id', 40)->nullable();
+            $table->unsignedBigInteger('academia_id')->nullable();
 
             $table->foreign('correo_sistema_id')
                   ->references('correo')
                   ->on('usuarios')
+                  ->onDelete('set null');
+
+            $table->foreign('academia_id')
+                  ->references('id_academia')
+                  ->on('academias')
                   ->onDelete('set null');
         });
     }

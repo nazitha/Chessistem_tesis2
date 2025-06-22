@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('titulo')->nullable();
             $table->boolean('fide_estado')->default(true);
             
-            $table->foreign('cedula_ajedrecista_id')->references('cedula')->on('miembros');
+            $table->foreign('cedula_ajedrecista_id')->references('cedula')->on('miembros')->onDelete('cascade');
             $table->foreign('fed_id')->references('acronimo')->on('federaciones');
         });
     }
