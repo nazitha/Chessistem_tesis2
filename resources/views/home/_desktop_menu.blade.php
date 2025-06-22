@@ -56,12 +56,14 @@
                        id="miembros_opcion">
                         Miembros
                     </a>
-                    <a href="#" 
-                       @click="open = false; activeMenuItem = 'Miembros'"
-                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                       id="academias_opcion">
-                        Academias
-                    </a>
+                    @if(PermissionHelper::canViewModule('academias'))
+                        <a href="#" 
+                           @click="open = false; activeMenuItem = 'Miembros'"
+                           class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                           id="academias_opcion">
+                            Academias
+                        </a>
+                    @endif
                 </div>
             </div>
         </div>

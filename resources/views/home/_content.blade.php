@@ -1,3 +1,7 @@
+@php
+    use App\Helpers\PermissionHelper;
+@endphp
+
 <header class="bg-white shadow mb-6">
     <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <h1 class="text-3xl font-bold text-gray-900">
@@ -32,7 +36,9 @@
         @include('tables.tabla_federaciones')
         @include('tables.tabla_historial')
         @include('tables.tabla_ciudades')
-        @include('tables.tabla_academias')
+        @if(PermissionHelper::canViewModule('academias'))
+            @include('tables.tabla_academias')
+        @endif
         @include('tables.tabla_miembros')
         @include('tables.tabla_fides')
         @include('tables.tabla_torneos')
