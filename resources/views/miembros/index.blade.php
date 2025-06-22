@@ -1,61 +1,23 @@
 @extends('layouts.app')
 
 @section('content')
-<div id='contenedor-miembros' class="p-8 mt-6 lg:mt-0 rounded shadow bg-white mt-2">
-    <h2 class="text-2xl font-bold mb-4">Lista de Miembros</h2>
-    <table id="tabla-miembros" class="stripe hover" style="width:100%; padding-top: 1em;  padding-bottom: 1em;">
-        <thead>
-            <tr>
-                <th>Cédula</th>
-                <th>Nombres</th>
-                <th>Apellidos</th>
-                <th>Correo</th>
-                <th>Rol</th>
-                <th>Academia</th>
-                <th>Estado</th>
-                <th>Sexo</th>
-                <th>Fecha de nacimiento</th>
-                <th>Ciudad</th>
-                <th>Teléfono</th>
-                <th>Inscripción</th>
-                <th>Club</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($miembros as $miembro)
-                <tr>
-                    <td>{{ $miembro->cedula }}</td>
-                    <td>{{ $miembro->nombres }}</td>
-                    <td>{{ $miembro->apellidos }}</td>
-                    <td>{{ $miembro->usuario->correo ?? '-' }}</td>
-                    <td>{{ $miembro->usuario->rol->nombre ?? '-' }}</td>
-                    <td>{{ $miembro->academia->nombre_academia ?? '-' }}</td>
-                    <td>{{ $miembro->estado_miembro ? 'Activo' : 'Inactivo' }}</td>
-                    <td>{{ $miembro->sexo == 'M' ? 'Masculino' : 'Femenino' }}</td>
-                    <td>{{ $miembro->fecha_nacimiento ? $miembro->fecha_nacimiento->format('d-m-Y') : '-' }}</td>
-                    <td>{{ $miembro->ciudad->nombre_ciudad ?? '-' }}</td>
-                    <td>{{ $miembro->telefono ?? '-' }}</td>
-                    <td>{{ $miembro->fecha_inscripcion ? $miembro->fecha_inscripcion->format('d-m-Y') : '-' }}</td>
-                    <td>{{ $miembro->club ?? '-' }}</td>
-                </tr>
-            @endforeach
-        </tbody>
-    </table>
-</div>
-@endsection 
-@extends('layouts.app')
+@php
+    use App\Helpers\PermissionHelper;
+    use App\Services\PermissionService;
+@endphp
 
-@section('content')
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <div class="max-w-7xl mx-auto">
     <div class="flex justify-between items-center border-b pb-4">
         <h1 class="text-2xl font-semibold">Miembros</h1>
-        <a href="{{ route('miembros.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded hover:bg-blue-600 transition-colors duration-200">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-            </svg>
-            Nuevo Miembro
-        </a>
+        @if(PermissionHelper::canCreate('miembros'))
+            <a href="{{ route('miembros.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded hover:bg-blue-600 transition-colors duration-200">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                Nuevo Miembro
+            </a>
+        @endif
     </div>
 
     @if(session('success'))
@@ -84,7 +46,9 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Academia</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Correo</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                        @if(PermissionHelper::canUpdate('miembros') || PermissionHelper::canDelete('miembros') || PermissionService::hasPermission('miembros.details'))
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
@@ -109,30 +73,34 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $miembro->academia->nombre_academia ?? '-' }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $miembro->correo_sistema_id ?? '-' }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <div class="flex justify-end space-x-3">
-                                    <a href="{{ route('miembros.show', $miembro) }}" 
-                                       class="text-blue-600 hover:text-blue-900 p-1 rounded-full hover:bg-blue-100 transition-colors duration-200"
-                                       data-tooltip="Ver detalles">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    <a href="{{ route('miembros.edit', $miembro) }}" 
-                                       class="text-yellow-600 hover:text-yellow-900 p-1 rounded-full hover:bg-yellow-100 transition-colors duration-200"
-                                       data-tooltip="Editar miembro">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <form id="form-eliminar-{{ $miembro->cedula }}" action="{{ route('miembros.destroy', $miembro) }}" method="POST" class="inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="button"
-                                                onclick="confirmarEliminacion('{{ $miembro->cedula }}')"
-                                                class="text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-100 transition-colors duration-200"
-                                                data-tooltip="Eliminar miembro">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
+                            @if(PermissionHelper::canUpdate('miembros') || PermissionHelper::canDelete('miembros') || PermissionService::hasPermission('miembros.details'))
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <div class="flex justify-end space-x-3">
+                                        @if(PermissionService::hasPermission('miembros.details'))
+                                            <a href="{{ route('miembros.show', $miembro) }}" 
+                                               class="text-blue-600 hover:text-blue-900 p-1 rounded-full hover:bg-blue-100 transition-colors duration-200"
+                                               data-tooltip="Ver detalles">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        @endif
+                                        @if(PermissionHelper::canUpdate('miembros'))
+                                            <a href="{{ route('miembros.edit', $miembro) }}" 
+                                               class="text-yellow-600 hover:text-yellow-900 p-1 rounded-full hover:bg-yellow-100 transition-colors duration-200"
+                                               data-tooltip="Editar miembro">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        @endif
+                                        @if(PermissionHelper::canDelete('miembros'))
+                                            <button type="button"
+                                                    onclick="confirmarEliminacion('{{ $miembro->cedula }}')"
+                                                    class="text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-100 transition-colors duration-200"
+                                                    data-tooltip="Eliminar miembro">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        @endif
+                                    </div>
+                                </td>
+                            @endif
                         </tr>
                     @empty
                         <tr>
@@ -202,7 +170,10 @@ function confirmarEliminacion(miembroId) {
     modal.classList.add('flex');
     
     btnConfirmar.onclick = function() {
-        document.getElementById('form-eliminar-' + miembroId).submit();
+        const form = document.getElementById('form-eliminar-' + miembroId);
+        if (form) {
+            form.submit();
+        }
     };
 }
 
