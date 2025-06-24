@@ -116,12 +116,14 @@
                        id="partidas_opcion">
                         Partidas
                     </a>
-                    <a href="#" 
-                       @click="open = false; activeMenuItem = 'Torneos'"
+                    @auth
+                    <a href="{{ route('auditoria.index') }}" 
+                       @click="open = false; activeMenuItem = 'Auditoria'"
                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                        id="auditoria_opcion">
                         Auditoría
                     </a>
+                    @endauth
                 </div>
             </div>
         </div>

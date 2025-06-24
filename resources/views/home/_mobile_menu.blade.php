@@ -114,12 +114,14 @@
                    id="partidas_opcion_movil">
                     Partidas
                 </a>
-                <a href="#"
-                   @click="activeMenuItem = 'Torneos'; openMobileMenu = false"
+                @auth
+                <a href="{{ route('auditoria.index') }}"
+                   @click="activeMenuItem = 'Auditoria'; openMobileMenu = false"
                    class="block px-3 py-2 text-sm font-medium text-gray-400 hover:bg-gray-700 hover:text-white"
                    id="auditoria_opcion_movil">
                     Auditoría
                 </a>
+                @endauth
             </div>
         </div>
 

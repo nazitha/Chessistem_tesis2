@@ -4,99 +4,102 @@ $(document).ready(function() {
     var load_table = 0;
     var mail_log = userData.correo;
 
-    $('#usuarios_opcion, #usuarios_opcion_movil').click(function() {
-        
-        load_table++;
+    $('#usuarios_opcion, #usuarios_opcion_movil').click(function(e) {
+        // Solo ejecutar si el elemento no tiene href (no es un enlace)
+        if (!$(this).attr('href')) {
+            e.preventDefault();
+            
+            load_table++;
 
-        if(load_table === 1)
-        {
-            window.tabla_asigpermis = $('#tabla-asigpermisos').DataTable({
-                responsive: true,
-                "ajax": {
-                    "url": "Http/Controlllers/UserController.php",
-                    "method": "POST",
-                    "data": { opcion: 9 },
-                    "dataSrc": ""
-                },
-                "columns": [
-                    { "data": "rol" },
-                    { "data": "permisos" },
-                    {
-                        "data": null,
-                        "render": function(data, type, row) {
-                            return `
-                                <button 
-                                    class="btn btn-danger btn-sm btnEditar_adminpermis"
-                                    style="
-                                        background-color: #1e2936;
-                                        color: white;
-                                        border: 1px solid transparent;
-                                        padding: 0.375rem 0.75rem;
-                                        font-size: 1rem;
-                                        font-weight: 400;
-                                        line-height: 1.5;
-                                        border-radius: 0.25rem 0 0 0.25rem; /* Bordes redondeados a la izquierda */
-                                        text-align: center;
-                                        vertical-align: middle;
-                                        cursor: pointer;
-                                        transition: background-color 0.3s ease;
-                                        display: inline-block; /* Asegura que los botones estén en línea */
-                                        margin-right: -1px; /* Elimina el espacio entre los botones */
-                                    "
-                                    onmouseover="this.style.backgroundColor='#374151'"
-                                    onmouseout="this.style.backgroundColor='#1e2936'"
-                                >
-                                   Asignar
-                                </button>
-                                <button 
-                                    class="btn btn-danger btn-sm btnEliminar_adminpermis"
-                                    style="
-                                        background-color: #1e2936;
-                                        color: white;
-                                        border: 1px solid transparent;
-                                        padding: 0.375rem 0.75rem;
-                                        font-size: 1rem;
-                                        font-weight: 400;
-                                        line-height: 1.5;
-                                        border-radius: 0 0.25rem 0.25rem 0; /* Bordes redondeados a la derecha */
-                                        text-align: center;
-                                        vertical-align: middle;
-                                        cursor: pointer;
-                                        transition: background-color 0.3s ease;
-                                        display: inline-block; /* Asegura que los botones estén en línea */
-                                        margin-left: -1px; /* Elimina el espacio entre los botones */
-                                    "
-                                    onmouseover="this.style.backgroundColor='#374151'"
-                                    onmouseout="this.style.backgroundColor='#1e2936'"
-                                >
-                                    Eliminar
-                                </button>
-                            `;
+            if(load_table === 1)
+            {
+                window.tabla_asigpermis = $('#tabla-asigpermisos').DataTable({
+                    responsive: true,
+                    "ajax": {
+                        "url": "Http/Controlllers/UserController.php",
+                        "method": "POST",
+                        "data": { opcion: 9 },
+                        "dataSrc": ""
+                    },
+                    "columns": [
+                        { "data": "rol" },
+                        { "data": "permisos" },
+                        {
+                            "data": null,
+                            "render": function(data, type, row) {
+                                return `
+                                    <button 
+                                        class="btn btn-danger btn-sm btnEditar_adminpermis"
+                                        style="
+                                            background-color: #1e2936;
+                                            color: white;
+                                            border: 1px solid transparent;
+                                            padding: 0.375rem 0.75rem;
+                                            font-size: 1rem;
+                                            font-weight: 400;
+                                            line-height: 1.5;
+                                            border-radius: 0.25rem 0 0 0.25rem; /* Bordes redondeados a la izquierda */
+                                            text-align: center;
+                                            vertical-align: middle;
+                                            cursor: pointer;
+                                            transition: background-color 0.3s ease;
+                                            display: inline-block; /* Asegura que los botones estén en línea */
+                                            margin-right: -1px; /* Elimina el espacio entre los botones */
+                                        "
+                                        onmouseover="this.style.backgroundColor='#374151'"
+                                        onmouseout="this.style.backgroundColor='#1e2936'"
+                                    >
+                                       Asignar
+                                    </button>
+                                    <button 
+                                        class="btn btn-danger btn-sm btnEliminar_adminpermis"
+                                        style="
+                                            background-color: #1e2936;
+                                            color: white;
+                                            border: 1px solid transparent;
+                                            padding: 0.375rem 0.75rem;
+                                            font-size: 1rem;
+                                            font-weight: 400;
+                                            line-height: 1.5;
+                                            border-radius: 0 0.25rem 0.25rem 0; /* Bordes redondeados a la derecha */
+                                            text-align: center;
+                                            vertical-align: middle;
+                                            cursor: pointer;
+                                            transition: background-color 0.3s ease;
+                                            display: inline-block; /* Asegura que los botones estén en línea */
+                                            margin-left: -1px; /* Elimina el espacio entre los botones */
+                                        "
+                                        onmouseover="this.style.backgroundColor='#374151'"
+                                        onmouseout="this.style.backgroundColor='#1e2936'"
+                                    >
+                                        Eliminar
+                                    </button>
+                                `;
+                            }
                         }
-                    }
-                ],
-                "language": {
-                    "url": "actions/spanish.json"
-                },
-                "dom": 'Bfrtip',
-                "buttons": [
-                    {
-                        extend: 'excelHtml5',
-                        text: 'Exportar a Excel',
-                        titleAttr: 'Exportar a Excel',
-                        title: 'Lista de permisos asignados a roles',
-                        className: 'btn btn-custom',
-                        style: 'background-color: #1e2936; color: white; border: 1px solid transparent; padding: 0.375rem 0.75rem; font-size: 1rem; ' +
-                               'font-weight: 400; line-height: 1.5; border-radius: 0.25rem 0 0 0.25rem; text-align: center; vertical-align: middle; ' +
-                               'cursor: pointer; transition: background-color 0.3s ease;',
-                        exportOptions: {
-                            columns: ':not(:last-child)'  // Excluir la última columna
+                    ],
+                    "language": {
+                        "url": "actions/spanish.json"
+                    },
+                    "dom": 'Bfrtip',
+                    "buttons": [
+                        {
+                            extend: 'excelHtml5',
+                            text: 'Exportar a Excel',
+                            titleAttr: 'Exportar a Excel',
+                            title: 'Lista de permisos asignados a roles',
+                            className: 'btn btn-custom',
+                            style: 'background-color: #1e2936; color: white; border: 1px solid transparent; padding: 0.375rem 0.75rem; font-size: 1rem; ' +
+                                   'font-weight: 400; line-height: 1.5; border-radius: 0.25rem 0 0 0.25rem; text-align: center; vertical-align: middle; ' +
+                                   'cursor: pointer; transition: background-color 0.3s ease;',
+                            exportOptions: {
+                                columns: ':not(:last-child)'  // Excluir la última columna
+                            }
                         }
-                    }
-                ]
-            }).columns.adjust().responsive.recalc();
+                    ]
+                }).columns.adjust().responsive.recalc();
+            }
         }
-        
     });
 
     /* ******************************* BOTÓN ELIMINAR PARA: ASIGNACIÓN DE PERMISOS ******************************* */

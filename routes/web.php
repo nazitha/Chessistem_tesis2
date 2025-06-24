@@ -26,6 +26,7 @@ use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\TorneoViewController;
 use App\Http\Controllers\TorneoParticipanteController;
 use App\Http\Controllers\TorneoRondaController;
+use App\Http\Controllers\AuditoriaController;
 
 // Grupo web para todas las rutas
 Route::middleware('web')->group(function () {
@@ -126,6 +127,9 @@ Route::middleware('web')->group(function () {
         // Rutas para permisos
         Route::post('/asignar-permiso', [UserController::class, 'assignPermission']);
         Route::delete('/remover-permiso', [UserController::class, 'removePermission']);
+
+        // Rutas para auditoría
+        Route::get('/auditoria', [AuditoriaController::class, 'index'])->name('auditoria.index');
     });
 
     // Rutas de autenticación de Google para recuperación de contraseña
@@ -139,3 +143,5 @@ Route::middleware('web')->group(function () {
     Route::get('/estudiante/dashboard', [EstudianteController::class, 'dashboard'])->name('estudiante.dashboard');
     Route::get('/gestor/dashboard', [GestorController::class, 'dashboard'])->name('gestor.dashboard');
 });*/
+
+Route::post('/usuarios/asignar-permisos', [App\Http\Controllers\UserController::class, 'asignarPermisos'])->name('usuarios.asignar-permisos');
