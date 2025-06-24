@@ -16,44 +16,47 @@ $(document).ready(function() {
     /* ********************************** */
 
     /* ********************* CARGA E INICIALIZACIÓN DE LA TABLA: USUARIOS ********************* */
-    $('#usuarios_opcion, #usuarios_opcion_movil').click(function() {
-        
-        load_table++;
+    $('#usuarios_opcion, #usuarios_opcion_movil').click(function(e) {
+        // Solo ejecutar si el elemento no tiene href (no es un enlace)
+        if (!$(this).attr('href')) {
+            e.preventDefault();
+            
+            load_table++;
 
-        if(load_table === 1)
-        {
-            window.tabla_usuarios = $('#tabla-usuarios').DataTable({
-                responsive: true,
-                "ajax": {
-                    "url": "/usuarios",
-                    "method": "GET",
-                    "dataSrc": ""
-                },
-                "columns": [
-                    { "data": "correo" },
-                    { "data": "rol.nombre" },
-                    { 
-                        "data": "usuario_estado",
-                        "render": function(data) {
-                            return data ? 'Activo' : 'Inactivo';
-                        }
+            if(load_table === 1)
+            {
+                window.tabla_usuarios = $('#tabla-usuarios').DataTable({
+                    responsive: true,
+                    "ajax": {
+                        "url": "/usuarios",
+                        "method": "GET",
+                        "dataSrc": ""
                     },
-                    {
-                        "data": null,
-                        "render": function(data, type, row) {
-                            return `
-                                <button class="btn btn-primary btn-sm" onclick="editarUsuario(${row.id_email})">Editar</button>
-                                <button class="btn btn-danger btn-sm" onclick="eliminarUsuario(${row.id_email})">Eliminar</button>
-                            `;
+                    "columns": [
+                        { "data": "correo" },
+                        { "data": "rol.nombre" },
+                        { 
+                            "data": "usuario_estado",
+                            "render": function(data) {
+                                return data ? 'Activo' : 'Inactivo';
+                            }
+                        },
+                        {
+                            "data": null,
+                            "render": function(data, type, row) {
+                                return `
+                                    <button class="btn btn-primary btn-sm" onclick="editarUsuario(${row.id_email})">Editar</button>
+                                    <button class="btn btn-danger btn-sm" onclick="eliminarUsuario(${row.id_email})">Eliminar</button>
+                                `;
+                            }
                         }
+                    ],
+                    "language": {
+                        "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
                     }
-                ],
-                "language": {
-                    "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
-                }
-            });
+                });
+            }
         }
-
     });
 
     /* *************************************************************************************** */

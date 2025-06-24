@@ -44,5 +44,14 @@ class UserSeeder extends Seeder
                 'updated_at' => now()
             ]
         ]);
+
+        // Asignar todos los permisos de usuarios al rol admin
+        $usuarioPermisos = DB::table('permisos')->where('permiso', 'like', 'usuarios.%')->pluck('id');
+        foreach ($usuarioPermisos as $permisoId) {
+            DB::table('asignaciones_permisos')->updateOrInsert([
+                'rol_id' => 1,
+                'permiso_id' => $permisoId
+            ]);
+        }
     }
 } 

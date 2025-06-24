@@ -75,10 +75,12 @@
                         <i class="fas fa-users mr-2"></i>
                         Gestionar Miembros
                     </a>
-                    <a href="{{ route('inscripciones.index') }}" class="inline-block text-center py-2 px-4 bg-gray-500 text-white rounded hover:bg-gray-600">
+                    @auth
+                    <a href="{{ route('auditoria.index') }}" class="inline-block text-center py-2 px-4 bg-gray-500 text-white rounded hover:bg-gray-600">
                         <i class="fas fa-clipboard-list mr-2"></i>
                         Auditoría
                     </a>
+                    @endauth
                 </div>
             </div>
         </div>

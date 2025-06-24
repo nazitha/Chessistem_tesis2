@@ -20,6 +20,23 @@
                         </div>
                     @endif
 
+                    <div class="mb-4 p-3 bg-light rounded border">
+                        <h5 class="mb-3">Información del Usuario</h5>
+                        <ul class="list-unstyled mb-0">
+                            <li><b>Correo:</b> {{ $user->correo }}</li>
+                            <li><b>Rol:</b> {{ $user->rol ? $user->rol->nombre : 'Sin rol' }}</li>
+                            <li><b>Estado:</b> {{ $user->usuario_estado ? 'Activo' : 'Inactivo' }}</li>
+                            @if($user->miembro)
+                                <li><b>Nombre:</b> {{ $user->miembro->nombres }} {{ $user->miembro->apellidos }}</li>
+                                <li><b>Cédula:</b> {{ $user->miembro->cedula }}</li>
+                                <li><b>Sexo:</b> {{ $user->miembro->getFormattedSexoAttribute() }}</li>
+                                <li><b>Fecha de nacimiento:</b> {{ $user->miembro->fecha_nacimiento ? $user->miembro->fecha_nacimiento->format('d/m/Y') : '-' }}</li>
+                                <li><b>Teléfono:</b> {{ $user->miembro->telefono ?? '-' }}</li>
+                                <li><b>Academia:</b> {{ $user->miembro->academia ? $user->miembro->academia->nombre_academia : '-' }}</li>
+                            @endif
+                        </ul>
+                    </div>
+
                     <form method="POST" action="{{ route('password.update') }}">
                         @csrf
                         @method('PUT')
