@@ -57,6 +57,7 @@
                         <a href="{{ route('miembros.index') }}" class="{{ request()->routeIs('miembros.*') ? 'border-b-2 border-indigo-500 text-gray-900' : 'text-gray-500 hover:text-gray-700' }} px-1 pt-1 text-sm font-medium">Miembros</a>
                         <a href="{{ route('academias.index') }}" class="{{ request()->routeIs('academias.*') ? 'border-b-2 border-indigo-500 text-gray-900' : 'text-gray-500 hover:text-gray-700' }} px-1 pt-1 text-sm font-medium">Academias</a>
                         <a href="{{ route('torneos.index') }}" class="{{ request()->routeIs('torneos.*') ? 'border-b-2 border-indigo-500 text-gray-900' : 'text-gray-500 hover:text-gray-700' }} px-1 pt-1 text-sm font-medium">Torneos</a>
+                        <a href="#" class="text-gray-500 hover:text-gray-700 px-1 pt-1 text-sm font-medium">Auditoría</a>
                     </div>
                 </div>
                 <div class="flex items-center">
