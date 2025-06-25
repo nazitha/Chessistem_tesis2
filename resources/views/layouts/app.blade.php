@@ -1,5 +1,8 @@
 @php
     use App\Helpers\PermissionHelper;
+    use App\Services\PermissionService;
+    $canViewTorneos = PermissionHelper::canViewModule('torneos');
+    $canViewMiembros = PermissionHelper::canViewModule('miembros');
 @endphp
 
 <!DOCTYPE html>
@@ -37,6 +40,79 @@
     <!-- Estilos personalizados -->
     <link rel="stylesheet" href="{{ asset('css/tailwind_datatables.css') }}">
     
+    <style>
+        /* Estilo global para eliminar subrayados en todos los enlaces */
+        a {
+            text-decoration: none !important;
+        }
+        
+        a:hover {
+            text-decoration: none !important;
+        }
+        
+        a:focus {
+            text-decoration: none !important;
+        }
+        
+        a:visited {
+            text-decoration: none !important;
+        }
+        
+        /* Asegurar que no haya subrayados en los enlaces del navbar */
+        nav a {
+            text-decoration: none !important;
+        }
+        
+        /* Asegurar que no haya subrayados en hover */
+        nav a:hover {
+            text-decoration: none !important;
+        }
+        
+        /* Asegurar que no haya subrayados en enlaces activos */
+        nav a.active {
+            text-decoration: none !important;
+        }
+        
+        /* Asegurar que no haya subrayados en focus */
+        nav a:focus {
+            text-decoration: none !important;
+        }
+        
+        /* Asegurar que no haya subrayados en visited */
+        nav a:visited {
+            text-decoration: none !important;
+        }
+        
+        /* Estilos específicos para el navbar principal */
+        .flex.space-x-8 a {
+            text-decoration: none !important;
+            border-bottom: none !important;
+        }
+        
+        .flex.space-x-8 a:hover {
+            text-decoration: none !important;
+            border-bottom: none !important;
+        }
+        
+        .flex.space-x-8 a:focus {
+            text-decoration: none !important;
+            border-bottom: none !important;
+        }
+        
+        /* Estilos específicos para el navbar usando el selector de clase */
+        .bg-white.shadow nav a,
+        .bg-white.shadow .flex.space-x-8 a {
+            text-decoration: none !important;
+            border-bottom: none !important;
+        }
+        
+        .bg-white.shadow nav a:hover,
+        .bg-white.shadow .flex.space-x-8 a:hover {
+            text-decoration: none !important;
+            border-bottom: none !important;
+        }
+    </style>
+    
     @stack('styles')
 </head>
 <body class="min-h-screen flex flex-col bg-gray-50">
@@ -49,7 +125,7 @@
                         <img class="h-16 w-auto" src="{{ asset('img/estrellas_del_ajedrez_logo.png') }}" alt="Escuela Estrellas del Ajedrez">
                     </div>
                     <div class="flex space-x-8">
-                        <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'border-b-2 border-indigo-500 text-gray-900' : 'text-gray-500 hover:text-gray-700' }} px-1 pt-1 text-sm font-medium">Home</a>
+                        <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'border-b-2 border-indigo-500 text-gray-900' : 'text-gray-500 hover:text-gray-700' }} px-1 pt-1 text-sm font-medium no-underline">Home</a>
                         
                         @if(Auth::check() && Auth::user()->rol_id == 1)
                             <a href="{{ route('usuarios.index') }}" class="{{ request()->routeIs('usuarios.*') ? 'border-b-2 border-indigo-500 text-gray-900' : 'text-gray-500 hover:text-gray-700' }} px-1 pt-1 text-sm font-medium">Usuarios</a>
