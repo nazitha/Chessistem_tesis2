@@ -53,5 +53,31 @@ class UserSeeder extends Seeder
                 'permiso_id' => $permisoId
             ]);
         }
+
+        // Verificar si existen los permisos de usuarios, si no, crearlos
+        $permisosUsuarios = [
+            'usuarios.read',
+            'usuarios.create', 
+            'usuarios.update',
+            'usuarios.delete'
+        ];
+
+        foreach ($permisosUsuarios as $permiso) {
+            $permisoId = DB::table('permisos')->where('permiso', $permiso)->value('id');
+            if (!$permisoId) {
+                $permisoId = DB::table('permisos')->insertGetId([
+                    'permiso' => $permiso,
+                    'descripcion' => 'Permiso para ' . str_replace('.', ' ', $permiso),
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+            }
+            
+            // Asignar al rol admin
+            DB::table('asignaciones_permisos')->updateOrInsert([
+                'rol_id' => 1,
+                'permiso_id' => $permisoId
+            ]);
+        }
     }
 } 

@@ -67,19 +67,21 @@
                         </td>
                         @if(PermissionHelper::hasAnyActionPermission('usuarios'))
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                @if(PermissionHelper::canUpdate('usuarios'))
-                                    <button class="text-indigo-600 hover:text-indigo-900 mr-3" onclick="editarUsuario({{ $user->id_email }})">
-                                        Editar
+                                <div class="flex space-x-4">
+                                    @if(PermissionHelper::canUpdate('usuarios'))
+                                        <button title="Editar" class="text-blue-600 hover:text-blue-900" onclick="editarUsuario({{ $user->id_email }})">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    @endif
+                                    <button title="Asignar Permisos" class="text-green-600 hover:text-green-900" onclick="asignarPermisos({{ $user->id_email }}, '{{ $user->correo }}')">
+                                        <i class="fas fa-user-shield"></i>
                                     </button>
-                                @endif
-                                <button class="text-green-600 hover:text-green-900 mr-3" onclick="asignarPermisos({{ $user->id_email }}, '{{ $user->correo }}')">
-                                    Asignar Permisos
-                                </button>
-                                @if(PermissionHelper::canDelete('usuarios'))
-                                    <button class="text-red-600 hover:text-red-900" onclick="eliminarUsuario({{ $user->id_email }})">
-                                        Eliminar
-                                    </button>
-                                @endif
+                                    @if(PermissionHelper::canDelete('usuarios'))
+                                        <button title="Eliminar" class="text-red-600 hover:text-red-900" onclick="eliminarUsuario({{ $user->id_email }})">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    @endif
+                                </div>
                             </td>
                         @endif
                     </tr>
@@ -90,8 +92,8 @@
 </div>
 
 <!-- Modal para Asignar Permisos -->
-<div id="modalPermisos" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
-    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+<div id="modalPermisos" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-full max-w-lg shadow-lg rounded-md bg-white">
         <div class="mt-3">
             <h3 class="text-lg font-medium text-gray-900 mb-4">Asignar Permisos a: <span id="usuarioNombre"></span></h3>
             <form id="formPermisos">
@@ -124,70 +126,186 @@
     </div>
 </div>
 
+<!-- Modal de Edición de Usuario -->
+<div id="modalEditarUsuario" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-full max-w-lg shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Editar Usuario</h3>
+            <form id="formEditarUsuario">
+                <input type="hidden" id="edit_user_id" name="user_id">
+                <div class="mb-2">
+                    <label class="block text-gray-700 text-sm font-bold mb-1">Correo:</label>
+                    <input type="email" id="edit_correo" name="correo" class="w-full px-3 py-2 border rounded" required>
+                </div>
+                <div class="mb-2">
+                    <label class="block text-gray-700 text-sm font-bold mb-1">Rol:</label>
+                    <select id="edit_rol" name="rol_id" class="w-full px-3 py-2 border rounded">
+                        <option value="1">Administrador</option>
+                        <option value="2">Usuario</option>
+                        <option value="3">Arbitro</option>
+                        <option value="4">Organizador</option>
+                    </select>
+                </div>
+                <div class="mb-2">
+                    <label class="block text-gray-700 text-sm font-bold mb-1">Estado:</label>
+                    <select id="edit_estado" name="usuario_estado" class="w-full px-3 py-2 border rounded">
+                        <option value="1">Activo</option>
+                        <option value="0">Inactivo</option>
+                    </select>
+                </div>
+                <div class="mb-2">
+                    <label class="block text-gray-700 text-sm font-bold mb-1">Nombre(s):</label>
+                    <input type="text" id="edit_nombres" name="nombres" class="w-full px-3 py-2 border rounded">
+                </div>
+                <div class="mb-2">
+                    <label class="block text-gray-700 text-sm font-bold mb-1">Apellido(s):</label>
+                    <input type="text" id="edit_apellidos" name="apellidos" class="w-full px-3 py-2 border rounded">
+                </div>
+                <div class="mb-2">
+                    <label class="block text-gray-700 text-sm font-bold mb-1">Cédula:</label>
+                    <input type="text" id="edit_cedula" name="cedula" class="w-full px-3 py-2 border rounded">
+                </div>
+                <div class="mb-2">
+                    <label class="block text-gray-700 text-sm font-bold mb-1">Sexo:</label>
+                    <select id="edit_sexo" name="sexo" class="w-full px-3 py-2 border rounded">
+                        <option value="M">Masculino</option>
+                        <option value="F">Femenino</option>
+                    </select>
+                </div>
+                <div class="mb-2">
+                    <label class="block text-gray-700 text-sm font-bold mb-1">Fecha de nacimiento:</label>
+                    <input type="date" id="edit_fecha_nacimiento" name="fecha_nacimiento" class="w-full px-3 py-2 border rounded">
+                </div>
+                <div class="mb-2">
+                    <label class="block text-gray-700 text-sm font-bold mb-1">Teléfono:</label>
+                    <input type="text" id="edit_telefono" name="telefono" class="w-full px-3 py-2 border rounded">
+                </div>
+                <div class="mb-2">
+                    <label class="block text-gray-700 text-sm font-bold mb-1">Academia:</label>
+                    <input type="text" id="edit_academia" name="academia" class="w-full px-3 py-2 border rounded">
+                </div>
+                <div class="mb-2">
+                    <label class="block text-gray-700 text-sm font-bold mb-1">Contraseña (dejar en blanco para no cambiar):</label>
+                    <input type="password" id="edit_contrasena" name="contrasena" class="w-full px-3 py-2 border rounded">
+                </div>
+                <div class="flex justify-end space-x-3 mt-4">
+                    <button type="button" onclick="cerrarModalEditarUsuario()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                        Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @push('scripts')
 <script>
     function editarUsuario(id) {
-        // Implementar lógica de edición
-        console.log('Editar usuario:', id);
+        // Mostrar el modal
+        document.getElementById('modalEditarUsuario').classList.remove('hidden');
+        // Limpiar el formulario
+        document.getElementById('formEditarUsuario').reset();
+        // Cargar datos vía AJAX
+        fetch(`/usuarios/${id}`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('edit_user_id').value = data.id;
+                document.getElementById('edit_correo').value = data.correo;
+                document.getElementById('edit_rol').value = data.rol_id;
+                document.getElementById('edit_estado').value = data.usuario_estado;
+                if (data.miembro) {
+                    document.getElementById('edit_nombres').value = data.miembro.nombres || '';
+                    document.getElementById('edit_apellidos').value = data.miembro.apellidos || '';
+                    document.getElementById('edit_cedula').value = data.miembro.cedula || '';
+                    document.getElementById('edit_sexo').value = data.miembro.sexo || '';
+                    document.getElementById('edit_fecha_nacimiento').value = data.miembro.fecha_nacimiento || '';
+                    document.getElementById('edit_telefono').value = data.miembro.telefono || '';
+                    document.getElementById('edit_academia').value = data.miembro.academia || '';
+                }
+            });
+    }
+
+    function cerrarModalEditarUsuario() {
+        document.getElementById('modalEditarUsuario').classList.add('hidden');
     }
 
     function eliminarUsuario(id) {
-        if (confirm('¿Está seguro de eliminar este usuario?')) {
-            // Implementar lógica de eliminación
-            console.log('Eliminar usuario:', id);
-        }
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: 'Esta acción eliminará el usuario de forma permanente.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then(function(result) {
+            if (result.isConfirmed) {
+                fetch(`/usuarios/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire('Eliminado', 'El usuario ha sido eliminado.', 'success');
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        Swal.fire('Error', data.error || 'No se pudo eliminar el usuario.', 'error');
+                    }
+                })
+                .catch(() => {
+                    Swal.fire('Error', 'No se pudo eliminar el usuario.', 'error');
+                });
+            }
+        });
     }
 
     function asignarPermisos(userId, userName) {
         document.getElementById('usuarioNombre').textContent = userName;
         document.getElementById('userId').value = userId;
         document.getElementById('modalPermisos').classList.remove('hidden');
-        
-        // Cargar permisos disponibles
-        cargarPermisos();
+        cargarPermisos(userId);
     }
 
     function cerrarModalPermisos() {
         document.getElementById('modalPermisos').classList.add('hidden');
     }
 
-    function cargarPermisos() {
-        // Aquí puedes cargar los permisos disponibles desde el servidor
-        const permisos = [
-            { id: 1, nombre: 'usuarios.read', descripcion: 'Ver usuarios' },
-            { id: 2, nombre: 'usuarios.create', descripcion: 'Crear usuarios' },
-            { id: 3, nombre: 'usuarios.update', descripcion: 'Editar usuarios' },
-            { id: 4, nombre: 'usuarios.delete', descripcion: 'Eliminar usuarios' },
-            { id: 5, nombre: 'torneos.read', descripcion: 'Ver torneos' },
-            { id: 6, nombre: 'torneos.create', descripcion: 'Crear torneos' },
-            { id: 7, nombre: 'miembros.read', descripcion: 'Ver miembros' },
-            { id: 8, nombre: 'miembros.create', descripcion: 'Crear miembros' }
-        ];
-
-        const container = document.getElementById('permisosContainer');
-        container.innerHTML = '';
-
-        permisos.forEach(permiso => {
-            const div = document.createElement('div');
-            div.className = 'flex items-center';
-            div.innerHTML = `
-                <input type="checkbox" id="permiso_${permiso.id}" name="permisos[]" value="${permiso.id}" class="mr-2">
-                <label for="permiso_${permiso.id}" class="text-sm text-gray-700">${permiso.descripcion}</label>
-            `;
-            container.appendChild(div);
-        });
+    function cargarPermisos(userId) {
+        // Obtener todos los permisos y los permisos actuales del usuario
+        fetch(`/api/permisos-usuario/${userId}`)
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById('permisosContainer');
+                container.innerHTML = '';
+                data.todos.forEach(permiso => {
+                    const div = document.createElement('div');
+                    div.className = 'flex items-center';
+                    div.innerHTML = `
+                        <input type="checkbox" id="permiso_${permiso.id}" name="permisos[]" value="${permiso.id}" class="mr-2" ${data.asignados.includes(permiso.id) ? 'checked' : ''}>
+                        <label for="permiso_${permiso.id}" class="text-sm text-gray-700">${permiso.descripcion}</label>
+                    `;
+                    container.appendChild(div);
+                });
+                document.getElementById('rolSelect').value = data.rol_id;
+            });
     }
 
     document.getElementById('formPermisos').addEventListener('submit', function(e) {
         e.preventDefault();
-        
         const formData = new FormData(this);
-        
         fetch('/usuarios/asignar-permisos', {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                'Content-Type': 'application/json',
+                'Accept': 'application/json',
             },
             body: JSON.stringify({
                 user_id: formData.get('user_id'),
@@ -198,16 +316,43 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert('Permisos asignados correctamente');
+                Swal.fire('Permisos actualizados', 'Los permisos han sido asignados correctamente.', 'success');
                 cerrarModalPermisos();
-                location.reload();
+                setTimeout(() => location.reload(), 1000);
             } else {
-                alert('Error: ' + data.message);
+                Swal.fire('Error', data.message || 'No se pudieron asignar los permisos.', 'error');
             }
         })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error al asignar permisos');
+        .catch(() => {
+            Swal.fire('Error', 'No se pudieron asignar los permisos.', 'error');
+        });
+    });
+
+    document.getElementById('formEditarUsuario').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const id = document.getElementById('edit_user_id').value;
+        const formData = new FormData(this);
+        fetch(`/usuarios/${id}`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Accept': 'application/json',
+                'X-HTTP-Method-Override': 'PUT'
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire('Actualizado', 'El usuario ha sido actualizado.', 'success');
+                cerrarModalEditarUsuario();
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                Swal.fire('Error', data.error || 'No se pudo actualizar el usuario.', 'error');
+            }
+        })
+        .catch(() => {
+            Swal.fire('Error', 'No se pudo actualizar el usuario.', 'error');
         });
     });
 
