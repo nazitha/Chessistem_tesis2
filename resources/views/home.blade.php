@@ -25,7 +25,7 @@
 
 @push('scripts')
     <!-- Scripts específicos de la página -->
-    <script src="{{ asset('js/actions/usuarios_load_v2.js') }}"></script>
+    <!-- <script src="{{ asset('js/actions/usuarios_load_v2.js') }}"></script> -->
     <!-- Incluir otros scripts según sea necesario -->
     
     <script>

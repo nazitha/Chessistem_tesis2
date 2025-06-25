@@ -145,3 +145,4 @@ Route::middleware('web')->group(function () {
 });*/
 
 Route::post('/usuarios/asignar-permisos', [App\Http\Controllers\UserController::class, 'asignarPermisos'])->name('usuarios.asignar-permisos');
+Route::get('/api/permisos-usuario/{userId}', [App\Http\Controllers\UserController::class, 'apiPermisosUsuario']);

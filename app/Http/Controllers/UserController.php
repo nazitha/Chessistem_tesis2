@@ -193,4 +193,22 @@ class UserController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Devuelve los permisos disponibles y los asignados a un usuario, junto con el rol actual.
+     */
+    public function apiPermisosUsuario($userId)
+    {
+        $user = User::with(['rol', 'permissions'])->findOrFail($userId);
+        $todos = \DB::table('permisos')->select('id', 'permiso', 'descripcion')->get();
+        $asignados = \DB::table('asignaciones_permisos')
+            ->where('rol_id', $user->rol_id)
+            ->pluck('permiso_id')
+            ->toArray();
+        return response()->json([
+            'rol_id' => $user->rol_id,
+            'todos' => $todos,
+            'asignados' => $asignados
+        ]);
+    }
 }
