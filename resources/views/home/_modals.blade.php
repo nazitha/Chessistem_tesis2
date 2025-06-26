@@ -1,6 +1,12 @@
+@php
+    use App\Helpers\PermissionHelper;
+@endphp
+
 @include('modals.add_users')
 @include('modals.nuevo_pais')
-@include('modals.academias_modal')
+@if(PermissionHelper::canViewModule('academias'))
+    @include('modals.academias_modal')
+@endif
 @include('modas.asigpermis_modal')
 @include('modals.ciudad_modal')
 @include('modals.depto_modal')

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Academia;
 use App\Models\Ciudad;
 use App\Models\Auditoria;
+use App\Helpers\PermissionHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -12,6 +13,17 @@ use Illuminate\Support\Facades\Log;
 
 class AcademiaController extends Controller
 {
+    public function __construct()
+    {
+        // Verificar permiso de lectura para todas las acciones
+        $this->middleware(function ($request, $next) {
+            if (!PermissionHelper::canViewModule('academias')) {
+                return redirect()->route('home')->with('error', 'No tienes permisos para acceder a este módulo.');
+            }
+            return $next($request);
+        });
+    }
+
     public function index()
     {
         $academias = Academia::with(['ciudad.departamento.pais'])
@@ -23,6 +35,10 @@ class AcademiaController extends Controller
 
     public function create()
     {
+        if (!PermissionHelper::canCreate('academias')) {
+            return redirect()->route('academias.index')->with('error', 'No tienes permisos para crear academias.');
+        }
+
         $ciudades = Ciudad::with(['departamento.pais'])
             ->whereHas('departamento.pais', function ($query) {
                 $query->where(DB::raw('LOWER(nombre_pais)'), 'nicaragua');
@@ -34,6 +50,10 @@ class AcademiaController extends Controller
 
     public function store(Request $request)
     {
+        if (!PermissionHelper::canCreate('academias')) {
+            return redirect()->route('academias.index')->with('error', 'No tienes permisos para crear academias.');
+        }
+
         $request->validate([
             'nombre_academia' => 'required|string|max:255|unique:academias',
             'correo_academia' => 'required|email|max:255',
@@ -69,12 +89,20 @@ class AcademiaController extends Controller
 
     public function show(Academia $academia)
     {
+        if (!PermissionHelper::canViewDetails('academias')) {
+            return redirect()->route('academias.index')->with('error', 'No tienes permisos para ver detalles de academias.');
+        }
+
         $academia->load(['ciudad.departamento.pais']);
         return view('academias.show', ['academia' => $academia]);
     }
 
     public function edit(Academia $academia)
     {
+        if (!PermissionHelper::canUpdate('academias')) {
+            return redirect()->route('academias.index')->with('error', 'No tienes permisos para editar academias.');
+        }
+
         $ciudades = Ciudad::with(['departamento.pais'])
             ->whereHas('departamento.pais', function ($query) {
                 $query->where(DB::raw('LOWER(nombre_pais)'), 'nicaragua');
@@ -86,6 +114,10 @@ class AcademiaController extends Controller
 
     public function update(Request $request, Academia $academia)
     {
+        if (!PermissionHelper::canUpdate('academias')) {
+            return redirect()->route('academias.index')->with('error', 'No tienes permisos para editar academias.');
+        }
+
         $request->validate([
             'nombre_academia' => 'required|string|max:255|unique:academias,nombre_academia,' . $academia->id_academia . ',id_academia',
             'correo_academia' => 'required|email|max:255',
@@ -122,6 +154,10 @@ class AcademiaController extends Controller
 
     public function destroy(Academia $academia)
     {
+        if (!PermissionHelper::canDelete('academias')) {
+            return redirect()->route('academias.index')->with('error', 'No tienes permisos para eliminar academias.');
+        }
+
         try {
             return DB::transaction(function () use ($academia) {
                 $originalData = $academia->toArray();
