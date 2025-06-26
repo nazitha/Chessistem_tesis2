@@ -194,4 +194,6 @@
         </div>
     </div>
 </div>
+
+<div id="modalEditarUsuario" class="fixed inset-0 bg-gray-200/80 backdrop-blur-md flex items-center justify-center z-50 hidden">
 @endsection

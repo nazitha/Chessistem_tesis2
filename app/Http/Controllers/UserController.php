@@ -211,4 +211,13 @@ class UserController extends Controller
             'asignados' => $asignados
         ]);
     }
+
+    /**
+     * Devuelve los datos de un usuario para edición (AJAX)
+     */
+    public function show($id)
+    {
+        $user = User::with('miembro')->findOrFail($id);
+        return response()->json($user);
+    }
 }

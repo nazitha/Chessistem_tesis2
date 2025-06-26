@@ -1,67 +1,52 @@
 <div class="modal fade" id="modal_add_users" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h1 class="modal-title fs-5" id="title_add_users">Nuevo usuario</h1>
+    <div class="modal-content rounded-2xl shadow-2xl p-2">
+      <div class="modal-header bg-gray-800 text-white rounded-t-2xl">
+        <h1 class="modal-title fs-5 text-xl font-bold w-full text-center" id="title_add_users">Nuevo usuario</h1>
       </div>
-      <div class="modal-body">
+      <div class="modal-body p-6">
         <form action="" id="form_add_users" class="needs-validation" novalidate>
-            <div class="input-group mb-3">
-              <span class="input-group-text">Correo:</span>
-              <input id="input_correo_add_user" type="email" class="form-control" aria-label="Campo para correo electrónico" autocomplete="off" required>
-              <div class="invalid-feedback">
-                Por favor, ingrese un correo electrónico
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-gray-700 font-medium mb-1">Correo:</label>
+              <input id="input_correo_add_user" type="email" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" autocomplete="off" required>
+              <div class="invalid-feedback text-red-500 text-xs">Por favor, ingrese un correo electrónico</div>
+            </div>
+            <div>
+              <label class="block text-gray-700 font-medium mb-1">Rol:</label>
+              <select class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" id="select_rol_add_user">
+                <option selected>Seleccione un rol...</option>
+                <option value="1">Administrador</option>
+                <option value="2">Usuario</option>
+                <option value="3">Arbitro</option>
+                <option value="4">Organizador</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-gray-700 font-medium mb-1">Contraseña:</label>
+              <input id="input_pass_add_user" type="password" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" autocomplete="off" required>
+              <div class="invalid-feedback text-red-500 text-xs">Por favor, ingrese su contraseña</div>
+            </div>
+            <div>
+              <label class="block text-gray-700 font-medium mb-1">Nueva contraseña:</label>
+              <input id="input_pass_edit_user" type="password" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" autocomplete="off">
+            </div>
+            <div>
+              <label class="block text-gray-700 font-medium mb-1">Confirmar contraseña:</label>
+              <input id="input_passconfirm_edit_user" type="password" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" autocomplete="off">
+            </div>
+            <div>
+              <label class="block text-gray-700 font-medium mb-1">Estado:</label>
+              <div class="flex items-center space-x-2">
+                <input class="form-check-input" type="checkbox" role="switch" id="switch_add_user" onchange="cambiarColorSwitch(this)">
+                <label class="form-check-label" for="switch_add_user" id="switchLabel">Inactivo</label>
               </div>
             </div>
-
-            <div class="input-group mb-3" id='div_setpass'>
-              <span class="input-group-text">Contraseña:</span>
-              <input id="input_pass_add_user" type="password" class="form-control" aria-label="Campo para contraseña" autocomplete="off" required>
-              <div class="invalid-feedback">
-                Por favor, ingrese su contraseña
-              </div>
-            </div>
-
-            <div class="input-group mb-3" id='div_newpass_edit'>
-              <span class="input-group-text">Nueva contraseña:</span>
-              <input id="input_pass_edit_user" type="password" class="form-control" aria-label="Campo para contraseña" autocomplete="off">
-            </div>
-
-            <div class="input-group mb-3" id='div_confirmpass_edit'>
-              <span class="input-group-text">Confirmar contraseña:</span>
-              <input id="input_passconfirm_edit_user" type="password" class="form-control" aria-label="Campo para contraseña" autocomplete="off">
-            </div>
-
-            <div class="input-group mb-3">
-                <label class="input-group-text" for="select_rol_add_user">Seleccione un rol:</label>
-                <select class="form-select" id="select_rol_add_user">
-                  <option selected>Choose...</option>
-                  <option value="1">One</option>
-                  <option value="2">Two</option>
-                  <option value="3">Three</option>
-                </select>
-            </div>
-            
-            <div class="form-check form-switch" style="margin-bottom: 3%; display: flex; justify-content: flex-end;">
-                <input class="form-check-input" type="checkbox" role="switch" id="switch_add_user" 
-                    style="background-color: #dc3545; border-color: #dc3545; border-radius: 50px; position: relative;" 
-                    onchange="cambiarColorSwitch(this)">
-                <label class="form-check-label" for="flexSwitchCheckDefault" id="switchLabel" style="position: relative; margin-left: 2%;">
-                    Inactivo
-                </label>
-            </div>
-
-            <div class="modal-footer">
-
-                <button type="submit" style="background-color: #1e2936; color: white; border: 1px 
-                    solid transparent; padding: 0.375rem 0.75rem; font-size: 1rem; 
-                    font-weight: 400; line-height: 1.5; border-radius: 0.25rem; text-align: center; 
-                    vertical-align: middle; cursor: pointer; display: inline-block; transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;"
-                    >Agregar</button>
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
-
-            </div>
-
+          </div>
+          <div class="flex justify-end mt-8 space-x-3">
+            <button type="button" class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="px-6 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold shadow">Agregar</button>
+          </div>
         </form>
       </div>
     </div>

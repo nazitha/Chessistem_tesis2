@@ -92,8 +92,8 @@
 </div>
 
 <!-- Modal para Asignar Permisos -->
-<div id="modalPermisos" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
-    <div class="relative top-20 mx-auto p-5 border w-full max-w-lg shadow-lg rounded-md bg-white">
+<div id="modalPermisos" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="mx-auto p-5 border w-full max-w-lg shadow-lg rounded-md bg-white">
         <div class="mt-3">
             <h3 class="text-lg font-medium text-gray-900 mb-4">Asignar Permisos a: <span id="usuarioNombre"></span></h3>
             <form id="formPermisos">
@@ -127,88 +127,92 @@
 </div>
 
 <!-- Modal de Edición de Usuario -->
-<div id="modalEditarUsuario" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
-    <div class="relative top-20 mx-auto p-5 border w-full max-w-lg shadow-lg rounded-md bg-white">
-        <div class="mt-3">
-            <h3 class="text-lg font-medium text-gray-900 mb-4">Editar Usuario</h3>
-            <form id="formEditarUsuario">
-                <input type="hidden" id="edit_user_id" name="user_id">
-                <div class="mb-2">
-                    <label class="block text-gray-700 text-sm font-bold mb-1">Correo:</label>
-                    <input type="email" id="edit_correo" name="correo" class="w-full px-3 py-2 border rounded" required>
+<div id="modalEditarUsuario" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-2xl shadow-2xl border border-gray-200 p-8 w-full max-w-2xl mx-4">
+        <h2 class="text-2xl font-bold text-center mb-6">Editar Usuario</h2>
+        <form id="formEditarUsuario" novalidate>
+            <input type="hidden" id="edit_user_id" name="user_id">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-gray-700 font-medium mb-1">Correo:</label>
+                    <input type="email" id="edit_correo" name="correo" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" required>
+                    <div class="invalid-feedback text-red-500 text-xs">Por favor, ingrese un correo electrónico válido</div>
                 </div>
-                <div class="mb-2">
-                    <label class="block text-gray-700 text-sm font-bold mb-1">Rol:</label>
-                    <select id="edit_rol" name="rol_id" class="w-full px-3 py-2 border rounded">
+                <div>
+                    <label class="block text-gray-700 font-medium mb-1">Rol:</label>
+                    <select id="edit_rol" name="rol_id" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
                         <option value="1">Administrador</option>
                         <option value="2">Usuario</option>
                         <option value="3">Arbitro</option>
                         <option value="4">Organizador</option>
                     </select>
                 </div>
-                <div class="mb-2">
-                    <label class="block text-gray-700 text-sm font-bold mb-1">Estado:</label>
-                    <select id="edit_estado" name="usuario_estado" class="w-full px-3 py-2 border rounded">
+                <div>
+                    <label class="block text-gray-700 font-medium mb-1">Estado:</label>
+                    <select id="edit_estado" name="usuario_estado" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
                         <option value="1">Activo</option>
                         <option value="0">Inactivo</option>
                     </select>
                 </div>
-                <div class="mb-2">
-                    <label class="block text-gray-700 text-sm font-bold mb-1">Nombre(s):</label>
-                    <input type="text" id="edit_nombres" name="nombres" class="w-full px-3 py-2 border rounded">
+                <div>
+                    <label class="block text-gray-700 font-medium mb-1">Nombre(s):</label>
+                    <input type="text" id="edit_nombres" name="nombres" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
                 </div>
-                <div class="mb-2">
-                    <label class="block text-gray-700 text-sm font-bold mb-1">Apellido(s):</label>
-                    <input type="text" id="edit_apellidos" name="apellidos" class="w-full px-3 py-2 border rounded">
+                <div>
+                    <label class="block text-gray-700 font-medium mb-1">Apellido(s):</label>
+                    <input type="text" id="edit_apellidos" name="apellidos" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
                 </div>
-                <div class="mb-2">
-                    <label class="block text-gray-700 text-sm font-bold mb-1">Cédula:</label>
-                    <input type="text" id="edit_cedula" name="cedula" class="w-full px-3 py-2 border rounded">
+                <div>
+                    <label class="block text-gray-700 font-medium mb-1">Cédula:</label>
+                    <input type="text" id="edit_cedula" name="cedula" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
                 </div>
-                <div class="mb-2">
-                    <label class="block text-gray-700 text-sm font-bold mb-1">Sexo:</label>
-                    <select id="edit_sexo" name="sexo" class="w-full px-3 py-2 border rounded">
+                <div>
+                    <label class="block text-gray-700 font-medium mb-1">Sexo:</label>
+                    <select id="edit_sexo" name="sexo" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
                         <option value="M">Masculino</option>
                         <option value="F">Femenino</option>
                     </select>
                 </div>
-                <div class="mb-2">
-                    <label class="block text-gray-700 text-sm font-bold mb-1">Fecha de nacimiento:</label>
-                    <input type="date" id="edit_fecha_nacimiento" name="fecha_nacimiento" class="w-full px-3 py-2 border rounded">
+                <div>
+                    <label class="block text-gray-700 font-medium mb-1">Fecha de nacimiento:</label>
+                    <input type="date" id="edit_fecha_nacimiento" name="fecha_nacimiento" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
                 </div>
-                <div class="mb-2">
-                    <label class="block text-gray-700 text-sm font-bold mb-1">Teléfono:</label>
-                    <input type="text" id="edit_telefono" name="telefono" class="w-full px-3 py-2 border rounded">
+                <div>
+                    <label class="block text-gray-700 font-medium mb-1">Teléfono:</label>
+                    <input type="text" id="edit_telefono" name="telefono" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
                 </div>
-                <div class="mb-2">
-                    <label class="block text-gray-700 text-sm font-bold mb-1">Academia:</label>
-                    <input type="text" id="edit_academia" name="academia" class="w-full px-3 py-2 border rounded">
+                <div>
+                    <label class="block text-gray-700 font-medium mb-1">Academia:</label>
+                    <input type="text" id="edit_academia" name="academia" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
                 </div>
-                <div class="mb-2">
-                    <label class="block text-gray-700 text-sm font-bold mb-1">Contraseña (dejar en blanco para no cambiar):</label>
-                    <input type="password" id="edit_contrasena" name="contrasena" class="w-full px-3 py-2 border rounded">
+                <div class="md:col-span-2">
+                    <label class="block text-gray-700 font-medium mb-1">Contraseña (dejar en blanco para no cambiar):</label>
+                    <input type="password" id="edit_contrasena" name="contrasena" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
                 </div>
-                <div class="flex justify-end space-x-3 mt-4">
-                    <button type="button" onclick="cerrarModalEditarUsuario()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">
-                        Cancelar
-                    </button>
-                    <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-                        Guardar Cambios
-                    </button>
-                </div>
-            </form>
-        </div>
+            </div>
+            <div class="flex justify-end mt-8 space-x-3">
+                <button type="button" onclick="cerrarModalEditarUsuario()" class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold">
+                    Cancelar
+                </button>
+                <button type="submit" class="px-6 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold shadow">
+                    Guardar Cambios
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
 @push('scripts')
 <script>
+    function validarEmail(email) {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    }
+
     function editarUsuario(id) {
-        // Mostrar el modal
         document.getElementById('modalEditarUsuario').classList.remove('hidden');
-        // Limpiar el formulario
         document.getElementById('formEditarUsuario').reset();
-        // Cargar datos vía AJAX
+        limpiarErroresEditarUsuario();
         fetch(`/usuarios/${id}`)
             .then(response => response.json())
             .then(data => {
@@ -227,6 +231,42 @@
                 }
             });
     }
+
+    function limpiarErroresEditarUsuario() {
+        document.querySelectorAll('#formEditarUsuario input, #formEditarUsuario select').forEach(function(el) {
+            el.classList.remove('border-red-500');
+            let feedback = el.parentElement.querySelector('.invalid-feedback');
+            if (feedback) feedback.style.display = 'none';
+        });
+    }
+
+    // Validación en tiempo real
+    document.querySelectorAll('#formEditarUsuario input[required], #formEditarUsuario select[required]').forEach(function(el) {
+        el.addEventListener('input', function() {
+            let feedback = el.parentElement.querySelector('.invalid-feedback');
+            if (el.id === 'edit_correo') {
+                if (!validarEmail(el.value)) {
+                    el.classList.add('border-red-500');
+                    if (feedback) feedback.textContent = 'Ingrese un correo electrónico válido';
+                    if (feedback) feedback.style.display = 'block';
+                } else {
+                    el.classList.remove('border-red-500');
+                    if (feedback) feedback.style.display = 'none';
+                }
+            } else if (el.id === 'edit_contrasena' && el.value.length > 0 && el.value.length < 6) {
+                el.classList.add('border-red-500');
+                if (feedback) feedback.textContent = 'La contraseña debe tener al menos 6 caracteres';
+                if (feedback) feedback.style.display = 'block';
+            } else if (el.value.trim() === '') {
+                el.classList.add('border-red-500');
+                if (feedback) feedback.textContent = 'Este campo es obligatorio';
+                if (feedback) feedback.style.display = 'block';
+            } else {
+                el.classList.remove('border-red-500');
+                if (feedback) feedback.style.display = 'none';
+            }
+        });
+    });
 
     function cerrarModalEditarUsuario() {
         document.getElementById('modalEditarUsuario').classList.add('hidden');
@@ -330,6 +370,35 @@
 
     document.getElementById('formEditarUsuario').addEventListener('submit', function(e) {
         e.preventDefault();
+        let valido = true;
+        document.querySelectorAll('#formEditarUsuario input[required], #formEditarUsuario select[required]').forEach(function(el) {
+            let feedback = el.parentElement.querySelector('.invalid-feedback');
+            if (el.id === 'edit_correo') {
+                if (!validarEmail(el.value)) {
+                    el.classList.add('border-red-500');
+                    if (feedback) feedback.textContent = 'Ingrese un correo electrónico válido';
+                    if (feedback) feedback.style.display = 'block';
+                    valido = false;
+                } else {
+                    el.classList.remove('border-red-500');
+                    if (feedback) feedback.style.display = 'none';
+                }
+            } else if (el.id === 'edit_contrasena' && el.value.length > 0 && el.value.length < 6) {
+                el.classList.add('border-red-500');
+                if (feedback) feedback.textContent = 'La contraseña debe tener al menos 6 caracteres';
+                if (feedback) feedback.style.display = 'block';
+                valido = false;
+            } else if (el.value.trim() === '') {
+                el.classList.add('border-red-500');
+                if (feedback) feedback.textContent = 'Este campo es obligatorio';
+                if (feedback) feedback.style.display = 'block';
+                valido = false;
+            } else {
+                el.classList.remove('border-red-500');
+                if (feedback) feedback.style.display = 'none';
+            }
+        });
+        if (!valido) return;
         const id = document.getElementById('edit_user_id').value;
         const formData = new FormData(this);
         fetch(`/usuarios/${id}`, {
