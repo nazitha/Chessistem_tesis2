@@ -3,6 +3,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AcademiaController;
+use App\Http\Controllers\AuditoriaController;
 use App\Http\Controllers\CiudadController;
 use App\Http\Controllers\EmparejamientoController;
 use App\Http\Controllers\FederacionController;
@@ -66,6 +67,9 @@ Route::middleware('web')->group(function () {
             'academias' => 'academia'
         ]);
         
+        // Ruta de auditoría
+        Route::get('/auditoria', [AuditoriaController::class, 'index'])->name('auditoria.index');
+        
         // Rutas de torneos
         Route::resource('torneos', TorneoController::class);
         Route::post('torneos/{torneo}/participantes', [TorneoParticipanteController::class, 'store'])
@@ -84,6 +88,9 @@ Route::middleware('web')->group(function () {
             ->name('torneos.rondas.show');
 
         Route::post('/asignar-permisos', [UserController::class, 'asignarPermisos'])->name('asignar.permisos');
+
+        // Ruta para obtener permisos de usuario
+        Route::get('/permisos-usuario/{userId}', [UserController::class, 'apiPermisosUsuario'])->name('permisos.usuario');
 
         // Rutas de evaluador
         Route::get('/evaluaciones', [EvaluacionController::class, 'index'])->name('evaluaciones.index');

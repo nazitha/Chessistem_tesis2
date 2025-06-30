@@ -8,13 +8,15 @@
     $canViewTorneos = PermissionHelper::canViewModule('torneos');
     $canViewMiembros = PermissionHelper::canViewModule('miembros');
     $canViewAcademias = PermissionHelper::canViewModule('academias');
+    $canViewAuditorias = PermissionHelper::canViewModule('auditorias');
     
     // Debug de permisos
     Log::info('Vista home: Verificando permisos', [
         'can_view_torneos' => $canViewTorneos,
         'can_create_torneos' => PermissionHelper::canCreate('torneos'),
         'can_view_miembros' => $canViewMiembros,
-        'can_view_academias' => $canViewAcademias
+        'can_view_academias' => $canViewAcademias,
+        'can_view_auditorias' => $canViewAuditorias
     ]);
 @endphp
 
@@ -84,28 +86,24 @@
             <div class="bg-white rounded-lg shadow-lg p-6">
                 <h2 class="text-xl font-medium text-gray-900 mb-4">Acciones Rápidas</h2>
                 <div class="grid grid-cols-4 gap-4">
-                    @if($canViewTorneos && PermissionHelper::canCreate('torneos'))
-                        <a href="{{ route('torneos.create') }}" class="inline-block text-center py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600">
-                            <i class="fas fa-trophy mr-2"></i>
-                            Nuevo Torneo
-                        </a>
-                    @endif
-                    @if($canViewAcademias)
-                        <a href="{{ route('academias.index') }}" class="inline-block text-center py-2 px-4 bg-green-500 text-white rounded hover:bg-green-600">
-                            <i class="fas fa-school mr-2"></i>
-                            Gestionar Academias
-                        </a>
-                    @endif
-                    @if($canViewMiembros)
-                        <a href="{{ route('miembros.index') }}" class="inline-block text-center py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600">
-                            <i class="fas fa-users mr-2"></i>
-                            Gestionar Miembros
-                        </a>
-                    @endif
-                    <a href="{{ route('inscripciones.index') }}" class="inline-block text-center py-2 px-4 bg-gray-500 text-white rounded hover:bg-gray-600">
-                        <i class="fas fa-clipboard-list mr-2"></i>
-                        Ver Inscripciones
+                    <a href="{{ route('torneos.create') }}" class="inline-block text-center py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600">
+                        <i class="fas fa-trophy mr-2"></i>
+                        Nuevo Torneo
                     </a>
+                    <a href="{{ route('academias.index') }}" class="inline-block text-center py-2 px-4 bg-green-500 text-white rounded hover:bg-green-600">
+                        <i class="fas fa-school mr-2"></i>
+                        Gestionar Academias
+                    </a>
+                    <a href="{{ route('miembros.index') }}" class="inline-block text-center py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600">
+                        <i class="fas fa-users mr-2"></i>
+                        Gestionar Miembros
+                    </a>
+                    @if($canViewAuditorias)
+                        <a href="{{ route('auditoria.index') }}" class="inline-block text-center py-2 px-4 bg-gray-500 text-white rounded hover:bg-gray-600">
+                            <i class="fas fa-clipboard-list mr-2"></i>
+                            Auditoría
+                        </a>
+                    @endif
                 </div>
             </div>
         </div>
@@ -198,4 +196,6 @@
         </div>
     </div>
 </div>
+
+<div id="modalEditarUsuario" class="fixed inset-0 bg-gray-200/80 backdrop-blur-md flex items-center justify-center z-50 hidden">
 @endsection

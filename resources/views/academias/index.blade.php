@@ -21,7 +21,7 @@
     ]);
 @endphp
 
-<div class="max-w-7xl mx-auto">
+<div class="max-w-full mx-auto px-4">
     <div class="flex justify-between items-center border-b pb-4">
         <h1 class="text-2xl font-semibold">Academias</h1>
         @if(PermissionHelper::canCreate('academias'))
@@ -58,7 +58,9 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dirección</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ciudad</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                        @if(PermissionHelper::hasAnyAcademiaActionPermission())
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
@@ -85,42 +87,44 @@
                                     {{ $academia->estado_academia ? 'Activo' : 'Inactivo' }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <div class="flex justify-end space-x-3">
-                                    @if(PermissionHelper::canViewDetails('academias'))
-                                        <a href="{{ route('academias.show', $academia) }}" 
-                                           class="text-blue-600 hover:text-blue-900 p-1 rounded-full hover:bg-blue-100 transition-colors duration-200"
-                                           data-tooltip="Ver detalles">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                    @endif
-                                    
-                                    @if(PermissionHelper::canUpdate('academias'))
-                                        <a href="{{ route('academias.edit', $academia) }}" 
-                                           class="text-yellow-600 hover:text-yellow-900 p-1 rounded-full hover:bg-yellow-100 transition-colors duration-200"
-                                           data-tooltip="Editar academia">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                    @endif
+                            @if(PermissionHelper::hasAnyAcademiaActionPermission())
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <div class="flex justify-end space-x-3">
+                                        @if(PermissionHelper::canViewDetails('academias'))
+                                            <a href="{{ route('academias.show', $academia) }}" 
+                                               class="text-blue-600 hover:text-blue-900 p-1 rounded-full hover:bg-blue-100 transition-colors duration-200"
+                                               data-tooltip="Ver detalles">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        @endif
+                                        
+                                        @if(PermissionHelper::canUpdate('academias'))
+                                            <a href="{{ route('academias.edit', $academia) }}" 
+                                               class="text-yellow-600 hover:text-yellow-900 p-1 rounded-full hover:bg-yellow-100 transition-colors duration-200"
+                                               data-tooltip="Editar academia">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        @endif
 
-                                    @if(PermissionHelper::canDelete('academias'))
-                                        <form action="{{ route('academias.destroy', $academia) }}" method="POST" class="inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="button"
-                                                    onclick="confirmarEliminacion('{{ $academia->id_academia }}')"
-                                                    class="text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-100 transition-colors duration-200"
-                                                    data-tooltip="Eliminar academia">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </form>
-                                    @endif
-                                </div>
-                            </td>
+                                        @if(PermissionHelper::canDelete('academias'))
+                                            <form action="{{ route('academias.destroy', $academia) }}" method="POST" class="inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="button"
+                                                        onclick="confirmarEliminacion('{{ $academia->id_academia }}')"
+                                                        class="text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-100 transition-colors duration-200"
+                                                        data-tooltip="Eliminar academia">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        @endif
+                                    </div>
+                                </td>
+                            @endif
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="px-6 py-4 text-center text-sm text-gray-500">
+                            <td colspan="{{ PermissionHelper::hasAnyAcademiaActionPermission() ? '8' : '7' }}" class="px-6 py-4 text-center text-sm text-gray-500">
                                 No hay academias registradas
                             </td>
                         </tr>

@@ -116,12 +116,14 @@
                    id="partidas_opcion_movil">
                     Partidas
                 </a>
-                <a href="#"
-                   @click="activeMenuItem = 'Torneos'; openMobileMenu = false"
-                   class="block px-3 py-2 text-sm font-medium text-gray-400 hover:bg-gray-700 hover:text-white"
-                   id="inscripciones_opcion_movil">
-                    Inscripciones
-                </a>
+                @if(PermissionHelper::canViewModule('auditorias'))
+                    <a href="{{ route('auditoria.index') }}"
+                       @click="activeMenuItem = 'Auditoria'; openMobileMenu = false"
+                       class="block px-3 py-2 text-sm font-medium text-gray-400 hover:bg-gray-700 hover:text-white"
+                       id="auditoria_opcion_movil">
+                        Auditoría
+                    </a>
+                @endif
             </div>
         </div>
 
