@@ -87,7 +87,7 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex justify-end space-x-3">
-                                    @if(PermissionHelper::canViewDetails('academias'))
+                                    @if(PermissionHelper::canViewModule('academias'))
                                         <a href="{{ route('academias.show', $academia) }}" 
                                            class="text-blue-600 hover:text-blue-900 p-1 rounded-full hover:bg-blue-100 transition-colors duration-200"
                                            data-tooltip="Ver detalles">
