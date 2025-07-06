@@ -99,11 +99,11 @@ class PermissionHelper
             ];
         } else {
             // Para otros módulos, usar permisos genéricos
-            $permissions = [
-                "{$module}.create",
-                "{$module}.update",
-                "{$module}.delete"
-            ];
+        $permissions = [
+            "{$module}.create",
+            "{$module}.update",
+            "{$module}.delete"
+        ];
         }
         
         $result = PermissionService::hasAnyPermission($permissions);
@@ -231,6 +231,66 @@ class PermissionHelper
         $result = PermissionService::hasAnyPermission($permissions);
         Log::info('PermissionHelper: Verificando permisos de acción de torneos', [
             'permissions' => $permissions,
+            'result' => $result,
+            'user_id' => Auth::id(),
+            'rol_id' => Auth::user()->rol_id ?? null
+        ]);
+        return $result;
+    }
+
+    /**
+     * Verifica si el usuario tiene algún permiso de acción en el módulo de participantes
+     * Incluye los permisos: read, create y delete
+     *
+     * @return bool
+     */
+    public static function hasAnyParticipanteActionPermission(): bool
+    {
+        $permissions = [
+            "participantes.read", 
+            "participantes.create",
+            "participantes.delete"
+        ];
+        
+        $result = PermissionService::hasAnyPermission($permissions);
+        Log::info('PermissionHelper: Verificando permisos de acción de participantes', [
+            'permissions' => $permissions,
+            'result' => $result,
+            'user_id' => Auth::id(),
+            'rol_id' => Auth::user()->rol_id ?? null
+        ]);
+        return $result;
+    }
+
+    /**
+     * Verifica si el usuario tiene permiso para ver estadísticas personales
+     *
+     * @return bool
+     */
+    public static function canViewMisEstadisticas(): bool
+    {
+        $permission = "misEstadisticas.read";
+        $result = PermissionService::hasPermission($permission);
+        Log::info('PermissionHelper: Verificando permiso de estadísticas personales', [
+            'permission' => $permission,
+            'result' => $result,
+            'user_id' => Auth::id(),
+            'rol_id' => Auth::user()->rol_id ?? null
+        ]);
+        return $result;
+    }
+
+    /**
+     * Verifica si el usuario tiene permiso para ver estadísticas administrativas
+     *
+     * @return bool
+     */
+    public static function canViewEstadisticasAdmin(): bool
+    {
+        $permission = "estadisticasAdmin.read";
+        $result = PermissionService::hasPermission($permission);
+        Log::info('PermissionHelper: Verificando permiso de estadísticas administrativas', [
+            'permission' => $permission,
             'result' => $result,
             'user_id' => Auth::id(),
             'rol_id' => Auth::user()->rol_id ?? null

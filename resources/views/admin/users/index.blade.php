@@ -74,9 +74,9 @@
                                         </button>
                                     @endif
                                     @if(PermissionHelper::canUpdatePermisosUsuario())
-                                        <button title="Asignar Permisos" class="text-green-600 hover:text-green-900" onclick="asignarPermisos({{ $user->id_email }}, '{{ $user->correo }}')">
-                                            <i class="fas fa-user-shield"></i>
-                                        </button>
+                                    <button title="Asignar Permisos" class="text-green-600 hover:text-green-900" onclick="asignarPermisos({{ $user->id_email }}, '{{ $user->correo }}')">
+                                        <i class="fas fa-user-shield"></i>
+                                    </button>
                                     @endif
                                     @if(PermissionHelper::canDelete('usuarios'))
                                         <button title="Eliminar" class="text-red-600 hover:text-red-900" onclick="eliminarUsuario({{ $user->id_email }})">
@@ -127,14 +127,14 @@
         
         <!-- Footer del modal -->
         <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-lg flex-shrink-0">
-            <div class="flex justify-end space-x-3">
+                <div class="flex justify-end space-x-3">
                 <button type="button" onclick="cerrarModalPermisos()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors duration-200 font-medium">
-                    Cancelar
-                </button>
+                        Cancelar
+                    </button>
                 <button type="submit" form="formPermisos" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors duration-200 font-medium">
-                    Guardar
-                </button>
-            </div>
+                        Guardar
+                    </button>
+                </div>
         </div>
     </div>
 </div>
