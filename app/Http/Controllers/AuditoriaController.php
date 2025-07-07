@@ -4,11 +4,17 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Auditoria;
+use App\Helpers\PermissionHelper;
 
 class AuditoriaController extends Controller
 {
     public function index(Request $request)
     {
+        // Verificar permiso de lectura
+        if (!PermissionHelper::canViewModule('auditorias')) {
+            return redirect()->route('home')->with('error', 'No tienes permisos para acceder a auditorías.');
+        }
+
         $query = Auditoria::query();
 
         // Filtros

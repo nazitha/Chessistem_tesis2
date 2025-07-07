@@ -297,4 +297,22 @@ class PermissionHelper
         ]);
         return $result;
     }
+
+    /**
+     * Verifica si el usuario tiene permiso para ver auditorías
+     *
+     * @return bool
+     */
+    public static function canViewAuditoria(): bool
+    {
+        $permission = "auditorias.read";
+        $result = PermissionService::hasPermission($permission);
+        Log::info('PermissionHelper: Verificando permiso de auditoría', [
+            'permission' => $permission,
+            'result' => $result,
+            'user_id' => Auth::id(),
+            'rol_id' => Auth::user()->rol_id ?? null
+        ]);
+        return $result;
+    }
 } 

@@ -116,14 +116,14 @@
                    id="partidas_opcion_movil">
                     Partidas
                 </a>
-                @auth
+                @if(PermissionHelper::canViewModule('auditorias'))
                 <a href="{{ route('auditoria.index') }}"
                    @click="activeMenuItem = 'Auditoria'; openMobileMenu = false"
                    class="block px-3 py-2 text-sm font-medium text-gray-400 hover:bg-gray-700 hover:text-white"
                    id="auditoria_opcion_movil">
                     Auditoría
                 </a>
-                @endauth
+                @endif
             </div>
         </div>
 

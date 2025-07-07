@@ -27,7 +27,6 @@ use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\TorneoViewController;
 use App\Http\Controllers\TorneoParticipanteController;
 use App\Http\Controllers\TorneoRondaController;
-use App\Http\Controllers\AuditoriaController;
 
 // Grupo web para todas las rutas
 Route::middleware('web')->group(function () {
