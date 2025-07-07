@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@php
+    use App\Helpers\PermissionHelper;
+@endphp
+
 @section('content')
 <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
     <div class="md:flex md:items-center md:justify-between mb-6">
@@ -331,7 +335,7 @@
     </div>
     @endif
 
-    @if(!$torneo->es_por_equipos)
+    @if(!$torneo->es_por_equipos && PermissionHelper::canViewModule('participantes'))
     <!-- Sección de Participantes -->
     <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6 mt-8">
         @php
@@ -344,7 +348,7 @@
                 <span class="ml-2 text-sm text-gray-500">({{ $torneo->participantes->count() }} registrados)</span>
             </h3>
             <div class="flex gap-2">
-                @if($torneo->estado_torneo && !$torneo->torneo_cancelado)
+                @if($torneo->estado_torneo && !$torneo->torneo_cancelado && PermissionHelper::canCreate('participantes'))
                 <button type="button"
                         onclick="mostrarModalParticipantes()"
                         class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
@@ -385,7 +389,7 @@
                             @if($torneo->usar_desempate_progresivo)
                                 <th class="px-3 py-2 text-right text-xs font-medium text-gray-600 w-16">Des 3</th>
                             @endif
-                            @if($torneo->estado_torneo && !$torneo->torneo_cancelado)
+                            @if($torneo->estado_torneo && !$torneo->torneo_cancelado && PermissionHelper::canDelete('participantes'))
                                 <th class="px-3 py-2 text-right text-xs font-medium text-gray-600 w-24">Acciones</th>
                             @endif
                         </tr>
@@ -458,7 +462,7 @@
                                         {{ number_format($participante->progresivo, 2) }}
                                     </td>
                                 @endif
-                                @if($torneo->estado_torneo && !$torneo->torneo_cancelado)
+                                @if($torneo->estado_torneo && !$torneo->torneo_cancelado && PermissionHelper::canDelete('participantes'))
                                     <td class="px-3 py-2 text-sm text-center">
                                         <form action="{{ route('torneos.participantes.destroy', [$torneo->id, $participante->id]) }}" method="POST" onsubmit="return confirm('¿Seguro que deseas retirar este participante?')">
                                             @csrf
@@ -509,7 +513,7 @@
 </div>
 
 <!-- Modal de Agregar Participantes -->
-@if($torneo->estado_torneo && !$torneo->torneo_cancelado)
+@if($torneo->estado_torneo && !$torneo->torneo_cancelado && PermissionHelper::canCreate('participantes'))
 <div id="modal-participantes" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center">
     <div class="bg-white rounded-lg p-6 max-w-lg w-full mx-4">
         <div class="flex justify-between items-center mb-4">

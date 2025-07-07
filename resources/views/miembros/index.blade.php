@@ -7,7 +7,7 @@
 @endphp
 
 <meta name="csrf-token" content="{{ csrf_token() }}">
-<div class="max-w-7xl mx-auto">
+<div class="max-w-full mx-auto px-4">
     <div class="flex justify-between items-center border-b pb-4">
         <h1 class="text-2xl font-semibold">Miembros</h1>
         @if(PermissionHelper::canCreate('miembros'))
@@ -46,7 +46,7 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Academia</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Correo</th>
-                        @if(PermissionHelper::canUpdate('miembros') || PermissionHelper::canDelete('miembros') || PermissionService::hasPermission('miembros.details'))
+                        @if(PermissionHelper::hasAnyMiembroActionPermission())
                             <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
                         @endif
                     </tr>
@@ -73,7 +73,7 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $miembro->academia->nombre_academia ?? '-' }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $miembro->correo_sistema_id ?? '-' }}</td>
-                            @if(PermissionHelper::canUpdate('miembros') || PermissionHelper::canDelete('miembros') || PermissionService::hasPermission('miembros.details'))
+                            @if(PermissionHelper::hasAnyMiembroActionPermission())
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <div class="flex justify-end space-x-3">
                                         @if(PermissionService::hasPermission('miembros.details'))

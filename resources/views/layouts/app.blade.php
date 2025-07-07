@@ -37,6 +37,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     
+    <!-- Highcharts -->
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>
+    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+    
     <!-- Estilos personalizados -->
     <link rel="stylesheet" href="{{ asset('css/tailwind_datatables.css') }}">
     
@@ -117,7 +123,7 @@
 </head>
 <body class="min-h-screen flex flex-col bg-gray-50">
     <!-- Navegación superior -->
-    <nav class="bg-white shadow">
+    <nav class="shadow" style="background-color: #282c34;">
         <div class="max-w-7xl mx-auto">
             <div class="flex justify-between h-16">
                 <div class="flex items-center space-x-8">
@@ -125,7 +131,7 @@
                         <img class="h-16 w-auto" src="{{ asset('img/estrellas_del_ajedrez_logo.png') }}" alt="Escuela Estrellas del Ajedrez">
                     </div>
                     <div class="flex space-x-8">
-                        <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'border-b-2 border-indigo-500 text-gray-900' : 'text-gray-500 hover:text-gray-700' }} px-1 pt-1 text-sm font-medium no-underline">Home</a>
+                        <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'border-b-2 border-indigo-400 text-white' : 'text-gray-300 hover:text-white' }} px-1 pt-1 text-sm font-medium no-underline">Home</a>
                         
                         @if(Auth::check() && Auth::user()->rol_id == 1)
                             <a href="{{ route('usuarios.index') }}" class="{{ request()->routeIs('usuarios.*') ? 'border-b-2 border-indigo-500 text-gray-900' : 'text-gray-500 hover:text-gray-700' }} px-1 pt-1 text-sm font-medium">Usuarios</a>
@@ -138,8 +144,8 @@
                     </div>
                 </div>
                 <div class="flex items-center">
-                    <span class="text-gray-500 text-sm mr-4">Bienvenido, {{ Auth::user()->correo }}</span>
-                    <a href="{{ route('logout') }}" class="text-gray-500 hover:text-gray-700 text-sm font-medium" 
+                    <span class="text-gray-300 text-sm mr-4">Bienvenido, {{ Auth::user()->correo }}</span>
+                    <a href="{{ route('logout') }}" class="text-gray-300 hover:text-white text-sm font-medium" 
                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                         Cerrar Sesión
                     </a>

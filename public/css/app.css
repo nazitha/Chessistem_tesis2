@@ -11,3 +11,102 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+/* Estilos específicos para el modal de permisos */
+#modalPermisos {
+    backdrop-filter: blur(4px);
+}
+
+#modalPermisos .bg-white {
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Mejoras para pantallas pequeñas */
+@media (max-width: 640px) {
+    #modalPermisos {
+        padding: 0.5rem;
+    }
+    
+    #modalPermisos .bg-white {
+        max-width: 100%;
+        max-height: 95vh;
+        margin: 0;
+    }
+    
+    #modalPermisos .px-6 {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    #permisosContainer {
+        max-height: 50vh;
+    }
+}
+
+/* Mejoras para pantallas medianas */
+@media (min-width: 641px) and (max-width: 1024px) {
+    #modalPermisos .bg-white {
+        max-width: 90%;
+        max-height: 85vh;
+    }
+    
+    #permisosContainer {
+        max-height: 60vh;
+    }
+}
+
+/* Mejoras para pantallas grandes */
+@media (min-width: 1025px) {
+    #modalPermisos .bg-white {
+        max-width: 80%;
+        max-height: 80vh;
+    }
+    
+    #permisosContainer {
+        max-height: 70vh;
+    }
+}
+
+/* Estilos para el scroll personalizado */
+#permisosContainer::-webkit-scrollbar {
+    width: 6px;
+}
+
+#permisosContainer::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+#permisosContainer::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+#permisosContainer::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Mejoras para los checkboxes de permisos */
+.permiso-checkbox {
+    transition: all 0.2s ease;
+}
+
+.permiso-checkbox:hover {
+    background-color: #f8fafc;
+}
+
+.permiso-checkbox input[type="checkbox"]:checked + label {
+    color: #1e40af;
+    font-weight: 600;
+}

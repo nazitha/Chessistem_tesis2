@@ -37,7 +37,7 @@
         @include('tables.tabla_historial')
         @include('tables.tabla_ciudades')
         @if(PermissionHelper::canViewModule('academias'))
-            @include('tables.tabla_academias')
+        @include('tables.tabla_academias')
         @endif
         @include('tables.tabla_miembros')
         @include('tables.tabla_fides')

@@ -57,12 +57,12 @@
                     Miembros
                 </a>
                 @if(PermissionHelper::canViewModule('academias'))
-                    <a href="#"
-                       @click="activeMenuItem = 'Miembros'; openMobileMenu = false"
-                       class="block px-3 py-2 text-sm font-medium text-gray-400 hover:bg-gray-700 hover:text-white"
-                       id="academias_opcion_movil">
-                        Academias
-                    </a>
+                <a href="#"
+                   @click="activeMenuItem = 'Miembros'; openMobileMenu = false"
+                   class="block px-3 py-2 text-sm font-medium text-gray-400 hover:bg-gray-700 hover:text-white"
+                   id="academias_opcion_movil">
+                    Academias
+                </a>
                 @endif
             </div>
         </div>
