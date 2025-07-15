@@ -87,6 +87,15 @@ Route::middleware('web')->group(function () {
         Route::get('torneos/{torneo}/rondas/{ronda}', [TorneoRondaController::class, 'show'])
             ->name('torneos.rondas.show');
 
+        // Ruta para crear equipos en un torneo
+        Route::post('torneos/{torneo}/equipos', [App\Http\Controllers\EquipoTorneoController::class, 'store'])->name('equipos.store');
+        // Ruta para eliminar equipos en un torneo
+        Route::delete('torneos/{torneo}/equipos/{equipo}', [App\Http\Controllers\EquipoTorneoController::class, 'destroy'])->name('equipos.destroy');
+        // Ruta para actualizar equipos en un torneo
+        Route::put('torneos/{torneo}/equipos/{equipo}', [App\Http\Controllers\EquipoTorneoController::class, 'update'])->name('equipos.update');
+        // Ruta para agregar jugador a un equipo en un torneo
+        Route::post('torneos/{torneo}/equipos/{equipo}/agregar-jugador', [App\Http\Controllers\EquipoTorneoController::class, 'addJugador'])->name('equipos.addJugador');
+
         Route::post('/asignar-permisos', [UserController::class, 'asignarPermisos'])->name('asignar.permisos');
 
         // Ruta para obtener permisos de usuario

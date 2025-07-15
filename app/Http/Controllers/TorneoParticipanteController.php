@@ -13,6 +13,10 @@ class TorneoParticipanteController extends Controller
 {
     public function store(Request $request, Torneo $torneo)
     {
+        if ($torneo->estado === 'Finalizado') {
+            return back()->with('error', 'No se pueden agregar participantes a un torneo finalizado.');
+        }
+
         try {
             $request->validate([
                 'participantes' => 'required|array|min:1',
@@ -24,7 +28,8 @@ class TorneoParticipanteController extends Controller
             foreach ($request->participantes as $miembroId) {
                 ParticipanteTorneo::create([
                     'torneo_id' => $torneo->id,
-                    'miembro_id' => $miembroId
+                    'miembro_id' => $miembroId,
+                    'activo' => true
                 ]);
             }
 

@@ -20,13 +20,13 @@ class EquipoTorneoController extends Controller
     }
 
     // Registrar un nuevo equipo
-    public function store(Request $request, $torneoId)
+    public function store(Request $request, Torneo $torneo)
     {
         $request->validate([
             'nombre' => [
                 'required', 'string', 'max:255',
-                Rule::unique('equipos_torneo')->where(function ($query) use ($torneoId) {
-                    return $query->where('torneo_id', $torneoId);
+                Rule::unique('equipos_torneo')->where(function ($query) use ($torneo) {
+                    return $query->where('torneo_id', $torneo->id);
                 })
             ],
             'capitan_id' => ['nullable', 'exists:miembros,cedula'],
@@ -51,8 +51,8 @@ class EquipoTorneoController extends Controller
 
         // Validar que un jugador no esté en dos equipos del mismo torneo
         $yaAsignados = EquipoJugador::whereIn('miembro_id', $miembros)
-            ->whereHas('equipo', function($q) use ($torneoId) {
-                $q->where('torneo_id', $torneoId);
+            ->whereHas('equipo', function($q) use ($torneo) {
+                $q->where('torneo_id', $torneo->id);
             })->pluck('miembro_id')->toArray();
         if ($yaAsignados) {
             return back()->withErrors(['mensaje' => 'Uno o más jugadores ya están asignados a otro equipo en este torneo.'])->withInput();
@@ -61,7 +61,7 @@ class EquipoTorneoController extends Controller
         DB::beginTransaction();
         try {
             $equipo = EquipoTorneo::create([
-                'torneo_id' => $torneoId,
+                'torneo_id' => $torneo->id,
                 'nombre' => $request->nombre,
                 'capitan_id' => $request->capitan_id,
                 'federacion' => $request->federacion,
@@ -77,7 +77,7 @@ class EquipoTorneoController extends Controller
                 ]);
             }
             DB::commit();
-            return redirect()->route('torneos.show', $torneoId)->with('success', 'Equipo registrado correctamente.');
+            return redirect()->route('torneos.show', $torneo->id)->with('success', 'Equipo registrado correctamente.');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withErrors(['mensaje' => 'Error al registrar el equipo: ' . $e->getMessage()])->withInput();

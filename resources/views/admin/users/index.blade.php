@@ -93,7 +93,9 @@
 
 <!-- Modal para Asignar Permisos -->
 <div id="modalPermisos" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 hidden">
-    <div class="mx-auto p-5 border w-full max-w-lg shadow-lg rounded-md bg-white">
+    <div class="mx-auto p-5 border w-full max-w-lg shadow-lg rounded-md bg-white relative">
+        <!-- Botón de cierre -->
+        <button type="button" onclick="cerrarModalPermisos()" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-2xl font-bold focus:outline-none">&times;</button>
         <div class="mt-3">
             <h3 class="text-lg font-medium text-gray-900 mb-4">Asignar Permisos a: <span id="usuarioNombre"></span></h3>
             <form id="formPermisos">
@@ -109,7 +111,7 @@
                 </div>
                 <div class="mb-4">
                     <label class="block text-gray-700 text-sm font-bold mb-2">Permisos Específicos:</label>
-                    <div id="permisosContainer" class="space-y-2">
+                    <div id="permisosContainer" class="space-y-2 max-h-64 overflow-y-auto border rounded p-2 bg-gray-50">
                         <!-- Los permisos se cargarán dinámicamente -->
                     </div>
                 </div>

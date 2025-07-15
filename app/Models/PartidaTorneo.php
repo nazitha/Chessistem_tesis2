@@ -66,17 +66,21 @@ class PartidaTorneo extends Model
         }
     }
 
-    public function setResultadoFromTexto($texto)
+    public function setResultadoFromTexto($texto, $esEliminacionDirecta = false)
     {
         $texto = trim($texto);
         Log::info('Procesando resultado texto: ' . $texto);
         
         // Normalizar formatos alternativos
-        $texto = str_replace(['1/2', '0.5', '½'], '½', $texto);
+        $texto = str_replace(['1/2', '0.5', '½'], '0.5', $texto);
         
         // Remover espacios entre caracteres
         $texto = str_replace(' ', '', $texto);
         
+        if ($esEliminacionDirecta && in_array($texto, ['0.5-0.5', '0.5', '=', '½'])) {
+            throw new \InvalidArgumentException('No se permiten empates en eliminación directa. Debe haber un ganador.');
+        }
+
         switch ($texto) {
             case '1-0':
             case '10':
@@ -86,26 +90,20 @@ class PartidaTorneo extends Model
             case '0-1':
             case '01':
             case '0':
-                $this->resultado = 2;
+                $this->resultado = 0;
                 break;
-            case '½-½':
-            case '½½':
-            case '1/2-1/2':
             case '0.5-0.5':
+            case '0.5':
             case '=':
-            case '½':
-                $this->resultado = 3;
+                $this->resultado = 0.5;
                 break;
-            case '+':
-                if (!$this->jugador_negras_id) {
-                    $this->resultado = 1; // Victoria por BYE
-                } else {
-                    throw new \InvalidArgumentException('No se puede usar "+" cuando hay dos jugadores.');
-                }
+            case '':
+            case '*':
+                $this->resultado = null;
                 break;
             default:
                 Log::error('Formato de resultado inválido: ' . $texto);
-                throw new \InvalidArgumentException('Formato de resultado inválido. Use 1-0, 0-1, ½-½, ½ o + (para BYE)');
+                throw new \InvalidArgumentException('Formato de resultado inválido. Use 1-0, 0-1 o deje vacío.');
         }
         
         Log::info('Resultado establecido a: ' . $this->resultado);
