@@ -89,7 +89,7 @@ class AcademiaController extends Controller
 
     public function show(Academia $academia)
     {
-        if (!PermissionHelper::canViewDetails('academias')) {
+        if (!PermissionHelper::canViewModule('academias')) {
             return redirect()->route('academias.index')->with('error', 'No tienes permisos para ver detalles de academias.');
         }
 

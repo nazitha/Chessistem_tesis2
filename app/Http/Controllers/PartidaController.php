@@ -94,6 +94,34 @@ class PartidaController extends Controller
             // Si se actualizó el resultado, actualizar los puntos del participante
             if ($request->has('resultado')) {
                 $this->actualizarPuntosParticipante($partida->torneo_id);
+
+                // --- AVANCE DE GANADORES EN ELIMINACIÓN DIRECTA ---
+                $torneo = $partida->torneo;
+                if ($torneo && $torneo->tipo_torneo === 'Eliminación Directa') {
+                    // Solo si la partida tiene resultado y no es empate
+                    if ($partida->resultado !== null && in_array($partida->resultado, [0, 1])) {
+                        // Determinar ganador
+                        $ganadorId = null;
+                        if ($partida->color && $partida->resultado == 1) {
+                            $ganadorId = $partida->participante_id; // Blancas ganan
+                        } elseif (!$partida->color && $partida->resultado == 0) {
+                            $ganadorId = $partida->participante_id; // Negras ganan
+                        }
+                        // Buscar la partida vacía de la siguiente ronda y misma mesa
+                        if ($ganadorId) {
+                            $siguientePartida = Partida::where('torneo_id', $partida->torneo_id)
+                                ->where('ronda', $partida->ronda + 1)
+                                ->where('mesa', $partida->mesa)
+                                ->whereNull('participante_id')
+                                ->first();
+                            if ($siguientePartida) {
+                                $siguientePartida->participante_id = $ganadorId;
+                                $siguientePartida->save();
+                            }
+                        }
+                    }
+                }
+                // --- FIN AVANCE DE GANADORES ---
             }
 
             DB::commit();

@@ -202,6 +202,20 @@ class Torneo extends Model
         return $this->belongsTo(Federacion::class, 'federacion_id', 'acronimo');
     }
 
+    public function getTipoTorneoAttribute()
+    {
+        if (!$this->sistema_emparejamiento_id) {
+            return null;
+        }
+        
+        $sistema = $this->emparejamiento;
+        if (!$sistema) {
+            return null;
+        }
+        
+        return trim($sistema->sistema);
+    }
+
     public function getMiembrosDisponiblesAttribute()
     {
         $participantesIds = $this->participantes()->pluck('miembro_id');

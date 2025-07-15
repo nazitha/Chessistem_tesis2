@@ -231,6 +231,20 @@
                                     <span class="text-red-600 text-xs">{{ $message }}</span>
                                 @enderror
                             </div>
+                            <div class="col-span-6 sm:col-span-3">
+                                <label for="es_por_equipos" class="block text-sm font-medium text-gray-700 flex items-center">
+                                    <span class="mr-2">👥</span> ¿Torneo por equipos?
+                                </label>
+                                <select name="es_por_equipos" id="es_por_equipos"
+                                        class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                        required>
+                                    <option value="0" selected>Individual</option>
+                                    <option value="1">Por equipos</option>
+                                </select>
+                                @error('es_por_equipos')
+                                    <span class="text-red-600 text-xs">{{ $message }}</span>
+                                @enderror
+                            </div>
                         </div>
 
                         <!-- Criterios de Desempate -->

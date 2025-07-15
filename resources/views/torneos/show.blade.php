@@ -2,6 +2,7 @@
 
 @php
     use App\Helpers\PermissionHelper;
+    $estadoNoPermiteCambios = in_array($torneo->estado, ['Finalizado', 'Cancelado', 'Borrador']);
 @endphp
 
 @section('content')
@@ -173,7 +174,7 @@
                     <span class="ml-2 text-sm text-gray-500">({{ $torneo->equipos->count() }} equipos)</span>
                 </h3>
                 <div class="flex gap-2 items-center">
-                    @if($torneo->estado_torneo && !$torneo->torneo_cancelado)
+                    @if(!$estadoNoPermiteCambios)
                         <button type="button"
                                 @click="open = true"
                                 class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
@@ -181,7 +182,7 @@
                             Registrar Equipo
                         </button>
                     @endif
-                    @if(!$torneo->es_por_equipos && $torneo->estado_torneo && !$torneo->torneo_cancelado && $torneo->participantes->count() >= 4)
+                    @if($torneo->es_por_equipos && $torneo->estado_torneo && !$torneo->torneo_cancelado && $torneo->equipos->count() >= 4 && !$estadoNoPermiteCambios)
                         <form method="POST" action="{{ route('torneos.rondas.store', $torneo) }}">
                             @csrf
                             <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
@@ -226,9 +227,9 @@
                                     @endif
                                 </td>
                                 <td class="px-3 py-2 space-x-2">
-                                    <a href="{{ route('equipos.show', [$torneo->id, $equipo->id]) }}" title="Ver" class="inline-block text-blue-600 hover:text-blue-800 text-xl align-middle">
+                                    <button type="button" onclick="abrirModalVerEquipo('{{ $equipo->id }}')" title="Ver" class="inline-block text-blue-600 hover:text-blue-800 text-xl align-middle">
                                         <i class="fas fa-eye"></i>
-                                    </a>
+                                    </button>
                                     <button type="button" data-equipo-id="{{ $equipo->id }}" class="btn-editar-equipo inline-block text-yellow-600 hover:text-yellow-800 text-xl align-middle" title="Editar">
                                         <i class="fas fa-edit"></i>
                                     </button>
@@ -239,7 +240,7 @@
                                             <i class="fas fa-trash-alt"></i>
                                         </button>
                                     </form>
-                                    @if($torneo->estado_torneo && !$torneo->torneo_cancelado)
+                                    @if(!$estadoNoPermiteCambios)
                                         <button type="button" data-equipo-id="{{ $equipo->id }}" class="btn-agregar-jugador inline-block text-green-600 hover:text-green-800 text-xl align-middle" title="Agregar jugador">
                                             <i class="fas fa-user-plus"></i>
                                         </button>
@@ -348,7 +349,7 @@
                 <span class="ml-2 text-sm text-gray-500">({{ $torneo->participantes->count() }} registrados)</span>
             </h3>
             <div class="flex gap-2">
-                @if($torneo->estado_torneo && !$torneo->torneo_cancelado && PermissionHelper::canCreate('participantes'))
+                @if(!$estadoNoPermiteCambios && PermissionHelper::canCreate('participantes'))
                 <button type="button"
                         onclick="mostrarModalParticipantes()"
                         class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
@@ -356,7 +357,7 @@
                     Agregar Participantes
                 </button>
                 @endif
-                @if(!$torneo->es_por_equipos && $torneo->estado_torneo && !$torneo->torneo_cancelado && $torneo->participantes->count() >= 4)
+                @if(!$torneo->es_por_equipos && !$estadoNoPermiteCambios && $torneo->participantes->count() >= 4)
                     <form method="POST" action="{{ route('torneos.rondas.store', $torneo) }}">
                         @csrf
                         <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
@@ -429,9 +430,9 @@
                                                 {{ $oponenteNumero }}{{ $esBlancas ? 'w' : 'b' }}
                                                 @if($partida->resultado !== null)
                                                     @if($esBlancas)
-                                                        {{ $partida->resultado === 1 ? '1' : ($partida->resultado === 2 ? '0' : '½') }}
+                                                        {{ $partida->resultado == 1 ? '1' : ($partida->resultado == 0.5 ? '½' : ($partida->resultado === 0 ? '0' : '*')) }}
                                                     @else
-                                                        {{ $partida->resultado === 2 ? '1' : ($partida->resultado === 1 ? '0' : '½') }}
+                                                        {{ $partida->resultado == 0 ? '1' : ($partida->resultado == 0.5 ? '½' : ($partida->resultado == 1 ? '0' : '*')) }}
                                                     @endif
                                                 @else
                                                     *
@@ -513,7 +514,7 @@
 </div>
 
 <!-- Modal de Agregar Participantes -->
-@if($torneo->estado_torneo && !$torneo->torneo_cancelado && PermissionHelper::canCreate('participantes'))
+@if(!$estadoNoPermiteCambios && PermissionHelper::canCreate('participantes'))
 <div id="modal-participantes" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center">
     <div class="bg-white rounded-lg p-6 max-w-lg w-full mx-4">
         <div class="flex justify-between items-center mb-4">
@@ -561,22 +562,14 @@
 
 <!-- Tabla de Clasificación Final -->
 @if(!$torneo->es_por_equipos && $torneo->rondas->count() == $torneo->no_rondas)
-    <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
-        <div class="px-4 py-5 sm:px-6">
-            <h3 class="text-lg leading-6 font-medium text-gray-900">
-                Clasificación Final
-            </h3>
-        </div>
-        <div class="border-t border-gray-200">
-            @php
-                $posicion = 1;
-                $posicionMostrada = 1;
-                $puntosAnteriores = null;
-                $buchholzAnterior = null;
-                $sonnebornAnterior = null;
-                $progresivoAnterior = null;
-            @endphp
-            <div class="overflow-x-auto px-6 sm:px-8 py-4">
+    <div class="max-w-7xl mx-auto mt-6 mb-10">
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-6 py-5 border-b border-gray-200">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">
+                    Clasificación Final
+                </h3>
+            </div>
+            <div class="overflow-x-auto px-6 py-4">
                 <table class="min-w-full">
                     <thead>
                         <tr class="bg-gray-100">
@@ -598,6 +591,14 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @php
+                            $posicion = 1;
+                            $posicionMostrada = 1;
+                            $puntosAnteriores = null;
+                            $buchholzAnterior = null;
+                            $sonnebornAnterior = null;
+                            $progresivoAnterior = null;
+                        @endphp
                         @foreach($torneo->participantes()
                             ->orderByDesc('puntos')
                             ->orderByDesc('buchholz')
