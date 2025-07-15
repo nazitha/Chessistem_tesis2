@@ -219,9 +219,6 @@
                     </div>
                 @endif
                 <div class="bg-gray-100 rounded-lg shadow p-4 mb-6">
-                    <div class="mb-2 p-2 bg-yellow-50 text-yellow-900 rounded text-xs">
-                        <b>DEBUG:</b> Valor de <code>$ronda->completada</code>: {{ var_export($ronda->completada, true) }}
-                    </div>
                     <table class="min-w-full mb-2">
                         <thead>
                             <tr class="bg-gray-200">
@@ -284,7 +281,11 @@
                                     <td class="px-2 py-1 text-center font-bold">
                                         @if($torneo->tipo_torneo === 'Eliminación Directa')
                                             @if(!$ronda->completada)
-                                                <input type="text" name="resultados[{{ $partida->id }}]" class="rounded border-gray-300 text-sm w-12 text-center" placeholder="1-0/0-1" value="{{ $partida->getResultadoTexto() !== '*' ? $partida->getResultadoTexto() : '' }}" autocomplete="off">
+                                                @if($partida->jugadorNegras)
+                                                    <input type="text" name="resultados[{{ $partida->id }}]" class="rounded border-gray-300 text-sm w-12 text-center" placeholder="1-0/0-1" value="{{ $partida->getResultadoTexto() !== '*' ? $partida->getResultadoTexto() : '' }}" autocomplete="off">
+                                                @else
+                                                    BYE
+                                                @endif
                                             @else
                                                 @if($partida->resultado === null)
                                                     *
@@ -298,7 +299,11 @@
                                             @endif
                                         @else
                                             @if(!$ronda->completada)
-                                                <input type="text" name="resultados[{{ $partida->id }}]" class="rounded border-gray-300 text-sm w-12 text-center" placeholder="1-0/0-1/½" value="{{ $partida->getResultadoTexto() !== '*' ? $partida->getResultadoTexto() : '' }}" autocomplete="off">
+                                                @if($partida->jugadorNegras)
+                                                    <input type="text" name="resultados[{{ $partida->id }}]" class="rounded border-gray-300 text-sm w-12 text-center" placeholder="1-0/0-1/½" value="{{ $partida->getResultadoTexto() !== '*' ? $partida->getResultadoTexto() : '' }}" autocomplete="off">
+                                                @else
+                                                    BYE
+                                                @endif
                                             @else
                                                 @if($partida->resultado === null)
                                                     *

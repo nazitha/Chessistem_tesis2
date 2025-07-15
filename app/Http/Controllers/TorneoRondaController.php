@@ -68,7 +68,7 @@ class TorneoRondaController extends Controller
                     $service = new \App\Services\TeamPairingService($torneo);
                     $service->generarEmparejamientos($rondaActual);
                 } else {
-                    $this->generarRoundRobinIndividual($torneo);
+                    $this->generarRoundRobinIndividual($torneo, $rondaActual);
                 }
             } elseif ($torneo->tipo_torneo === 'Eliminación Directa') {
                 if ($esEquipos) {
@@ -99,30 +99,37 @@ class TorneoRondaController extends Controller
     }
 
     // --- STUBS PARA SISTEMAS DE EMPAREJAMIENTO ---
-    private function generarRoundRobinIndividual(Torneo $torneo)
+    private function generarRoundRobinIndividual(Torneo $torneo, $numeroRonda)
     {
-        // Obtener participantes ordenados por numero_inicial o id
         $participantes = $torneo->participantes()->orderBy('numero_inicial')->get();
         $jugadores = $participantes->pluck('miembro_id')->toArray();
         $n = count($jugadores);
-        $tieneBye = false;
         if ($n % 2 !== 0) {
             $jugadores[] = 'BYE';
             $n++;
-            $tieneBye = true;
         }
         $rondas = $n - 1;
         $mitad = $n / 2;
-        // Generar todas las rondas
-        for ($r = 1; $r <= $rondas; $r++) {
-            // Crear la ronda en la base de datos
+
+        // Rotar para llegar a la ronda deseada
+        for ($r = 1; $r < $numeroRonda; $r++) {
+            $fijo = array_shift($jugadores);
+            $ultimo = array_pop($jugadores);
+            array_unshift($jugadores, $fijo);
+            array_splice($jugadores, 1, 0, $ultimo);
+        }
+
+        // Revisar si la ronda ya existe
+        $ronda = RondaTorneo::where('torneo_id', $torneo->id)
+            ->where('numero_ronda', $numeroRonda)
+            ->first();
+        if (!$ronda) {
             $ronda = RondaTorneo::create([
                 'torneo_id' => $torneo->id,
-                'numero_ronda' => $r,
+                'numero_ronda' => $numeroRonda,
                 'fecha_hora' => now(),
                 'completada' => false
             ]);
-            // Generar partidas para la ronda
             for ($i = 0; $i < $mitad; $i++) {
                 $jugador1 = $jugadores[$i];
                 $jugador2 = $jugadores[$n - 1 - $i];
@@ -136,11 +143,6 @@ class TorneoRondaController extends Controller
                     ]);
                 }
             }
-            // Rotar jugadores, manteniendo fijo el primero
-            $fijo = array_shift($jugadores);
-            $ultimo = array_pop($jugadores);
-            array_unshift($jugadores, $fijo);
-            array_splice($jugadores, 1, 0, $ultimo);
         }
     }
 
@@ -641,10 +643,8 @@ class TorneoRondaController extends Controller
                 // Verificar si la ronda está completa
                 $partidasSinResultado = PartidaTorneo::where('ronda_id', $ronda->id)
                     ->whereNull('resultado')
-                    ->where(function($query) {
-                        $query->whereNotNull('jugador_negras_id')
-                              ->orWhereNull('jugador_negras_id');
-                    })
+                    ->whereNotNull('jugador_blancas_id')
+                    ->whereNotNull('jugador_negras_id') // Solo partidas reales, no BYE
                     ->count();
 
                 Log::info('Verificando si la ronda está completa', [
@@ -652,133 +652,53 @@ class TorneoRondaController extends Controller
                     'partidasSinResultado' => $partidasSinResultado
                 ]);
                 if ($partidasSinResultado === 0) {
-                    Log::info('Entrando a bloque de generación de siguiente ronda', [
-                        'tipo_torneo' => $torneo->tipo_torneo,
-                        'es_por_equipos' => $torneo->es_por_equipos
-                    ]);
                     $ronda->completada = true;
                     $ronda->save();
-                    Log::info('Ronda marcada como completada');
-
                     $torneo = $ronda->torneo;
-                    $siguienteRonda = null; // Inicializar para evitar variable indefinida
-                    if ($torneo->tipo_torneo === 'Eliminación Directa' && !$torneo->es_por_equipos) {
-                        // Limitar el número de rondas generadas
-                        if ($ronda->numero_ronda >= $torneo->no_rondas) {
-                            // --- FIX: Marcar la ronda como completada y guardar antes de salir ---
-                            $ronda->completada = true;
-                            $ronda->save();
-                            DB::commit();
-                            // No generar más rondas, redirigir al detalle del torneo
-                            return redirect()->route('torneos.show', $torneo)
-                                ->with('success', '¡Torneo finalizado! Se muestra la clasificación final.');
-                        }
-                        // Obtener ganadores de la ronda actual
-                        $ganadores = [];
-                        foreach ($ronda->partidas as $partida) {
-                            if ($partida->resultado === null) continue;
-                            if ($partida->jugador_blancas_id && $partida->jugador_negras_id) {
-                                // Victoria blancas
-                                if ($partida->resultado == 1) {
-                                    $ganadores[] = $partida->jugador_blancas_id;
-                                } elseif ($partida->resultado == 0) {
-                                    $ganadores[] = $partida->jugador_negras_id;
-                                }
-                            } elseif ($partida->jugador_blancas_id && !$partida->jugador_negras_id) {
-                                // BYE
-                                $ganadores[] = $partida->jugador_blancas_id;
-                            } elseif ($partida->jugador_negras_id && !$partida->jugador_blancas_id) {
-                                // BYE
-                                $ganadores[] = $partida->jugador_negras_id;
-                            }
-                        }
-                        Log::info('Intentando generar siguiente ronda de eliminación directa', [
-                            'ronda_actual' => $ronda->numero_ronda,
-                            'siguiente_numero_ronda' => $ronda->numero_ronda + 1,
-                            'ganadores' => $ganadores,
-                            'torneo_id' => $torneo->id
+
+                    // Calcular desempates si corresponde
+                    if ($torneo->usar_buchholz) {
+                        $this->actualizarBuchholz($torneo);
+                    }
+                    if ($torneo->usar_sonneborn_berger) {
+                        $this->actualizarSonnebornBerger($torneo);
+                    }
+                    if ($torneo->usar_desempate_progresivo) {
+                        $this->actualizarProgresivo($torneo);
+                    }
+                    $siguienteRonda = null;
+                    // Si no es la última ronda, crear y emparejar la siguiente
+                    if ($ronda->numero_ronda < $torneo->no_rondas) {
+                        $nuevaRonda = RondaTorneo::create([
+                            'torneo_id' => $torneo->id,
+                            'numero_ronda' => $ronda->numero_ronda + 1,
+                            'fecha_hora' => now(),
+                            'completada' => false
                         ]);
-                        
-                        // Validar que hay ganadores para generar la siguiente ronda
-                        if (empty($ganadores)) {
-                            Log::warning('No hay ganadores para generar la siguiente ronda de eliminación directa', [
-                                'torneo_id' => $torneo->id,
-                                'ronda_actual' => $ronda->numero_ronda
-                            ]);
-                            $siguienteRonda = null;
+                        if ($torneo->es_por_equipos) {
+                            $this->generarEmparejamientosEquipos($torneo, $nuevaRonda);
                         } else {
-                            // Llamada a la función de generación SOLO si no se ha superado el límite de rondas
-                            $resultadoGeneracion = $this->generarEliminacionDirectaIndividual($torneo, $ganadores, $ronda->numero_ronda + 1);
-                            Log::info('Resultado de generarEliminacionDirectaIndividual', [
-                                'resultado' => $resultadoGeneracion,
-                                'torneo_id' => $torneo->id,
-                                'numero_ronda' => $ronda->numero_ronda + 1
-                            ]);
-                            
-                            // Obtener la siguiente ronda (ya sea que se haya creado o ya existiera)
-                            $siguienteRonda = RondaTorneo::where('torneo_id', $torneo->id)
-                                ->where('numero_ronda', $ronda->numero_ronda + 1)
-                                ->first();
-                                
-                            if (!$siguienteRonda) {
-                                Log::warning('No se pudo obtener la siguiente ronda después de generar eliminación directa', [
-                                    'torneo_id' => $torneo->id,
-                                    'numero_ronda' => $ronda->numero_ronda + 1
-                                ]);
-                            }
-                        }
-                    } else {
-                        // Para Suizo, Round Robin, etc.
-                        $siguienteRonda = RondaTorneo::where('torneo_id', $torneo->id)
-                            ->where('numero_ronda', $ronda->numero_ronda + 1)
-                            ->first();
-                        if (!$siguienteRonda && $ronda->numero_ronda < $torneo->no_rondas) {
-                            // Si no existe la siguiente ronda y no es la última, generarla automáticamente
-                            if ($torneo->es_por_equipos) {
-                                $this->generarEmparejamientosEquipos($torneo, RondaTorneo::create([
-                                    'torneo_id' => $torneo->id,
-                                    'numero_ronda' => $ronda->numero_ronda + 1,
-                                    'fecha_hora' => now(),
-                                    'completada' => false
-                                ]));
+                            // Lógica específica para eliminación directa
+                            if ($torneo->tipo_torneo === 'Eliminación Directa') {
+                                $this->generarSiguienteRondaEliminacionDirecta($torneo, $ronda, $nuevaRonda);
                             } else {
-                                $nuevaRonda = RondaTorneo::create([
-                                    'torneo_id' => $torneo->id,
-                                    'numero_ronda' => $ronda->numero_ronda + 1,
-                                    'fecha_hora' => now(),
-                                    'completada' => false
-                                ]);
                                 $this->generarEmparejamientosIndividuales($torneo, $nuevaRonda);
-                                $siguienteRonda = $nuevaRonda;
                             }
                         }
-                        if (!$siguienteRonda) {
-                            $siguienteRonda = RondaTorneo::where('torneo_id', $torneo->id)
-                                ->where('numero_ronda', $ronda->numero_ronda + 1)
-                                ->first();
-                        }
+                        $siguienteRonda = $nuevaRonda;
+                    }
+                    DB::commit();
+                    if ($siguienteRonda) {
+                        return redirect()
+                            ->route('torneos.rondas.show', [$torneo, $siguienteRonda])
+                            ->with('success', 'Resultados guardados y siguiente ronda generada exitosamente.');
+                    } else {
+                        // Redirige a la ronda actual, aunque sea la última
+                        return redirect()
+                            ->route('torneos.rondas.show', [$torneo, $ronda])
+                            ->with('success', '¡Torneo finalizado! Esta fue la última ronda.');
                     }
                 }
-
-                DB::commit();
-                Log::info('=== Transacción completada exitosamente ===');
-
-                // Redirigir a la siguiente ronda si existe
-                if (isset($siguienteRonda) && $siguienteRonda) {
-                    return redirect()
-                        ->route('torneos.rondas.show', [$torneo, $siguienteRonda])
-                        ->with('success', 'Resultados guardados y siguiente ronda generada exitosamente.');
-                } else if ($torneo->rondas()->count() < $torneo->no_rondas) {
-                    // Si no existe la siguiente ronda pero aún faltan rondas, redirigir a la ronda actual y mostrar botón para generarla
-                    return redirect()
-                        ->route('torneos.rondas.show', [$torneo, $ronda])
-                        ->with('info', 'Resultados guardados. Puedes generar la siguiente ronda.');
-                } else {
-                    return redirect()
-                        ->route('torneos.show', $torneo)
-                        ->with('success', '¡Torneo finalizado! Se muestra la clasificación final.');
-                }
-
 
                 // Recalcular criterios de desempate de equipos si aplica
                 if ($torneo->es_por_equipos && ($torneo->usar_buchholz || $torneo->usar_sonneborn_berger || $torneo->usar_desempate_progresivo)) {
@@ -835,18 +755,20 @@ class TorneoRondaController extends Controller
             $puntosTotales = 0;
             foreach ($partidas as $p) {
                 if ($p->resultado === null) continue;
-                // Partida de BYE
+                // Partida de BYE (solo sumar si el jugador es blancas y negras es null)
                 if (!$p->jugador_negras_id && $p->jugador_blancas_id === $jugadorId) {
                     $puntosTotales += 1.0;
                     continue;
                 }
                 // Partidas normales
+                $resultado = floatval($p->resultado);
                 if ($p->jugador_blancas_id === $jugadorId) {
-                    if ($p->resultado === 1) $puntosTotales += 1.0;      // Victoria con blancas
-                    elseif ($p->resultado === 3) $puntosTotales += 0.5;  // Tablas
-                } elseif ($p->jugador_negras_id === $jugadorId) {
-                    if ($p->resultado === 2 || $p->resultado === 0) $puntosTotales += 1.0;      // Victoria con negras (ambos sistemas)
-                    elseif ($p->resultado === 3) $puntosTotales += 0.5;  // Tablas
+                    if ($resultado == 1.0) $puntosTotales += 1.0;      // Victoria con blancas
+                    elseif ($resultado == 0.5) $puntosTotales += 0.5;  // Tablas
+                }
+                if ($p->jugador_negras_id === $jugadorId) {
+                    if ($resultado == 0.0) $puntosTotales += 1.0;      // Victoria con negras
+                    elseif ($resultado == 0.5) $puntosTotales += 0.5;  // Tablas
                 }
             }
 
@@ -967,6 +889,92 @@ class TorneoRondaController extends Controller
             }
             $participante->update(['progresivo' => $progresivo]);
         }
+    }
+
+    private function generarSiguienteRondaEliminacionDirecta(Torneo $torneo, RondaTorneo $rondaActual, RondaTorneo $nuevaRonda)
+    {
+        \Log::info("[GenerarSiguienteRondaEliminacionDirecta] Iniciando lógica de eliminación directa", [
+            'torneo_id' => $torneo->id,
+            'ronda_actual_id' => $rondaActual->id,
+            'nueva_ronda_id' => $nuevaRonda->id
+        ]);
+
+        // Determinar ganadores SOLO por resultado 1 (blancas) o 0 (negras). No se aceptan tablas (0.5)
+        $ganadores = [];
+        $partidas = $rondaActual->partidas()->get();
+        \Log::info("[EliminacionDirecta] Total de partidas encontradas: " . $partidas->count());
+        
+        foreach ($partidas as $partida) {
+            \Log::info("[EliminacionDirecta] Procesando partida ID: {$partida->id}", [
+                'jugador_blancas_id' => $partida->jugador_blancas_id,
+                'jugador_negras_id' => $partida->jugador_negras_id,
+                'resultado' => $partida->resultado,
+                'tipo_resultado' => gettype($partida->resultado),
+                'resultado_igual_1' => $partida->resultado == 1,
+                'resultado_igual_0' => $partida->resultado == 0,
+                'resultado_igual_0.5' => $partida->resultado == 0.5,
+                'resultado_es_null' => $partida->resultado === null
+            ]);
+
+            if ($partida->resultado == 1) {
+                $ganadores[] = $partida->jugador_blancas_id;
+                \Log::info("[EliminacionDirecta] Victoria blancas - Ganador: {$partida->jugador_blancas_id}");
+            } elseif ($partida->resultado == 0) {
+                $ganadores[] = $partida->jugador_negras_id;
+                \Log::info("[EliminacionDirecta] Victoria negras - Ganador: {$partida->jugador_negras_id}");
+            } elseif ($partida->resultado == 0.5) {
+                // No permitir tablas en eliminación directa
+                \Log::warning("[EliminacionDirecta] Se detectó una partida con tablas. Esto no está permitido. Partida ID: {$partida->id}");
+            } elseif ($partida->resultado === null) {
+                \Log::warning("[EliminacionDirecta] Partida sin resultado encontrada. Partida ID: {$partida->id}");
+            } else {
+                \Log::warning("[EliminacionDirecta] Resultado inesperado: " . var_export($partida->resultado, true) . " para partida ID: {$partida->id}");
+            }
+        }
+
+        \Log::info("[EliminacionDirecta] Ganadores encontrados: " . implode(', ', $ganadores));
+
+        // Si no hay ganadores, no crear la ronda
+        if (count($ganadores) < 2) {
+            \Log::warning("[EliminacionDirecta] No hay suficientes ganadores para crear la siguiente ronda. Ganadores: " . implode(', ', $ganadores));
+            // Eliminar la ronda vacía creada
+            $nuevaRonda->delete();
+            return;
+        }
+
+        // Si el número de ganadores es impar, agregar un BYE (null)
+        if (count($ganadores) % 2 !== 0) {
+            $ganadores[] = null;
+        }
+
+        // Emparejar y crear partidas
+        for ($i = 0; $i < count($ganadores); $i += 2) {
+            $jugador1 = $ganadores[$i];
+            $jugador2 = $ganadores[$i + 1] ?? null;
+            if ($jugador1 && $jugador2) {
+                PartidaTorneo::create([
+                    'ronda_id' => $nuevaRonda->id,
+                    'jugador_blancas_id' => $jugador1,
+                    'jugador_negras_id' => $jugador2,
+                    'mesa' => ($i / 2) + 1,
+                    'resultado' => null
+                ]);
+            } elseif ($jugador1 && !$jugador2) {
+                // BYE para jugador1
+                PartidaTorneo::create([
+                    'ronda_id' => $nuevaRonda->id,
+                    'jugador_blancas_id' => $jugador1,
+                    'jugador_negras_id' => null,
+                    'resultado' => 1, // Victoria por bye
+                    'mesa' => ($i / 2) + 1,
+                    'resultado' => null
+                ]);
+            }
+        }
+        \Log::info('[EliminacionDirecta] FIN generarSiguienteRondaEliminacionDirecta', [
+            'ronda_id' => $nuevaRonda->id,
+            'partidas_creadas' => PartidaTorneo::where('ronda_id', $nuevaRonda->id)->count()
+        ]);
     }
 
     /**

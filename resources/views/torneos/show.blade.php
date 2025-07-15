@@ -430,9 +430,9 @@
                                                 {{ $oponenteNumero }}{{ $esBlancas ? 'w' : 'b' }}
                                                 @if($partida->resultado !== null)
                                                     @if($esBlancas)
-                                                        {{ $partida->resultado === 1 ? '1' : ($partida->resultado === 2 ? '0' : '½') }}
+                                                        {{ $partida->resultado == 1 ? '1' : ($partida->resultado == 0.5 ? '½' : ($partida->resultado === 0 ? '0' : '*')) }}
                                                     @else
-                                                        {{ $partida->resultado === 2 ? '1' : ($partida->resultado === 1 ? '0' : '½') }}
+                                                        {{ $partida->resultado == 0 ? '1' : ($partida->resultado == 0.5 ? '½' : ($partida->resultado == 1 ? '0' : '*')) }}
                                                     @endif
                                                 @else
                                                     *
