@@ -78,6 +78,12 @@
                 </ul>
             </div>
         @endif
+        @if(session('warning'))
+            <div class="mb-4 p-2 bg-yellow-100 text-yellow-800 rounded">
+                <b>Advertencia:</b>
+                <div class="whitespace-pre-line">{{ session('warning') }}</div>
+            </div>
+        @endif
         @if(session('error'))
             <div class="mb-4 p-2 bg-red-200 text-red-800 rounded">
                 {{ session('error') }}
