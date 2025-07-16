@@ -62,25 +62,6 @@ class TeamPairingService
                         'tableros' => $tableros
                     ];
 
-                    // Crear el match y las partidas individuales
-                    $match = EquipoMatch::create([
-                        'torneo_id' => $this->torneo->id,
-                        'ronda' => $ronda,
-                        'equipo_a_id' => $equipoA->id,
-                        'equipo_b_id' => $equipoB->id,
-                        'mesa' => 0
-                    ]);
-                    foreach ($tableros as $tablero) {
-                        if (!$tablero['blancas'] || !$tablero['negras']) continue;
-                        PartidaIndividual::create([
-                            'equipo_match_id' => $match->id,
-                            'jugador_a_id' => $tablero['blancas']->miembro_id,
-                            'jugador_b_id' => $tablero['negras']->miembro_id,
-                            'tablero' => $tablero['tablero']
-                        ]);
-                    }
-
-
                     $equiposDisponibles = $equiposDisponibles->filter(function($e) use ($equipoA, $equipoB) {
                         return $e->id !== $equipoA->id && $e->id !== $equipoB->id;
                     });
@@ -104,24 +85,11 @@ class TeamPairingService
             if ($this->validarByeRepetido($equipoBye)) {
 
                 Log::info('Asignando BYE a equipo: ' . $equipoBye->nombre);
-                $match = EquipoMatch::create([
-                    'torneo_id' => $this->torneo->id,
-                    'ronda' => $ronda,
-                    'equipo_a_id' => $equipoBye->id,
-                    'equipo_b_id' => null,
-                    'resultado_match' => 1, // Victoria por bye
-                    'mesa' => 0 // Mesa especial para bye
-                ]);
-                // Asignar victorias a todos los jugadores del equipo
-                foreach ($equipoBye->jugadores as $jugador) {
-                    PartidaIndividual::create([
-                        'equipo_match_id' => $match->id,
-                        'jugador_a_id' => $jugador->miembro_id,
-                        'jugador_b_id' => null,
-                        'resultado' => 1, // Victoria por bye
-                        'tablero' => $jugador->tablero
-                    ]);
-                }
+                $emparejamientos[] = [
+                    'equipo_a' => $equipoBye,
+                    'equipo_b' => null,
+                    'tableros' => []
+                ];
 
                 $byeAsignado = true;
             }
