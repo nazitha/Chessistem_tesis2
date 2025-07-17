@@ -120,6 +120,13 @@
     </style>
     
     @stack('styles')
+    <style>
+    html, body {
+        opacity: 1 !important;
+        filter: none !important;
+        background: #f9fafb !important;
+    }
+    </style>
 </head>
 <body class="min-h-screen flex flex-col bg-gray-50">
     <!-- Navegación superior -->
@@ -201,5 +208,6 @@
         </div>
       </div>
     </div>
+    @include('modals.add_users')
 </body>
 </html>

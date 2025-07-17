@@ -60,21 +60,30 @@ function abrirModalPermisos(userId) {
 }
 
 function guardarPermisos() {
-    const formData = new FormData(document.getElementById('formAsignarPermisos'));
-    
+    const user_id = $('#user_id').val();
+    const rol_id = $('#rol_id').val();
+    const permisos = [];
+    $('input[name="permisos[]"]:checked').each(function() {
+        permisos.push($(this).val());
+    });
+
     fetch('/asignar-permisos', {
         method: 'POST',
-        body: formData,
         headers: {
+            'Content-Type': 'application/json',
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-        }
+        },
+        body: JSON.stringify({
+            user_id: user_id,
+            rol_id: rol_id,
+            permisos: permisos
+        })
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
             alert('Permisos asignados correctamente');
             $('#asignarPermisosModal').modal('hide');
-            // Recargar la tabla o actualizar la vista según sea necesario
             location.reload();
         } else {
             alert('Error al asignar permisos: ' + data.message);

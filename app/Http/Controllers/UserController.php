@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -55,18 +56,27 @@ class UserController extends Controller
             return response()->json(['error' => 'No tienes permiso para crear usuarios'], 403);
         }
 
-        return DB::transaction(function () use ($request) {
-            $user = User::create($request->validated());
-            
-            AuditService::logUserAction(
-                $request->mail_log,
-                $user,
-                'created',
-                $request->validated()
-            );
+        try {
+            return DB::transaction(function () use ($request) {
+                $user = User::create($request->validated());
+                
+                AuditService::logUserAction(
+                    Auth::user()->correo,
+                    $user,
+                    'created',
+                    $request->validated()
+                );
 
-            return response()->json(['success' => true], 201);
-        });
+                return response()->json(['success' => true], 201);
+            });
+        } catch (\Exception $e) {
+            Log::error('Error al crear usuario: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'error' => 'Error al crear el usuario',
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function update(UserUpdateRequest $request, User $user): JsonResponse
@@ -161,14 +171,30 @@ class UserController extends Controller
     public function asignarPermisos(Request $request)
     {
         try {
-            $request->validate([
+            // Aceptar tanto JSON como form-data
+            if ($request->isJson()) {
+                $data = $request->json()->all();
+            } else {
+                $data = $request->all();
+            }
+            Log::info('Datos recibidos para asignar permisos:', $data);
+
+            $validator = Validator::make($data, [
                 'user_id' => 'required|exists:users,id',
                 'rol_id' => 'required|in:1,2,3,4',
                 'permisos' => 'required|array'
             ]);
 
-            $user = User::findOrFail($request->user_id);
-            $user->rol_id = $request->rol_id;
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al asignar permisos: ' . $validator->errors()->first(),
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $user = User::findOrFail($data['user_id']);
+            $user->rol_id = $data['rol_id'];
             $user->save();
 
             // Aquí puedes agregar lógica adicional para guardar los permisos específicos
@@ -177,7 +203,7 @@ class UserController extends Controller
             Log::info('Permisos asignados correctamente', [
                 'user_id' => $user->id,
                 'rol_id' => $user->rol_id,
-                'permisos' => $request->permisos
+                'permisos' => $data['permisos']
             ]);
 
             return response()->json([
@@ -186,7 +212,6 @@ class UserController extends Controller
             ]);
         } catch (\Exception $e) {
             Log::error('Error al asignar permisos: ' . $e->getMessage());
-            
             return response()->json([
                 'success' => false,
                 'message' => 'Error al asignar permisos: ' . $e->getMessage()

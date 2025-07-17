@@ -204,6 +204,8 @@
     </div>
 </div>
 
+@include('modals.add_users')
+
 @push('scripts')
 <script>
     function validarEmail(email) {
@@ -427,9 +429,9 @@
         });
     });
 
-    document.getElementById('btnNuevoUsuario')?.addEventListener('click', function() {
-        // Implementar lógica para nuevo usuario
-        console.log('Nuevo usuario');
+    document.getElementById('btnNuevoUsuario').addEventListener('click', function() {
+        const modal = new bootstrap.Modal(document.getElementById('modal_add_users'));
+        modal.show();
     });
 </script>
 @endpush
