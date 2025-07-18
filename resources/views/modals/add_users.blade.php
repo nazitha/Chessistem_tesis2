@@ -5,7 +5,7 @@
     <!-- MODAL -->
     <div class="mx-auto p-5 border w-full max-w-lg shadow-lg rounded-md bg-white relative z-50 pointer-events-auto">
         <!-- Botón de cierre -->
-        <button type="button" onclick="cerrarModalAddUsuario()" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-2xl font-bold focus:outline-none close-modal">&times;</button>
+        <button type="button" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-2xl font-bold focus:outline-none close-modal">&times;</button>
         <div class="mt-3">
             <h2 class="text-2xl font-bold text-center mb-6">Nuevo Usuario</h2>
             <form id="form_add_users" class="needs-validation" novalidate>
@@ -44,7 +44,7 @@
                     </div>
                 </div>
                 <div class="flex justify-end mt-8 space-x-3">
-                    <button type="button" onclick="cerrarModalAddUsuario()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 btn-cancelar">
+                    <button type="button" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 btn-cancelar">
                         Cancelar
                     </button>
                     <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
@@ -223,4 +223,13 @@ function cerrarModalAddUsuario() {
     if (document.activeElement) document.activeElement.blur(); 
     eliminarBackdropsBootstrap();
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('#modal_add_users .close-modal, #modal_add_users .btn-cancelar').forEach(btn => {
+        btn.onclick = function() {
+            console.log('Cerrando modal desde botón:', btn);
+            cerrarModalAddUsuario();
+        };
+    });
+});
 </script>

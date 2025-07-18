@@ -430,8 +430,8 @@
     });
 
     document.getElementById('btnNuevoUsuario').addEventListener('click', function() {
-        const modal = new bootstrap.Modal(document.getElementById('modal_add_users'));
-        modal.show();
+       
+        // const modal = new bootstrap.Modal(document.getElementById('modal_add_users'));
     });
 </script>
 @endpush

@@ -208,6 +208,5 @@
         </div>
       </div>
     </div>
-    @include('modals.add_users')
 </body>
 </html>

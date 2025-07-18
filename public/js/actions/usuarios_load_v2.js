@@ -156,7 +156,7 @@ $(document).ready(function() {
         $(".modal-header").css("background-color", "#1e2936");
         $(".modal-header").css("color", "#ffffff");
         $("#title_add_users").text("Editar usuario");
-        $("#modal_add_users").modal("show");
+        // $("#modal_add_users").modal("show");
     })
     /* ****************************************************************************************** */
 
@@ -313,7 +313,6 @@ $(document).ready(function() {
                     title: 'Éxito',
                     html: 'El usuario con correo <strong>' + correo + '</strong> ha sido ingresado con éxito.'
                 });
-                $("#modal_add_users").modal("hide");
                 // Recargar la tabla de usuarios si aplica
                 if (window.tabla_usuarios) window.tabla_usuarios.ajax.reload();
             } else {
