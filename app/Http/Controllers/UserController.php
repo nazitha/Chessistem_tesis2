@@ -67,7 +67,7 @@ class UserController extends Controller
                     $request->validated()
                 );
 
-                return response()->json(['success' => true], 201);
+                return response()->json(['success' => true]);
             });
         } catch (\Exception $e) {
             Log::error('Error al crear usuario: ' . $e->getMessage());

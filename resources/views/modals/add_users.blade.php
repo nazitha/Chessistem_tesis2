@@ -5,7 +5,7 @@
     <!-- MODAL -->
     <div class="mx-auto p-5 border w-full max-w-lg shadow-lg rounded-md bg-white relative z-50 pointer-events-auto">
         <!-- Botón de cierre -->
-        <button type="button" onclick="cerrarModalAddUsuario()" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-2xl font-bold focus:outline-none">&times;</button>
+        <button type="button" onclick="cerrarModalAddUsuario()" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-2xl font-bold focus:outline-none close-modal">&times;</button>
         <div class="mt-3">
             <h2 class="text-2xl font-bold text-center mb-6">Nuevo Usuario</h2>
             <form id="form_add_users" class="needs-validation" novalidate>
@@ -44,7 +44,7 @@
                     </div>
                 </div>
                 <div class="flex justify-end mt-8 space-x-3">
-                    <button type="button" onclick="cerrarModalAddUsuario()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">
+                    <button type="button" onclick="cerrarModalAddUsuario()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 btn-cancelar">
                         Cancelar
                     </button>
                     <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
@@ -58,7 +58,11 @@
 <script>
 function cerrarModalAddUsuario() {
     document.getElementById('modal_add_users').classList.add('hidden');
-    document.getElementById('form_add_users').reset();
+    const form = document.getElementById('form_add_users');
+    form.reset();
+    form.classList.remove('was-validated');
+    if (document.activeElement) document.activeElement.blur(); 
+    eliminarBackdropsBootstrap();
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -78,12 +82,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Manejar el envío del formulario
     const formAddUsers = document.getElementById('form_add_users');
+    let isSubmitting = false;
     if (formAddUsers) {
-        formAddUsers.addEventListener('submit', function(e) {
+        formAddUsers.onsubmit = function(e) {
             e.preventDefault();
+            if (isSubmitting) return;
+            isSubmitting = true;
             // Validar el formulario
             if (!formAddUsers.checkValidity()) {
                 formAddUsers.classList.add('was-validated');
+                isSubmitting = false;
                 return;
             }
             // Obtener los datos del formulario
@@ -92,11 +100,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 contrasena: document.getElementById('input_pass_add_user').value,
                 contrasena_confirmation: document.getElementById('input_passconfirm_add_user').value,
                 rol_id: document.getElementById('select_rol_add_user').value,
-                usuario_estado: document.getElementById('input_estado_add_user').value
+                usuario_estado: document.getElementById('input_estado_add_user').value === "1"
             };
             // Validar que las contraseñas coincidan
             if (formData.contrasena !== formData.contrasena_confirmation) {
-                alert('Las contraseñas no coinciden');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Las contraseñas no coinciden',
+                    text: 'Por favor, verifica que ambas contraseñas sean iguales.'
+                });
+                isSubmitting = false;
                 return;
             }
             // Mostrar indicador de carga
@@ -109,37 +122,65 @@ document.addEventListener('DOMContentLoaded', function() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'X-Requested-With': 'XMLHttpRequest'
                 },
                 body: JSON.stringify(formData)
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Usuario creado exitosamente');
-                    cerrarModalAddUsuario();
-                    window.location.reload();
+            .then(async response => {
+                let data;
+                try {
+                    data = await response.json();
+                } catch (e) {
+                    data = {};
+                }
+                if (response.ok && data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Usuario creado exitosamente',
+                        text: 'El usuario ha sido registrado correctamente.'
+                    }).then(() => {
+                        cerrarModalAddUsuario();
+                        submitBtn.blur();
+                        isSubmitting = false;
+                        submitBtn.textContent = originalText;
+                        submitBtn.disabled = false;
+                    });
+                } else if (data.errors) {
+                    let errorMessage = '';
+                    Object.keys(data.errors).forEach(key => {
+                        errorMessage += `${data.errors[key][0]}<br>`;
+                    });
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Errores de validación',
+                        html: errorMessage
+                    });
+                    isSubmitting = false;
+                    submitBtn.textContent = originalText;
+                    submitBtn.disabled = false;
                 } else {
-                    if (data.errors) {
-                        let errorMessage = 'Errores de validación:\n';
-                        Object.keys(data.errors).forEach(key => {
-                            errorMessage += `- ${data.errors[key][0]}\n`;
-                        });
-                        alert(errorMessage);
-                    } else {
-                        alert('Error al crear el usuario');
-                    }
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message || 'Error al crear el usuario'
+                    });
+                    isSubmitting = false;
+                    submitBtn.textContent = originalText;
+                    submitBtn.disabled = false;
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
-                alert('Error al crear el usuario');
-            })
-            .finally(() => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error al crear el usuario'
+                });
+                isSubmitting = false;
                 submitBtn.textContent = originalText;
                 submitBtn.disabled = false;
             });
-        });
+        };
     }
 });
 </script>
@@ -176,7 +217,10 @@ document.addEventListener('DOMContentLoaded', function() {
 // Función de cierre mejorada
 function cerrarModalAddUsuario() {
     document.getElementById('modal_add_users').classList.add('hidden');
-    document.getElementById('form_add_users').reset();
+    const form = document.getElementById('form_add_users');
+    form.reset();
+    form.classList.remove('was-validated');
+    if (document.activeElement) document.activeElement.blur(); 
     eliminarBackdropsBootstrap();
 }
 </script>
