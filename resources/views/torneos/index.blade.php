@@ -108,7 +108,9 @@
                                                data-tooltip="Editar torneo">
                                                 <i class="fas fa-edit"></i>
                                             </a>
+                                        @endif
 
+                                        @if(PermissionHelper::canCancel())
                                             @if(!$torneo->torneo_cancelado && !$torneo->fecha_inicio->isPast())
                                                 <button type="button"
                                                         onclick="confirmarCancelacion('{{ $torneo->id }}')"

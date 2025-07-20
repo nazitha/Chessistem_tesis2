@@ -215,8 +215,26 @@ class PermissionHelper
     }
 
     /**
+     * Verifica si el usuario tiene permiso para cancelar un torneo
+     *
+     * @return bool
+     */
+    public static function canCancel(): bool
+    {
+        $permission = "torneos.cancel";
+        $result = PermissionService::hasPermission($permission);
+        Log::info('PermissionHelper: Verificando permiso de cancelar torneo', [
+            'permission' => $permission,
+            'result' => $result,
+            'user_id' => Auth::id(),
+            'rol_id' => Auth::user()->rol_id ?? null
+        ]);
+        return $result;
+    }
+
+    /**
      * Verifica si el usuario tiene algún permiso de acción en el módulo de torneos
-     * Incluye los permisos: update, delete y details
+     * Incluye los permisos: update, delete, details y cancel
      *
      * @return bool
      */
@@ -225,7 +243,8 @@ class PermissionHelper
         $permissions = [
             "torneos.update", 
             "torneos.delete",
-            "torneos.details"
+            "torneos.details",
+            "torneos.cancel"
         ];
         
         $result = PermissionService::hasAnyPermission($permissions);
