@@ -45,8 +45,8 @@ $(document).ready(function() {
                             "data": null,
                             "render": function(data, type, row) {
                                 return `
-                                    <button class="btn btn-primary btn-sm" onclick="editarUsuario(${row.id_email})">Editar</button>
-                                    <button class="btn btn-danger btn-sm" onclick="eliminarUsuario(${row.id_email})">Eliminar</button>
+                                    <button class="btn btn-primary btn-sm btnEditar_user" data-id="${row.id_email}">Editar</button>
+                                    <button class="btn btn-danger btn-sm btnEliminar_usuario" data-id="${row.id_email}">Eliminar</button>
                                 `;
                             }
                         }
@@ -161,104 +161,11 @@ $(document).ready(function() {
     /* ****************************************************************************************** */
 
     /* ******************************* BOTÓN EDITAR PARA: ACADEMIAS ******************************* */
+    // Evento delegado para eliminar usuario
     $(document).on("click", ".btnEliminar_usuario", function(){
-        let fila = $(this).closest("tr");
-
-        if (fila.hasClass("child")) {
-            fila = fila.prev("tr");
-        }
-
-        let filaDataTable = window.tabla_usuarios.row(fila);
-
-        if (!filaDataTable || !filaDataTable.data) {
-            console.error("No se pudo obtener la fila de DataTables.");
-            return;
-        }
-
-        let datosFila = filaDataTable.data();
-
-        if (!datosFila) {
-            console.error("No se pudieron obtener los datos de la fila.");
-            return;
-        }
-
-        search = datosFila.correo;
-
-        console.log('usuario a eliminar: '+search);
-
-       Swal.fire({
-            title: `¿Desea eliminar al usuario con correo <b>${search}</b>?`,
-            icon: 'warning',
-            showDenyButton: true,
-            confirmButtonText: "Eliminar",
-            denyButtonText: 'Cancelar',
-            html: `<p>Una vez eliminado, no podrá revertir los cambios</p>`,
-        }).then((result) => {
-            if (result.isConfirmed) {
-
-                $.ajax({
-                    url: 'Http/Controlllers/UserController.php',
-                    type: 'POST',
-                    data: {
-                        search: search,
-                        opcion: 16
-                    },
-                    dataType: 'json',
-                    success: function(response) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Éxito',
-                            html: 'El usuario ha sido eliminado con éxito.'
-                        });
-
-                        window.tabla_usuarios.ajax.reload();
-
-                        correo = datosFila.correo;
-                        rol_text = datosFila.rol;
-                        estado_text = datosFila.Estado;
-
-                        $.ajax({
-                            url: 'Http/Controlllers/UserController.php',
-                            type: 'POST',
-                            data: {
-                                opcion: 17,
-                                mail_log: mail_log,
-                                correo: correo,
-                                rol_text: rol_text,
-                                estado_text: estado_text
-                            },
-                            dataType: 'json',
-                            success: function(response) {
-                                window.tabla_historial.ajax.reload();
-                            },
-                            error: function(xhr, status, error) {
-    
-                            }
-                        }); 
-
-                        $.ajax({
-                        //    url: 'http://192.168.100.100:3001/refresh/usuarios',
-                            type: 'GET',
-                            success: function() {
-                                console.log('Evento de actualización enviado para usuarios');
-                            },
-                            error: function(xhr, status, error) {
-                                console.log('Error al emitir evento: ' + error);
-                            }
-                        });
-      
-                    },
-                    error: function(xhr, status, error) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'Hubo un problema al agregar el registro. Verifique los datos ingresados y si la ciudad ya existe.'
-                        });
-                    }
-                });
-            }
-        }); 
-    })
+        const id = $(this).data('id');
+        eliminarUsuario(id);
+    });
     /* ****************************************************************************************** */
 
     /* ********************* ENVÍO DE FORMULARIO: USUARIOS ********************* */

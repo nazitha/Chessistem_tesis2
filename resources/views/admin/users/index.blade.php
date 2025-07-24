@@ -299,7 +299,11 @@
                 .then(data => {
                     if (data.success) {
                         Swal.fire('Eliminado', 'El usuario ha sido eliminado.', 'success');
-                        setTimeout(() => location.reload(), 1000);
+                        if (window.tabla_usuarios) {
+                            window.tabla_usuarios.ajax.reload();
+                        } else {
+                            location.reload();
+                        }
                     } else {
                         Swal.fire('Error', data.error || 'No se pudo eliminar el usuario.', 'error');
                     }
