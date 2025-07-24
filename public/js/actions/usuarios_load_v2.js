@@ -45,8 +45,8 @@ $(document).ready(function() {
                             "data": null,
                             "render": function(data, type, row) {
                                 return `
-                                    <button class="btn btn-primary btn-sm" onclick="editarUsuario(${row.id_email})">Editar</button>
-                                    <button class="btn btn-danger btn-sm" onclick="eliminarUsuario(${row.id_email})">Eliminar</button>
+                                    <button class="btn btn-primary btn-sm btnEditar_user" data-id="${row.id_email}">Editar</button>
+                                    <button class="btn btn-danger btn-sm btnEliminar_usuario" data-id="${row.id_email}">Eliminar</button>
                                 `;
                             }
                         }
@@ -156,316 +156,87 @@ $(document).ready(function() {
         $(".modal-header").css("background-color", "#1e2936");
         $(".modal-header").css("color", "#ffffff");
         $("#title_add_users").text("Editar usuario");
-        $("#modal_add_users").modal("show");
+        // $("#modal_add_users").modal("show");
     })
     /* ****************************************************************************************** */
 
     /* ******************************* BOTÓN EDITAR PARA: ACADEMIAS ******************************* */
+    // Evento delegado para eliminar usuario
     $(document).on("click", ".btnEliminar_usuario", function(){
-        let fila = $(this).closest("tr");
-
-        if (fila.hasClass("child")) {
-            fila = fila.prev("tr");
-        }
-
-        let filaDataTable = window.tabla_usuarios.row(fila);
-
-        if (!filaDataTable || !filaDataTable.data) {
-            console.error("No se pudo obtener la fila de DataTables.");
-            return;
-        }
-
-        let datosFila = filaDataTable.data();
-
-        if (!datosFila) {
-            console.error("No se pudieron obtener los datos de la fila.");
-            return;
-        }
-
-        search = datosFila.correo;
-
-        console.log('usuario a eliminar: '+search);
-
-       Swal.fire({
-            title: `¿Desea eliminar al usuario con correo <b>${search}</b>?`,
-            icon: 'warning',
-            showDenyButton: true,
-            confirmButtonText: "Eliminar",
-            denyButtonText: 'Cancelar',
-            html: `<p>Una vez eliminado, no podrá revertir los cambios</p>`,
-        }).then((result) => {
-            if (result.isConfirmed) {
-
-                $.ajax({
-                    url: 'Http/Controlllers/UserController.php',
-                    type: 'POST',
-                    data: {
-                        search: search,
-                        opcion: 16
-                    },
-                    dataType: 'json',
-                    success: function(response) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Éxito',
-                            html: 'El usuario ha sido eliminado con éxito.'
-                        });
-
-                        window.tabla_usuarios.ajax.reload();
-
-                        correo = datosFila.correo;
-                        rol_text = datosFila.rol;
-                        estado_text = datosFila.Estado;
-
-                        $.ajax({
-                            url: 'Http/Controlllers/UserController.php',
-                            type: 'POST',
-                            data: {
-                                opcion: 17,
-                                mail_log: mail_log,
-                                correo: correo,
-                                rol_text: rol_text,
-                                estado_text: estado_text
-                            },
-                            dataType: 'json',
-                            success: function(response) {
-                                window.tabla_historial.ajax.reload();
-                            },
-                            error: function(xhr, status, error) {
-    
-                            }
-                        }); 
-
-                        $.ajax({
-                        //    url: 'http://192.168.100.100:3001/refresh/usuarios',
-                            type: 'GET',
-                            success: function() {
-                                console.log('Evento de actualización enviado para usuarios');
-                            },
-                            error: function(xhr, status, error) {
-                                console.log('Error al emitir evento: ' + error);
-                            }
-                        });
-      
-                    },
-                    error: function(xhr, status, error) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'Hubo un problema al agregar el registro. Verifique los datos ingresados y si la ciudad ya existe.'
-                        });
-                    }
-                });
-            }
-        }); 
-    })
+        const id = $(this).data('id');
+        eliminarUsuario(id);
+    });
     /* ****************************************************************************************** */
 
     /* ********************* ENVÍO DE FORMULARIO: USUARIOS ********************* */
     $("#form_add_users").submit(function(e) {
         e.preventDefault();
-    
+
         var correo = $.trim($("#input_correo_add_user").val());
-        var last_pass = $.trim($('#input_pass_add_user').val());
-        var new_pass = $.trim($('#input_pass_edit_user').val());
+        var contrasena = $.trim($('#input_pass_add_user').val());
+        var rol_id = $.trim($('#select_rol_add_user').val());
+        var usuario_estado = $('#switch_add_user').prop('checked') ? true : false;
         var confirm_pass = $.trim($('#input_passconfirm_edit_user').val());
-        var rol = $.trim($('#select_rol_add_user').val());
-        var estado = $('#switch_add_user').prop('checked') ? 1 : 0;
 
-        rol_text = $('#select_rol_add_user option:selected').text().trim();
-        estado_text = estado === 1 ? 'Activo' : 'Inactivo';
-
-        if (opcion == 6) {
-            
-            if (!correo) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Advertencia',
-                    text: 'Por favor, complete todos los campos.'
-                });
-                return;
-            }
-    
-            if (new_pass || confirm_pass) {
-                validarContrasenas(new_pass, confirm_pass);
-                if (new_pass !== confirm_pass) {
-                    return;
-                }
-            }
-
-            if(opcion == 4)
-            {
-                search = correo;
-            }
-    
-            $.ajax({
-                url: 'Http/Controlllers/UserController.php',
-                type: 'POST',
-                data:
-                {
-                    correo: correo,
-                    new_pass: new_pass,
-                    rol: rol,
-                    estado: estado,
-                    opcion: opcion,
-                    search: search,
-                    rol_text: rol_text,
-                    estado_text: estado_text
-                },
-                dataType: 'json',
-                success: function(response) {
-
-                    if (response.success) {
-                        window.tabla_usuarios.ajax.reload();
-
-                        $.ajax({
-                          //  url: 'http://192.168.100.100:3001/refresh/usuarios', 
-                            type: 'GET',
-                            success: function() {
-                                console.log('Evento de actualización enviado para usuarios');
-                            },
-                            error: function(xhr, status, error) {
-                                console.log('Error al emitir evento: ' + error);
-                            }
-                        });
-
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Éxito',
-                            html: 'El usuario con correo <strong>' + search + '</strong> ha sido actualizado con éxito.'
-                        });
-                        
-                        console.log('pass:'+new_pass)
-
-                        $.ajax({
-                            url: 'Http/Controlllers/UserController.php',
-                            type: 'POST',
-                            data: 
-                            {
-                                correo: correo,
-                                rol_text: rol_text,
-                                estado_text: estado_text,
-                                new_pass: new_pass,
-                                opcion: 7,
-                                mail_log: mail_log,
-                                prev_estado: prev_estado,
-                                prev_rol: prev_rol,
-                                prev_correo: prev_correo
-                            },
-                            dataType: 'json',
-                            success: function(response) {
-                                // Auditoría exitosa
-                            },
-                            error: function(xhr, status, error) {
-                                // Error en auditoría
-                            }
-                        });
-
-                        $("#modal_add_users").modal("hide");
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'Hubo un problema al actualizar el usuario. Intente nuevamente.'
-                        });
-                    }
-                },
-                error: function(xhr, status, error) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Hubo un problema al enviar la solicitud. Intente nuevamente.'
-                    });
-                }
+        // Validación básica
+        if (!correo || !contrasena || !rol_id) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Advertencia',
+                text: 'Por favor, complete todos los campos obligatorios.'
             });
-    
-        } else if (opcion == 4) {
-
-            if (this.id === 'input_pass_add_user') {
-                return;
-            }
-            
-            if (this.checkValidity() === false) {
-                e.stopPropagation();
-                $(this).addClass('was-validated');
-                return;
-            }
-
-            $.ajax({
-                url: 'Http/Controlllers/UserController.php',
-                type: 'POST',
-                data:
-                {
-                    correo: correo,
-                    last_pass: last_pass,
-                    rol: rol,
-                    estado: estado,
-                    opcion: opcion,
-                    search: search,
-                    rol_text: rol_text,
-                    estado_text: estado_text
-                },
-                dataType: 'json',
-                success: function(response) {
-    
-                    if (response.success) {
-                        window.tabla_usuarios.ajax.reload();
-                        $.ajax({
-                          //url: 'http://192.168.100.100:3001/refresh/usuarios', 
-                            type: 'GET',
-                            success: function() {
-                                console.log('Evento de actualización enviado para usuarios');
-                            },
-                            error: function(xhr, status, error) {
-                                console.log('Error al emitir evento: ' + error);
-                            }
-                        });
-    
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Éxito',
-                            html: 'El usuario con correo <strong>' + correo + '</strong> ha sido ingresado con éxito.'
-                        });
-    
-                        $.ajax({
-                            url: 'Http/Controlllers/UserController.php',
-                            type: 'POST',
-                            data: 
-                            {
-                                correo: correo,
-                                rol_text: rol_text,
-                                estado_text: estado_text,
-                                last_pass: last_pass,
-                                opcion: 5,
-                                mail_log: mail_log
-                            },
-                            dataType: 'json',
-                            success: function(response) {
-                                window.tabla_historial.ajax.reload();
-                            },
-                            error: function(xhr, status, error) {
-                                // Error en auditoría
-                            }
-                        });
-    
-                        $("#modal_add_users").modal("hide");
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'Hubo un problema al crear el usuario. Intente nuevamente.'
-                        });
-                    }
-                },
-                error: function(xhr, status, error) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Hubo un problema al enviar la solicitud. Verifique los datos y si el usuario ya existe.'
-                    });
-                }
-            });
+            return;
         }
+        if (contrasena !== confirm_pass) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Advertencia',
+                text: 'Las contraseñas no coinciden.'
+            });
+            return;
+        }
+
+        // Enviar como JSON
+        fetch('/usuarios', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                correo: correo,
+                contrasena: contrasena,
+                contrasena_confirmation: confirm_pass,
+                rol_id: rol_id,
+                usuario_estado: usuario_estado
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Éxito',
+                    html: 'El usuario con correo <strong>' + correo + '</strong> ha sido ingresado con éxito.'
+                });
+                // Recargar la tabla de usuarios si aplica
+                if (window.tabla_usuarios) window.tabla_usuarios.ajax.reload();
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: data.message || 'Hubo un problema al crear el usuario.'
+                });
+            }
+        })
+        .catch(error => {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Hubo un problema al enviar la solicitud. Intente nuevamente.'
+            });
+        });
     });
     /* ************************************************************************ */
 

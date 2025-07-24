@@ -204,6 +204,8 @@
     </div>
 </div>
 
+@include('modals.add_users')
+
 @push('scripts')
 <script>
     function validarEmail(email) {
@@ -297,7 +299,11 @@
                 .then(data => {
                     if (data.success) {
                         Swal.fire('Eliminado', 'El usuario ha sido eliminado.', 'success');
-                        setTimeout(() => location.reload(), 1000);
+                        if (window.tabla_usuarios) {
+                            window.tabla_usuarios.ajax.reload();
+                        } else {
+                            location.reload();
+                        }
                     } else {
                         Swal.fire('Error', data.error || 'No se pudo eliminar el usuario.', 'error');
                     }
@@ -427,9 +433,9 @@
         });
     });
 
-    document.getElementById('btnNuevoUsuario')?.addEventListener('click', function() {
-        // Implementar lógica para nuevo usuario
-        console.log('Nuevo usuario');
+    document.getElementById('btnNuevoUsuario').addEventListener('click', function() {
+       
+        // const modal = new bootstrap.Modal(document.getElementById('modal_add_users'));
     });
 </script>
 @endpush
