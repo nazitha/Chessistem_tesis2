@@ -54,7 +54,7 @@ return new class extends Migration
             $table->unsignedBigInteger('ronda_id');
             $table->string('jugador_blancas_id', 20);
             $table->string('jugador_negras_id', 20)->nullable(); // Nullable para permitir "bye"
-            $table->integer('resultado')->default(0); // 0=pendiente, 1=victoria blancas, 2=victoria negras, 3=tablas
+            $table->float('resultado', 3, 1)->nullable(); // 0=pendiente, 1=victoria blancas, 2=victoria negras, 3=tablas
             $table->integer('mesa')->nullable();
             $table->text('notas')->nullable();
             $table->timestamps();

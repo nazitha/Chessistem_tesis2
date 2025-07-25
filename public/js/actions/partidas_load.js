@@ -39,10 +39,10 @@ $(document).ready(function() {
                     {
                         "data": null,
                         "render": function(data, type, row) {
-                            return `
+                            let btnEditar = `
                                 <button 
-                                    class="btn btn-danger btn-sm btnEditar_partida"
-                                    style="
+                                    class=\"btn btn-danger btn-sm btnEditar_partida\"
+                                    style=\"
                                         background-color: #1e2936;
                                         color: white;
                                         border: 1px solid transparent;
@@ -50,20 +50,33 @@ $(document).ready(function() {
                                         font-size: 1rem;
                                         font-weight: 400;
                                         line-height: 1.5;
-                                        border-radius: 0.25rem 0 0 0.25rem; /* Bordes redondeados a la izquierda */
+                                        border-radius: 0.25rem 0 0 0.25rem;
                                         text-align: center;
                                         vertical-align: middle;
                                         cursor: pointer;
                                         transition: background-color 0.3s ease;
-                                        display: inline-block; /* Asegura que los botones estén en línea */
-                                        margin-right: -1px; /* Elimina el espacio entre los botones */
-                                    "
-                                    onmouseover="this.style.backgroundColor='#374151'"
-                                    onmouseout="this.style.backgroundColor='#1e2936'"
+                                        display: inline-block;
+                                        margin-right: -1px;
+                                    \"
+                                    onmouseover=\"this.style.backgroundColor='#374151'\"
+                                    onmouseout=\"this.style.backgroundColor='#1e2936'\"
                                 >
                                    Editar
                                 </button>
                             `;
+                            let btnAnalizar = '';
+                            if(row.movimientos && row.movimientos.trim() !== '') {
+                                btnAnalizar = `
+                                    <button 
+                                        class=\"btn btn-primary btn-sm btnAnalizarPartida\"
+                                        style=\"background-color: #007bff; color: white; border: none; margin-left: 4px;\"
+                                        data-partida-id=\"${row.no_partida}\"
+                                    >
+                                        Analizar Partida
+                                    </button>
+                                `;
+                            }
+                            return btnEditar + btnAnalizar;
                         }
                     }
                 ],
@@ -203,4 +216,31 @@ $(document).ready(function() {
         $('#modal_partidasbusqueda').modal('hide');
     });
     /* ************************************************************************ */
+
+    // Evento para el botón Analizar Partida
+    $(document).on('click', '.btnAnalizarPartida', function() {
+        var partidaId = $(this).data('partida-id');
+        var btn = $(this);
+        btn.prop('disabled', true).text('Analizando...');
+        $.ajax({
+            url: '/analisis-partida',
+            method: 'POST',
+            data: {
+                partida_id: partidaId,
+                _token: $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                btn.text('Ver Análisis').removeClass('btn-primary').addClass('btn-success');
+                btn.off('click').on('click', function() {
+                    window.location.href = '/analisis-partidas/' + response.analisis_id;
+                });
+            },
+            error: function(xhr) {
+                btn.prop('disabled', false).text('Analizar Partida');
+                let msg = 'Error al analizar la partida';
+                if(xhr.responseJSON && xhr.responseJSON.error) msg = xhr.responseJSON.error;
+                alert(msg);
+            }
+        });
+    });
 })

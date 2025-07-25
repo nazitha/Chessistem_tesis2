@@ -646,4 +646,16 @@ class PartidaController extends Controller
             ]);
         }
     }
+
+    /**
+     * Obtener partidas con movimientos para análisis
+     */
+    public function partidasConMovimientos()
+    {
+        $partidas = Partida::whereNotNull('movimientos')
+            ->where('movimientos', '!=', '')
+            ->orderByDesc('no_partida')
+            ->get(['no_partida', 'torneo_id', 'participante_id', 'movimientos']);
+        return response()->json($partidas);
+    }
 }

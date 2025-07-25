@@ -27,6 +27,7 @@ use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\TorneoViewController;
 use App\Http\Controllers\TorneoParticipanteController;
 use App\Http\Controllers\TorneoRondaController;
+use App\Http\Controllers\AnalisisPartidaController;
 
 // Grupo web para todas las rutas
 Route::middleware('web')->group(function () {
@@ -161,3 +162,19 @@ Route::middleware('web')->group(function () {
 
 Route::post('/usuarios/asignar-permisos', [App\Http\Controllers\UserController::class, 'asignarPermisos'])->name('usuarios.asignar-permisos');
 Route::get('/api/permisos-usuario/{userId}', [App\Http\Controllers\UserController::class, 'apiPermisosUsuario']);
+
+// Rutas para Análisis de Partidas
+Route::middleware(['auth'])->group(function () {
+    Route::get('analisis-partidas', [App\Http\Controllers\AnalisisPartidaController::class, 'index'])->name('analisis.index');
+    Route::get('analisis-partidas/{id}', [App\Http\Controllers\AnalisisPartidaController::class, 'show'])->name('analisis.show');
+    Route::post('analisis-partidas', [App\Http\Controllers\AnalisisPartidaController::class, 'store'])->name('analisis.store');
+});
+
+Route::prefix('analisis')->group(function () {
+    Route::get('/', [App\Http\Controllers\AnalisisPartidaController::class, 'index'])->name('analisis.index');
+    Route::get('/{partida_id}', [App\Http\Controllers\AnalisisPartidaController::class, 'show'])->name('analisis.show');
+    Route::post('/store', [App\Http\Controllers\AnalisisPartidaController::class, 'store'])->name('analisis.store');
+});
+
+Route::resource('analisis', AnalisisPartidaController::class)->only(['index', 'show', 'store']);
+Route::get('/api/partidas-con-movimientos', [App\Http\Controllers\PartidaController::class, 'partidasConMovimientos']);

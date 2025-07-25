@@ -37,5 +37,50 @@ class PermissionSeeder extends Seeder
         }
 
         echo "Permisos de usuarios asignados al rol admin correctamente.\n";
+
+        $permisosAcademias = [
+            'academias.read',
+            'academias.create',
+            'academias.update',
+            'academias.delete'
+        ];
+
+        foreach ($permisosAcademias as $permiso) {
+            $permisoId = DB::table('permisos')->where('permiso', $permiso)->value('id');
+            if (!$permisoId) {
+                $permisoId = DB::table('permisos')->insertGetId([
+                    'permiso' => $permiso,
+                    'descripcion' => 'Permiso para ' . str_replace('.', ' ', $permiso)
+                ]);
+            }
+            DB::table('asignaciones_permisos')->updateOrInsert([
+                'rol_id' => 1,
+                'permiso_id' => $permisoId
+            ]);
+        }
+
+        echo "Permisos de academias asignados al rol admin correctamente.\n";
+
+        $permisosMiembros = [
+            'miembros.read',
+            'miembros.create',
+            'miembros.update',
+            'miembros.delete',
+            'miembros.details'
+        ];
+
+        foreach ($permisosMiembros as $permiso) {
+            $permisoId = DB::table('permisos')->where('permiso', $permiso)->value('id');
+            if (!$permisoId) {
+                $permisoId = DB::table('permisos')->insertGetId([
+                    'permiso' => $permiso,
+                    'descripcion' => 'Permiso para ' . str_replace('.', ' ', $permiso)
+                ]);
+            }
+            DB::table('asignaciones_permisos')->updateOrInsert([
+                'rol_id' => 1,
+                'permiso_id' => $permisoId
+            ]);
+        }
     }
 } 
