@@ -20,7 +20,8 @@ class Partida extends Model
         'tiempo',
         'desempate_utilizado_id',
         'estado_abandono',
-        'resultado'
+        'resultado',
+        'movimientos'
     ];
 
     protected $casts = [

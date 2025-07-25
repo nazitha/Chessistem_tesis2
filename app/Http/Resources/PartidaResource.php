@@ -24,6 +24,7 @@ class PartidaResource extends JsonResource
             'participante' => new MiembroResource($this->whenLoaded('participante')),
             'torneo' => new TorneoResource($this->whenLoaded('torneo')),
             'sistema_desempate' => new SistemaDesempateResource($this->whenLoaded('sistemaDesempate')),
+            'movimientos' => $this->movimientos,
         ];
     }
 

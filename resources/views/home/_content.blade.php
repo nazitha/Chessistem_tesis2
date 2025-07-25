@@ -31,6 +31,22 @@
 
 <!-- Tablas -->
 <div class="mt-8">
+    <div class="flex flex-wrap gap-4 mb-6">
+        <a href="{{ route('torneos.create') }}" class="btn btn-primary flex items-center"><i class="fa fa-trophy mr-2"></i> Nuevo Torneo</a>
+        <a href="{{ route('academias.index') }}" class="btn btn-success flex items-center"><i class="fa fa-school mr-2"></i> Gestionar Academias</a>
+        <a href="{{ route('miembros.index') }}" class="btn btn-primary flex items-center"><i class="fa fa-users mr-2"></i> Gestionar Miembros</a>
+        @if(Auth::user()->rol_id == 1)
+        <a href="{{ route('usuarios.index') }}" class="btn btn-info flex items-center"><i class="fa fa-user-shield mr-2"></i> Gestionar Usuarios</a>
+        @endif
+    </div>
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div id="grafico-historial-partidas" style="height: 400px;"></div>
+        </div>
+        <div class="col-md-6">
+            <div id="grafico-estadisticas-torneos" style="height: 400px;"></div>
+        </div>
+    </div>
     @if(Auth::user()->rol_id == 1)
         @include('tables.tabla_usuarios')
         @include('tables.tabla_federaciones')

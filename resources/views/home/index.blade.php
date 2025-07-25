@@ -32,57 +32,42 @@
 
         <!-- Tarjetas principales -->
         <div class="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <a href="{{ route('profile') }}" class="block bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow duration-200">
-                <div class="flex items-start">
-                    <div class="p-2 bg-blue-100 rounded-lg">
-                        <i class="fas fa-user-circle text-blue-600 text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="text-lg font-medium text-gray-900">Mi Perfil</h3>
-                        <p class="text-gray-600 mt-1">Edita tu perfil</p>
-                    </div>
+            <div class="bg-white rounded-lg shadow p-6 flex items-center">
+                <div class="p-2 bg-blue-100 rounded-lg mr-4">
+                    <i class="fas fa-user-circle text-blue-600 text-2xl"></i>
                 </div>
-            </a>
-
-            <a href="{{ route('usuarios.index') }}" class="block bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow duration-200">
-                <div class="flex items-start">
-                    <div class="p-2 bg-blue-100 rounded-lg">
-                        <i class="fas fa-users-cog text-blue-600 text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="text-lg font-medium text-gray-900">Usuarios</h3>
-                        <p class="text-gray-600 mt-1">Gestión de usuarios del sistema</p>
-                    </div>
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900">Mi Perfil</h3>
+                    <p class="text-gray-600 mt-1">Edita tu perfil</p>
                 </div>
-            </a>
-
-            @if($canViewAcademias)
-            <a href="{{ route('academias.index') }}" class="block bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow duration-200">
-                <div class="flex items-start">
-                    <div class="p-2 bg-blue-100 rounded-lg">
-                        <i class="fas fa-graduation-cap text-blue-600 text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="text-lg font-medium text-gray-900">Academias</h3>
-                        <p class="text-gray-600 mt-1">Ver y editar academias</p>
-                    </div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-6 flex items-center">
+                <div class="p-2 bg-blue-100 rounded-lg mr-4">
+                    <i class="fas fa-users-cog text-blue-600 text-2xl"></i>
                 </div>
-            </a>
-            @endif
-
-            @if($canViewTorneos)
-            <a href="{{ route('torneos.index') }}" class="block bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow duration-200">
-                <div class="flex items-start">
-                    <div class="p-2 bg-blue-100 rounded-lg">
-                        <i class="fas fa-chess text-blue-600 text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="text-lg font-medium text-gray-900">Torneos</h3>
-                        <p class="text-gray-600 mt-1">Administración de torneos</p>
-                    </div>
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900">Usuarios</h3>
+                    <p class="text-gray-600 mt-1">Gestión de usuarios del sistema</p>
                 </div>
-            </a>
-            @endif
+            </div>
+            <div class="bg-white rounded-lg shadow p-6 flex items-center">
+                <div class="p-2 bg-blue-100 rounded-lg mr-4">
+                    <i class="fas fa-graduation-cap text-blue-600 text-2xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900">Academias</h3>
+                    <p class="text-gray-600 mt-1">Ver y editar academias</p>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-6 flex items-center">
+                <div class="p-2 bg-blue-100 rounded-lg mr-4">
+                    <i class="fas fa-chess text-blue-600 text-2xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900">Torneos</h3>
+                    <p class="text-gray-600 mt-1">Administración de torneos</p>
+                </div>
+            </div>
         </div>
 
         <!-- Acciones Rápidas -->
@@ -138,6 +123,11 @@
             @endif
         </div>
         @endif
+
+        <!-- Tarjeta de Análisis de Partidas -->
+        <div class="mt-8">
+            @include('home.analisis_partidas_card', ['partidasAnalisis' => $partidasAnalisis])
+        </div>
     </div>
 </div>
 

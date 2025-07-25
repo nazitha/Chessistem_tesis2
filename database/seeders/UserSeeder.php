@@ -67,9 +67,7 @@ class UserSeeder extends Seeder
             if (!$permisoId) {
                 $permisoId = DB::table('permisos')->insertGetId([
                     'permiso' => $permiso,
-                    'descripcion' => 'Permiso para ' . str_replace('.', ' ', $permiso),
-                    'created_at' => now(),
-                    'updated_at' => now()
+                    'descripcion' => 'Permiso para ' . str_replace('.', ' ', $permiso)
                 ]);
             }
             
