@@ -26,7 +26,6 @@ class UserController extends Controller
         try {
             Log::info('UserController@index - Iniciando listado de usuarios');
             
-            // Validar que el usuario tenga permiso para ver usuarios
             if (!PermissionService::hasPermission('usuarios.read')) {
                 return redirect()->route('home')->with('error', 'No tienes permiso para acceder a esta sección');
             }
@@ -58,7 +57,15 @@ class UserController extends Controller
 
         try {
             return DB::transaction(function () use ($request) {
-                $user = User::create($request->validated());
+                $data = $request->validated();
+                
+                if (empty($data['contrasena'])) {
+                    $data['contrasena'] = 'password123';
+                }
+                
+                $data['created_at'] = now();
+                
+                $user = User::create($data);
                 
                 AuditService::logUserAction(
                     Auth::user()->correo,
@@ -79,25 +86,59 @@ class UserController extends Controller
         }
     }
 
-    public function update(UserUpdateRequest $request, User $user): JsonResponse
+    public function update(UserUpdateRequest $request, $id): JsonResponse
     {
         if (!PermissionService::hasPermission('usuarios.update')) {
             return response()->json(['error' => 'No tienes permiso para editar usuarios'], 403);
         }
-
-        return DB::transaction(function () use ($request, $user) {
-            $originalData = $user->getOriginal();
-            $user->update($request->validated());
-            
-            AuditService::logUserAction(
-                $request->mail_log,
-                $user,
-                'updated',
-                $originalData
-            );
-
-            return response()->json(['success' => true]);
-        });
+    
+        try {
+            return DB::transaction(function () use ($request, $id) {
+                $user = User::find($id);
+                
+                if (!$user) {
+                    return response()->json(['error' => 'Usuario no encontrado'], 404);
+                }
+                
+                $data = $request->validated();
+                
+                // Validar correo manualmente si está presente
+                if (isset($data['correo'])) {
+                    // Si el correo no cambió, eliminarlo
+                    if ($data['correo'] === $user->correo) {
+                        unset($data['correo']);
+                    } else {
+                        // Validar que el nuevo correo sea único
+                        $exists = User::where('correo', $data['correo'])
+                            ->where('id_email', '!=', $id)
+                            ->exists();
+                        
+                        if ($exists) {
+                            return response()->json(['error' => 'El correo electrónico ya está en uso.'], 422);
+                        }
+                    }
+                }
+                
+                // Si no se proporciona contraseña, no actualizar
+                if (empty($data['contrasena'])) {
+                    unset($data['contrasena']);
+                }
+                
+                $user->update($data);
+                
+                AuditService::logUserAction(
+                    Auth::user()->correo,
+                    $user,
+                    'updated',
+                    $user->getOriginal()
+                );
+    
+                return response()->json(['success' => true]);
+            });
+        } catch (\Exception $e) {
+            Log::error('Error al actualizar usuario: ' . $e->getMessage());
+            return response()->json(['error' => 'Error al actualizar el usuario'], 500);
+        }
     }
 
     public function getRolesWithPermissions(): JsonResponse
@@ -133,13 +174,21 @@ class UserController extends Controller
         });
     }
 
-    public function destroy(User $user): JsonResponse
+    public function destroy($id): JsonResponse
     {
         if (!PermissionService::hasPermission('usuarios.delete')) {
             return response()->json(['error' => 'No tienes permiso para eliminar usuarios'], 403);
         }
 
-        return DB::transaction(function () use ($user) {
+        return DB::transaction(function () use ($id) {
+            $user = User::find($id);
+            
+            if (!$user) {
+                return response()->json(['error' => 'Usuario no encontrado'], 404);
+            }
+            
+            $correo = $user->correo;
+            
             AuditService::logUserAction(
                 Auth::user()->correo,
                 $user,
@@ -147,31 +196,19 @@ class UserController extends Controller
             );
             
             $user->delete();
-            return response()->json(['success' => true]);
+            return response()->json(['success' => true, 'message' => 'Usuario eliminado correctamente']);
         });
     }
 
-    /**
-     * Display the user's profile.
-     *
-     * @return \Illuminate\View\View
-     */
     public function profile()
     {
         $user = Auth::user();
         return view('users.profile', compact('user'));
     }
 
-    /**
-     * Asignar permisos a un usuario.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function asignarPermisos(Request $request)
     {
         try {
-            // Aceptar tanto JSON como form-data
             if ($request->isJson()) {
                 $data = $request->json()->all();
             } else {
@@ -197,9 +234,6 @@ class UserController extends Controller
             $user->rol_id = $data['rol_id'];
             $user->save();
 
-            // Aquí puedes agregar lógica adicional para guardar los permisos específicos
-            // en una tabla de permisos si es necesario
-
             Log::info('Permisos asignados correctamente', [
                 'user_id' => $user->id,
                 'rol_id' => $user->rol_id,
@@ -219,9 +253,6 @@ class UserController extends Controller
         }
     }
 
-    /**
-     * Devuelve los permisos disponibles y los asignados a un usuario, junto con el rol actual.
-     */
     public function apiPermisosUsuario($userId)
     {
         $user = User::with(['rol', 'permissions'])->findOrFail($userId);
@@ -237,12 +268,9 @@ class UserController extends Controller
         ]);
     }
 
-    /**
-     * Devuelve los datos de un usuario para edición (AJAX)
-     */
     public function show($id)
     {
-        $user = User::with('miembro')->findOrFail($id);
+        $user = User::with(['miembro', 'rol'])->findOrFail($id);
         return response()->json($user);
     }
 }
