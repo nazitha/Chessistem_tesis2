@@ -35,39 +35,39 @@
             <div class="bg-white rounded-lg shadow p-6 flex items-center">
                 <div class="p-2 bg-blue-100 rounded-lg mr-4">
                     <i class="fas fa-user-circle text-blue-600 text-2xl"></i>
-                </div>
+                    </div>
                 <div>
-                    <h3 class="text-lg font-medium text-gray-900">Mi Perfil</h3>
-                    <p class="text-gray-600 mt-1">Edita tu perfil</p>
+                        <h3 class="text-lg font-medium text-gray-900">Mi Perfil</h3>
+                        <p class="text-gray-600 mt-1">Edita tu perfil</p>
+                    </div>
                 </div>
-            </div>
             <div class="bg-white rounded-lg shadow p-6 flex items-center">
                 <div class="p-2 bg-blue-100 rounded-lg mr-4">
                     <i class="fas fa-users-cog text-blue-600 text-2xl"></i>
-                </div>
+                    </div>
                 <div>
-                    <h3 class="text-lg font-medium text-gray-900">Usuarios</h3>
-                    <p class="text-gray-600 mt-1">Gestión de usuarios del sistema</p>
+                        <h3 class="text-lg font-medium text-gray-900">Usuarios</h3>
+                        <p class="text-gray-600 mt-1">Gestión de usuarios del sistema</p>
+                    </div>
                 </div>
-            </div>
             <div class="bg-white rounded-lg shadow p-6 flex items-center">
                 <div class="p-2 bg-blue-100 rounded-lg mr-4">
                     <i class="fas fa-graduation-cap text-blue-600 text-2xl"></i>
-                </div>
+                    </div>
                 <div>
-                    <h3 class="text-lg font-medium text-gray-900">Academias</h3>
-                    <p class="text-gray-600 mt-1">Ver y editar academias</p>
+                        <h3 class="text-lg font-medium text-gray-900">Academias</h3>
+                        <p class="text-gray-600 mt-1">Ver y editar academias</p>
+                    </div>
                 </div>
-            </div>
             <div class="bg-white rounded-lg shadow p-6 flex items-center">
                 <div class="p-2 bg-blue-100 rounded-lg mr-4">
                     <i class="fas fa-chess text-blue-600 text-2xl"></i>
-                </div>
+                    </div>
                 <div>
-                    <h3 class="text-lg font-medium text-gray-900">Torneos</h3>
-                    <p class="text-gray-600 mt-1">Administración de torneos</p>
+                        <h3 class="text-lg font-medium text-gray-900">Torneos</h3>
+                        <p class="text-gray-600 mt-1">Administración de torneos</p>
+                    </div>
                 </div>
-            </div>
         </div>
 
         <!-- Acciones Rápidas -->

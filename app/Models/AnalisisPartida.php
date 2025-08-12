@@ -37,4 +37,35 @@ class AnalisisPartida extends Model
     {
         return $this->belongsTo(Miembro::class, 'jugador_negras_id');
     }
+
+    // Método para obtener el nombre del jugador o placeholder
+    public function getJugadorBlancasNombreAttribute()
+    {
+        if ($this->jugador_blancas_id === 'PGN_MANUAL') {
+            return 'PGN Manual';
+        }
+        
+        // Si es un nombre personalizado (no es un ID de miembro)
+        if (!is_numeric($this->jugador_blancas_id) && $this->jugador_blancas_id !== 'PGN_MANUAL') {
+            return $this->jugador_blancas_id;
+        }
+        
+        // Si es un ID de miembro, buscar en la tabla miembros
+        return $this->jugadorBlancas->nombres ?? 'Desconocido';
+    }
+
+    public function getJugadorNegrasNombreAttribute()
+    {
+        if ($this->jugador_negras_id === 'PGN_MANUAL') {
+            return 'PGN Manual';
+        }
+        
+        // Si es un nombre personalizado (no es un ID de miembro)
+        if (!is_numeric($this->jugador_negras_id) && $this->jugador_negras_id !== 'PGN_MANUAL') {
+            return $this->jugador_negras_id;
+        }
+        
+        // Si es un ID de miembro, buscar en la tabla miembros
+        return $this->jugadorNegras->nombres ?? 'Desconocido';
+    }
 } 

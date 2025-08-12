@@ -126,11 +126,41 @@
         filter: none !important;
         background: #f9fafb !important;
     }
+    
+    /* Asegurar que el navbar esté en la parte superior */
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+        min-height: 100vh !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+    
+    /* Navbar fijo en la parte superior */
+    nav.shadow {
+        position: relative !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        z-index: 1000 !important;
+        order: -1 !important;
+    }
+    
+    /* Contenido principal */
+    main {
+        flex: 1 !important;
+        order: 1 !important;
+    }
+    
+    /* Footer al final */
+    footer {
+        order: 2 !important;
+    }
     </style>
 </head>
 <body class="min-h-screen flex flex-col bg-gray-50">
     <!-- Navegación superior -->
-    <nav class="shadow" style="background-color: #282c34;">
+    <nav class="shadow fixed top-0 left-0 right-0 z-50" style="background-color: #282c34;">
         <div class="max-w-7xl mx-auto">
             <div class="flex justify-between h-16">
                 <div class="flex items-center space-x-8">
@@ -167,7 +197,7 @@
     </nav>
 
     <!-- Contenido principal -->
-    <main class="flex-grow py-6">
+    <main class="flex-grow py-6" style="margin-top: 64px;">
         @yield('content')
     </main>
 

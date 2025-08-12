@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use App\Models\AnalisisPartida;
 
 /**
  * @method void middleware(string $middleware, array $options = [])
@@ -55,40 +56,9 @@ class HomeController extends Controller
             $canViewMisEstadisticas = \App\Helpers\PermissionHelper::canViewMisEstadisticas();
             $canViewEstadisticasAdmin = \App\Helpers\PermissionHelper::canViewEstadisticasAdmin();
 
-            // Datos de prueba para la tarjeta de análisis de partidas
-            $partidasAnalisis = [
-                [
-                    'fecha' => '2025-07-24',
-                    'blancas' => 'Ian Eiffel',
-                    'negras' => 'Eiffel Sevilla',
-                    'resultado' => '1-0',
-                    'apertura' => 'Defensa Siciliana',
-                    'errores' => '1 blunder, 2 errores',
-                    'jugadas_clave' => '15.Cd5!, 22.Dxf7+',
-                    'analisis' => 'Las blancas dominaron el centro y aprovecharon un error en la jugada 15. La apertura fue bien jugada por ambos, pero las negras cometieron un blunder en el medio juego.'
-                ],
-                [
-                    'fecha' => '2025-07-23',
-                    'blancas' => 'Ana Torres',
-                    'negras' => 'Luis Pérez',
-                    'resultado' => '0-1',
-                    'apertura' => 'Gambito de Dama',
-                    'errores' => '2 errores, 1 jugada brillante',
-                    'jugadas_clave' => '10...d5!, 18.Td8',
-                    'analisis' => 'Las negras lograron igualar en la apertura y tomaron la iniciativa tras un sacrificio de calidad. Las blancas no encontraron el mejor plan en el final.'
-                ],
-                [
-                    'fecha' => '2025-07-22',
-                    'blancas' => 'Carlos Ruiz',
-                    'negras' => 'María López',
-                    'resultado' => '½-½',
-                    'apertura' => 'Ruy López',
-                    'errores' => 'Sin errores críticos',
-                    'jugadas_clave' => '25.Dg4, 30...Ce5',
-                    'analisis' => 'Partida muy igualada, ambos jugadores siguieron líneas teóricas y acordaron tablas tras repetición de jugadas.'
-                ]
-            ];
-
+            // Datos reales de análisis de partidas
+            $partidasAnalisis = \App\Models\AnalisisPartida::orderBy('created_at', 'desc')->take(5)->get();
+            
             Log::info('HomeController@index - Intentando cargar vista home.index');
             return view('home.index', compact(
                 'dashboardCards',
