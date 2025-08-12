@@ -2,12 +2,14 @@
     <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h5 class="card-title mb-0">Análisis de Partidas</h5>
+
             <div>
                 <button class="btn btn-primary btn-sm me-2" data-bs-toggle="modal" data-bs-target="#nuevoAnalisisModal">
                     <i class="fas fa-plus me-1"></i>Nuevo Análisis
                 </button>
                 <a href="{{ route('analisis.index') }}" class="btn btn-outline-primary btn-sm">Ver más análisis</a>
             </div>
+n
         </div>
         <div class="table-responsive">
             <table class="table table-hover mb-0">
@@ -16,6 +18,7 @@
                         <th>Fecha</th>
                         <th>Blancas</th>
                         <th>Negras</th>
+
                         <th>Errores</th>
                         <th>Brillantes</th>
                         <th>Blunders</th>
@@ -46,6 +49,7 @@
                             <a href="{{ route('analisis.show', $analisis->id) }}" class="btn btn-sm btn-primary">
                                 <i class="fas fa-eye me-1"></i>Ver
                             </a>
+
                         </td>
                     </tr>
                     @endforeach
@@ -53,6 +57,7 @@
             </table>
         </div>
     </div>
+
 </div>
 
 <!-- Modal Nuevo Análisis -->
@@ -116,4 +121,5 @@
             </div>
         </div>
     </div>
+
 </div> 

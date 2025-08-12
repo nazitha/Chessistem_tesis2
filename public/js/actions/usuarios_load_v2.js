@@ -15,6 +15,23 @@ $(document).ready(function() {
      var mail_log = userData.correo;
     /* ********************************** */
 
+    // Abrir modal en modo CREAR
+    $(document).on('click', '#btnNuevoUsuario', function() {
+        $('#modal_user_title').text('Nuevo usuario');
+        $('#btn_submit_user').text('Crear usuario');
+        $('#form_add_users')[0].reset();
+        setSwitchState(true); // Por defecto activo
+        $('#modal_add_users').removeClass('hidden');
+        $('#form_add_users').removeData('edit-id');
+        $('#form_add_users').removeData('original-correo');
+        
+        // Ocultar campos de contraseña para CREATE
+        $('#div_pass_add_user').hide();
+        $('#div_passconfirm_add_user').hide();
+        $('#input_pass_add_user').prop('required', false);
+        $('#input_passconfirm_add_user').prop('required', false);
+    });
+
     /* ********************* CARGA E INICIALIZACIÓN DE LA TABLA: USUARIOS ********************* */
     $('#usuarios_opcion, #usuarios_opcion_movil').click(function(e) {
         // Solo ejecutar si el elemento no tiene href (no es un enlace)
@@ -85,243 +102,299 @@ $(document).ready(function() {
             }
         },
         error: function(xhr, status, error) {
-            console.error('Error en la llamada AJAX: ' + error);
+            console.error('Error al cargar roles:', error);
         }
     });
-    /* ************************************************************************* */
 
-    /* ******************************* BOTÓN EDITAR PARA: USUARIO ******************************* */
-    $(document).on("click", ".btnEditar_user", function(){
-        $("#form_add_users").trigger("reset");
-        $("#form_add_users").removeClass("was-validated");
+    /* *************************************************************************************** */
 
-        let fila = $(this).closest("tr");
+    /* ********************* CARGA DEL INPUT SELECT: ESTADOS ********************* */
+    $('#select_estado_add_user').empty();
+    $('#select_estado_add_user').append(
+        $('<option>', {
+            value: 1,
+            text: 'Activo'
+        })
+    );
+    $('#select_estado_add_user').append(
+        $('<option>', {
+            value: 0,
+            text: 'Inactivo'
+        })
+    );
 
-        if (fila.hasClass("child")) {
-            fila = fila.prev("tr");
-        }
+    /* *************************************************************************************** */
 
-        let filaDataTable = window.tabla_usuarios.row(fila);
+    /* ********************* FUNCIONES PARA EL SWITCH DE ESTADO ********************* */
+    function initUserStatusSwitch() {
+        $('#switch_button').off('click').on('click', function() {
+            const checkbox = $('#switch_add_user');
+            const isChecked = checkbox.is(':checked');
+            
+            checkbox.prop('checked', !isChecked);
+            setSwitchState(!isChecked);
+        });
+    }
 
-        if (!filaDataTable || !filaDataTable.data) {
-            console.error("No se pudo obtener la fila de DataTables.");
-            return;
-        }
-
-        let datosFila = filaDataTable.data();
-
-        if (!datosFila) {
-            console.error("No se pudieron obtener los datos de la fila.");
-            return;
-        }
-
-        search = datosFila.correo;
-        rol = datosFila.rol;
-        estado = datosFila.Estado;
-        
-        prev_correo = search;
-        prev_rol = rol;
-        prev_estado = estado;
-
-        $('#input_correo_add_user').val(search);
-        $('#select_rol_add_user').val($('#select_rol_add_user option').filter((_, el) => $(el).text() === rol).val());
-
-
-        const switchElement = $('#switch_add_user')[0];
+    function setSwitchState(isActive) {
+        const checkbox = $('#switch_add_user');
+        const thumb = $('#switch_thumb');
         const label = $('#switchLabel');
         
-        if (estado === 'Activo') {
-            switchElement.checked = true;
-            switchElement.style.backgroundColor = '#28a745';
-            switchElement.style.borderColor = '#28a745';
-            label.text("Activo");
-        } else if (estado === 'Inactivo') {
-            switchElement.checked = false;
-            switchElement.style.backgroundColor = '#dc3545';
-            switchElement.style.borderColor = '#dc3545';
-            label.text("Inactivo");
+        checkbox.prop('checked', isActive);
+        
+        if (isActive) {
+            thumb.removeClass('translate-x-1').addClass('translate-x-6');
+            $('#switch_add_user').removeClass('bg-gray-200').addClass('bg-green-500');
+            label.text('Activo').removeClass('text-red-600').addClass('text-green-600');
         } else {
-            switchElement.checked = false;
-            switchElement.style.backgroundColor = '#6c757d';
-            switchElement.style.borderColor = '#6c757d';
-            label.text("Indefinido");
+            thumb.removeClass('translate-x-6').addClass('translate-x-1');
+            $('#switch_add_user').removeClass('bg-green-500').addClass('bg-gray-200');
+            label.text('Inactivo').removeClass('text-green-600').addClass('text-red-600');
         }
+    }
 
-        document.getElementById('div_newpass_edit').closest('div').style.display = 'flex';
-        document.getElementById('div_confirmpass_edit').closest('div').style.display = 'flex';
-        document.getElementById('div_setpass').closest('div').style.display = 'none';
+    function getSwitchState() {
+        return $('#switch_add_user').is(':checked');
+    }
 
-        opcion = 6;
+    // Inicializar el switch
+    initUserStatusSwitch();
 
-        $(".modal-header").css("background-color", "#1e2936");
-        $(".modal-header").css("color", "#ffffff");
-        $("#title_add_users").text("Editar usuario");
-        // $("#modal_add_users").modal("show");
-    })
-    /* ****************************************************************************************** */
+    /* *************************************************************************************** */
 
-    /* ******************************* BOTÓN EDITAR PARA: ACADEMIAS ******************************* */
-    // Evento delegado para eliminar usuario
-    $(document).on("click", ".btnEliminar_usuario", function(){
+    /* ********************* FUNCIONES PARA MOSTRAR/OCULTAR CAMPOS DE CONTRASEÑA ********************* */
+    function togglePasswordFields(isEdit) {
+        if (isEdit) {
+            $('#div_pass_add_user').show();
+            $('#div_passconfirm_add_user').show();
+            $('#input_pass_add_user').prop('required', true);
+            $('#input_passconfirm_add_user').prop('required', true);
+            $('#input_pass_add_user').val('********');
+            $('#input_passconfirm_add_user').val('********');
+        } else {
+            $('#div_pass_add_user').hide();
+            $('#div_passconfirm_add_user').hide();
+            $('#input_pass_add_user').prop('required', false);
+            $('#input_passconfirm_add_user').prop('required', false);
+            $('#input_pass_add_user').val('');
+            $('#input_passconfirm_add_user').val('');
+        }
+    }
+
+    /* *************************************************************************************** */
+
+    /* ********************* FUNCIÓN PARA MOSTRAR ALERTAS SWEETALERT2 ********************* */
+    function showSwalAlert(type, title, html) {
+        Swal.fire({
+            icon: type,
+            title: title,
+            html: html,
+            confirmButtonColor: '#282c34',
+            confirmButtonText: 'Aceptar'
+        });
+    }
+
+    /* *************************************************************************************** */
+
+    /* ********************* EVENTOS PARA EL MODAL DE USUARIOS ********************* */
+
+    // Abrir modal en modo EDITAR
+    $(document).on('click', '.btnEditar_user', function() {
         const id = $(this).data('id');
-        eliminarUsuario(id);
+        const row = window.tabla_usuarios.row($(this).closest('tr')).data();
+        if (!row) return;
+        
+        $('#modal_user_title').text('Editar usuario');
+        $('#btn_submit_user').text('Guardar cambios');
+        $('#input_correo_add_user').val(row.correo);
+        $('#select_rol_add_user').val(row.rol.id || row.rol_id);
+        setSwitchState(row.usuario_estado);
+        $('#modal_add_users').removeClass('hidden');
+        $('#form_add_users').data('edit-id', id);
+        $('#form_add_users').data('original-correo', row.correo); // Guardar correo original
+        
+        // Mostrar campos de contraseña para UPDATE con ********
+        $('#div_pass_add_user').show();
+        $('#div_passconfirm_add_user').show();
+        $('#input_pass_add_user').prop('required', true);
+        $('#input_passconfirm_add_user').prop('required', true);
+        $('#input_pass_add_user').val('********');
+        $('#input_passconfirm_add_user').val('********');
     });
-    /* ****************************************************************************************** */
 
-    /* ********************* ENVÍO DE FORMULARIO: USUARIOS ********************* */
-    $("#form_add_users").submit(function(e) {
+    // Cancelar cierra el modal
+    $(document).on('click', '.btn-cancelar, .close-modal', function() {
+        $('#modal_add_users').addClass('hidden');
+        $('#form_add_users')[0].reset();
+        $('#form_add_users').removeData('edit-id');
+        $('#form_add_users').removeData('original-correo');
+    });
+
+    // Submit CREATE/UPDATE
+    $('#form_add_users').off('submit').on('submit', function(e) {
         e.preventDefault();
-
-        var correo = $.trim($("#input_correo_add_user").val());
-        var contrasena = $.trim($('#input_pass_add_user').val());
-        var rol_id = $.trim($('#select_rol_add_user').val());
-        var usuario_estado = $('#switch_add_user').prop('checked') ? true : false;
-        var confirm_pass = $.trim($('#input_passconfirm_edit_user').val());
-
-        // Validación básica
-        if (!correo || !contrasena || !rol_id) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Advertencia',
-                text: 'Por favor, complete todos los campos obligatorios.'
-            });
+        const isEdit = $(this).data('edit-id') !== undefined;
+        const id = $(this).data('edit-id');
+        const correo = $('#input_correo_add_user').val();
+        const rol_id = $('#select_rol_add_user').val();
+        const usuario_estado = getSwitchState() ? 1 : 0;
+        let contrasena = $('#input_pass_add_user').val();
+        let contrasena_confirmation = $('#input_passconfirm_add_user').val();
+        
+        // Validaciones
+        if (!correo || !rol_id) {
+            showSwalAlert('error', 'Campos requeridos', 'Por favor, complete todos los campos.');
             return;
         }
-        if (contrasena !== confirm_pass) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Advertencia',
-                text: 'Las contraseñas no coinciden.'
-            });
-            return;
+        
+        if (isEdit) {
+            // Validaciones específicas para UPDATE
+            if (!contrasena || !contrasena_confirmation) {
+                showSwalAlert('error', 'Campos requeridos', 'Por favor, complete ambos campos de contraseña.');
+                return;
+            }
+            if (contrasena !== contrasena_confirmation) {
+                showSwalAlert('error', 'Contraseñas no coinciden', 'Por favor, verifica que ambas contraseñas sean iguales.');
+                return;
+            }
+            // Si los campos de contraseña siguen con ********, no actualizar contraseña
+            if (contrasena === '********' && contrasena_confirmation === '********') {
+                contrasena = null;
+                contrasena_confirmation = null;
+            }
         }
-
-        // Enviar como JSON
-        fetch('/usuarios', {
-            method: 'POST',
+        
+        const payload = {
+            rol_id,
+            usuario_estado,
+        };
+        
+        // Solo incluir correo si es CREATE o si cambió en UPDATE
+        if (!isEdit || correo !== $(this).data('original-correo')) {
+            payload.correo = correo;
+        }
+        
+        if (isEdit && contrasena && contrasena !== '********') {
+            payload.contrasena = contrasena;
+            payload.contrasena_confirmation = contrasena_confirmation;
+        }
+        
+        const url = isEdit ? `/usuarios/${id}` : '/usuarios';
+        const method = isEdit ? 'PUT' : 'POST';
+        
+        fetch(url, {
+            method: method,
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                 'Accept': 'application/json'
             },
-            body: JSON.stringify({
-                correo: correo,
-                contrasena: contrasena,
-                contrasena_confirmation: confirm_pass,
-                rol_id: rol_id,
-                usuario_estado: usuario_estado
-            })
+            body: JSON.stringify(payload)
         })
-        .then(response => response.json())
+        .then(res => {
+            if (!res.ok) {
+                return res.json().then(errorData => {
+                    throw new Error(errorData.error || errorData.message || 'Error en la solicitud');
+                });
+            }
+            return res.json();
+        })
         .then(data => {
             if (data.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Éxito',
-                    html: 'El usuario con correo <strong>' + correo + '</strong> ha sido ingresado con éxito.'
-                });
-                // Recargar la tabla de usuarios si aplica
-                if (window.tabla_usuarios) window.tabla_usuarios.ajax.reload();
+                showSwalAlert('success', isEdit ? 'Usuario actualizado' : 'Usuario creado', `El usuario <strong>${correo}</strong> ha sido ${isEdit ? 'actualizado' : 'creado'} con éxito.`);
+                $('#modal_add_users').addClass('hidden');
+                $('#form_add_users')[0].reset();
+                $('#form_add_users').removeData('edit-id');
+                $('#form_add_users').removeData('original-correo');
+                
+                // Recargar la tabla de usuarios
+                if (window.tabla_usuarios) {
+                    window.tabla_usuarios.ajax.reload();
+                } else {
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                }
             } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: data.message || 'Hubo un problema al crear el usuario.'
-                });
+                showSwalAlert('error', 'Error', data.message || 'Ocurrió un error.');
             }
         })
-        .catch(error => {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Hubo un problema al enviar la solicitud. Intente nuevamente.'
-            });
+        .catch((error) => {
+            showSwalAlert('error', 'Error', error.message || 'Ocurrió un error al procesar la solicitud.');
         });
     });
-    /* ************************************************************************ */
 
-    /* ********************* FUNCIÓN PARA VALIDAR QUE LAS CONTRASEÑAS SEAN IGUALES AL HACER RESET ********************* */
+    // Eliminar usuario
+    $(document).on('click', '.btnEliminar_usuario', function() {
+        const id = $(this).data('id');
+        const row = window.tabla_usuarios.row($(this).closest('tr')).data();
+        const correo = row ? row.correo : 'usuario';
+        
+        Swal.fire({
+            icon: 'warning',
+            title: '¿Desea eliminar al usuario?',
+            html: `¿Desea eliminar al usuario <strong>${correo}</strong>?`,
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            cancelButtonColor: '#2563eb',
+            confirmButtonText: 'Eliminar',
+            cancelButtonText: 'Cancelar',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`/usuarios/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        showSwalAlert('success', 'Usuario eliminado', `El usuario <strong>${correo}</strong> ha sido eliminado con éxito.`);
+                        
+                        // Recargar la tabla de usuarios
+                        if (window.tabla_usuarios) {
+                            window.tabla_usuarios.ajax.reload();
+                        } else {
+                            setTimeout(() => {
+                                location.reload();
+                            }, 1500);
+                        }
+                    } else {
+                        showSwalAlert('error', 'Error', data.message || 'No se pudo eliminar el usuario.');
+                    }
+                })
+                .catch(() => {
+                    showSwalAlert('error', 'Error', 'Ocurrió un error al eliminar el usuario.');
+                });
+            }
+        });
+    });
+
+    /* *************************************************************************************** */
+
+    /* ********************* VALIDACIÓN DE CONTRASEÑAS ********************* */
     function validarContrasenas(new_pass, confirm_pass) 
     {
-        if (new_pass || confirm_pass) {
-
-            if (new_pass && !confirm_pass) {
-                confirm_pass = '';
-                var errorMessage = document.createElement('div');
-                errorMessage.classList.add('invalid-feedback');
-                errorMessage.textContent = 'Por favor, confirme la nueva contraseña';
-    
-                if (!document.querySelector('#input_passconfirm_edit_user + .invalid-feedback')) {
-                    $('#input_passconfirm_edit_user').parent().append(errorMessage);
-                }
-    
-                $('#input_passconfirm_edit_user').addClass('is-invalid');
-            }
-
-            else if (confirm_pass && !new_pass) {
-                new_pass = '';
-                var errorMessage = document.createElement('div');
-                errorMessage.classList.add('invalid-feedback');
-                errorMessage.textContent = 'Por favor, ingrese la nueva contraseña';
-    
-                if (!document.querySelector('#input_pass_edit_user + .invalid-feedback')) {
-                    $('#input_pass_edit_user').parent().append(errorMessage);
-                }
-    
-                $('#input_pass_edit_user').addClass('is-invalid');
-            }
-
-            else if (new_pass && confirm_pass) {
-                if (new_pass !== confirm_pass) {
-                    var errorMessage = document.createElement('div');
-                    errorMessage.classList.add('invalid-feedback');
-                    errorMessage.textContent = 'Las contraseñas no coinciden';
-    
-                    if (!document.querySelector('#input_pass_edit_user + .invalid-feedback')) {
-                        $('#input_pass_edit_user').parent().append(errorMessage);
-                    }
-                    if (!document.querySelector('#input_passconfirm_edit_user + .invalid-feedback')) {
-                        $('#input_passconfirm_edit_user').parent().append(errorMessage);
-                    }
-    
-                    $('#input_pass_edit_user').addClass('is-invalid');
-                    $('#input_passconfirm_edit_user').addClass('is-invalid');
-                } else {
-                    $('#input_pass_edit_user').removeClass('is-invalid').removeAttr('required');
-                    $('#input_passconfirm_edit_user').removeClass('is-invalid').removeAttr('required');
-                    
-                    $('#input_pass_edit_user').siblings('.invalid-feedback').remove();
-                    $('#input_passconfirm_edit_user').siblings('.invalid-feedback').remove();
-                }
-            }
-        } else {
-            $('#input_pass_edit_user').removeAttr('required').removeClass('is-invalid');
-            $('#input_passconfirm_edit_user').removeAttr('required').removeClass('is-invalid');
-            
-            $('#input_pass_edit_user').siblings('.invalid-feedback').remove();
-            $('#input_passconfirm_edit_user').siblings('.invalid-feedback').remove();
+        if (new_pass.length < 6) {
+            return { valido: false, mensaje: 'La contraseña debe tener al menos 6 caracteres' };
         }
         
-        $('#input_pass_edit_user').on('input', function() {
-            if ($(this).val()) {
-                $(this).removeClass('is-invalid');
-                $(this).siblings('.invalid-feedback').remove();
-            }
-        });
-    
-        $('#input_passconfirm_edit_user').on('input', function() {
-            if ($(this).val()) {
-                $(this).removeClass('is-invalid');
-                $(this).siblings('.invalid-feedback').remove();
-            }
-        });
-        
-        if (new_pass === confirm_pass && new_pass && confirm_pass) {
-            $('#input_pass_edit_user').removeClass('is-invalid');
-            $('#input_passconfirm_edit_user').removeClass('is-invalid');
-            $('#input_pass_edit_user').siblings('.invalid-feedback').remove();
-            $('#input_passconfirm_edit_user').siblings('.invalid-feedback').remove();
+        if (new_pass !== confirm_pass) {
+            return { valido: false, mensaje: 'Las contraseñas no coinciden' };
         }
+        
+        return { valido: true, mensaje: '' };
     }
-    /* *************************************************************************************************************** */  
+
+    /* *************************************************************************************** */
+
+    /* ********************* EVENTOS PARA EL SWITCH ********************* */
+    $(document).on('change', '#switch_add_user', function() {
+        setSwitchState($(this).is(':checked'));
+    });
+
+    /* *************************************************************************************** */
 });

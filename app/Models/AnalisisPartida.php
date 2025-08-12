@@ -38,6 +38,7 @@ class AnalisisPartida extends Model
         return $this->belongsTo(Miembro::class, 'jugador_negras_id');
     }
 
+
     // Método para obtener el nombre del jugador o placeholder
     public function getJugadorBlancasNombreAttribute()
     {
@@ -68,4 +69,5 @@ class AnalisisPartida extends Model
         // Si es un ID de miembro, buscar en la tabla miembros
         return $this->jugadorNegras->nombres ?? 'Desconocido';
     }
+
 } 

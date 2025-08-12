@@ -691,4 +691,5 @@ class PartidaController extends Controller
             'partida_id' => $partida->no_partida
         ]);
     }
+
 }

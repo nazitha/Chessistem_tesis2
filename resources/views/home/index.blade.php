@@ -35,6 +35,7 @@
             <div class="bg-white rounded-lg shadow p-6 flex items-center">
                 <div class="p-2 bg-blue-100 rounded-lg mr-4">
                     <i class="fas fa-user-circle text-blue-600 text-2xl"></i>
+
                     </div>
                 <div>
                         <h3 class="text-lg font-medium text-gray-900">Mi Perfil</h3>
@@ -68,6 +69,7 @@
                         <p class="text-gray-600 mt-1">Administración de torneos</p>
                     </div>
                 </div>
+
         </div>
 
         <!-- Acciones Rápidas -->

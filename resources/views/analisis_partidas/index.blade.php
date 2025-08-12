@@ -1,5 +1,6 @@
 @extends('layouts.app')
 @section('content')
+
 <div class="container mx-auto px-4 py-8">
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold text-gray-900">Análisis de Partidas</h1>
@@ -58,11 +59,13 @@
                             <i class="fas fa-eye mr-1"></i>Ver
                         </a>
                     </td>
+
                 </tr>
                 @endforeach
             </tbody>
         </table>
     </div>
+
     
     @if($analisis->hasPages())
         <div class="mt-4 px-6 py-3 bg-white border-t border-gray-200">
@@ -137,6 +140,7 @@
               <div class="mb-3">
                 <label for="pgnManual" class="form-label">Pega el PGN aquí</label>
                 <textarea class="form-control" id="pgnManual" name="pgn" rows="5" required placeholder="Ejemplo: 1.e4 e5 2.Nf3 Nc6 3.Bb5 a6 4.Ba4 Nf6 5.O-O Be7 6.Re1 b5 7.Bb3 d6 8.c3 O-O 9.h3 Nb8 10.d4 Nbd7 1/2-1/2"></textarea>
+
               </div>
               <button type="submit" class="btn btn-primary">Analizar PGN</button>
             </form>
@@ -172,6 +176,7 @@ $(document).ready(function() {
     $('button[data-target="#nuevoAnalisisModal"]').on('click', function() {
         console.log('Botón Nuevo Análisis clickeado');
         $('#nuevoAnalisisModal').modal('show');
+
     });
 });
 </script>
