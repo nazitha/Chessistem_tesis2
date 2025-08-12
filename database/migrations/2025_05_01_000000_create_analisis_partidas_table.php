@@ -12,10 +12,12 @@ return new class extends Migration
         }
         Schema::create('analisis_partidas', function (Blueprint $table) {
             $table->id();
-            $table->integer('partida_id');
+
+            $table->integer('partida_id')->nullable(); // Nullable para PGN manual
             $table->longText('movimientos');
-            $table->string('jugador_blancas_id', 20);
-            $table->string('jugador_negras_id', 20);
+            $table->string('jugador_blancas_id', 20)->nullable(); // Nullable para PGN manual
+            $table->string('jugador_negras_id', 20)->nullable(); // Nullable para PGN manual
+
             $table->text('evaluacion_general');
             $table->integer('errores_blancas');
             $table->integer('errores_negras');

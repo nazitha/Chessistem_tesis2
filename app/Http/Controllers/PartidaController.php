@@ -658,4 +658,38 @@ class PartidaController extends Controller
             ->get(['no_partida', 'torneo_id', 'participante_id', 'movimientos']);
         return response()->json($partidas);
     }
+
+    /**
+     * Obtener partidas sin movimientos para agregar
+     */
+    public function partidasSinMovimientos()
+    {
+        $partidas = Partida::whereNull('movimientos')
+            ->orWhere('movimientos', '=', '')
+            ->orderByDesc('no_partida')
+            ->get(['no_partida', 'torneo_id', 'participante_id']);
+        return response()->json($partidas);
+    }
+
+    /**
+     * Agregar movimientos a una partida
+     */
+    public function agregarMovimientos(Request $request, $id)
+    {
+        $request->validate([
+            'movimientos' => 'required|string|min:10'
+        ]);
+
+        $partida = Partida::findOrFail($id);
+        $partida->update([
+            'movimientos' => $request->movimientos
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Movimientos agregados correctamente',
+            'partida_id' => $partida->no_partida
+        ]);
+    }
+
 }

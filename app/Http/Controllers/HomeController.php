@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use App\Models\AnalisisPartida;
 
 /**
  * @method void middleware(string $middleware, array $options = [])
@@ -55,6 +56,7 @@ class HomeController extends Controller
             $canViewMisEstadisticas = \App\Helpers\PermissionHelper::canViewMisEstadisticas();
             $canViewEstadisticasAdmin = \App\Helpers\PermissionHelper::canViewEstadisticasAdmin();
 
+
             // Datos de prueba para la tarjeta de análisis de partidas
             $partidasAnalisis = [
                 [
@@ -88,6 +90,7 @@ class HomeController extends Controller
                     'analisis' => 'Partida muy igualada, ambos jugadores siguieron líneas teóricas y acordaron tablas tras repetición de jugadas.'
                 ]
             ];
+
 
             Log::info('HomeController@index - Intentando cargar vista home.index');
             return view('home.index', compact(

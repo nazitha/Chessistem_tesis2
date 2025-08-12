@@ -170,11 +170,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('analisis-partidas', [App\Http\Controllers\AnalisisPartidaController::class, 'store'])->name('analisis.store');
 });
 
-Route::prefix('analisis')->group(function () {
-    Route::get('/', [App\Http\Controllers\AnalisisPartidaController::class, 'index'])->name('analisis.index');
-    Route::get('/{partida_id}', [App\Http\Controllers\AnalisisPartidaController::class, 'show'])->name('analisis.show');
-    Route::post('/store', [App\Http\Controllers\AnalisisPartidaController::class, 'store'])->name('analisis.store');
-});
-
-Route::resource('analisis', AnalisisPartidaController::class)->only(['index', 'show', 'store']);
 Route::get('/api/partidas-con-movimientos', [App\Http\Controllers\PartidaController::class, 'partidasConMovimientos']);
+Route::get('/api/partidas-sin-movimientos', [App\Http\Controllers\PartidaController::class, 'partidasSinMovimientos']);
+Route::post('/api/partidas/{id}/movimientos', [App\Http\Controllers\PartidaController::class, 'agregarMovimientos']);
+Route::get('/api/analisis-recientes', [App\Http\Controllers\AnalisisPartidaController::class, 'analisisRecientes']);
+

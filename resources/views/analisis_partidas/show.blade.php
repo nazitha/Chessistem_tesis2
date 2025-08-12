@@ -3,17 +3,17 @@
 <div class="max-w-7xl mx-auto">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Análisis de la Partida</h2>
-        <button class="btn btn-primary" data-toggle="modal" data-target="#nuevoAnalisisModal">
-            Nuevo Análisis
-        </button>
+
     </div>
     <div class="row mb-3">
         <div class="col-md-6">
             <div class="card mb-3">
                 <div class="card-header">Jugadores</div>
                 <div class="card-body">
-                    <strong>Blancas:</strong> {{ $analisis->jugadorBlancas->nombre ?? '-' }}<br>
-                    <strong>Negras:</strong> {{ $analisis->jugadorNegras->nombre ?? '-' }}<br>
+
+                    <strong>Blancas:</strong> {{ $analisis->jugador_blancas_nombre }}<br>
+                    <strong>Negras:</strong> {{ $analisis->jugador_negras_nombre }}<br>
+
                     <strong>Fecha:</strong> {{ $analisis->created_at->format('Y-m-d') }}
                 </div>
             </div>
