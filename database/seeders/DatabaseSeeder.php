@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
             ParticipantesSeeder::class,
             FideEloSeeder::class,
             AcademiaSeeder::class,
+            AnalisisTestDataSeeder::class,
         ]);
 
         DB::statement('SET FOREIGN_KEY_CHECKS=1');
