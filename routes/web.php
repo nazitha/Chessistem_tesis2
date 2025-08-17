@@ -63,6 +63,10 @@ Route::middleware('web')->group(function () {
         Route::put('/password', [PasswordController::class, 'update'])->name('password.update');
 
         // Rutas de administración
+        Route::get('/usuarios/roles', [UserController::class, 'getRoles'])->name('usuarios.roles');
+        Route::get('/usuarios/roles/buscar', [UserController::class, 'getRolesByName'])->name('usuarios.roles.buscar');
+        Route::get('/usuarios/rol/{rolId}/permisos/{grupo?}', [UserController::class, 'getRolePermissions'])->name('usuarios.rol.permisos');
+        Route::post('/usuarios/rol/permisos', [UserController::class, 'updateRolePermissions'])->name('usuarios.rol.permisos.update');
         Route::resource('usuarios', UserController::class);
         Route::resource('academias', AcademiaController::class)->parameters([
             'academias' => 'academia'

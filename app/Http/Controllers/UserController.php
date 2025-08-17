@@ -34,19 +34,311 @@ class UserController extends Controller
                 ->orderBy('correo')
                 ->get();
 
+            // Obtener datos para la tabla de gestión de roles
+            $rolesData = $this->getRolesWithPermissionsData();
+
             Log::info('UserController@index - Usuarios encontrados: ' . $users->count());
             
-            return view('admin.users.index', compact('users'));
+            return view('admin.users.index', compact('users', 'rolesData'));
         } catch (\Exception $e) {
             Log::error('UserController@index - Error al listar usuarios: ' . $e->getMessage());
             return redirect()->route('home')->with('error', 'Error al obtener la lista de usuarios');
         }
     }
 
-    public function getRoles(): JsonResponse
+    /**
+     * Obtiene los datos para la tabla de gestión de roles
+     */
+    private function getRolesWithPermissionsData()
     {
+        try {
+            $rolesData = DB::select("
+                SELECT
+                    r.nombre AS rol,
+                    g.grupo,
+                    COALESCE(
+                        (
+                            SELECT GROUP_CONCAT(SUBSTRING_INDEX(p.permiso, '.', -1) SEPARATOR ' | ')
+                            FROM permisos p
+                            INNER JOIN asignaciones_permisos a ON a.permiso_id = p.id AND a.rol_id = r.id
+                            WHERE p.grupo = g.grupo
+                              AND p.id NOT IN (5, 6, 7, 8, 9, 12, 29)
+                        ), '-') AS permisos,
+                    COALESCE(
+                        (
+                            SELECT GROUP_CONCAT(p.descripcion SEPARATOR ' | ')
+                            FROM permisos p
+                            INNER JOIN asignaciones_permisos a ON a.permiso_id = p.id AND a.rol_id = r.id
+                            WHERE p.grupo = g.grupo
+                              AND p.id NOT IN (5, 6, 7, 8, 9, 12, 29)
+                        ), '-') AS descripciones
+                FROM roles r
+                CROSS JOIN (
+                    SELECT DISTINCT grupo
+                    FROM permisos
+                    WHERE id NOT IN (5, 6, 7, 8, 9, 12, 29)
+                ) g
+                ORDER BY r.nombre, g.grupo
+            ");
+
+            return $rolesData;
+        } catch (\Exception $e) {
+            Log::error('Error al obtener datos de roles y permisos: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Verifica si un permiso específico existe en la base de datos
+     */
+    private function permissionExists(string $permission): bool
+    {
+        try {
+            return DB::table('permisos')->where('permiso', $permission)->exists();
+        } catch (\Exception $e) {
+            Log::error('Error al verificar permiso: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Obtiene todos los roles disponibles
+     */
+    public function getRoles()
+    {
+        try {
+            $roles = DB::table('roles')
+                ->select('id', 'nombre')
+                ->orderBy('nombre')
+                ->get();
+            
+            return response()->json(['success' => true, 'data' => $roles]);
+        } catch (\Exception $e) {
+            Log::error('Error al obtener roles: ' . $e->getMessage());
+            return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Obtiene los permisos de un rol específico para el formulario de gestión
+     */
+    public function getRolePermissions($rolId, $grupo = null)
+    {
+        try {
+            // Obtener permisos disponibles (excluyendo IDs 5-9, 12 y 29)
+            $query = DB::table('permisos')
+                ->whereNotBetween('id', [5, 9])
+                ->where('id', '!=', 12)
+                ->where('id', '!=', 29);
+            
+            // Si se especifica un grupo, filtrar por ese grupo
+            if ($grupo) {
+                $query->where('grupo', $grupo);
+            }
+            
+            $permisos = $query->get();
+            
+            // Obtener permisos asignados al rol
+            $permisosAsignados = DB::table('asignaciones_permisos')
+                ->where('rol_id', $rolId)
+                ->pluck('permiso_id')
+                ->toArray();
+            
+            // Construir el resultado
+            $resultado = [];
+            foreach ($permisos as $permiso) {
+                $resultado[] = [
+                    'rol' => 'Administrador', // Valor fijo para simplificar
+                    'permiso' => $permiso->permiso,
+                    'descripcion' => $permiso->descripcion,
+                    'grupo' => $permiso->grupo,
+                    'asignado' => in_array($permiso->id, $permisosAsignados) ? 1 : 0,
+                    'permiso_id' => $permiso->id,
+                    'rol_id' => $rolId
+                ];
+            }
+            
+            return response()->json(['success' => true, 'data' => $resultado]);
+            
+        } catch (\Exception $e) {
+            Log::error('getRolePermissions: Error: ' . $e->getMessage());
+            return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Actualiza los permisos de un rol
+     */
+    public function updateRolePermissions(Request $request)
+    {
+        try {
+            Log::info('updateRolePermissions: Iniciando actualización de permisos');
+            Log::info('updateRolePermissions: Datos recibidos', $request->all());
+            
+            $request->validate([
+                'rol_id' => 'required|exists:roles,id',
+                'permisos' => 'array',
+                'permisos.*' => 'exists:permisos,id',
+                'grupo' => 'nullable|string'
+            ]);
+
+            $rolId = $request->rol_id;
+            $permisosSeleccionados = $request->permisos ?? [];
+            $grupo = $request->grupo;
+            
+            Log::info('updateRolePermissions: Rol ID', ['rol_id' => $rolId]);
+            Log::info('updateRolePermissions: Permisos seleccionados', ['permisos' => $permisosSeleccionados]);
+            Log::info('updateRolePermissions: Grupo', ['grupo' => $grupo]);
+
+            // Si se especifica un grupo, solo trabajar con permisos de ese grupo
+            if ($grupo) {
+                // Obtener todos los permisos del grupo específico
+                $permisosDelGrupo = DB::table('permisos')
+                    ->where('grupo', $grupo)
+                    ->whereNotBetween('id', [5, 9])
+                    ->where('id', '!=', 12)
+                    ->where('id', '!=', 29)
+                    ->pluck('id')
+                    ->toArray();
+                
+                Log::info('updateRolePermissions: Permisos del grupo', ['permisos_grupo' => $permisosDelGrupo]);
+                
+                // Obtener permisos actualmente asignados del grupo específico
+                $permisosActuales = DB::table('asignaciones_permisos')
+                    ->where('rol_id', $rolId)
+                    ->whereIn('permiso_id', $permisosDelGrupo)
+                    ->pluck('permiso_id')
+                    ->toArray();
+                
+                Log::info('updateRolePermissions: Permisos actuales del grupo', ['permisos_actuales' => $permisosActuales]);
+
+                // Permisos a agregar (nuevos)
+                $permisosAAgregar = array_diff($permisosSeleccionados, $permisosActuales);
+                
+                // Permisos a eliminar (desmarcados) - solo del grupo específico
+                $permisosAEliminar = array_diff($permisosActuales, $permisosSeleccionados);
+                
+                Log::info('updateRolePermissions: Permisos a agregar', ['permisos_agregar' => $permisosAAgregar]);
+                Log::info('updateRolePermissions: Permisos a eliminar', ['permisos_eliminar' => $permisosAEliminar]);
+
+                // Insertar nuevos permisos
+                if (!empty($permisosAAgregar)) {
+                    $datosInsertar = [];
+                    foreach ($permisosAAgregar as $permisoId) {
+                        $datosInsertar[] = [
+                            'rol_id' => $rolId,
+                            'permiso_id' => $permisoId
+                        ];
+                    }
+                    Log::info('updateRolePermissions: Insertando permisos', ['datos_insertar' => $datosInsertar]);
+                    DB::table('asignaciones_permisos')->insert($datosInsertar);
+                }
+
+                // Eliminar permisos desmarcados (solo del grupo específico)
+                if (!empty($permisosAEliminar)) {
+                    Log::info('updateRolePermissions: Eliminando permisos', ['permisos_eliminar' => $permisosAEliminar]);
+                    DB::table('asignaciones_permisos')
+                        ->where('rol_id', $rolId)
+                        ->whereIn('permiso_id', $permisosAEliminar)
+                        ->delete();
+                }
+            } else {
+                // Comportamiento original para cuando no se especifica grupo
+                $permisosActuales = DB::table('asignaciones_permisos')
+                    ->where('rol_id', $rolId)
+                    ->pluck('permiso_id')
+                    ->toArray();
+                
+                Log::info('updateRolePermissions: Permisos actuales (sin grupo)', ['permisos_actuales' => $permisosActuales]);
+
+                $permisosAAgregar = array_diff($permisosSeleccionados, $permisosActuales);
+                $permisosAEliminar = array_diff($permisosActuales, $permisosSeleccionados);
+                
+                Log::info('updateRolePermissions: Permisos a agregar (sin grupo)', ['permisos_agregar' => $permisosAAgregar]);
+                Log::info('updateRolePermissions: Permisos a eliminar (sin grupo)', ['permisos_eliminar' => $permisosAEliminar]);
+
+                if (!empty($permisosAAgregar)) {
+                    $datosInsertar = [];
+                    foreach ($permisosAAgregar as $permisoId) {
+                        $datosInsertar[] = [
+                            'rol_id' => $rolId,
+                            'permiso_id' => $permisoId
+                        ];
+                    }
+                    DB::table('asignaciones_permisos')->insert($datosInsertar);
+                }
+
+                if (!empty($permisosAEliminar)) {
+                    DB::table('asignaciones_permisos')
+                        ->where('rol_id', $rolId)
+                        ->whereIn('permiso_id', $permisosAEliminar)
+                        ->delete();
+                }
+            }
+
+            // Log de auditoría
+            try {
+                if (Auth::check()) {
+                    $user = Auth::user();
+                    AuditService::logUserAction(
+                        $user->correo,
+                        $user,
+                        'permissions_updated',
+                        [
+                            'grupo' => $grupo,
+                            'permisos_agregados' => $permisosAAgregar ?? [],
+                            'permisos_eliminados' => $permisosAEliminar ?? []
+                        ]
+                    );
+                } else {
+                    Log::info('updateRolePermissions: Usuario no autenticado para auditoría');
+                }
+            } catch (\Exception $auditError) {
+                Log::warning('updateRolePermissions: Error en auditoría', ['error' => $auditError->getMessage()]);
+            }
+
+            Log::info('updateRolePermissions: Actualización completada exitosamente');
+            return response()->json([
+                'success' => true,
+                'message' => 'Permisos del rol actualizados correctamente'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('updateRolePermissions: Error completo', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json([
+                'success' => false,
+                'error' => 'Error al actualizar los permisos del rol: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getRolesByName(Request $request): JsonResponse
+    {
+        try {
+            $nombre = $request->get('nombre');
+            
+            if ($nombre) {
+                $roles = Role::where('nombre', 'LIKE', "%{$nombre}%")->get();
+            } else {
         $roles = Role::all();
-        return RoleResource::collection($roles)->response();
+            }
+            
+            return response()->json([
+                'success' => true,
+                'data' => $roles
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error al obtener roles por nombre: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'error' => 'Error al obtener roles'
+            ], 500);
+        }
     }
 
     public function store(UserStoreRequest $request): JsonResponse

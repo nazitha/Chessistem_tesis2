@@ -24,6 +24,40 @@
     ]);
 @endphp
 
+<style>
+    .card-link {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+        transition: all 0.3s ease;
+    }
+    
+    .card-link:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .card-link:hover .text-blue-600 {
+        color: #2563eb !important;
+    }
+    
+    /* Asegurar que los cards tengan layout horizontal */
+    .card-link .flex {
+        display: flex !important;
+        align-items: center !important;
+        flex-direction: row !important;
+    }
+    
+    .card-link .flex-shrink-0 {
+        flex-shrink: 0 !important;
+    }
+    
+    .card-link .flex-1 {
+        flex: 1 !important;
+        min-width: 0 !important;
+    }
+</style>
+
 <div class="min-h-screen bg-gray-50">
     <!-- Contenido principal -->
     <div class="max-w-7xl mx-auto px-4 py-6">
@@ -32,44 +66,55 @@
 
         <!-- Tarjetas principales -->
         <div class="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div class="bg-white rounded-lg shadow p-6 flex items-center">
-                <div class="p-2 bg-blue-100 rounded-lg mr-4">
+            <!-- Card Mi Perfil -->
+            <a href="{{ route('profile') }}" class="card-link bg-white rounded-lg shadow p-6" style="display: flex; align-items: flex-start;">
+                <div class="p-2 bg-blue-100 rounded-lg mr-4" style="flex-shrink: 0;">
                     <i class="fas fa-user-circle text-blue-600 text-2xl"></i>
-
-                    </div>
-                <div>
-                        <h3 class="text-lg font-medium text-gray-900">Mi Perfil</h3>
-                        <p class="text-gray-600 mt-1">Edita tu perfil</p>
-                    </div>
                 </div>
-            <div class="bg-white rounded-lg shadow p-6 flex items-center">
-                <div class="p-2 bg-blue-100 rounded-lg mr-4">
+                <div style="flex: 1;">
+                    <h3 class="text-lg font-medium text-gray-900">Mi Perfil</h3>
+                    <p class="text-gray-600 mt-1">Edita tu perfil</p>
+                </div>
+            </a>
+
+            <!-- Card Usuarios -->
+            @if(PermissionHelper::canViewModule('usuarios'))
+            <a href="{{ route('usuarios.index') }}" class="card-link bg-white rounded-lg shadow p-6" style="display: flex; align-items: flex-start;">
+                <div class="p-2 bg-blue-100 rounded-lg mr-4" style="flex-shrink: 0;">
                     <i class="fas fa-users-cog text-blue-600 text-2xl"></i>
-                    </div>
-                <div>
-                        <h3 class="text-lg font-medium text-gray-900">Usuarios</h3>
-                        <p class="text-gray-600 mt-1">Gestión de usuarios del sistema</p>
-                    </div>
                 </div>
-            <div class="bg-white rounded-lg shadow p-6 flex items-center">
-                <div class="p-2 bg-blue-100 rounded-lg mr-4">
-                    <i class="fas fa-graduation-cap text-blue-600 text-2xl"></i>
-                    </div>
-                <div>
-                        <h3 class="text-lg font-medium text-gray-900">Academias</h3>
-                        <p class="text-gray-600 mt-1">Ver y editar academias</p>
-                    </div>
+                <div style="flex: 1;">
+                    <h3 class="text-lg font-medium text-gray-900">Usuarios</h3>
+                    <p class="text-gray-600 mt-1">Gestión de usuarios del sistema</p>
                 </div>
-            <div class="bg-white rounded-lg shadow p-6 flex items-center">
-                <div class="p-2 bg-blue-100 rounded-lg mr-4">
-                    <i class="fas fa-chess text-blue-600 text-2xl"></i>
-                    </div>
-                <div>
-                        <h3 class="text-lg font-medium text-gray-900">Torneos</h3>
-                        <p class="text-gray-600 mt-1">Administración de torneos</p>
-                    </div>
-                </div>
+            </a>
+            @endif
 
+            <!-- Card Academias -->
+            @if($canViewAcademias)
+            <a href="{{ route('academias.index') }}" class="card-link bg-white rounded-lg shadow p-6" style="display: flex; align-items: flex-start;">
+                <div class="p-2 bg-blue-100 rounded-lg mr-4" style="flex-shrink: 0;">
+                    <i class="fas fa-graduation-cap text-blue-600 text-2xl"></i>
+                </div>
+                <div style="flex: 1;">
+                    <h3 class="text-lg font-medium text-gray-900">Academias</h3>
+                    <p class="text-gray-600 mt-1">Ver y editar academias</p>
+                </div>
+            </a>
+            @endif
+
+            <!-- Card Torneos -->
+            @if($canViewTorneos)
+            <a href="{{ route('torneos.index') }}" class="card-link bg-white rounded-lg shadow p-6" style="display: flex; align-items: flex-start;">
+                <div class="p-2 bg-blue-100 rounded-lg mr-4" style="flex-shrink: 0;">
+                    <i class="fas fa-chess text-blue-600 text-2xl"></i>
+                </div>
+                <div style="flex: 1;">
+                    <h3 class="text-lg font-medium text-gray-900">Torneos</h3>
+                    <p class="text-gray-600 mt-1">Administración de torneos</p>
+                </div>
+            </a>
+            @endif
         </div>
 
         <!-- Acciones Rápidas -->

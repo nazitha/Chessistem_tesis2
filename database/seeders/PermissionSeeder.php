@@ -82,5 +82,30 @@ class PermissionSeeder extends Seeder
                 'permiso_id' => $permisoId
             ]);
         }
+
+        echo "Permisos de miembros asignados al rol admin correctamente.\n";
+
+        // Agregar permisos de asignaciones
+        $permisosAsignaciones = [
+            'asignaciones.read',
+            'asignaciones.update'
+        ];
+
+        foreach ($permisosAsignaciones as $permiso) {
+            $permisoId = DB::table('permisos')->where('permiso', $permiso)->value('id');
+            if (!$permisoId) {
+                $permisoId = DB::table('permisos')->insertGetId([
+                    'permiso' => $permiso,
+                    'descripcion' => 'Permiso para ' . str_replace('.', ' ', $permiso),
+                    'grupo' => 'asignaciones'
+                ]);
+            }
+            DB::table('asignaciones_permisos')->updateOrInsert([
+                'rol_id' => 1,
+                'permiso_id' => $permisoId
+            ]);
+        }
+
+        echo "Permisos de asignaciones asignados al rol admin correctamente.\n";
     }
 } 
