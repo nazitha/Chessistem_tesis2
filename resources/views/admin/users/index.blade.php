@@ -37,7 +37,7 @@
 
 <div class="container mx-auto px-4 py-8">
     <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-gray-900">Gestión de Usuarios</h1>
+                        <h1 class="text-2xl font-bold text-gray-900">Gestión de usuarios</h1>
         @if(PermissionHelper::canCreate('usuarios'))
             <button id="btnNuevoUsuario" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold shadow mb-4">
                 Nuevo usuario
@@ -73,7 +73,7 @@
     <div id="panelBusquedaUsuarios" class="bg-white shadow-md rounded-lg p-4 mb-4 hidden">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg font-medium text-gray-900">Búsqueda de Usuarios</h3>
-            <button id="btnCancelarBusquedaUsuarios" class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-md text-sm">
+            <button id="btnCancelarBusquedaUsuarios" class="text-gray-500 hover:text-gray-700 text-xl font-bold">
                 ✕
             </button>
         </div>
@@ -103,7 +103,7 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Rol:</label>
-                    <select id="filtroRol" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                    <select id="filtroRol" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white">
                         <option value="">Todos los roles</option>
                         <option value="Administrador">Administrador</option>
                         <option value="Evaluador">Evaluador</option>
@@ -113,7 +113,7 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Estado:</label>
-                    <select id="filtroEstado" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                    <select id="filtroEstado" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white">
                         <option value="">Todos los estados</option>
                         <option value="Activo">Activo</option>
                         <option value="Inactivo">Inactivo</option>
@@ -171,7 +171,7 @@
             <div class="flex items-center justify-between">
                 <div class="flex items-center">
                     <label class="text-sm text-gray-700 mr-2">Mostrar:</label>
-                    <select id="registrosPorPaginaUsuarios" class="border border-gray-300 rounded-md px-2 py-1 text-sm">
+                    <select id="registrosPorPaginaUsuarios" class="border border-gray-300 rounded-md px-2 py-1 text-sm bg-white">
                         <option value="5">5</option>
                         <option value="10" selected>10</option>
                         <option value="25">25</option>
@@ -217,7 +217,7 @@
         <div id="panelBusquedaPermisos" class="bg-white shadow-md rounded-lg p-4 mb-4 hidden">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-lg font-medium text-gray-900">Búsqueda de Permisos</h3>
-                <button id="btnCancelarBusquedaPermisos" class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-md text-sm">
+                <button id="btnCancelarBusquedaPermisos" class="text-gray-500 hover:text-gray-700 text-xl font-bold">
                     ✕
                 </button>
             </div>
@@ -296,7 +296,7 @@
                 <div class="flex items-center justify-between">
                     <div class="flex items-center">
                         <label class="text-sm text-gray-700 mr-2">Mostrar:</label>
-                        <select id="registrosPorPaginaPermisos" class="border border-gray-300 rounded-md px-2 py-1 text-sm">
+                        <select id="registrosPorPaginaPermisos" class="border border-gray-300 rounded-md px-2 py-1 text-sm bg-white">
                             <option value="5">5</option>
                             <option value="10" selected>10</option>
                             <option value="25">25</option>
@@ -990,6 +990,7 @@
         
         inicializar() {
             this.configurarEventos();
+            this.verificarEstadoExportar();
             this.aplicarPaginacion();
         }
         
@@ -1114,8 +1115,9 @@
                 datos.push(filaDatos);
             });
             
-            // Crear el contenido CSV
-            let csvContent = encabezados.join(',') + '\n';
+            // Crear el contenido CSV con BOM para UTF-8
+            const BOM = '\uFEFF'; // Byte Order Mark para UTF-8
+            let csvContent = BOM + encabezados.join(',') + '\n';
             datos.forEach(fila => {
                 csvContent += fila.join(',') + '\n';
             });
@@ -1128,8 +1130,8 @@
                 nombreArchivo = 'permisos_exportados.csv';
             }
             
-            // Crear y descargar el archivo
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            // Crear y descargar el archivo con codificación UTF-8
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
             const link = document.createElement('a');
             const url = URL.createObjectURL(blob);
             link.setAttribute('href', url);
@@ -1186,6 +1188,39 @@
                     btnSiguiente.classList.remove('opacity-50', 'cursor-not-allowed');
                 }
             }
+            
+            // Verificar estado del botón exportar
+            this.verificarEstadoExportar();
+        }
+        
+        verificarEstadoExportar() {
+            const btnExportar = document.getElementById(this.config.btnExportar);
+            if (btnExportar) {
+                let tieneRegistros = false;
+                
+                // Si hay filtros aplicados, verificar las filas filtradas
+                if (this.filasFiltradas.length !== this.filasOriginales.length) {
+                    tieneRegistros = this.filasFiltradas.length > 0;
+                } else {
+                    // Si no hay filtros, verificar las filas originales en el DOM
+                    const filasEnTabla = this.tabla.querySelectorAll('tbody tr');
+                    tieneRegistros = Array.from(filasEnTabla).some(fila => {
+                        // Excluir filas que contengan mensajes como "No hay usuarios registrados"
+                        const textoFila = fila.textContent.toLowerCase();
+                        return !textoFila.includes('no hay') && !textoFila.includes('registrados') && !textoFila.includes('registradas');
+                    });
+                }
+                
+                btnExportar.disabled = !tieneRegistros;
+                
+                if (!tieneRegistros) {
+                    btnExportar.classList.add('opacity-50', 'cursor-not-allowed');
+                    btnExportar.title = 'No hay registros para exportar';
+                } else {
+                    btnExportar.classList.remove('opacity-50', 'cursor-not-allowed');
+                    btnExportar.title = 'Exportar registros';
+                }
+            }
         }
         
         mostrarPanelBusqueda() {
@@ -1211,6 +1246,7 @@
             
             this.paginaActual = 1;
             this.aplicarPaginacion();
+            this.verificarEstadoExportar();
         }
         
         aplicarFiltrosAvanzados() {
@@ -1243,6 +1279,7 @@
             
             this.paginaActual = 1;
             this.aplicarPaginacion();
+            this.verificarEstadoExportar();
         }
         
         toggleBusquedaAvanzada() {
@@ -1279,6 +1316,7 @@
             this.filasFiltradas = [...this.filasOriginales];
             this.paginaActual = 1;
             this.aplicarPaginacion();
+            this.verificarEstadoExportar();
         }
     }
     

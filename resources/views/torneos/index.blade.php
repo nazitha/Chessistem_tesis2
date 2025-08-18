@@ -16,7 +16,7 @@
 @endphp
 
 <div class="max-w-7xl mx-auto px-4">
-    <div class="flex justify-between items-center border-b pb-4">
+    <div class="flex justify-between items-center pb-4">
         <h1 class="text-2xl font-semibold">Torneos</h1>
         @if(PermissionHelper::canCreate('torneos'))
             <a href="{{ route('torneos.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded hover:bg-blue-600 transition-colors duration-200">
@@ -38,6 +38,68 @@
         </div>
     @endif
 
+    <!-- Botón para mostrar controles de búsqueda -->
+    <div class="mb-4">
+        <div class="flex gap-2">
+            <button id="btnMostrarBusquedaTorneos" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium">
+                <i class="fas fa-search mr-2"></i>Buscar
+            </button>
+            <button id="btnExportarTorneos" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium">
+                <i class="fas fa-download mr-2"></i>Exportar
+            </button>
+        </div>
+    </div>
+
+    <!-- Controles de búsqueda -->
+    <div id="panelBusquedaTorneos" class="bg-white shadow-md rounded-lg p-4 mb-4 hidden">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-medium text-gray-900">Búsqueda de Torneos</h3>
+            <button id="btnCancelarBusquedaTorneos" class="text-gray-500 hover:text-gray-700 text-xl font-bold">
+                ✕
+            </button>
+        </div>
+        <div class="flex flex-wrap gap-4 items-center">
+            <div class="flex-1 min-w-64">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Buscar:</label>
+                <input type="text" id="buscarTorneos" placeholder="Buscar por nombre, lugar, categoría..." 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div class="flex gap-2">
+                <button id="btnBuscarAvanzadaTorneos" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md font-medium">
+                    Búsqueda Avanzada
+                </button>
+                <button id="btnLimpiarBusquedaTorneos" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md font-medium">
+                    Limpiar
+                </button>
+            </div>
+        </div>
+        <!-- Panel de búsqueda avanzada -->
+        <div id="panelBusquedaAvanzadaTorneos" class="mt-4 p-4 bg-gray-50 rounded-md hidden">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Nombre:</label>
+                    <input type="text" id="filtroNombre" placeholder="Filtrar por nombre" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Lugar:</label>
+                    <input type="text" id="filtroLugar" placeholder="Filtrar por lugar" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Estado:</label>
+                    <select id="filtroEstado" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white">
+                        <option value="">Todos los estados</option>
+                        <option value="Activo">Activo</option>
+                        <option value="Borrador">Borrador</option>
+                        <option value="Finalizado">Finalizado</option>
+                        <option value="Cancelado">Cancelado</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="mt-6 bg-white rounded-lg shadow">
         <div class="overflow-x-auto">
             <table class="min-w-full">
@@ -55,7 +117,7 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($torneos as $torneo)
-                        <tr class="hover:bg-gray-50">
+                        <tr class="hover:bg-gray-50 transition-colors duration-150">
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                 {{ $torneo->nombre_torneo }}
                             </td>
@@ -164,11 +226,30 @@
             </table>
         </div>
         
-        @if($torneos->hasPages())
-            <div class="px-6 py-4 border-t">
-                {{ $torneos->links() }}
+        <!-- Controles de paginación -->
+        <div class="px-6 py-4 border-t bg-gray-50">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm text-gray-700">Mostrar:</span>
+                    <select id="registrosPorPaginaTorneos" class="border border-gray-300 rounded-md px-2 py-1 text-sm bg-white">
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                    <span class="text-sm text-gray-700">registros por página</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button id="btnAnteriorTorneos" class="px-3 py-1 text-sm bg-gray-200 hover:bg-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed">
+                        Anterior
+                    </button>
+                    <span id="infoPaginacionTorneos" class="text-sm text-gray-700">Página 1 de 1</span>
+                    <button id="btnSiguienteTorneos" class="px-3 py-1 text-sm bg-gray-200 hover:bg-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed">
+                        Siguiente
+                    </button>
+                </div>
             </div>
-        @endif
+        </div>
     </div>
 </div>
 
@@ -248,6 +329,281 @@
 
 @push('scripts')
 <script>
+// Clase para manejar la tabla personalizada
+class TablaPersonalizada {
+    constructor(tabla, config) {
+        this.tabla = tabla;
+        this.config = config;
+        this.filasOriginales = Array.from(tabla.querySelectorAll('tbody tr'));
+        this.filasFiltradas = [...this.filasOriginales];
+        this.paginaActual = 1;
+        this.registrosPorPagina = 10;
+        this.inicializar();
+    }
+
+    inicializar() {
+        // Configurar eventos de búsqueda
+        const inputBusqueda = document.getElementById(this.config.inputBusqueda);
+        if (inputBusqueda) {
+            inputBusqueda.addEventListener('input', (e) => {
+                this.filtrar(e.target.value);
+            });
+        }
+
+        // Configurar eventos de filtros avanzados
+        const filtros = ['filtroNombre', 'filtroLugar', 'filtroEstado'];
+        filtros.forEach(filtro => {
+            const elemento = document.getElementById(filtro);
+            if (elemento) {
+                elemento.addEventListener('input', () => this.aplicarFiltrosAvanzados());
+                elemento.addEventListener('change', () => this.aplicarFiltrosAvanzados());
+            }
+        });
+
+        // Configurar eventos de paginación
+        const selectRegistros = document.getElementById(this.config.selectRegistros);
+        if (selectRegistros) {
+            selectRegistros.addEventListener('change', (e) => {
+                this.registrosPorPagina = parseInt(e.target.value);
+                this.paginaActual = 1;
+                this.aplicarPaginacion();
+            });
+        }
+
+        const btnAnterior = document.getElementById(this.config.btnAnterior);
+        const btnSiguiente = document.getElementById(this.config.btnSiguiente);
+        if (btnAnterior) btnAnterior.addEventListener('click', () => this.cambiarPagina(-1));
+        if (btnSiguiente) btnSiguiente.addEventListener('click', () => this.cambiarPagina(1));
+
+        // Configurar eventos de exportación
+        const btnExportar = document.getElementById(this.config.btnExportar);
+        if (btnExportar) {
+            btnExportar.addEventListener('click', () => this.exportarDatos());
+        }
+
+        // Configurar eventos de búsqueda avanzada
+        const btnBuscarAvanzada = document.getElementById(this.config.btnBuscarAvanzada);
+        if (btnBuscarAvanzada) {
+            btnBuscarAvanzada.addEventListener('click', () => this.toggleBusquedaAvanzada());
+        }
+
+        // Configurar eventos de limpiar
+        const btnLimpiar = document.getElementById(this.config.btnLimpiar);
+        if (btnLimpiar) {
+            btnLimpiar.addEventListener('click', () => this.limpiarFiltros());
+        }
+
+        // Configurar eventos de mostrar/cancelar búsqueda
+        const btnMostrarBusqueda = document.getElementById(this.config.btnMostrarBusqueda);
+        const btnCancelarBusqueda = document.getElementById(this.config.btnCancelarBusqueda);
+        if (btnMostrarBusqueda) {
+            btnMostrarBusqueda.addEventListener('click', () => this.mostrarPanelBusqueda());
+        }
+        if (btnCancelarBusqueda) {
+            btnCancelarBusqueda.addEventListener('click', () => this.cancelarBusqueda());
+        }
+
+        // Verificar estado del botón exportar y aplicar paginación inicial
+        this.verificarEstadoExportar();
+        this.aplicarPaginacion();
+    }
+
+    filtrar(texto) {
+        const textoLower = texto.toLowerCase();
+        this.filasFiltradas = this.filasOriginales.filter(fila => {
+            const textoFila = fila.textContent.toLowerCase();
+            return textoFila.includes(textoLower);
+        });
+        this.paginaActual = 1;
+        this.aplicarPaginacion();
+        this.verificarEstadoExportar();
+    }
+
+    aplicarFiltrosAvanzados() {
+        const filtroNombre = document.getElementById('filtroNombre')?.value.toLowerCase() || '';
+        const filtroLugar = document.getElementById('filtroLugar')?.value.toLowerCase() || '';
+        const filtroEstado = document.getElementById('filtroEstado')?.value || '';
+
+        this.filasFiltradas = this.filasOriginales.filter(fila => {
+            const celdas = fila.querySelectorAll('td');
+            if (celdas.length === 0) return false;
+
+            const nombre = celdas[0]?.textContent.toLowerCase() || '';
+            const lugar = celdas[2]?.textContent.toLowerCase() || '';
+            const estado = celdas[4]?.textContent.trim() || '';
+
+            const cumpleNombre = !filtroNombre || nombre.includes(filtroNombre);
+            const cumpleLugar = !filtroLugar || lugar.includes(filtroLugar);
+            const cumpleEstado = !filtroEstado || estado === filtroEstado;
+
+            return cumpleNombre && cumpleLugar && cumpleEstado;
+        });
+
+        this.paginaActual = 1;
+        this.aplicarPaginacion();
+        this.verificarEstadoExportar();
+    }
+
+    mostrarPanelBusqueda() {
+        const panel = document.getElementById(this.config.panelBusqueda);
+        if (panel) panel.classList.remove('hidden');
+    }
+
+    cancelarBusqueda() {
+        const panel = document.getElementById(this.config.panelBusqueda);
+        if (panel) panel.classList.add('hidden');
+        this.limpiarFiltros();
+    }
+
+    toggleBusquedaAvanzada() {
+        const panel = document.getElementById(this.config.panelBusquedaAvanzada);
+        if (panel) {
+            panel.classList.toggle('hidden');
+        }
+    }
+
+    limpiarFiltros() {
+        // Limpiar inputs de búsqueda
+        const inputBusqueda = document.getElementById(this.config.inputBusqueda);
+        if (inputBusqueda) inputBusqueda.value = '';
+
+        // Limpiar filtros avanzados
+        const filtros = ['filtroNombre', 'filtroLugar', 'filtroEstado'];
+        filtros.forEach(filtro => {
+            const elemento = document.getElementById(filtro);
+            if (elemento) elemento.value = '';
+        });
+
+        // Ocultar panel de búsqueda avanzada
+        const panel = document.getElementById(this.config.panelBusquedaAvanzada);
+        if (panel) panel.classList.add('hidden');
+
+        // Restaurar todas las filas
+        this.filasFiltradas = [...this.filasOriginales];
+        this.paginaActual = 1;
+        this.aplicarPaginacion();
+        this.verificarEstadoExportar();
+    }
+
+    cambiarPagina(direccion) {
+        const totalPaginas = Math.ceil(this.filasFiltradas.length / this.registrosPorPagina);
+        this.paginaActual = Math.max(1, Math.min(totalPaginas, this.paginaActual + direccion));
+        this.aplicarPaginacion();
+    }
+
+    aplicarPaginacion() {
+        const inicio = (this.paginaActual - 1) * this.registrosPorPagina;
+        const fin = inicio + this.registrosPorPagina;
+        const filasAMostrar = this.filasFiltradas.slice(inicio, fin);
+
+        // Ocultar todas las filas
+        this.filasOriginales.forEach(fila => {
+            fila.style.display = 'none';
+        });
+
+        // Mostrar solo las filas de la página actual
+        filasAMostrar.forEach(fila => {
+            fila.style.display = '';
+        });
+
+        // Actualizar información de paginación
+        const totalPaginas = Math.ceil(this.filasFiltradas.length / this.registrosPorPagina);
+        const infoPaginacion = document.getElementById(this.config.infoPaginacion);
+        if (infoPaginacion) {
+            infoPaginacion.textContent = `Página ${this.paginaActual} de ${totalPaginas}`;
+        }
+
+        // Actualizar estado de botones
+        const btnAnterior = document.getElementById(this.config.btnAnterior);
+        const btnSiguiente = document.getElementById(this.config.btnSiguiente);
+        if (btnAnterior) btnAnterior.disabled = this.paginaActual === 1;
+        if (btnSiguiente) btnSiguiente.disabled = this.paginaActual === totalPaginas;
+        
+        // Verificar estado del botón exportar
+        this.verificarEstadoExportar();
+    }
+
+    verificarEstadoExportar() {
+        const btnExportar = document.getElementById(this.config.btnExportar);
+        if (btnExportar) {
+            let tieneRegistros = false;
+            
+            // Si hay filtros aplicados, verificar las filas filtradas
+            if (this.filasFiltradas.length !== this.filasOriginales.length) {
+                tieneRegistros = this.filasFiltradas.length > 0;
+            } else {
+                // Si no hay filtros, verificar las filas originales en el DOM
+                const filasEnTabla = this.tabla.querySelectorAll('tbody tr');
+                tieneRegistros = Array.from(filasEnTabla).some(fila => {
+                    // Excluir filas que contengan mensajes como "No hay torneos registrados"
+                    const textoFila = fila.textContent.toLowerCase();
+                    return !textoFila.includes('no hay') && !textoFila.includes('registrados') && !textoFila.includes('registradas');
+                });
+            }
+            
+            btnExportar.disabled = !tieneRegistros;
+            
+            if (!tieneRegistros) {
+                btnExportar.classList.add('opacity-50', 'cursor-not-allowed');
+                btnExportar.title = 'No hay registros para exportar';
+            } else {
+                btnExportar.classList.remove('opacity-50', 'cursor-not-allowed');
+                btnExportar.title = 'Exportar registros';
+            }
+        }
+    }
+
+    exportarDatos() {
+        // Obtener las filas filtradas (visibles)
+        const filasAExportar = this.filasFiltradas;
+        
+        // Obtener los encabezados de la tabla (excluyendo la columna de acciones)
+        const encabezados = [];
+        const filasEncabezado = this.tabla.querySelectorAll('thead th');
+        filasEncabezado.forEach((th, index) => {
+            // Excluir la última columna si es "Acciones"
+            if (index < filasEncabezado.length - 1 || !th.textContent.trim().includes('Acciones')) {
+                encabezados.push(th.textContent.trim());
+            }
+        });
+        
+        // Preparar los datos para exportar
+        const datos = [];
+        filasAExportar.forEach(fila => {
+            const filaDatos = [];
+            const celdas = fila.querySelectorAll('td');
+            
+            // Excluir la última celda si es la columna de acciones
+            const celdasAExportar = celdas.length > 0 && celdas[celdas.length - 1].querySelector('button') ? 
+                Array.from(celdas).slice(0, -1) : Array.from(celdas);
+            
+            celdasAExportar.forEach(celda => {
+                filaDatos.push(celda.textContent.trim());
+            });
+            
+            datos.push(filaDatos);
+        });
+        
+        // Crear el contenido CSV con BOM para UTF-8
+        const BOM = '\uFEFF'; // Byte Order Mark para UTF-8
+        let csvContent = BOM + encabezados.join(',') + '\n';
+        datos.forEach(fila => {
+            csvContent += fila.join(',') + '\n';
+        });
+        
+        // Crear y descargar el archivo con codificación UTF-8
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', 'torneos_exportados.csv');
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Ocultar alertas después de 3 segundos
     setTimeout(function() {
@@ -260,6 +616,25 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }, 3000);
+
+    // Inicializar tabla personalizada para torneos
+    const tablaTorneos = document.querySelector('.bg-white.rounded-lg.shadow table');
+    if (tablaTorneos) {
+        new TablaPersonalizada(tablaTorneos, {
+            inputBusqueda: 'buscarTorneos',
+            panelBusqueda: 'panelBusquedaTorneos',
+            panelBusquedaAvanzada: 'panelBusquedaAvanzadaTorneos',
+            btnMostrarBusqueda: 'btnMostrarBusquedaTorneos',
+            btnCancelarBusqueda: 'btnCancelarBusquedaTorneos',
+            btnBuscarAvanzada: 'btnBuscarAvanzadaTorneos',
+            btnLimpiar: 'btnLimpiarBusquedaTorneos',
+            btnExportar: 'btnExportarTorneos',
+            selectRegistros: 'registrosPorPaginaTorneos',
+            btnAnterior: 'btnAnteriorTorneos',
+            btnSiguiente: 'btnSiguienteTorneos',
+            infoPaginacion: 'infoPaginacionTorneos'
+        });
+    }
 });
 
 function confirmarEliminacion(torneoId) {

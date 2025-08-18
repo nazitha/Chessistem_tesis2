@@ -8,7 +8,7 @@
 
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <div class="max-w-full mx-auto px-4">
-    <div class="flex justify-between items-center border-b pb-4">
+    <div class="flex justify-between items-center pb-4">
         <h1 class="text-2xl font-semibold">Miembros</h1>
         @if(PermissionHelper::canCreate('miembros'))
             <a href="{{ route('miembros.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded hover:bg-blue-600 transition-colors duration-200">
@@ -31,6 +31,85 @@
             {{ session('error') }}
         </div>
     @endif
+
+    <!-- Botón para mostrar controles de búsqueda -->
+    <div class="mb-4">
+        <div class="flex gap-2">
+            <button id="btnMostrarBusquedaMiembros" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium">
+                <i class="fas fa-search mr-2"></i>Buscar
+            </button>
+            <button id="btnExportarMiembros" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium">
+                <i class="fas fa-download mr-2"></i>Exportar
+            </button>
+        </div>
+    </div>
+
+    <!-- Controles de búsqueda -->
+    <div id="panelBusquedaMiembros" class="bg-white shadow-md rounded-lg p-4 mb-4 hidden">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-medium text-gray-900">Búsqueda de Miembros</h3>
+            <button id="btnCancelarBusquedaMiembros" class="text-gray-500 hover:text-gray-700 text-xl font-bold">
+                ✕
+            </button>
+        </div>
+        <div class="flex flex-wrap gap-4 items-center">
+            <div class="flex-1 min-w-64">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Buscar:</label>
+                <input type="text" id="buscarMiembros" placeholder="Buscar por cédula, nombres, apellidos, academia..." 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div class="flex gap-2">
+                <button id="btnBuscarAvanzadaMiembros" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md font-medium">
+                    Búsqueda Avanzada
+                </button>
+                <button id="btnLimpiarBusquedaMiembros" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md font-medium">
+                    Limpiar
+                </button>
+            </div>
+        </div>
+        
+        <!-- Panel de búsqueda avanzada -->
+        <div id="panelBusquedaAvanzadaMiembros" class="mt-4 p-4 bg-gray-50 rounded-md hidden">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Cédula:</label>
+                    <input type="text" id="filtroCedula" placeholder="Filtrar por cédula" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Nombres:</label>
+                    <input type="text" id="filtroNombres" placeholder="Filtrar por nombres" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Apellidos:</label>
+                    <input type="text" id="filtroApellidos" placeholder="Filtrar por apellidos" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Sexo:</label>
+                    <select id="filtroSexo" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white">
+                        <option value="">Todos</option>
+                        <option value="Masculino">Masculino</option>
+                        <option value="Femenino">Femenino</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Estado:</label>
+                    <select id="filtroEstado" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white">
+                        <option value="">Todos</option>
+                        <option value="Activo">Activo</option>
+                        <option value="Inactivo">Inactivo</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Academia:</label>
+                    <input type="text" id="filtroAcademia" placeholder="Filtrar por academia" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="mt-6 bg-white rounded-lg shadow">
         <div class="overflow-x-auto">
@@ -117,6 +196,33 @@
                 {{ $miembros->links() }}
             </div>
         @endif
+        
+        <!-- Controles de paginación personalizados -->
+        <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <label class="text-sm text-gray-700 mr-2">Mostrar:</label>
+                    <select id="registrosPorPaginaMiembros" class="border border-gray-300 rounded-md px-2 py-1 text-sm bg-white">
+                        <option value="5">5</option>
+                        <option value="10" selected>10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                    </select>
+                    <span class="text-sm text-gray-700 ml-2">registros por página</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button id="btnAnteriorMiembros" class="px-3 py-1 border border-gray-300 rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                        Anterior
+                    </button>
+                    <span id="infoPaginacionMiembros" class="text-sm text-gray-700">
+                        Página <span id="paginaActualMiembros">1</span> de <span id="totalPaginasMiembros">1</span>
+                    </span>
+                    <button id="btnSiguienteMiembros" class="px-3 py-1 border border-gray-300 rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                        Siguiente
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -182,6 +288,380 @@ function cerrarModal() {
     modal.classList.add('hidden');
     modal.classList.remove('flex');
 }
+
+// Sistema de búsqueda y paginación personalizado para miembros
+class TablaPersonalizada {
+    constructor(tablaElement, config) {
+        this.tabla = tablaElement;
+        this.tbody = this.tabla.querySelector('tbody');
+        this.filasOriginales = Array.from(this.tbody.querySelectorAll('tr'));
+        this.filasFiltradas = [...this.filasOriginales];
+        this.paginaActual = 1;
+        this.registrosPorPagina = 10;
+        this.config = config;
+        
+        this.inicializar();
+    }
+    
+    inicializar() {
+        this.configurarEventos();
+        this.verificarEstadoExportar();
+        this.aplicarPaginacion();
+    }
+    
+    configurarEventos() {
+        // Registros por página
+        const selectRegistros = document.getElementById(this.config.selectRegistros);
+        if (selectRegistros) {
+            selectRegistros.addEventListener('change', (e) => {
+                this.registrosPorPagina = parseInt(e.target.value);
+                this.paginaActual = 1;
+                this.aplicarPaginacion();
+            });
+        }
+        
+        // Botón de exportación
+        const btnExportar = document.getElementById(this.config.btnExportar);
+        if (btnExportar) {
+            btnExportar.addEventListener('click', () => {
+                this.exportarDatos();
+            });
+        }
+        
+        // Botones de paginación
+        const btnAnterior = document.getElementById(this.config.btnAnterior);
+        const btnSiguiente = document.getElementById(this.config.btnSiguiente);
+        
+        if (btnAnterior) {
+            btnAnterior.addEventListener('click', () => {
+                if (this.paginaActual > 1) {
+                    this.paginaActual--;
+                    this.aplicarPaginacion();
+                }
+            });
+        }
+        
+        if (btnSiguiente) {
+            btnSiguiente.addEventListener('click', () => {
+                const totalPaginas = Math.ceil(this.filasFiltradas.length / this.registrosPorPagina);
+                if (this.paginaActual < totalPaginas) {
+                    this.paginaActual++;
+                    this.aplicarPaginacion();
+                }
+            });
+        }
+        
+        // Botón para mostrar panel de búsqueda
+        const btnMostrarBusqueda = document.getElementById(this.config.btnMostrarBusqueda);
+        if (btnMostrarBusqueda) {
+            btnMostrarBusqueda.addEventListener('click', () => {
+                this.mostrarPanelBusqueda();
+            });
+        }
+        
+        // Botón para cancelar búsqueda
+        const btnCancelarBusqueda = document.getElementById(this.config.btnCancelarBusqueda);
+        if (btnCancelarBusqueda) {
+            btnCancelarBusqueda.addEventListener('click', () => {
+                this.cancelarBusqueda();
+            });
+        }
+        
+        // Búsqueda general
+        const inputBusqueda = document.getElementById(this.config.inputBusqueda);
+        if (inputBusqueda) {
+            inputBusqueda.addEventListener('input', (e) => {
+                this.filtrar(e.target.value);
+            });
+        }
+        
+        // Búsqueda avanzada
+        const btnBuscarAvanzada = document.getElementById(this.config.btnBuscarAvanzada);
+        if (btnBuscarAvanzada) {
+            btnBuscarAvanzada.addEventListener('click', () => {
+                this.toggleBusquedaAvanzada();
+            });
+        }
+        
+        // Limpiar búsqueda
+        const btnLimpiar = document.getElementById(this.config.btnLimpiar);
+        if (btnLimpiar) {
+            btnLimpiar.addEventListener('click', () => {
+                this.limpiarFiltros();
+            });
+        }
+        
+        // Filtros avanzados
+        if (this.config.filtrosAvanzados) {
+            this.config.filtrosAvanzados.forEach(filtro => {
+                const elemento = document.getElementById(filtro.id);
+                if (elemento) {
+                    elemento.addEventListener('input', () => {
+                        this.aplicarFiltrosAvanzados();
+                    });
+                }
+            });
+        }
+    }
+    
+    mostrarPanelBusqueda() {
+        const panel = document.getElementById(this.config.panelBusqueda);
+        if (panel) {
+            panel.classList.remove('hidden');
+        }
+    }
+    
+    cancelarBusqueda() {
+        this.limpiarFiltros();
+        const panel = document.getElementById(this.config.panelBusqueda);
+        if (panel) {
+            panel.classList.add('hidden');
+        }
+    }
+    
+    filtrar(texto) {
+        this.filasFiltradas = this.filasOriginales.filter(fila => {
+            const textoFila = fila.textContent.toLowerCase();
+            return textoFila.includes(texto.toLowerCase());
+        });
+        
+        this.paginaActual = 1;
+        this.aplicarPaginacion();
+        this.verificarEstadoExportar();
+    }
+    
+    aplicarFiltrosAvanzados() {
+        const filtros = {};
+        
+        if (this.config.filtrosAvanzados) {
+            this.config.filtrosAvanzados.forEach(filtro => {
+                const elemento = document.getElementById(filtro.id);
+                if (elemento && elemento.value) {
+                    filtros[filtro.campo] = elemento.value.toLowerCase();
+                }
+            });
+        }
+        
+        this.filasFiltradas = this.filasOriginales.filter(fila => {
+            const celdas = fila.querySelectorAll('td');
+            
+            for (const [campo, valor] of Object.entries(filtros)) {
+                const indice = this.config.filtrosAvanzados.find(f => f.campo === campo)?.indice;
+                if (indice !== undefined && celdas[indice]) {
+                    const textoCelda = celdas[indice].textContent.toLowerCase();
+                    if (!textoCelda.includes(valor)) {
+                        return false;
+                    }
+                }
+            }
+            
+            return true;
+        });
+        
+        this.paginaActual = 1;
+        this.aplicarPaginacion();
+        this.verificarEstadoExportar();
+    }
+    
+    toggleBusquedaAvanzada() {
+        const panel = document.getElementById(this.config.panelBusquedaAvanzada);
+        if (panel) {
+            panel.classList.toggle('hidden');
+        }
+    }
+    
+    limpiarFiltros() {
+        // Limpiar búsqueda general
+        const inputBusqueda = document.getElementById(this.config.inputBusqueda);
+        if (inputBusqueda) {
+            inputBusqueda.value = '';
+        }
+        
+        // Limpiar filtros avanzados
+        if (this.config.filtrosAvanzados) {
+            this.config.filtrosAvanzados.forEach(filtro => {
+                const elemento = document.getElementById(filtro.id);
+                if (elemento) {
+                    elemento.value = '';
+                }
+            });
+        }
+        
+        // Ocultar panel de búsqueda avanzada
+        const panelAvanzado = document.getElementById(this.config.panelBusquedaAvanzada);
+        if (panelAvanzado) {
+            panelAvanzado.classList.add('hidden');
+        }
+        
+        // Restaurar todas las filas y reinicializar paginación
+        this.filasFiltradas = [...this.filasOriginales];
+        this.paginaActual = 1;
+        this.aplicarPaginacion();
+        this.verificarEstadoExportar();
+    }
+    
+    aplicarPaginacion() {
+        // Ocultar todas las filas primero
+        this.filasOriginales.forEach(fila => {
+            fila.style.display = 'none';
+        });
+        
+        // Calcular qué filas mostrar
+        const inicio = (this.paginaActual - 1) * this.registrosPorPagina;
+        const fin = inicio + this.registrosPorPagina;
+        const filasAMostrar = this.filasFiltradas.slice(inicio, fin);
+        
+        // Mostrar solo las filas de la página actual
+        filasAMostrar.forEach(fila => {
+            fila.style.display = '';
+        });
+        
+        // Actualizar información de paginación
+        const totalPaginas = Math.ceil(this.filasFiltradas.length / this.registrosPorPagina);
+        
+        const paginaActual = document.getElementById(this.config.paginaActual);
+        const totalPaginasElement = document.getElementById(this.config.totalPaginas);
+        const btnAnterior = document.getElementById(this.config.btnAnterior);
+        const btnSiguiente = document.getElementById(this.config.btnSiguiente);
+        
+        if (paginaActual) paginaActual.textContent = this.paginaActual;
+        if (totalPaginasElement) totalPaginasElement.textContent = totalPaginas;
+        
+        if (btnAnterior) {
+            const puedeAnterior = this.paginaActual > 1;
+            btnAnterior.disabled = !puedeAnterior;
+            if (!puedeAnterior) {
+                btnAnterior.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                btnAnterior.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+        
+        if (btnSiguiente) {
+            const puedeSiguiente = this.paginaActual < totalPaginas;
+            btnSiguiente.disabled = !puedeSiguiente;
+            if (!puedeSiguiente) {
+                btnSiguiente.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                btnSiguiente.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+        
+        // Verificar estado del botón exportar
+        this.verificarEstadoExportar();
+    }
+    
+    verificarEstadoExportar() {
+        const btnExportar = document.getElementById(this.config.btnExportar);
+        if (btnExportar) {
+            let tieneRegistros = false;
+            
+            // Si hay filtros aplicados, verificar las filas filtradas
+            if (this.filasFiltradas.length !== this.filasOriginales.length) {
+                tieneRegistros = this.filasFiltradas.length > 0;
+            } else {
+                // Si no hay filtros, verificar las filas originales en el DOM
+                const filasEnTabla = this.tabla.querySelectorAll('tbody tr');
+                tieneRegistros = Array.from(filasEnTabla).some(fila => {
+                    // Excluir filas que contengan mensajes como "No hay miembros registrados"
+                    const textoFila = fila.textContent.toLowerCase();
+                    return !textoFila.includes('no hay') && !textoFila.includes('registrados') && !textoFila.includes('registradas');
+                });
+            }
+            
+            btnExportar.disabled = !tieneRegistros;
+            
+            if (!tieneRegistros) {
+                btnExportar.classList.add('opacity-50', 'cursor-not-allowed');
+                btnExportar.title = 'No hay registros para exportar';
+            } else {
+                btnExportar.classList.remove('opacity-50', 'cursor-not-allowed');
+                btnExportar.title = 'Exportar registros';
+            }
+        }
+    }
+    
+    exportarDatos() {
+        // Obtener las filas filtradas (visibles)
+        const filasAExportar = this.filasFiltradas;
+        
+        // Obtener los encabezados de la tabla (excluyendo la columna de acciones)
+        const encabezados = [];
+        const filasEncabezado = this.tabla.querySelectorAll('thead th');
+        filasEncabezado.forEach((th, index) => {
+            // Excluir la última columna si es "Acciones"
+            if (index < filasEncabezado.length - 1 || !th.textContent.trim().includes('Acciones')) {
+                encabezados.push(th.textContent.trim());
+            }
+        });
+        
+        // Preparar los datos para exportar
+        const datos = [];
+        filasAExportar.forEach(fila => {
+            const filaDatos = [];
+            const celdas = fila.querySelectorAll('td');
+            
+            // Excluir la última celda si es la columna de acciones
+            const celdasAExportar = celdas.length > 0 && celdas[celdas.length - 1].querySelector('button') ? 
+                Array.from(celdas).slice(0, -1) : Array.from(celdas);
+            
+            celdasAExportar.forEach(celda => {
+                filaDatos.push(celda.textContent.trim());
+            });
+            
+            datos.push(filaDatos);
+        });
+        
+        // Crear el contenido CSV con BOM para UTF-8
+        const BOM = '\uFEFF'; // Byte Order Mark para UTF-8
+        let csvContent = BOM + encabezados.join(',') + '\n';
+        datos.forEach(fila => {
+            csvContent += fila.join(',') + '\n';
+        });
+        
+        // Crear y descargar el archivo con codificación UTF-8
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', 'miembros_exportados.csv');
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+}
+
+// Inicializar tabla de miembros cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', function() {
+    // Tabla de miembros
+    const tablaMiembros = document.querySelector('.bg-white.rounded-lg.shadow table');
+    if (tablaMiembros) {
+        new TablaPersonalizada(tablaMiembros, {
+            inputBusqueda: 'buscarMiembros',
+            btnMostrarBusqueda: 'btnMostrarBusquedaMiembros',
+            btnCancelarBusqueda: 'btnCancelarBusquedaMiembros',
+            btnBuscarAvanzada: 'btnBuscarAvanzadaMiembros',
+            btnLimpiar: 'btnLimpiarBusquedaMiembros',
+            btnExportar: 'btnExportarMiembros',
+            panelBusqueda: 'panelBusquedaMiembros',
+            panelBusquedaAvanzada: 'panelBusquedaAvanzadaMiembros',
+            selectRegistros: 'registrosPorPaginaMiembros',
+            btnAnterior: 'btnAnteriorMiembros',
+            btnSiguiente: 'btnSiguienteMiembros',
+            paginaActual: 'paginaActualMiembros',
+            totalPaginas: 'totalPaginasMiembros',
+            filtrosAvanzados: [
+                { id: 'filtroCedula', campo: 'cedula', indice: 0 },
+                { id: 'filtroNombres', campo: 'nombres', indice: 1 },
+                { id: 'filtroApellidos', campo: 'apellidos', indice: 2 },
+                { id: 'filtroSexo', campo: 'sexo', indice: 3 },
+                { id: 'filtroEstado', campo: 'estado', indice: 6 },
+                { id: 'filtroAcademia', campo: 'academia', indice: 7 }
+            ]
+        });
+    }
+});
 </script>
 @endpush
 
