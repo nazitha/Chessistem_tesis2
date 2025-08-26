@@ -55,7 +55,7 @@ class MiembroController extends Controller
                     'Miembros',
                     'Inserción',
                     null,
-                    $data // Passing the array data instead of the model
+                    $data 
                 );
 
                 return redirect()->route('miembros.show', $miembro)
@@ -81,7 +81,6 @@ class MiembroController extends Controller
                 $originalData,
                 $miembro->getChanges()
             );
-            // Redirigir a la vista de detalle con mensaje de éxito
             return redirect()->route('miembros.show', $miembro)
                 ->with('success', '¡Miembro actualizado exitosamente!');
         });
@@ -93,14 +92,11 @@ class MiembroController extends Controller
             DB::transaction(function () use ($miembro) {
                 $originalData = $miembro->toArray();
                 
-                // First delete related puntajes_elo records
                 if ($miembro->fide) {
                     DB::table('puntajes_elo')->where('fide_id_miembro', $miembro->fide->fide_id)->delete();
-                    // Then delete the fide record
                     $miembro->fide->delete();
                 }
                 
-                // Now we can safely delete the member
                 $miembro->delete();
                 
                 $this->logAuditoria(
@@ -175,7 +171,6 @@ class MiembroController extends Controller
     {
         if (!$data) return '[-]';
         
-        // Convert Model to array if necessary
         if ($data instanceof \Illuminate\Database\Eloquent\Model) {
             $data = $data->toArray();
         }
