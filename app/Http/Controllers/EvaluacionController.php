@@ -34,8 +34,7 @@ class EvaluacionController extends Controller
             'correo' => $user->correo
         ]);
 
-        // Por ahora, solo mostraremos una vista básica
-        // En el futuro, aquí se cargarán las evaluaciones asignadas al evaluador
+      
         return view('evaluaciones.index');
     }
 } 
