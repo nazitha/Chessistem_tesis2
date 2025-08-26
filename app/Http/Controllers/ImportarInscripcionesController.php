@@ -25,25 +25,22 @@ class ImportarInscripcionesController extends Controller
             $file = $request->file('csvFile')->getRealPath();
 
             if (($handle = fopen($file, 'r')) !== false) {
-                fgetcsv($handle); // Omitir encabezado
+                fgetcsv($handle); 
 
                 while (($data = fgetcsv($handle, 1000, ',')) !== false) {
                     $resultado['registrosEncontrados']++;
 
                     try {
                         DB::transaction(function () use ($data, &$resultado) {
-                            // Validar campos obligatorios
                             if (empty($data[0]) || empty($data[1]) || empty($data[2])) {
                                 $resultado['registrosIncompletos']++;
                                 return;
                             }
 
-                            // Procesar datos
                             $nombreTorneo = trim($data[0]);
                             $fechaInicio = Carbon::createFromFormat('d/m/Y', trim($data[1]));
                             $cedula = trim($data[2]);
 
-                            // Buscar torneo
                             $torneo = Torneo::where('nombre_torneo', $nombreTorneo)
                                 ->whereDate('fecha_inicio', $fechaInicio->format('Y-m-d'))
                                 ->first();
@@ -53,13 +50,11 @@ class ImportarInscripcionesController extends Controller
                                 return;
                             }
 
-                            // Verificar miembro
                             if (!Miembro::find($cedula)) {
                                 $resultado['errores']++;
                                 return;
                             }
 
-                            // Verificar inscripción existente
                             if (Participante::where('participante_id', $cedula)
                                 ->where('torneo_id', $torneo->id_torneo)
                                 ->exists()) {
@@ -67,7 +62,6 @@ class ImportarInscripcionesController extends Controller
                                 return;
                             }
 
-                            // Crear participación
                             Participante::create([
                                 'participante_id' => $cedula,
                                 'torneo_id' => $torneo->id_torneo
@@ -82,7 +76,6 @@ class ImportarInscripcionesController extends Controller
 
                 fclose($handle);
 
-                // Calcular registros no insertados
                 $resultado['registrosNoInsertados'] = $resultado['registrosEncontrados'] 
                     - $resultado['registrosInsertados'] 
                     - $resultado['registrosExistentes'] 
