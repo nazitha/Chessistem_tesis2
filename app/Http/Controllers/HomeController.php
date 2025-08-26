@@ -45,7 +45,6 @@ class HomeController extends Controller
         ]);
 
         try {
-            // Preparar las tarjetas del dashboard según el rol del usuario
             $dashboardCards = $this->getDashboardCards($user->rol_id);
 
             // Permisos para mostrar secciones y botones
@@ -57,7 +56,6 @@ class HomeController extends Controller
             $canViewEstadisticasAdmin = \App\Helpers\PermissionHelper::canViewEstadisticasAdmin();
 
 
-            // Obtener análisis de partidas recientes
             try {
                 $partidasAnalisis = \App\Models\AnalisisPartida::with(['jugadorBlancas', 'jugadorNegras'])
                     ->orderBy('created_at', 'desc')
@@ -68,7 +66,7 @@ class HomeController extends Controller
                     'error' => $e->getMessage(),
                     'trace' => $e->getTraceAsString()
                 ]);
-                $partidasAnalisis = collect([]); // Colección vacía como fallback
+                $partidasAnalisis = collect([]); 
             }
 
 
@@ -102,7 +100,7 @@ class HomeController extends Controller
     {
         $cards = [];
 
-        // Tarjetas comunes para todos los roles
+       
         $cards[] = [
             'title' => 'Mi Perfil',
             'description' => 'Gestiona tu información personal',
