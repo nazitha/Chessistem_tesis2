@@ -65,9 +65,9 @@ class EquipoTorneoController extends Controller
                 'nombre' => $request->nombre,
                 'capitan_id' => $request->capitan_id,
                 'federacion' => $request->federacion,
-                'logo' => $request->logo, // Manejar upload si aplica
+                'logo' => $request->logo, 
                 'notas' => $request->notas,
-                'elo_medio' => null // Calcular después si quieres
+                'elo_medio' => null 
             ]);
             foreach ($request->jugadores as $jugador) {
                 EquipoJugador::create([
@@ -126,7 +126,7 @@ class EquipoTorneoController extends Controller
             return back()->withErrors(['mensaje' => 'El equipo ya tiene el máximo permitido de jugadores.']);
         }
 
-        // (Opcional) Validar si el torneo ya empezó
+      
         // if ($equipo->torneo->rondas()->count() > 0) {
         //     return back()->withErrors(['mensaje' => 'No se pueden agregar jugadores después de iniciado el torneo.']);
         // }
