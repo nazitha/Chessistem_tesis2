@@ -91,23 +91,18 @@ class PartidaController extends Controller
 
             $partida->update($request->all());
 
-            // Si se actualizó el resultado, actualizar los puntos del participante
             if ($request->has('resultado')) {
                 $this->actualizarPuntosParticipante($partida->torneo_id);
 
-                // --- AVANCE DE GANADORES EN ELIMINACIÓN DIRECTA ---
                 $torneo = $partida->torneo;
                 if ($torneo && $torneo->tipo_torneo === 'Eliminación Directa') {
-                    // Solo si la partida tiene resultado y no es empate
                     if ($partida->resultado !== null && in_array($partida->resultado, [0, 1])) {
-                        // Determinar ganador
                         $ganadorId = null;
                         if ($partida->color && $partida->resultado == 1) {
                             $ganadorId = $partida->participante_id; // Blancas ganan
                         } elseif (!$partida->color && $partida->resultado == 0) {
                             $ganadorId = $partida->participante_id; // Negras ganan
                         }
-                        // Buscar la partida vacía de la siguiente ronda y misma mesa
                         if ($ganadorId) {
                             $siguientePartida = Partida::where('torneo_id', $partida->torneo_id)
                                 ->where('ronda', $partida->ronda + 1)
@@ -121,7 +116,6 @@ class PartidaController extends Controller
                         }
                     }
                 }
-                // --- FIN AVANCE DE GANADORES ---
             }
 
             DB::commit();
@@ -170,7 +164,6 @@ class PartidaController extends Controller
             $participante->update(['puntos' => $puntos]);
         }
 
-        // Actualizar posiciones
         $posicion = 1;
         $participantes = Participante::where('torneo_id', $torneo_id)
             ->orderBy('puntos', 'desc')
@@ -192,13 +185,11 @@ class PartidaController extends Controller
         return response()->json($partidas);
     }
 
-    // Nuevos métodos para manejar diferentes formatos de torneo
     public function generarPartidasRoundRobin(Torneo $torneo): JsonResponse
     {
         try {
             DB::beginTransaction();
 
-            // Verificar que el torneo sea de tipo Round Robin
             if ($torneo->tipo_torneo !== 'Round Robin') {
                 return response()->json(['error' => 'Este método solo es válido para torneos tipo Round Robin'], 400);
             }
@@ -210,15 +201,12 @@ class PartidaController extends Controller
                 return response()->json(['error' => 'Se necesitan al menos 2 participantes'], 400);
             }
 
-            // Verificar si ya existen partidas generadas
             if ($torneo->partidas()->exists()) {
                 return response()->json(['error' => 'Ya existen partidas generadas para este torneo'], 400);
             }
 
-            // Generar todas las rondas posibles
             $rondas = $this->generarRondasRoundRobin($participantes, $torneo->tipo_participante);
             
-            // Crear las partidas para cada ronda
             foreach ($rondas as $numRonda => $emparejamientos) {
                 foreach ($emparejamientos as $mesa => $emparejamiento) {
                     Partida::create([
@@ -227,7 +215,7 @@ class PartidaController extends Controller
                         'participante_id' => $emparejamiento['blancas'],
                         'torneo_id' => $torneo->id_torneo,
                         'mesa' => $mesa + 1,
-                        'color' => true, // Blancas
+                        'color' => true, 
                         'resultado' => null
                     ]);
 
@@ -238,7 +226,7 @@ class PartidaController extends Controller
                             'participante_id' => $emparejamiento['negras'],
                             'torneo_id' => $torneo->id_torneo,
                             'mesa' => $mesa + 1,
-                            'color' => false, // Negras
+                            'color' => false, 
                             'resultado' => null
                         ]);
                     }
@@ -258,7 +246,6 @@ class PartidaController extends Controller
         try {
             DB::beginTransaction();
 
-            // Verificar que el torneo sea de tipo Eliminación Directa
             if ($torneo->tipo_torneo !== 'Eliminación Directa') {
                 return response()->json(['error' => 'Este método solo es válido para torneos tipo Eliminación Directa'], 400);
             }
@@ -270,7 +257,6 @@ class PartidaController extends Controller
                 return response()->json(['error' => 'Se necesitan al menos 2 participantes'], 400);
             }
 
-            // Verificar si ya existen partidas generadas
             if ($torneo->partidas()->exists()) {
                 return response()->json(['error' => 'Ya existen partidas generadas para este torneo'], 400);
             }
@@ -294,11 +280,9 @@ class PartidaController extends Controller
         $jugadores = $participantes->pluck('participante_id')->toArray();
         shuffle($jugadores); // Mezclar aleatoriamente
 
-        // Asegurar que el número de participantes sea potencia de 2
         $numParticipantes = count($jugadores);
         $potenciaDe2 = pow(2, ceil(log($numParticipantes, 2)));
         
-        // Agregar "BYE" si es necesario
         while (count($jugadores) < $potenciaDe2) {
             $jugadores[] = null; // null representa "BYE"
         }
@@ -318,7 +302,6 @@ class PartidaController extends Controller
                 } elseif ($jugador2 === null) { // BYE
                     $nuevaLista[] = $jugador1;
                 } else {
-                    // Crear partida
                     Partida::create([
                         'ronda' => $ronda,
                         'ronda_torneo_id' => $torneo->id_torneo,
@@ -339,18 +322,17 @@ class PartidaController extends Controller
                         'resultado' => null
                     ]);
 
-                    // Crear partida vacía para la siguiente ronda
                     Partida::create([
                         'ronda' => $ronda + 1,
                         'ronda_torneo_id' => $torneo->id_torneo,
-                        'participante_id' => null, // Se asignará cuando se conozca el ganador
+                        'participante_id' => null, 
                         'torneo_id' => $torneo->id_torneo,
                         'mesa' => ($i / 2) + 1,
                         'color' => true,
                         'resultado' => null
                     ]);
 
-                    $nuevaLista[] = null; // Se actualizará con el ganador cuando se conozca
+                    $nuevaLista[] = null; 
                 }
             }
 
@@ -362,20 +344,18 @@ class PartidaController extends Controller
     private function generarEliminacionDirectaEquipos($torneo, $participantes)
     {
         $equipos = $participantes->pluck('participante_id')->toArray();
-        shuffle($equipos); // Mezclar aleatoriamente
+        shuffle($equipos); 
 
-        // Asegurar que el número de equipos sea potencia de 2
         $numEquipos = count($equipos);
         $potenciaDe2 = pow(2, ceil(log($numEquipos, 2)));
         
-        // Agregar "BYE" si es necesario
         while (count($equipos) < $potenciaDe2) {
             $equipos[] = null; // null representa "BYE"
         }
 
         $ronda = 1;
         $equiposActuales = $equipos;
-        $tablerosPorEquipo = $torneo->tableros_por_equipo ?? 4; // Valor por defecto si no está especificado
+        $tablerosPorEquipo = $torneo->tableros_por_equipo ?? 4; 
 
         while (count($equiposActuales) > 1) {
             $nuevosEquipos = [];
@@ -389,7 +369,6 @@ class PartidaController extends Controller
                 } elseif ($equipo2 === null) { // BYE
                     $nuevosEquipos[] = $equipo1;
                 } else {
-                    // Crear enfrentamiento entre equipos
                     $this->asignarTablerosConColoresAlternos(
                         $torneo,
                         $ronda,
@@ -399,12 +378,11 @@ class PartidaController extends Controller
                         ($i / 2) + 1
                     );
 
-                    // Crear partidas vacías para la siguiente ronda
                     for ($t = 1; $t <= $tablerosPorEquipo; $t++) {
                         Partida::create([
                             'ronda' => $ronda + 1,
                             'ronda_torneo_id' => $torneo->id_torneo,
-                            'participante_id' => null, // Se asignará cuando se conozca el ganador
+                            'participante_id' => null, 
                             'torneo_id' => $torneo->id_torneo,
                             'mesa' => (($i / 2) * $tablerosPorEquipo) + $t,
                             'color' => true,
@@ -412,7 +390,7 @@ class PartidaController extends Controller
                         ]);
                     }
 
-                    $nuevosEquipos[] = null; // Se actualizará con el equipo ganador cuando se conozca
+                    $nuevosEquipos[] = null; 
                 }
             }
 
@@ -423,7 +401,6 @@ class PartidaController extends Controller
 
     private function asignarTablerosConColoresAlternos($torneo, $ronda, $equipo1, $equipo2, $totalTableros, $mesaBase)
     {
-        // Obtener los jugadores de cada equipo
         $jugadoresEquipo1 = $this->obtenerJugadoresEquipo($equipo1);
         $jugadoresEquipo2 = $this->obtenerJugadoresEquipo($equipo2);
 
@@ -462,7 +439,6 @@ class PartidaController extends Controller
 
     private function obtenerJugadoresEquipo($equipoId)
     {
-        // Obtener los jugadores del equipo
         $equipo = Participante::with('miembros')
             ->where('participante_id', $equipoId)
             ->first();
@@ -475,7 +451,6 @@ class PartidaController extends Controller
         try {
             DB::beginTransaction();
 
-            // Verificar que el torneo sea de tipo Suizo
             if ($torneo->tipo_torneo !== 'Suizo') {
                 return response()->json(['error' => 'Este método solo es válido para torneos tipo Suizo'], 400);
             }
@@ -492,8 +467,7 @@ class PartidaController extends Controller
                 return response()->json(['error' => 'Ya existen partidas generadas para este torneo'], 400);
             }
 
-            // Para el sistema suizo, solo generamos la primera ronda
-            // Las siguientes rondas se generarán basadas en los resultados
+            
             $this->generarPrimeraRondaSuizo($torneo, $participantes);
 
             DB::commit();
@@ -509,7 +483,6 @@ class PartidaController extends Controller
         $numParticipantes = $participantes->count();
         $participantes = $participantes->pluck('participante_id')->toArray();
         
-        // Si es impar, agregar un "bye"
         if ($numParticipantes % 2 != 0) {
             $participantes[] = null;
             $numParticipantes++;
@@ -527,13 +500,11 @@ class PartidaController extends Controller
                 $negras = $participantes[$numParticipantes - 1 - $i];
                 
                 if ($blancas && $negras) {
-                    // Para torneos por equipos, asegurar que no se enfrenten equipos del mismo club
                     if ($tipoParticipante === 'Equipo') {
                         $clubBlancas = $this->obtenerClubParticipante($blancas);
                         $clubNegras = $this->obtenerClubParticipante($negras);
                         
                         if ($clubBlancas === $clubNegras) {
-                            // Buscar otro equipo para intercambiar
                             $nuevoEmparejamiento = $this->buscarEmparejamientoAlternativo(
                                 $participantes,
                                 $i,
@@ -557,7 +528,6 @@ class PartidaController extends Controller
             
             $rondas[] = $emparejamientos;
             
-            // Rotar participantes
             $ultimo = array_pop($participantes);
             array_unshift($participantes, $ultimo);
         }
@@ -567,7 +537,6 @@ class PartidaController extends Controller
 
     private function obtenerClubParticipante($participanteId)
     {
-        // Obtener el club del participante (equipo o individuo)
         $participante = Participante::with('miembro.club')
             ->where('participante_id', $participanteId)
             ->first();
@@ -577,7 +546,6 @@ class PartidaController extends Controller
 
     private function buscarEmparejamientoAlternativo($participantes, $indiceBlancas, $indiceNegras, $clubEvitar)
     {
-        // Buscar otro equipo que no sea del mismo club
         for ($i = 0; $i < count($participantes); $i++) {
             if ($i !== $indiceBlancas && $i !== $indiceNegras) {
                 $clubCandidato = $this->obtenerClubParticipante($participantes[$i]);
@@ -595,24 +563,21 @@ class PartidaController extends Controller
     private function generarPrimeraRondaSuizo($torneo, $participantes)
     {
         $participantes = $participantes->pluck('participante_id')->toArray();
-        shuffle($participantes); // Mezclar aleatoriamente para la primera ronda
+        shuffle($participantes); 
         
         $numParticipantes = count($participantes);
         $numPartidas = floor($numParticipantes / 2);
         
         for ($i = 0; $i < $numPartidas; $i++) {
-            // Para torneos por equipos, evitar enfrentamientos entre equipos del mismo club
             if ($torneo->tipo_participante === 'Equipo') {
                 $clubBlancas = $this->obtenerClubParticipante($participantes[$i]);
                 $clubNegras = $this->obtenerClubParticipante($participantes[$numParticipantes - 1 - $i]);
                 
                 if ($clubBlancas === $clubNegras) {
-                    // Buscar otro equipo para intercambiar
                     for ($j = 0; $j < $numParticipantes; $j++) {
                         if ($j !== $i && $j !== ($numParticipantes - 1 - $i)) {
                             $clubCandidato = $this->obtenerClubParticipante($participantes[$j]);
                             if ($clubCandidato !== $clubBlancas) {
-                                // Intercambiar equipos
                                 $temp = $participantes[$j];
                                 $participantes[$j] = $participantes[$numParticipantes - 1 - $i];
                                 $participantes[$numParticipantes - 1 - $i] = $temp;
@@ -623,7 +588,6 @@ class PartidaController extends Controller
                 }
             }
             
-            // Crear partida para el participante con blancas
             Partida::create([
                 'ronda' => 1,
                 'ronda_torneo_id' => $torneo->id_torneo,
@@ -634,7 +598,6 @@ class PartidaController extends Controller
                 'resultado' => null
             ]);
 
-            // Crear partida para el participante con negras
             Partida::create([
                 'ronda' => 1,
                 'ronda_torneo_id' => $torneo->id_torneo,
@@ -647,9 +610,7 @@ class PartidaController extends Controller
         }
     }
 
-    /**
-     * Obtener partidas con movimientos para análisis
-     */
+  
     public function partidasConMovimientos()
     {
         $partidas = Partida::whereNotNull('movimientos')
@@ -659,9 +620,7 @@ class PartidaController extends Controller
         return response()->json($partidas);
     }
 
-    /**
-     * Obtener partidas sin movimientos para agregar
-     */
+  
     public function partidasSinMovimientos()
     {
         $partidas = Partida::whereNull('movimientos')
@@ -671,9 +630,7 @@ class PartidaController extends Controller
         return response()->json($partidas);
     }
 
-    /**
-     * Agregar movimientos a una partida
-     */
+   
     public function agregarMovimientos(Request $request, $id)
     {
         $request->validate([
