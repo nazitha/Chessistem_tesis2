@@ -67,13 +67,11 @@ class ImportarTorneosController extends Controller
 
     private function procesarFila($data, &$resultado)
     {
-        // Validación básica de campos
         if (count($data) < 12 || in_array(null, $data, true)) {
             $resultado['registrosIncompletos']++;
             return null;
         }
 
-        // Procesamiento de fechas
         try {
             $fechaInicio = Carbon::createFromFormat('d/m/Y', trim($data[1]));
             $horaInicio = Carbon::createFromFormat(
@@ -85,7 +83,6 @@ class ImportarTorneosController extends Controller
             return null;
         }
 
-        // Búsqueda de relaciones
         $relaciones = $this->buscarRelaciones($data, $resultado);
         if (!$relaciones) return null;
 
