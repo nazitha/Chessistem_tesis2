@@ -28,34 +28,29 @@ class ImportarMiembrosController extends Controller
 
             DB::transaction(function () use ($file, &$resultado) {
                 if (($handle = fopen($file, "r")) !== false) {
-                    fgetcsv($handle, 1000, ","); // Omitir encabezado
+                    fgetcsv($handle, 1000, ","); 
 
                     while (($data = fgetcsv($handle, 1000, ",")) !== false) {
                         $resultado['registrosEncontrados']++;
 
                         try {
-                            // Convertir a UTF-8 y trim
                             $data = array_map(fn($value) => trim(utf8_encode($value)), $data);
 
-                            // Validar campos obligatorios
                             if (empty($data[0]) || empty($data[1]) || empty($data[2])) {
                                 $resultado['registrosIncompletos']++;
                                 continue;
                             }
 
-                            // Procesar fechas con Carbon
                             $fechaInicio = Carbon::createFromFormat('d/m/Y', $data[1]);
                             $horaInicio = Carbon::createFromFormat('g:i A', 
                                 str_replace([' p. m.', ' a. m.'], [' PM', ' AM'], $data[2])
                             );
 
-                            // Buscar o crear categoría
                             $categoria = CategoriaTorneo::firstOrCreate(
                                 ['categoria_torneo' => $data[3]],
                                 ['categoria_torneo' => $data[3]]
                             );
 
-                            // Buscar sistema de emparejamiento
                             $sistema = Emparejamiento::firstOrCreate(
                                 ['sistema' => $data[4]],
                                 ['sistema' => $data[4]]
@@ -69,7 +64,6 @@ class ImportarMiembrosController extends Controller
                                 }
                             }
 
-                            // Verificar si el torneo existe
                             if (Torneo::where('nombre_torneo', $data[0])
                                 ->whereDate('fecha_inicio', $fechaInicio)
                                 ->exists()) {
@@ -105,7 +99,6 @@ class ImportarMiembrosController extends Controller
                 }
             });
 
-            // Calcular registros no insertados
             $resultado['registrosNoInsertados'] = $resultado['registrosEncontrados'] 
                 - $resultado['registrosInsertados'] 
                 - $resultado['registrosExistentes'] 
