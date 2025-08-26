@@ -179,9 +179,7 @@ class RecalcularDesempate extends Command
                 $acumulado += $puntosEquipo ?? 0;
                 $progresivo += $acumulado;
             }
-            
-            // Guardar en la base de datos (asumiendo que los equipos tienen estos campos)
-            // Nota: Esto dependerá de la estructura de tu tabla de equipos
+                        
             $this->info("Equipo {$equipo->nombre}:");
             $this->info("  - Puntos totales: {$puntosTotales}");
             $this->info("  - Buchholz: {$buchholz}");
