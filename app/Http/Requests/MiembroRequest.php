@@ -23,7 +23,8 @@ class MiembroRequest extends FormRequest
             'club' => 'nullable|string|max:255',
             'correo_sistema_id' => 'nullable|exists:usuarios,correo',
             'ciudad_id' => 'nullable|exists:ciudades,id',
-            'academia_id' => 'required|exists:academias,id_academia'
+            'academia_id' => 'required|exists:academias,id_academia',
+            'elo' => 'nullable|integer|min:0|max:3000'
         ];
 
         if ($this->isMethod('post')) {

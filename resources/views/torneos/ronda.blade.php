@@ -169,7 +169,7 @@
                                                     <span class="text-gray-400">-</span>
                                                 @endif
                                             </td>
-                                            <td class="px-2 py-1 text-center">{{ $jugadorA->miembro->elo->elo ?? '-' }}</td>
+                                            <td class="px-2 py-1 text-center">{{ $jugadorA->miembro->elo ?? '-' }}</td>
                                             <td class="px-2 py-1 text-center">
                                                 <span style="display:inline-block;width:16px;height:16px;border-radius:3px;vertical-align:middle;@if($colorA == 'blancas')background:#fff;border:1px solid #aaa;@else background:#222;@endif"></span>
                                             </td>
@@ -200,7 +200,7 @@
                                                     <span class="text-gray-400">-</span>
                                                 @endif
                                             </td>
-                                            <td class="px-2 py-1 text-center">{{ $jugadorB->miembro->elo->elo ?? '-' }}</td>
+                                            <td class="px-2 py-1 text-center">{{ $jugadorB->miembro->elo ?? '-' }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -279,7 +279,7 @@
                                             <span class="text-gray-400">{{ $esEliminacionDirecta ? 'Por definir' : '-' }}</span>
                                         @endif
                                     </td>
-                                    <td class="px-2 py-1 text-center">{{ $partida->jugadorBlancas->elo->elo ?? '-' }}</td>
+                                    <td class="px-2 py-1 text-center">{{ $partida->jugadorBlancas->elo ?? '-' }}</td>
                                     <td class="px-2 py-1 text-center">{{ $participanteA ? number_format($participanteA->puntos, 1) : '0.0' }}</td>
                                     <td class="px-2 py-1 text-center">
                                         <span style="display:inline-block;width:16px;height:16px;border-radius:3px;vertical-align:middle;background:#fff;border:1px solid #aaa;"></span>
@@ -335,7 +335,7 @@
                                             <span class="text-gray-400">{{ $esEliminacionDirecta ? 'Por definir' : 'BYE' }}</span>
                                         @endif
                                     </td>
-                                    <td class="px-2 py-1 text-center">{{ $partida->jugadorNegras ? ($partida->jugadorNegras->elo->elo ?? '-') : '-' }}</td>
+                                    <td class="px-2 py-1 text-center">{{ $partida->jugadorNegras ? ($partida->jugadorNegras->elo ?? '-') : '-' }}</td>
                                     <td class="px-2 py-1 text-center">{{ $participanteB ? number_format($participanteB->puntos, 1) : '0.0' }}</td>
                                 </tr>
                             @empty

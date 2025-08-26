@@ -57,6 +57,10 @@
                 <span class="text-gray-900">{{ $miembro->academia->nombre_academia ?? '-' }}</span>
             </div>
             <div>
+                <span class="block font-semibold text-gray-700 mb-1">ELO</span>
+                <span class="text-gray-900">{{ $miembro->elo ?? '-' }}</span>
+            </div>
+            <div>
                 <span class="block font-semibold text-gray-700 mb-1">Correo</span>
                 <span class="text-gray-900">{{ $miembro->correo_sistema_id ?? '-' }}</span>
             </div>

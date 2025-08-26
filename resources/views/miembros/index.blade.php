@@ -107,6 +107,11 @@
                     <input type="text" id="filtroAcademia" placeholder="Filtrar por academia" 
                            class="w-full px-3 py-2 border border-gray-300 rounded-md">
                 </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">ELO:</label>
+                    <input type="number" id="filtroElo" placeholder="Filtrar por ELO" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md" min="0" max="3000">
+                </div>
             </div>
         </div>
     </div>
@@ -124,6 +129,7 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha de inscripción</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Academia</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ELO</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Correo</th>
                         @if(PermissionHelper::hasAnyMiembroActionPermission())
                             <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
@@ -151,6 +157,7 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $miembro->academia->nombre_academia ?? '-' }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $miembro->elo ?? '-' }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $miembro->correo_sistema_id ?? '-' }}</td>
                             @if(PermissionHelper::hasAnyMiembroActionPermission())
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -183,7 +190,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="10" class="px-6 py-4 text-center text-sm text-gray-500">
+                            <td colspan="11" class="px-6 py-4 text-center text-sm text-gray-500">
                                 No hay miembros registrados
                             </td>
                         </tr>
