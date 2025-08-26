@@ -87,6 +87,13 @@
                 </div>
 
                 <div>
+                    <label class="block font-semibold mb-1">ELO</label>
+                    <input type="number" name="elo" value="{{ old('elo') }}" 
+                           class="form-input w-full rounded border-gray-300" 
+                           placeholder="Ej: 1500" min="0" max="3000">
+                </div>
+
+                <div>
                     <label class="block font-semibold mb-1">Correo del sistema</label>
                     <select name="correo_sistema_id" class="form-select w-full rounded border-gray-300">
                         <option value="">Sin correo asignado</option>

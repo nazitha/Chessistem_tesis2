@@ -9,14 +9,15 @@
                 <th data-priority="4">Correo</th>
                 <th data-priority="5">Rol</th>
                 <th data-priority="6">Academia</th>
-                <th data-priority="7">Estado</th>
-                <th data-priority="8">Sexo</th>
-                <th data-priority="9">Fecha de nacimiento</th>
-                <th data-priority="10">Ciudad</th>
-                <th data-priority="11">Teléfono</th>
-                <th data-priority="12">Inscripción</th>
-                <th data-priority="13">Club</th>
-                <th data-priority="14">Acciones</th>
+                <th data-priority="7">ELO</th>
+                <th data-priority="8">Estado</th>
+                <th data-priority="9">Sexo</th>
+                <th data-priority="10">Fecha de nacimiento</th>
+                <th data-priority="11">Ciudad</th>
+                <th data-priority="12">Teléfono</th>
+                <th data-priority="13">Inscripción</th>
+                <th data-priority="14">Club</th>
+                <th data-priority="15">Acciones</th>
             </tr>
         </thead>
         <tbody>

@@ -460,7 +460,7 @@
                                     {{ $participante->miembro->nombres }} {{ $participante->miembro->apellidos }}
                                 </td>
                                 <td class="px-3 py-2 text-sm text-right text-gray-900">
-                                    {{ $participante->miembro->elo->elo ?? '-' }}
+                                    {{ $participante->miembro->elo ?? '-' }}
                                 </td>
                                 <td class="px-3 py-2 text-sm text-center text-gray-900">
                                     {{ $participante->miembro->fide->fed_id ?? 'NCA' }}
@@ -709,7 +709,7 @@
                                         {{ $participante->miembro->nombres }} {{ $participante->miembro->apellidos }}
                                     </td>
                                     <td class="px-3 py-2 text-sm text-right text-gray-900">
-                                        {{ $participante->miembro->elo->elo ?? '-' }}
+                                        {{ $participante->miembro->elo ?? '-' }}
                                     </td>
                                     <td class="px-3 py-2 text-sm text-center text-gray-900">
                                         {{ $participante->miembro->fide->fed_id ?? 'NCA' }}
@@ -933,7 +933,7 @@
                                             <span class="text-gray-500">(Tablero {{ $jugador->tablero }})</span>
                                         </div>
                                         <div class="text-xs text-gray-600">
-                                            ELO: <span class="font-semibold">{{ $jugador->miembro->elo->elo ?? '-' }}</span> |
+                                            ELO: <span class="font-semibold">{{ $jugador->miembro->elo ?? '-' }}</span> |
                                             FED: <span class="font-semibold">{{ $jugador->miembro->fide->fed_id ?? 'NCA' }}</span>
                                         </div>
                                     </li>
