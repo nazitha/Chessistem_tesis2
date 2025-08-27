@@ -40,50 +40,91 @@ Highcharts.setOptions({
     }
 });
 
-// Datos de ejemplo para el gráfico de Historial de Partidas
-const datosHistorialPartidas = {
-    partidasJugadas: 45,
-    victorias: 28,
-    empates: 12,
-    derrotas: 5,
-    ratingELO: 1450,
-    progresoMensual: [
-        { mes: 'Ene', rating: 1200, partidas: 8 },
-        { mes: 'Feb', rating: 1250, partidas: 12 },
-        { mes: 'Mar', rating: 1280, partidas: 10 },
-        { mes: 'Abr', rating: 1320, partidas: 15 },
-        { mes: 'May', rating: 1380, partidas: 18 },
-        { mes: 'Jun', rating: 1420, partidas: 20 },
-        { mes: 'Jul', rating: 1450, partidas: 22 },
-        { mes: 'Ago', rating: 1480, partidas: 25 },
-        { mes: 'Sep', rating: 1520, partidas: 28 },
-        { mes: 'Oct', rating: 1550, partidas: 32 },
-        { mes: 'Nov', rating: 1580, partidas: 35 },
-        { mes: 'Dic', rating: 1620, partidas: 40 }
-    ]
+// Variable global para almacenar los datos reales de estadísticas personales
+let datosEstadisticasPersonales = {
+    victorias: 0,
+    derrotas: 0,
+    empates: 0,
+    totalPartidas: 0,
+    torneosParticipados: 0,
+    torneosJugados: 0,
+    rendimientoMensual: []
 };
 
-// Datos de ejemplo para el gráfico de Estadísticas de Torneos
-const datosEstadisticasTorneos = {
-    torneosOrganizados: 12,
-    participantesTotales: 156,
-    partidasJugadas: 89,
-    promedioParticipantes: 13,
-    rendimientoMensual: [
-        { mes: 'Ene', torneos: 1, participantes: 12, partidas: 8 },
-        { mes: 'Feb', torneos: 2, participantes: 24, partidas: 15 },
-        { mes: 'Mar', torneos: 1, participantes: 18, partidas: 12 },
-        { mes: 'Abr', torneos: 3, participantes: 42, partidas: 28 },
-        { mes: 'May', torneos: 2, participantes: 26, partidas: 18 },
-        { mes: 'Jun', torneos: 4, participantes: 58, partidas: 35 },
-        { mes: 'Jul', torneos: 3, participantes: 38, partidas: 25 },
-        { mes: 'Ago', torneos: 5, participantes: 72, partidas: 45 },
-        { mes: 'Sep', torneos: 4, participantes: 56, partidas: 38 },
-        { mes: 'Oct', torneos: 6, participantes: 84, partidas: 52 },
-        { mes: 'Nov', torneos: 5, participantes: 68, partidas: 42 },
-        { mes: 'Dic', torneos: 7, participantes: 96, partidas: 58 }
-    ]
+// Variable global para almacenar los datos reales de estadísticas de torneos
+let datosEstadisticasTorneos = {
+    torneosOrganizados: 0,
+    participantesTotales: 0,
+    partidasJugadas: 0,
+    promedioParticipantes: 0,
+    rendimientoMensual: []
 };
+
+/**
+ * Carga los datos reales de estadísticas de torneos desde el servidor
+ */
+async function cargarEstadisticasTorneos() {
+    try {
+        const response = await fetch('/api/estadisticas/mensuales');
+        const result = await response.json();
+        
+        if (result.success) {
+            datosEstadisticasTorneos.rendimientoMensual = result.data;
+            
+            // Calcular totales
+            datosEstadisticasTorneos.torneosOrganizados = result.data.reduce((sum, item) => sum + item.torneos, 0);
+            datosEstadisticasTorneos.participantesTotales = result.data.reduce((sum, item) => sum + item.participantes, 0);
+            datosEstadisticasTorneos.promedioParticipantes = result.data.length > 0 ? 
+                Math.round(datosEstadisticasTorneos.participantesTotales / datosEstadisticasTorneos.torneosOrganizados) : 0;
+            
+            // Inicializar el gráfico con los datos reales
+            inicializarGraficoEstadisticasTorneos();
+        } else {
+            console.error('Error al cargar estadísticas:', result.message);
+        }
+    } catch (error) {
+        console.error('Error al cargar estadísticas de torneos:', error);
+    }
+}
+
+/**
+ * Carga los datos reales de estadísticas personales desde el servidor
+ */
+async function cargarEstadisticasPersonales() {
+    try {
+        const response = await fetch('/api/estadisticas/personales');
+        const result = await response.json();
+        
+        if (result.success) {
+            datosEstadisticasPersonales.rendimientoMensual = result.data;
+            
+            // Calcular totales
+            datosEstadisticasPersonales.victorias = result.data.reduce((sum, item) => sum + item.victorias, 0);
+            datosEstadisticasPersonales.derrotas = result.data.reduce((sum, item) => sum + item.derrotas, 0);
+            datosEstadisticasPersonales.empates = result.data.reduce((sum, item) => sum + item.empates, 0);
+            datosEstadisticasPersonales.totalPartidas = result.data.reduce((sum, item) => sum + item.total_partidas, 0);
+            datosEstadisticasPersonales.torneosParticipados = result.data.reduce((sum, item) => sum + item.torneos_participados, 0);
+            datosEstadisticasPersonales.torneosJugados = result.data.reduce((sum, item) => sum + item.torneos_jugados, 0);
+            
+            // Inicializar el gráfico con los datos reales
+            inicializarGraficoHistorialPartidas();
+        } else {
+            console.error('Error al cargar estadísticas personales:', result.message);
+            // Si hay error, mostrar mensaje en el contenedor
+            const container = document.getElementById('grafico-historial-partidas');
+            if (container) {
+                container.innerHTML = '<div class="text-center text-gray-500 mt-8">' + result.message + '</div>';
+            }
+        }
+    } catch (error) {
+        console.error('Error al cargar estadísticas personales:', error);
+        // Si hay error, mostrar mensaje en el contenedor
+        const container = document.getElementById('grafico-historial-partidas');
+        if (container) {
+            container.innerHTML = '<div class="text-center text-gray-500 mt-8">Error al cargar estadísticas personales</div>';
+        }
+    }
+}
 
 /**
  * Inicializa el gráfico de Historial de Partidas
@@ -91,6 +132,12 @@ const datosEstadisticasTorneos = {
 function inicializarGraficoHistorialPartidas() {
     const container = document.getElementById('grafico-historial-partidas');
     if (!container) return;
+
+    // Verificar si hay datos
+    if (datosEstadisticasPersonales.rendimientoMensual.length === 0) {
+        container.innerHTML = '<div class="text-center text-gray-500 mt-8">No hay datos de partidas disponibles</div>';
+        return;
+    }
 
     // Crear el gráfico
     Highcharts.chart('grafico-historial-partidas', {
@@ -102,51 +149,93 @@ function inicializarGraficoHistorialPartidas() {
             }
         },
         title: {
-            text: 'Progreso del Rating ELO',
+            text: 'Historial de partidas',
             style: {
                 fontSize: '16px',
                 fontWeight: 'bold'
             }
         },
-        subtitle: {
-            text: 'Evolución mensual del rating ELO'
-        },
         xAxis: {
-            categories: datosHistorialPartidas.progresoMensual.map(item => item.mes),
+            categories: datosEstadisticasPersonales.rendimientoMensual.map(item => item.mes),
             title: {
                 text: 'Mes'
+            },
+            labels: {
+                formatter: function() {
+                    return this.value;
+                }
             }
         },
         yAxis: {
-            type: 'logarithmic',
             title: {
-                text: 'Rating ELO'
-            },
-            minorTickInterval: 0.1
-        },
-        tooltip: {
-            formatter: function() {
-                return '<b>' + this.x + '</b><br/>' +
-                       '<span style="color:' + this.series.color + '">' + this.series.name + '</span>: ' +
-                       '<b>' + this.y + '</b> ELO';
+                text: 'Cantidad de Partidas'
             }
         },
+        tooltip: {
+            shared: true
+        },
         legend: {
-            enabled: true
+            enabled: true,
+            align: 'center',
+            verticalAlign: 'bottom',
+            layout: 'horizontal',
+            itemStyle: {
+                fontSize: '12px'
+            }
         },
         plotOptions: {
             line: {
                 dataLabels: {
                     enabled: false
                 },
-                enableMouseTracking: true
+                enableMouseTracking: true,
+                marker: {
+                    enabled: true,
+                    radius: 4
+                }
             }
         },
         series: [{
-            name: 'Rating ELO',
-            data: datosHistorialPartidas.progresoMensual.map(item => item.rating),
-            color: '#0D6EFD',
+            name: 'Victorias',
+            data: datosEstadisticasPersonales.rendimientoMensual.map(item => item.victorias),
+            color: '#28A745', // Verde
+            lineWidth: 2,
+            marker: {
+                enabled: true,
+                radius: 4
+            }
+        }, {
+            name: 'Derrotas',
+            data: datosEstadisticasPersonales.rendimientoMensual.map(item => item.derrotas),
+            color: '#DC3545', // Rojo
+            lineWidth: 2,
+            marker: {
+                enabled: true,
+                radius: 4
+            }
+        }, {
+            name: 'Empates',
+            data: datosEstadisticasPersonales.rendimientoMensual.map(item => item.empates),
+            color: '#6C757D', // Gris
+            lineWidth: 2,
+            marker: {
+                enabled: true,
+                radius: 4
+            }
+        }, {
+            name: 'Torneos inscritos',
+            data: datosEstadisticasPersonales.rendimientoMensual.map(item => item.total_partidas),
+            color: '#007BFF', // Azul
             lineWidth: 3,
+            marker: {
+                enabled: true,
+                radius: 4
+            }
+        }, {
+            name: 'Partidas jugadas',
+            data: datosEstadisticasPersonales.rendimientoMensual.map(item => item.torneos_jugados),
+            color: '#FF8C00', // Naranja
+            lineWidth: 2,
             marker: {
                 enabled: true,
                 radius: 4
@@ -171,7 +260,27 @@ function inicializarGraficoHistorialPartidas() {
             }
         },
         credits: {
-            enabled: false
+            enabled: true,
+            text: function() {
+                const fechaActual = new Date();
+                const fechaInicio = new Date();
+                fechaInicio.setFullYear(fechaInicio.getFullYear() - 1);
+                
+                const mesInicio = fechaInicio.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+                const mesFin = fechaActual.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+                
+                return `Período: ${mesInicio} - ${mesFin}`;
+            }(),
+            style: {
+                fontSize: '12px',
+                color: '#666'
+            },
+            position: {
+                align: 'center',
+                verticalAlign: 'bottom',
+                x: 0,
+                y: -10
+            }
         }
     });
 }
@@ -183,6 +292,12 @@ function inicializarGraficoEstadisticasTorneos() {
     const container = document.getElementById('grafico-estadisticas-torneos');
     if (!container) return;
 
+    // Verificar si hay datos
+    if (datosEstadisticasTorneos.rendimientoMensual.length === 0) {
+        container.innerHTML = '<div class="text-center text-gray-500 mt-8">No hay datos de torneos disponibles</div>';
+        return;
+    }
+
     // Crear el gráfico
     Highcharts.chart('grafico-estadisticas-torneos', {
         chart: {
@@ -193,14 +308,11 @@ function inicializarGraficoEstadisticasTorneos() {
             }
         },
         title: {
-            text: 'Rendimiento de Torneos',
+            text: 'Estadísticas Completas de Torneos',
             style: {
                 fontSize: '16px',
                 fontWeight: 'bold'
             }
-        },
-        subtitle: {
-            text: 'Estadísticas mensuales de torneos organizados'
         },
         xAxis: {
             categories: datosEstadisticasTorneos.rendimientoMensual.map(item => item.mes),
@@ -210,7 +322,7 @@ function inicializarGraficoEstadisticasTorneos() {
         },
         yAxis: [{
             title: {
-                text: 'Número de Torneos',
+                text: 'Cantidad de Torneos',
                 style: {
                     color: '#FF6B00'
                 }
@@ -222,28 +334,20 @@ function inicializarGraficoEstadisticasTorneos() {
             }
         }, {
             title: {
-                text: 'Número de Participantes',
+                text: 'Cantidad de Participantes',
                 style: {
-                    color: '#00A651'
+                    color: '#6F42C1'
                 }
             },
             labels: {
                 style: {
-                    color: '#00A651'
+                    color: '#6F42C1'
                 }
             },
             opposite: true
         }],
         tooltip: {
-            shared: true,
-            formatter: function() {
-                let tooltip = '<b>' + this.x + '</b><br/>';
-                this.points.forEach(function(point) {
-                    tooltip += '<span style="color:' + point.color + '">' + 
-                              point.series.name + '</span>: <b>' + point.y + '</b><br/>';
-                });
-                return tooltip;
-            }
+            shared: true
         },
         legend: {
             enabled: true
@@ -257,7 +361,7 @@ function inicializarGraficoEstadisticasTorneos() {
             }
         },
         series: [{
-            name: 'Torneos Organizados',
+            name: 'Total Torneos',
             data: datosEstadisticasTorneos.rendimientoMensual.map(item => item.torneos),
             color: '#FF6B00',
             lineWidth: 3,
@@ -266,9 +370,36 @@ function inicializarGraficoEstadisticasTorneos() {
                 radius: 4
             }
         }, {
-            name: 'Participantes',
+            name: 'Torneos Completados',
+            data: datosEstadisticasTorneos.rendimientoMensual.map(item => item.completados),
+            color: '#28A745',
+            lineWidth: 2,
+            marker: {
+                enabled: true,
+                radius: 3
+            }
+        }, {
+            name: 'Torneos en Curso',
+            data: datosEstadisticasTorneos.rendimientoMensual.map(item => item.en_curso),
+            color: '#007BFF',
+            lineWidth: 2,
+            marker: {
+                enabled: true,
+                radius: 3
+            }
+        }, {
+            name: 'Torneos Pendientes',
+            data: datosEstadisticasTorneos.rendimientoMensual.map(item => item.pendientes),
+            color: '#FFC107',
+            lineWidth: 2,
+            marker: {
+                enabled: true,
+                radius: 3
+            }
+        }, {
+            name: 'Total Participantes',
             data: datosEstadisticasTorneos.rendimientoMensual.map(item => item.participantes),
-            color: '#00A651',
+            color: '#6F42C1',
             lineWidth: 3,
             marker: {
                 enabled: true,
@@ -276,6 +407,15 @@ function inicializarGraficoEstadisticasTorneos() {
             },
             yAxis: 1
         }],
+        legend: {
+            enabled: true,
+            align: 'center',
+            verticalAlign: 'bottom',
+            layout: 'horizontal',
+            itemStyle: {
+                fontSize: '12px'
+            }
+        },
         exporting: {
             enabled: true,
             buttons: {
@@ -295,7 +435,27 @@ function inicializarGraficoEstadisticasTorneos() {
             }
         },
         credits: {
-            enabled: false
+            enabled: true,
+            text: function() {
+                const fechaActual = new Date();
+                const fechaInicio = new Date();
+                fechaInicio.setFullYear(fechaInicio.getFullYear() - 1);
+                
+                const mesInicio = fechaInicio.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+                const mesFin = fechaActual.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+                
+                return `Período: ${mesInicio} - ${mesFin}`;
+            }(),
+            style: {
+                fontSize: '12px',
+                color: '#666'
+            },
+            position: {
+                align: 'center',
+                verticalAlign: 'bottom',
+                x: 0,
+                y: -10
+            }
         }
     });
 }
@@ -314,11 +474,13 @@ function inicializarGraficosEstadisticas() {
 
     // Inicializar gráficos si existen los contenedores
     if (document.getElementById('grafico-historial-partidas')) {
-        inicializarGraficoHistorialPartidas();
+        // Cargar datos reales y luego inicializar el gráfico
+        cargarEstadisticasPersonales();
     }
 
     if (document.getElementById('grafico-estadisticas-torneos')) {
-        inicializarGraficoEstadisticasTorneos();
+        // Cargar datos reales y luego inicializar el gráfico
+        cargarEstadisticasTorneos();
     }
 }
 
@@ -330,4 +492,6 @@ document.addEventListener('DOMContentLoaded', function() {
 // Exportar funciones para uso global
 window.inicializarGraficosEstadisticas = inicializarGraficosEstadisticas;
 window.inicializarGraficoHistorialPartidas = inicializarGraficoHistorialPartidas;
-window.inicializarGraficoEstadisticasTorneos = inicializarGraficoEstadisticasTorneos; 
+window.inicializarGraficoEstadisticasTorneos = inicializarGraficoEstadisticasTorneos;
+window.cargarEstadisticasTorneos = cargarEstadisticasTorneos;
+window.cargarEstadisticasPersonales = cargarEstadisticasPersonales; 

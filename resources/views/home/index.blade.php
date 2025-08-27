@@ -148,10 +148,10 @@
         @if($canViewMisEstadisticas || $canViewEstadisticasAdmin)
         <div class="mt-8 grid grid-cols-1 {{ ($canViewMisEstadisticas && $canViewEstadisticasAdmin) ? 'lg:grid-cols-2' : '' }} gap-6">
             @if($canViewMisEstadisticas)
-            <!-- Historial de Partidas -->
+            <!-- Desempeño -->
             <div class="bg-white rounded-lg shadow p-6">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-lg font-medium text-gray-900">Historial de Partidas</h2>
+                    <h2 class="text-lg font-medium text-gray-900">Desempeño</h2>
                 </div>
                 <!-- Contenedor para el gráfico -->
                 <div id="grafico-historial-partidas" class="w-full"></div>

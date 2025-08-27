@@ -28,6 +28,7 @@ use App\Http\Controllers\TorneoViewController;
 use App\Http\Controllers\TorneoParticipanteController;
 use App\Http\Controllers\TorneoRondaController;
 use App\Http\Controllers\AnalisisPartidaController;
+use App\Http\Controllers\EstadisticasController;
 
 // Grupo web para todas las rutas
 Route::middleware('web')->group(function () {
@@ -150,6 +151,11 @@ Route::middleware('web')->group(function () {
 
         // Rutas para auditoría
         Route::get('/auditoria', [AuditoriaController::class, 'index'])->name('auditoria.index');
+
+        // Rutas para estadísticas
+        Route::get('/api/estadisticas/mensuales', [EstadisticasController::class, 'estadisticasMensuales'])->name('estadisticas.mensuales');
+Route::get('/api/estadisticas/generales', [EstadisticasController::class, 'estadisticasGenerales'])->name('estadisticas.generales');
+Route::get('/api/estadisticas/personales', [EstadisticasController::class, 'estadisticasPersonales'])->name('estadisticas.personales');
     });
 
     // Rutas de autenticación de Google para recuperación de contraseña
