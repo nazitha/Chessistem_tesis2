@@ -30,137 +30,178 @@
         </div>
     </div>
 
-    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-        <div class="px-4 py-5 sm:px-6">
-            <h3 class="text-lg leading-6 font-medium text-gray-900">
-                Información del Torneo
-            </h3>
+    <!-- Detalles del Torneo -->
+    <div class="card mb-6">
+        <div class="card-header bg-light py-2">
+            <h6 class="mb-0 fw-bold fs-5 flex items-center">
+                <span class="mr-2">📋</span> Detalles del Torneo
+            </h6>
         </div>
-        <div class="border-t border-gray-200">
-            @php
-                $detalles = [
-                    ['label' => 'Fecha y Hora', 'value' => ($torneo->fecha_inicio ? $torneo->fecha_inicio->format('d/m/Y') : 'No definida') . ($torneo->hora_inicio ? ' a las ' . $torneo->hora_inicio : '')],
-                    ['label' => 'Lugar', 'value' => $torneo->lugar ?? 'No definido'],
-                    ['label' => 'Categoría', 'value' => $torneo->categoria ? $torneo->categoria->categoria_torneo : 'No definida'],
-                    ['label' => 'Tipo de Torneo', 'value' => $torneo->es_por_equipos ? 'Por equipos' : 'Individual'],
-                    ['label' => 'Estado', 'value' => '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ' . $torneo->estadoClase . '">' . $torneo->estado . '</span>'],
-                ];
-            @endphp
-            <dl>
-                @foreach($detalles as $i => $detalle)
-                    <div class="{{ $i % 2 == 0 ? 'bg-white' : 'bg-gray-50' }} px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                        <dt class="text-sm font-medium text-gray-500">{{ $detalle['label'] }}</dt>
-                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{!! $detalle['value'] !!}</dd>
+        <div class="card-body py-3">
+            <div class="space-y-6">
+                <!-- Información del Torneo -->
+                <div class="card mb-4">
+                    <div class="card-header bg-light py-2">
+                        <h6 class="mb-0 fw-bold fs-5 flex items-center">
+                            <span class="mr-2">🏁</span> Información del Torneo
+                        </h6>
                     </div>
-                @endforeach
+                    <div class="card-body py-3">
+                        <div class="grid grid-cols-6 gap-6">
+                            <div class="col-span-6 sm:col-span-3">
+                                <label class="block text-sm font-medium text-gray-700">Nombre del Torneo</label>
+                                <div class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm sm:text-sm">{{ $torneo->nombre_torneo }}</div>
+                            </div>
 
-                <!-- Organizadores -->
-                <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                    <dt class="text-sm font-medium text-gray-500">Organizadores</dt>
-                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                        <ul class="border border-gray-200 rounded-md divide-y divide-gray-200">
-                            @if($torneo->organizador)
-                            <li class="pl-3 pr-4 py-3 flex items-center justify-between text-sm">
-                                <div class="w-0 flex-1 flex items-center">
-                                    <span class="font-medium">Organizador:</span>
-                                    <span class="ml-2">{{ $torneo->organizador->nombres }} {{ $torneo->organizador->apellidos }}</span>
+                            <div class="col-span-6 sm:col-span-3">
+                                <label class="block text-sm font-medium text-gray-700 flex items-center">
+                                    <span class="mr-2">📅</span> Fecha de Inicio
+                                </label>
+                                <div class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm sm:text-sm">{{ $torneo->fecha_inicio ? $torneo->fecha_inicio->format('d/m/Y') : 'No definida' }}</div>
+                            </div>
+
+                            <div class="col-span-6 sm:col-span-3">
+                                <label class="block text-sm font-medium text-gray-700 flex items-center">
+                                    <span class="mr-2">🕒</span> Hora de Inicio
+                                </label>
+                                <div class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm sm:text-sm">{{ $torneo->hora_inicio ? $torneo->hora_inicio : 'No definida' }}</div>
+                            </div>
+
+                            <div class="col-span-6 sm:col-span-3">
+                                <label class="block text-sm font-medium text-gray-700 flex items-center">
+                                    <span class="mr-2">📍</span> Lugar
+                                </label>
+                                <div class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm sm:text-sm">{{ $torneo->lugar ?? 'No definido' }}</div>
+                            </div>
+
+
+                            <div class="col-span-6 sm:col-span-3">
+                                <label class="block text-sm font-medium text-gray-700">Estado</label>
+                                <div class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm sm:text-sm">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $torneo->estadoClase }}">{{ $torneo->estado }}</span>
                                 </div>
-                            </li>
-                            @endif
-                            @if($torneo->directorTorneo)
-                            <li class="pl-3 pr-4 py-3 flex items-center justify-between text-sm">
-                                <div class="w-0 flex-1 flex items-center">
-                                    <span class="font-medium">Director del Torneo:</span>
-                                    <span class="ml-2">{{ $torneo->directorTorneo->nombres }} {{ $torneo->directorTorneo->apellidos }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Equipo Organizador -->
+                <div class="card mb-4">
+                    <div class="card-header bg-light py-2">
+                        <h6 class="mb-0 fw-bold fs-5 flex items-center">
+                            <span class="mr-2">🧑‍⚖️</span> Equipo Organizador
+                        </h6>
+                    </div>
+                    <div class="card-body py-3">
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-6 gap-6">
+                                <div class="col-span-6 sm:col-span-3">
+                                    <label class="block text-sm font-medium text-gray-700">Organizador</label>
+                                    <div class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm sm:text-sm">{{ $torneo->organizador ? $torneo->organizador->nombres . ' ' . $torneo->organizador->apellidos : 'No asignado' }}</div>
                                 </div>
-                            </li>
-                            @endif
-                            @if($torneo->arbitroPrincipal)
-                            <li class="pl-3 pr-4 py-3 flex items-center justify-between text-sm">
-                                <div class="w-0 flex-1 flex items-center">
-                                    <span class="font-medium">Árbitro Principal:</span>
-                                    <span class="ml-2">{{ $torneo->arbitroPrincipal->nombres }} {{ $torneo->arbitroPrincipal->apellidos }}</span>
+
+                                <div class="col-span-6 sm:col-span-3">
+                                    <label class="block text-sm font-medium text-gray-700">Director del Torneo</label>
+                                    <div class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm sm:text-sm">{{ $torneo->directorTorneo ? $torneo->directorTorneo->nombres . ' ' . $torneo->directorTorneo->apellidos : 'No asignado' }}</div>
                                 </div>
-                            </li>
-                            @endif
-                            @if($torneo->arbitro)
-                            <li class="pl-3 pr-4 py-3 flex items-center justify-between text-sm">
-                                <div class="w-0 flex-1 flex items-center">
-                                    <span class="font-medium">Árbitro:</span>
-                                    <span class="ml-2">{{ $torneo->arbitro->nombres }} {{ $torneo->arbitro->apellidos }}</span>
+                            </div>
+
+                            <div class="grid grid-cols-6 gap-6">
+                                <div class="col-span-6 sm:col-span-3">
+                                    <label class="block text-sm font-medium text-gray-700">Árbitro</label>
+                                    <div class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm sm:text-sm">{{ $torneo->arbitro ? $torneo->arbitro->nombres . ' ' . $torneo->arbitro->apellidos : 'No asignado' }}</div>
                                 </div>
-                            </li>
-                            @endif
-                            @if($torneo->arbitroAdjunto)
-                            <li class="pl-3 pr-4 py-3 flex items-center justify-between text-sm">
-                                <div class="w-0 flex-1 flex items-center">
-                                    <span class="font-medium">Árbitro Adjunto:</span>
-                                    <span class="ml-2">{{ $torneo->arbitroAdjunto->nombres }} {{ $torneo->arbitroAdjunto->apellidos }}</span>
+                            </div>
+
+                            <div class="grid grid-cols-6 gap-6">
+                                <div class="col-span-6 sm:col-span-3">
+                                    <label class="block text-sm font-medium text-gray-700">Árbitro Adjunto</label>
+                                    <div class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm sm:text-sm">{{ $torneo->arbitroAdjunto ? $torneo->arbitroAdjunto->nombres . ' ' . $torneo->arbitroAdjunto->apellidos : 'No asignado' }}</div>
                                 </div>
-                            </li>
-                            @endif
-                        </ul>
-                    </dd>
+                            </div>
+
+                            <div class="grid grid-cols-6 gap-6">
+                                <div class="col-span-6 sm:col-span-3">
+                                    <label class="block text-sm font-medium text-gray-700">Árbitro Principal</label>
+                                    <div class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm sm:text-sm">{{ $torneo->arbitroPrincipal ? $torneo->arbitroPrincipal->nombres . ' ' . $torneo->arbitroPrincipal->apellidos : 'No asignado' }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Detalles Técnicos -->
-                <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                    <dt class="text-sm font-medium text-gray-500">Detalles Técnicos</dt>
-                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                        <ul class="border border-gray-200 rounded-md divide-y divide-gray-200">
-                            <li class="pl-3 pr-4 py-3 flex items-center justify-between text-sm">
-                                <div class="w-0 flex-1 flex items-center">
-                                    <span class="font-medium">Número de Rondas:</span>
-                                    <span class="ml-2">{{ $torneo->no_rondas }}</span>
-                                </div>
-                            </li>
-                            @if($torneo->controlTiempo)
-                            <li class="pl-3 pr-4 py-3 flex items-center justify-between text-sm">
-                                <div class="w-0 flex-1 flex items-center">
-                                    <span class="font-medium">Control de Tiempo:</span>
-                                    <span class="ml-2">{{ $torneo->controlTiempo->formato }} ({{ $torneo->controlTiempo->control_tiempo }})</span>
-                                </div>
-                            </li>
-                            @endif
-                            @if($torneo->emparejamiento)
-                            <li class="pl-3 pr-4 py-3 flex items-center justify-between text-sm">
-                                <div class="w-0 flex-1 flex items-center">
-                                    <span class="font-medium">Sistema de Emparejamiento:</span>
-                                    <span class="ml-2">{{ $torneo->emparejamiento->sistema }}</span>
-                                </div>
-                            </li>
-                            @endif
-                        </ul>
-                    </dd>
+                <div class="card mb-4">
+                    <div class="card-header bg-light py-2">
+                        <h6 class="mb-0 fw-bold fs-5 flex items-center">
+                            <span class="mr-2">📋</span> Detalles Técnicos
+                        </h6>
+                    </div>
+                    <div class="card-body py-3">
+                        <div class="grid grid-cols-6 gap-6">
+                            <div class="col-span-6 sm:col-span-3">
+                                <label class="block text-sm font-medium text-gray-700 flex items-center">
+                                    <span class="mr-2">🔄</span> Número de Rondas
+                                </label>
+                                <div class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm sm:text-sm">{{ $torneo->no_rondas }}</div>
+                            </div>
+
+                            <div class="col-span-6 sm:col-span-3">
+                                <label class="block text-sm font-medium text-gray-700 flex items-center">
+                                    <span class="mr-2">🏆</span> Categoría
+                                </label>
+                                <div class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm sm:text-sm">{{ $torneo->categoria ? $torneo->categoria->categoria_torneo : 'No definida' }}</div>
+                            </div>
+
+                            <div class="col-span-6 sm:col-span-3">
+                                <label class="block text-sm font-medium text-gray-700 flex items-center">
+                                    <span class="mr-2">👥</span> Tipo de Torneo
+                                </label>
+                                <div class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm sm:text-sm">{{ $torneo->es_por_equipos ? 'Por equipos' : 'Individual' }}</div>
+                            </div>
+
+                            <div class="col-span-6 sm:col-span-3">
+                                <label class="block text-sm font-medium text-gray-700 flex items-center">
+                                    <span class="mr-2">⏱️</span> Control de Tiempo
+                                </label>
+                                <div class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm sm:text-sm">{{ $torneo->controlTiempo ? $torneo->controlTiempo->formato . ' (' . $torneo->controlTiempo->control_tiempo . ')' : 'No definido' }}</div>
+                            </div>
+
+                            <div class="col-span-6 sm:col-span-3">
+                                <label class="block text-sm font-medium text-gray-700 flex items-center">
+                                    <span class="mr-2">🧭</span> Sistema de Emparejamiento
+                                </label>
+                                <div class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm sm:text-sm">{{ $torneo->emparejamiento ? $torneo->emparejamiento->sistema : 'No definido' }}</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Criterios de Desempate -->
-                <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                    <dt class="text-sm font-medium text-gray-500">Criterios de Desempate</dt>
-                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                        <ul class="border border-gray-200 rounded-md divide-y divide-gray-200">
-                            <li class="pl-3 pr-4 py-3 flex items-center justify-between text-sm">
-                                <div class="w-0 flex-1 flex items-center">
-                                    <span class="font-medium">Buchholz:</span>
-                                    <span class="ml-2">{{ $torneo->usar_buchholz ? 'Sí' : 'No' }}</span>
-                                </div>
-                            </li>
-                            <li class="pl-3 pr-4 py-3 flex items-center justify-between text-sm">
-                                <div class="w-0 flex-1 flex items-center">
-                                    <span class="font-medium">Sonneborn-Berger:</span>
-                                    <span class="ml-2">{{ $torneo->usar_sonneborn_berger ? 'Sí' : 'No' }}</span>
-                                </div>
-                            </li>
-                            <li class="pl-3 pr-4 py-3 flex items-center justify-between text-sm">
-                                <div class="w-0 flex-1 flex items-center">
-                                    <span class="font-medium">Progresivo:</span>
-                                    <span class="ml-2">{{ $torneo->usar_desempate_progresivo ? 'Sí' : 'No' }}</span>
-                                </div>
-                            </li>
-                        </ul>
-                    </dd>
+                <div class="card mb-4">
+                    <div class="card-header bg-light py-2">
+                        <h6 class="mb-0 fw-bold fs-5 flex items-center">
+                            <span class="mr-2">🏆</span> Criterios de Desempate
+                        </h6>
+                    </div>
+                    <div class="card-body py-3">
+                        <div class="space-y-4">
+                            <div class="flex items-center">
+                                <div class="w-4 h-4 rounded-full {{ $torneo->usar_buchholz ? 'bg-green-500' : 'bg-gray-300' }} mr-3"></div>
+                                <span class="text-sm text-gray-700">Buchholz: {{ $torneo->usar_buchholz ? 'Sí' : 'No' }}</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-4 h-4 rounded-full {{ $torneo->usar_sonneborn_berger ? 'bg-green-500' : 'bg-gray-300' }} mr-3"></div>
+                                <span class="text-sm text-gray-700">Sonneborn-Berger: {{ $torneo->usar_sonneborn_berger ? 'Sí' : 'No' }}</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-4 h-4 rounded-full {{ $torneo->usar_desempate_progresivo ? 'bg-green-500' : 'bg-gray-300' }} mr-3"></div>
+                                <span class="text-sm text-gray-700">Progresivo: {{ $torneo->usar_desempate_progresivo ? 'Sí' : 'No' }}</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </dl>
+            </div>
         </div>
     </div>
 

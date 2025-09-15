@@ -26,64 +26,99 @@
 
         <form action="{{ route('academias.store') }}" method="POST">
             @csrf
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label for="nombre_academia" class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
-                    <input type="text" name="nombre_academia" id="nombre_academia" value="{{ old('nombre_academia') }}"
-                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
-                           required>
+            
+            <!-- Card Generalidades -->
+            <div class="card mb-4">
+                <div class="card-header bg-light py-2">
+                    <h6 class="mb-0 fw-bold fs-5 d-flex align-items-center">
+                        <svg class="w-5 h-5 me-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                        </svg>
+                        Generalidades
+                    </h6>
                 </div>
+                <div class="card-body py-3">
+                    <div class="row g-2">
+                        <!-- Nombre -->
+                        <div class="col-md-6">
+                            <label for="nombre_academia" class="form-label fw-bold fs-6">Nombre</label>
+                            <input type="text" name="nombre_academia" id="nombre_academia" value="{{ old('nombre_academia') }}"
+                                   class="form-control form-control-sm fs-6" required>
+                        </div>
 
-                <div>
-                    <label for="correo_academia" class="block text-sm font-medium text-gray-700 mb-1">Correo</label>
-                    <input type="email" name="correo_academia" id="correo_academia" value="{{ old('correo_academia') }}"
-                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
-                           required>
+                        <!-- Representante -->
+                        <div class="col-md-6">
+                            <label for="representante_academia" class="form-label fw-bold fs-6">Representante</label>
+                            <input type="text" name="representante_academia" id="representante_academia" value="{{ old('representante_academia') }}"
+                                   class="form-control form-control-sm fs-6" required>
+                        </div>
+                    </div>
+
+                    <!-- Ciudad -->
+                    <div class="mt-2">
+                        <label for="ciudad_id" class="form-label fw-bold fs-6">Ciudad</label>
+                        <select name="ciudad_id" id="ciudad_id" class="form-select form-select-sm fs-6" required>
+                            <option value="">Seleccione una ciudad</option>
+                            @foreach($ciudades as $ciudad)
+                                <option value="{{ $ciudad->id_ciudad }}" {{ old('ciudad_id') == $ciudad->id_ciudad ? 'selected' : '' }}>
+                                    {{ $ciudad->nombre_ciudad }}, {{ $ciudad->departamento->nombre_depto ?? '-' }} ({{ $ciudad->departamento->pais->nombre_pais ?? '-' }})
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Dirección -->
+                    <div class="mt-2">
+                        <label for="direccion_academia" class="form-label fw-bold fs-6">Dirección</label>
+                        <input type="text" name="direccion_academia" id="direccion_academia" value="{{ old('direccion_academia') }}"
+                               class="form-control form-control-sm fs-6" required>
+                    </div>
+
+                    <!-- Estado -->
+                    <div class="mt-2">
+                        <label class="form-label fw-bold fs-6">Estado</label>
+                        <div class="d-flex align-items-center">
+                            <label class="form-check-label d-flex align-items-center cursor-pointer">
+                                <input type="checkbox" name="estado_academia" value="1" 
+                                       {{ old('estado_academia', '1') == '1' ? 'checked' : '' }}
+                                       class="form-check-input d-none" id="estado_switch">
+                                <div class="position-relative">
+                                    <div class="bg-secondary rounded-pill" style="width: 40px; height: 20px;" id="switch-bg"></div>
+                                    <div class="position-absolute bg-white rounded-circle shadow" style="width: 16px; height: 16px; top: 2px; left: 2px;" id="switch-knob"></div>
+                                </div>
+                                <span class="ms-2 fw-medium" id="estado-text">Activo</span>
+                            </label>
+                        </div>
+                    </div>
                 </div>
+            </div>
 
-                <div>
-                    <label for="telefono_academia" class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
-                    <input type="text" name="telefono_academia" id="telefono_academia" value="{{ old('telefono_academia') }}"
-                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
-                           required>
+            <!-- Card Contacto -->
+            <div class="card mb-4">
+                <div class="card-header bg-light py-2">
+                    <h6 class="mb-0 fw-bold fs-5 d-flex align-items-center">
+                        <svg class="w-5 h-5 me-2 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                        Contacto
+                    </h6>
                 </div>
+                <div class="card-body py-3">
+                    <div class="row g-2">
+                        <!-- Correo -->
+                        <div class="col-md-6">
+                            <label for="correo_academia" class="form-label fw-bold fs-6">Correo</label>
+                            <input type="email" name="correo_academia" id="correo_academia" value="{{ old('correo_academia') }}"
+                                   class="form-control form-control-sm fs-6" required>
+                        </div>
 
-                <div>
-                    <label for="representante_academia" class="block text-sm font-medium text-gray-700 mb-1">Representante</label>
-                    <input type="text" name="representante_academia" id="representante_academia" value="{{ old('representante_academia') }}"
-                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
-                           required>
-                </div>
-
-                <div>
-                    <label for="direccion_academia" class="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
-                    <input type="text" name="direccion_academia" id="direccion_academia" value="{{ old('direccion_academia') }}"
-                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
-                           required>
-                </div>
-
-                <div>
-                    <label for="ciudad_id" class="block text-sm font-medium text-gray-700 mb-1">Ciudad</label>
-                    <select name="ciudad_id" id="ciudad_id"
-                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
-                            required>
-                        <option value="">Seleccione una ciudad</option>
-                        @foreach($ciudades as $ciudad)
-                            <option value="{{ $ciudad->id_ciudad }}" {{ old('ciudad_id') == $ciudad->id_ciudad ? 'selected' : '' }}>
-                                {{ $ciudad->nombre_ciudad }}, {{ $ciudad->departamento->nombre_depto ?? '-' }} ({{ $ciudad->departamento->pais->nombre_pais ?? '-' }})
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div>
-                    <label for="estado_academia" class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
-                    <select name="estado_academia" id="estado_academia"
-                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
-                            required>
-                        <option value="1" {{ old('estado_academia', '1') == '1' ? 'selected' : '' }}>Activo</option>
-                        <option value="0" {{ old('estado_academia') == '0' ? 'selected' : '' }}>Inactivo</option>
-                    </select>
+                        <!-- Teléfono -->
+                        <div class="col-md-6">
+                            <label for="telefono_academia" class="form-label fw-bold fs-6">Teléfono</label>
+                            <input type="text" name="telefono_academia" id="telefono_academia" value="{{ old('telefono_academia') }}"
+                                   class="form-control form-control-sm fs-6" required>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -98,4 +133,44 @@
         </form>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Funcionalidad del switch de estado
+    const estadoSwitch = document.getElementById('estado_switch');
+    const switchBg = document.getElementById('switch-bg');
+    const switchKnob = document.getElementById('switch-knob');
+    const estadoText = document.getElementById('estado-text');
+    
+    // Función para actualizar el estado visual del switch
+    function updateSwitchState() {
+        if (estadoSwitch.checked) {
+            // Activo - Verde
+            switchBg.classList.remove('bg-secondary');
+            switchBg.classList.add('bg-success');
+            switchKnob.style.transform = 'translateX(20px)';
+            estadoText.textContent = 'Activo';
+            estadoText.classList.remove('text-danger');
+            estadoText.classList.add('text-success');
+            estadoSwitch.value = '1';
+        } else {
+            // Inactivo - Rojo
+            switchBg.classList.remove('bg-success');
+            switchBg.classList.add('bg-danger');
+            switchKnob.style.transform = 'translateX(0px)';
+            estadoText.textContent = 'Inactivo';
+            estadoText.classList.remove('text-success');
+            estadoText.classList.add('text-danger');
+            estadoSwitch.value = '0';
+        }
+    }
+    
+    // Event listener para el cambio del switch
+    estadoSwitch.addEventListener('change', updateSwitchState);
+    
+    // Inicializar el estado visual del switch
+    updateSwitchState();
+    
+});
+</script>
 @endsection 

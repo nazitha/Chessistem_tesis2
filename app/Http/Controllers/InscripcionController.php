@@ -108,12 +108,18 @@ class InscripcionController extends Controller
     public function destroy(Request $request, Participante $participante)
     {
         return DB::transaction(function () use ($request, $participante) {
+            // Guardar datos del participante antes de eliminarlo para auditoría
+            $datosParticipante = $participante->toArray();
+            $nombreCompleto = $participante->miembro->nombre_completo;
+            $nombreTorneo = $participante->torneo->nombre_torneo;
+            
             $participante->delete();
             
             $this->crearAuditoria(
                 $request->mail_log,
                 'Eliminación',
-                "[Participante: {$participante->miembro->nombre_completo} removido del torneo: {$participante->torneo->nombre_torneo}]"
+                json_encode($datosParticipante),
+                null
             );
 
             return response()->json(['success' => true]);
@@ -122,14 +128,17 @@ class InscripcionController extends Controller
 
     private function crearAuditoria($correo, $accion, $previo, $posterior = null)
     {
+        // Usar la zona horaria de Guatemala
+        $fechaHora = Carbon::now()->setTimezone('America/Guatemala');
+        
         Auditoria::create([
             'correo_id' => $correo,
             'tabla_afectada' => 'Participantes/Inscripciones',
             'accion' => $accion,
             'valor_previo' => $previo,
             'valor_posterior' => $posterior ?? '-',
-            'fecha' => Carbon::now()->toDateString(),
-            'hora' => Carbon::now()->toTimeString(),
+            'fecha' => $fechaHora->toDateString(),
+            'hora' => $fechaHora->toTimeString(),
             'equipo' => request()->ip()
         ]);
     }

@@ -23,24 +23,32 @@
                        placeholder="Ingrese su correo electrónico" 
                        name="correo" 
                        required 
-                       value="{{ old('correo') }}">
+                       value="{{ old('correo') }}"
+                       class="@error('correo') error-input @enderror">
+                
+                @error('correo')
+                    <div class="field-error">
+                        {{ $message }}
+                    </div>
+                @enderror
+
                 <div class="password">
                     <input type="password" 
                            placeholder="Ingrese su contraseña" 
                            name="contrasena" 
                            id="password" 
-                           required>
+                           required
+                           class="@error('contrasena') error-input @enderror">
                     <img src="{{ asset('img/icons8-hide-password-50.png') }}" 
                          class="pass-icon" 
                          onclick="togglePassword()" 
                          alt="Toggle password visibility">
+                    @error('contrasena')
+                        <div class="field-error">
+                            {{ $message }}
+                        </div>
+                    @enderror
                 </div>
-
-                @if ($errors->any())
-                    <div class="alert alert-danger">
-                        {{ $errors->first() }}
-                    </div>
-                @endif
 
                 <button type="submit">Iniciar Sesión</button>
             </form>
@@ -77,18 +85,30 @@
             }
         }
 
-        // Limpiar mensaje de error cuando el usuario empiece a escribir
-        document.getElementById('input_correo_login').addEventListener('input', function() {
-            const alert = document.querySelector('.alert');
-            if (alert) {
-                alert.style.display = 'none';
-            }
-        });
+        // Esperar a que el DOM esté completamente cargado
+        document.addEventListener('DOMContentLoaded', function() {
+            // Limpiar mensajes de error cuando el usuario empiece a escribir
+            const correoInput = document.getElementById('input_correo_login');
+            const passwordInput = document.getElementById('password');
 
-        document.getElementById('password').addEventListener('input', function() {
-            const alert = document.querySelector('.alert');
-            if (alert) {
-                alert.style.display = 'none';
+            if (correoInput) {
+                correoInput.addEventListener('input', function() {
+                    // Limpiar solo el error del campo de correo
+                    const correoError = this.nextElementSibling;
+                    if (correoError && correoError.classList.contains('field-error')) {
+                        correoError.style.display = 'none';
+                    }
+                });
+            }
+
+            if (passwordInput) {
+                passwordInput.addEventListener('input', function() {
+                    // Limpiar solo el error del campo de contraseña
+                    const contrasenaError = this.parentElement.nextElementSibling;
+                    if (contrasenaError && contrasenaError.classList.contains('field-error')) {
+                        contrasenaError.style.display = 'none';
+                    }
+                });
             }
         });
     </script>

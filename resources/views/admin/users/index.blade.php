@@ -1375,6 +1375,26 @@
     });
 
     // Event listener para el formulario de gestión de permisos
+    
+    // Función para exportar usuarios
+    document.getElementById('btnExportarUsuarios').addEventListener('click', function() {
+        const link = document.createElement('a');
+        link.href = '{{ route("usuarios.export") }}';
+        link.download = 'usuarios_export.csv';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    });
+    
+    // Función para exportar permisos
+    document.getElementById('btnExportarPermisos').addEventListener('click', function() {
+        const link = document.createElement('a');
+        link.href = '{{ route("permisos.export") }}';
+        link.download = 'permisos_export.csv';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    });
 </script>
 @endpush
 @endsection 

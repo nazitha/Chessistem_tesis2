@@ -669,6 +669,18 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// Función para exportar miembros
+document.getElementById('btnExportarMiembros').addEventListener('click', function() {
+    // Solo registrar auditoría
+    fetch('{{ route("miembros.export") }}', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Content-Type': 'application/json',
+        }
+    });
+});
 </script>
 @endpush
 

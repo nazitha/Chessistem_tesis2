@@ -19,50 +19,104 @@
     
     <div class="bg-white rounded-lg shadow p-8">
         <h2 class="text-2xl font-bold mb-8 text-gray-800">Detalle del Miembro</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-12">
-            <div>
-                <span class="block font-semibold text-gray-700 mb-1">Cédula</span>
-                <span class="text-gray-900">{{ $miembro->cedula }}</span>
+        
+        <!-- Card Datos Personales -->
+        <div class="card mb-4">
+            <div class="card-header bg-light py-2">
+                <h6 class="mb-0 fw-bold fs-5 d-flex align-items-center">
+                    <svg class="w-5 h-5 me-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                    </svg>
+                    Datos Personales
+                </h6>
             </div>
-            <div>
-                <span class="block font-semibold text-gray-700 mb-1">Nombres</span>
-                <span class="text-gray-900">{{ $miembro->nombres }}</span>
+            <div class="card-body py-3">
+                <!-- Cédula -->
+                <div class="mb-2">
+                    <label class="form-label fw-bold fs-6">Cédula</label>
+                    <div class="form-control form-control-sm fs-6 bg-white">{{ $miembro->cedula }}</div>
+                </div>
+
+                <!-- Nombres y Apellidos -->
+                <div class="row g-2">
+                    <!-- Nombres -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold fs-6">Nombres</label>
+                        <div class="form-control form-control-sm fs-6 bg-white">{{ $miembro->nombres }}</div>
+                    </div>
+
+                    <!-- Apellidos -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold fs-6">Apellidos</label>
+                        <div class="form-control form-control-sm fs-6 bg-white">{{ $miembro->apellidos }}</div>
+                    </div>
+                </div>
+
+                <!-- Sexo -->
+                <div class="mt-2">
+                    <label class="form-label fw-bold fs-6">Sexo</label>
+                    <div class="form-control form-control-sm fs-6 bg-white">{{ $miembro->sexo == 'M' ? 'Masculino' : 'Femenino' }}</div>
+                </div>
+
+                <!-- Fecha de nacimiento -->
+                <div class="mt-2">
+                    <label class="form-label fw-bold fs-6">Fecha de nacimiento</label>
+                    <div class="form-control form-control-sm fs-6 bg-white">{{ \Carbon\Carbon::parse($miembro->fecha_nacimiento)->format('d-m-Y') }}</div>
+                </div>
+
+                <!-- Estado -->
+                <div class="mt-2">
+                    <label class="form-label fw-bold fs-6">Estado</label>
+                    <div class="d-flex align-items-center">
+                        <div class="position-relative">
+                            <div class="rounded-pill {{ $miembro->estado_miembro ? 'bg-success' : 'bg-danger' }}" style="width: 40px; height: 20px;"></div>
+                            <div class="position-absolute bg-white rounded-circle shadow" style="width: 16px; height: 16px; top: 2px; {{ $miembro->estado_miembro ? 'left: 22px;' : 'left: 2px;' }}"></div>
+                        </div>
+                        <span class="ms-2 fw-medium {{ $miembro->estado_miembro ? 'text-success' : 'text-danger' }}">
+                            {{ $miembro->estado_miembro ? 'Activo' : 'Inactivo' }}
+                        </span>
+                    </div>
+                </div>
             </div>
-            <div>
-                <span class="block font-semibold text-gray-700 mb-1">Apellidos</span>
-                <span class="text-gray-900">{{ $miembro->apellidos }}</span>
+        </div>
+
+        <!-- Card Datos Académicos -->
+        <div class="card mb-4">
+            <div class="card-header bg-light py-2">
+                <h6 class="mb-0 fw-bold fs-5 d-flex align-items-center">
+                    <svg class="w-5 h-5 me-2 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/>
+                    </svg>
+                    Datos Académicos
+                </h6>
             </div>
-            <div>
-                <span class="block font-semibold text-gray-700 mb-1">Sexo</span>
-                <span class="text-gray-900">{{ $miembro->sexo == 'M' ? 'Masculino' : 'Femenino' }}</span>
-            </div>
-            <div>
-                <span class="block font-semibold text-gray-700 mb-1">Fecha de nacimiento</span>
-                <span class="text-gray-900">{{ \Carbon\Carbon::parse($miembro->fecha_nacimiento)->format('d-m-Y') }}</span>
-            </div>
-            <div>
-                <span class="block font-semibold text-gray-700 mb-1">Fecha de inscripción</span>
-                <span class="text-gray-900">{{ \Carbon\Carbon::parse($miembro->fecha_inscripcion)->format('d-m-Y') }}</span>
-            </div>
-            <div>
-                <span class="block font-semibold text-gray-700 mb-1">Estado</span>
-                @if($miembro->estado_miembro)
-                    <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Activo</span>
-                @else
-                    <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs">Inactivo</span>
-                @endif
-            </div>
-            <div>
-                <span class="block font-semibold text-gray-700 mb-1">Academia</span>
-                <span class="text-gray-900">{{ $miembro->academia->nombre_academia ?? '-' }}</span>
-            </div>
-            <div>
-                <span class="block font-semibold text-gray-700 mb-1">ELO</span>
-                <span class="text-gray-900">{{ $miembro->elo ?? '-' }}</span>
-            </div>
-            <div>
-                <span class="block font-semibold text-gray-700 mb-1">Correo</span>
-                <span class="text-gray-900">{{ $miembro->correo_sistema_id ?? '-' }}</span>
+            <div class="card-body py-3">
+                <div class="row g-2">
+                    <!-- Academia -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold fs-6">Academia</label>
+                        <div class="form-control form-control-sm fs-6 bg-white">{{ $miembro->academia->nombre_academia ?? '-' }}</div>
+                    </div>
+
+                    <!-- Fecha de inscripción -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold fs-6">Fecha de inscripción</label>
+                        <div class="form-control form-control-sm fs-6 bg-white">{{ \Carbon\Carbon::parse($miembro->fecha_inscripcion)->format('d-m-Y') }}</div>
+                    </div>
+                </div>
+
+                <!-- ELO -->
+                <div class="mt-2">
+                    <label class="form-label fw-bold fs-6">ELO</label>
+                    <div class="form-control form-control-sm fs-6 bg-white">{{ $miembro->elo ?? '-' }}</div>
+                </div>
+
+                <!-- Correo -->
+                <div class="mt-2">
+                    <label class="form-label fw-bold fs-6">Correo del sistema</label>
+                    <div class="form-control form-control-sm fs-6 bg-white">{{ $miembro->correo_sistema_id ?? '-' }}</div>
+                </div>
             </div>
         </div>
     </div>

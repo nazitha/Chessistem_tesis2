@@ -14,7 +14,10 @@ class UserUpdateRequest extends FormRequest
 
     public function rules(): array
     {
+        $userId = $this->route('id') ?? $this->route('usuario');
+        
         return [
+            'correo' => 'sometimes|email|max:255|unique:usuarios,correo,' . $userId . ',id_email',
             'contrasena' => 'nullable|min:8|max:80|confirmed',
             'rol_id' => 'sometimes|nullable|exists:roles,id',
             'usuario_estado' => 'sometimes|boolean'
@@ -24,6 +27,9 @@ class UserUpdateRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'correo.email' => 'El correo electrónico debe tener un formato válido.',
+            'correo.max' => 'El correo electrónico no puede tener más de 255 caracteres.',
+            'correo.unique' => 'El correo electrónico ya está en uso.',
             'contrasena.min' => 'La contraseña debe tener al menos 8 caracteres.',
             'contrasena.max' => 'La contraseña no puede tener más de 80 caracteres.',
             'contrasena.confirmed' => 'Las contraseñas no coinciden.',

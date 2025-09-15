@@ -16,265 +16,285 @@
             <form action="{{ route('torneos.store') }}" method="POST" id="formCrearTorneo">
                 @csrf
                 <div class="shadow sm:rounded-md sm:overflow-hidden">
-                    <!-- Información del Torneo -->
                     <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
-                        <div class="border-b border-gray-200 pb-4">
-                            <h3 class="text-lg font-medium leading-6 text-gray-900 flex items-center">
-                                <span class="mr-2">🏁</span> Información del Torneo
-                            </h3>
-                        </div>
-
-                        <div class="grid grid-cols-6 gap-6">
-                            <div class="col-span-6 sm:col-span-4">
-                                <label for="nombre_torneo" class="block text-sm font-medium text-gray-700">
-                                    Nombre del Torneo *
-                                </label>
-                                <input type="text" name="nombre_torneo" id="nombre_torneo" 
-                                       class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                                       placeholder="Ejemplo: Torneo Nacional de Ajedrez 2024"
-                                       required>
-                                @error('nombre_torneo')
-                                    <span class="text-red-600 text-xs">{{ $message }}</span>
-                                @enderror
+                        <!-- Información del Torneo -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-light py-2">
+                                <h6 class="mb-0 fw-bold fs-5 flex items-center">
+                                    <span class="mr-2">🏁</span> Información del Torneo
+                                </h6>
                             </div>
+                            <div class="card-body py-3">
+                                <div class="grid grid-cols-6 gap-6">
+                                    <div class="col-span-6 sm:col-span-3">
+                                        <label for="nombre_torneo" class="block text-sm font-medium text-gray-700">
+                                            Nombre del Torneo *
+                                        </label>
+                                        <input type="text" name="nombre_torneo" id="nombre_torneo" 
+                                               class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md py-2"
+                                               placeholder="Ejemplo: Torneo Nacional de Ajedrez 2024"
+                                               required>
+                                        @error('nombre_torneo')
+                                            <span class="text-red-600 text-xs">{{ $message }}</span>
+                                        @enderror
+                                    </div>
 
-                            <div class="col-span-6 sm:col-span-3">
-                                <label for="fecha_inicio" class="block text-sm font-medium text-gray-700 flex items-center">
-                                    <span class="mr-2">📅</span> Fecha de Inicio *
-                                </label>
-                                <input type="date" name="fecha_inicio" id="fecha_inicio" 
-                                       class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                                       required>
-                                @error('fecha_inicio')
-                                    <span class="text-red-600 text-xs">{{ $message }}</span>
-                                @enderror
-                            </div>
+                                    <div class="col-span-6 sm:col-span-3">
+                                        <label for="fecha_inicio" class="block text-sm font-medium text-gray-700 flex items-center">
+                                            <span class="mr-2">📅</span> Fecha de Inicio *
+                                        </label>
+                                        <input type="date" name="fecha_inicio" id="fecha_inicio" 
+                                               class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md py-2"
+                                               required>
+                                        @error('fecha_inicio')
+                                            <span class="text-red-600 text-xs">{{ $message }}</span>
+                                        @enderror
+                                    </div>
 
-                            <div class="col-span-6 sm:col-span-3">
-                                <label for="hora_inicio" class="block text-sm font-medium text-gray-700 flex items-center">
-                                    <span class="mr-2">🕒</span> Hora de Inicio *
-                                </label>
-                                <input type="time" name="hora_inicio" id="hora_inicio" 
-                                       class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                                       required>
-                                @error('hora_inicio')
-                                    <span class="text-red-600 text-xs">{{ $message }}</span>
-                                @enderror
-                            </div>
+                                    <div class="col-span-6 sm:col-span-3">
+                                        <label for="hora_inicio" class="block text-sm font-medium text-gray-700 flex items-center">
+                                            <span class="mr-2">🕒</span> Hora de Inicio *
+                                        </label>
+                                        <input type="time" name="hora_inicio" id="hora_inicio" 
+                                               class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md py-2"
+                                               required>
+                                        @error('hora_inicio')
+                                            <span class="text-red-600 text-xs">{{ $message }}</span>
+                                        @enderror
+                                    </div>
 
-                            <div class="col-span-6">
-                                <label for="lugar" class="block text-sm font-medium text-gray-700 flex items-center">
-                                    <span class="mr-2">📍</span> Lugar *
-                                </label>
-                                <input type="text" name="lugar" id="lugar" 
-                                       class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                                       placeholder="Ejemplo: Biblioteca Nacional, Managua"
-                                       required>
-                                @error('lugar')
-                                    <span class="text-red-600 text-xs">{{ $message }}</span>
-                                @enderror
+                                    <div class="col-span-6 sm:col-span-3">
+                                        <label for="lugar" class="block text-sm font-medium text-gray-700 flex items-center">
+                                            <span class="mr-2">📍</span> Lugar *
+                                        </label>
+                                        <input type="text" name="lugar" id="lugar" 
+                                               class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md py-2"
+                                               placeholder="Ejemplo: Biblioteca Nacional, Managua"
+                                               required>
+                                        @error('lugar')
+                                            <span class="text-red-600 text-xs">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
                         <!-- Equipo Organizador -->
-                        <div class="mt-8 border-b border-gray-200 pb-4">
-                            <h3 class="text-lg font-medium leading-6 text-gray-900 flex items-center">
-                                <span class="mr-2">🧑‍⚖️</span> Equipo Organizador
-                            </h3>
-                        </div>
-
-                        <div class="grid grid-cols-6 gap-6">
-                            <div class="col-span-6 sm:col-span-3">
-                                <label for="organizador_id" class="block text-sm font-medium text-gray-700">Organizador *</label>
-                                <select name="organizador_id" id="organizador_id" 
-                                        class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                        required>
-                                    <option value="">Seleccione un organizador</option>
-                                    @foreach($miembros as $miembro)
-                                        <option value="{{ $miembro->cedula }}">{{ $miembro->nombres }} {{ $miembro->apellidos }}</option>
-                                    @endforeach
-                                </select>
-                                @error('organizador_id')
-                                    <span class="text-red-600 text-xs">{{ $message }}</span>
-                                @enderror
+                        <div class="card mb-4">
+                            <div class="card-header bg-light py-2">
+                                <h6 class="mb-0 fw-bold fs-5 flex items-center">
+                                    <span class="mr-2">🧑‍⚖️</span> Equipo Organizador
+                                </h6>
                             </div>
+                            <div class="card-body py-3">
+                                <div class="grid grid-cols-6 gap-6">
+                                    <div class="col-span-6 sm:col-span-3">
+                                        <label for="organizador_id" class="block text-sm font-medium text-gray-700">Organizador *</label>
+                                        <select name="organizador_id" id="organizador_id" 
+                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                                required>
+                                            <option value="">Seleccione un organizador</option>
+                                            @foreach($miembros as $miembro)
+                                                <option value="{{ $miembro->cedula }}">{{ $miembro->nombres }} {{ $miembro->apellidos }}</option>
+                                            @endforeach
+                                        </select>
+                                        @error('organizador_id')
+                                            <span class="text-red-600 text-xs">{{ $message }}</span>
+                                        @enderror
+                                    </div>
 
-                            <div class="col-span-6 sm:col-span-3">
-                                <label for="director_torneo_id" class="block text-sm font-medium text-gray-700">Director del Torneo *</label>
-                                <select name="director_torneo_id" id="director_torneo_id" 
-                                        class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                        required>
-                                    <option value="">Seleccione un director</option>
-                                    @foreach($miembros as $miembro)
-                                        <option value="{{ $miembro->cedula }}">{{ $miembro->nombres }} {{ $miembro->apellidos }}</option>
-                                    @endforeach
-                                </select>
-                                @error('director_torneo_id')
-                                    <span class="text-red-600 text-xs">{{ $message }}</span>
-                                @enderror
-                            </div>
+                                    <div class="col-span-6 sm:col-span-3">
+                                        <label for="director_torneo_id" class="block text-sm font-medium text-gray-700">Director del Torneo *</label>
+                                        <select name="director_torneo_id" id="director_torneo_id" 
+                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                                required>
+                                            <option value="">Seleccione un director</option>
+                                            @foreach($miembros as $miembro)
+                                                <option value="{{ $miembro->cedula }}">{{ $miembro->nombres }} {{ $miembro->apellidos }}</option>
+                                            @endforeach
+                                        </select>
+                                        @error('director_torneo_id')
+                                            <span class="text-red-600 text-xs">{{ $message }}</span>
+                                        @enderror
+                                    </div>
 
-                            <div class="col-span-6 sm:col-span-3">
-                                <label for="arbitro_principal_id" class="block text-sm font-medium text-gray-700">Árbitro Principal *</label>
-                                <select name="arbitro_principal_id" id="arbitro_principal_id" 
-                                        class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                        required>
-                                    <option value="">Seleccione un árbitro principal</option>
-                                    @foreach($miembros as $miembro)
-                                        <option value="{{ $miembro->cedula }}">{{ $miembro->nombres }} {{ $miembro->apellidos }}</option>
-                                    @endforeach
-                                </select>
-                                @error('arbitro_principal_id')
-                                    <span class="text-red-600 text-xs">{{ $message }}</span>
-                                @enderror
-                            </div>
+                                </div>
 
-                            <div class="col-span-6 sm:col-span-3">
-                                <label for="arbitro_id" class="block text-sm font-medium text-gray-700">Árbitro *</label>
-                                <select name="arbitro_id" id="arbitro_id" 
-                                        class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                        required>
-                                    <option value="">Seleccione un árbitro</option>
-                                    @foreach($miembros as $miembro)
-                                        <option value="{{ $miembro->cedula }}">{{ $miembro->nombres }} {{ $miembro->apellidos }}</option>
-                                    @endforeach
-                                </select>
-                                @error('arbitro_id')
-                                    <span class="text-red-600 text-xs">{{ $message }}</span>
-                                @enderror
-                            </div>
+                                <div class="grid grid-cols-6 gap-6">
+                                    <div class="col-span-6 sm:col-span-3">
+                                        <label for="arbitro_id" class="block text-sm font-medium text-gray-700">Árbitro *</label>
+                                        <select name="arbitro_id" id="arbitro_id" 
+                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                                required>
+                                            <option value="">Seleccione un árbitro</option>
+                                            @foreach($miembros as $miembro)
+                                                <option value="{{ $miembro->cedula }}">{{ $miembro->nombres }} {{ $miembro->apellidos }}</option>
+                                            @endforeach
+                                        </select>
+                                        @error('arbitro_id')
+                                            <span class="text-red-600 text-xs">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                </div>
 
-                            <div class="col-span-6 sm:col-span-3">
-                                <label for="arbitro_adjunto_id" class="block text-sm font-medium text-gray-700">Árbitro Adjunto *</label>
-                                <select name="arbitro_adjunto_id" id="arbitro_adjunto_id" 
-                                        class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                        required>
-                                    <option value="">Seleccione un árbitro adjunto</option>
-                                    @foreach($miembros as $miembro)
-                                        <option value="{{ $miembro->cedula }}">{{ $miembro->nombres }} {{ $miembro->apellidos }}</option>
-                                    @endforeach
-                                </select>
-                                @error('arbitro_adjunto_id')
-                                    <span class="text-red-600 text-xs">{{ $message }}</span>
-                                @enderror
+                                <div class="grid grid-cols-6 gap-6">
+                                    <div class="col-span-6 sm:col-span-3">
+                                        <label for="arbitro_adjunto_id" class="block text-sm font-medium text-gray-700">Árbitro Adjunto *</label>
+                                        <select name="arbitro_adjunto_id" id="arbitro_adjunto_id" 
+                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                                required>
+                                            <option value="">Seleccione un árbitro adjunto</option>
+                                            @foreach($miembros as $miembro)
+                                                <option value="{{ $miembro->cedula }}">{{ $miembro->nombres }} {{ $miembro->apellidos }}</option>
+                                            @endforeach
+                                        </select>
+                                        @error('arbitro_adjunto_id')
+                                            <span class="text-red-600 text-xs">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-6 gap-6">
+                                    <div class="col-span-6 sm:col-span-3">
+                                        <label for="arbitro_principal_id" class="block text-sm font-medium text-gray-700">Árbitro Principal *</label>
+                                        <select name="arbitro_principal_id" id="arbitro_principal_id" 
+                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                                required>
+                                            <option value="">Seleccione un árbitro principal</option>
+                                            @foreach($miembros as $miembro)
+                                                <option value="{{ $miembro->cedula }}">{{ $miembro->nombres }} {{ $miembro->apellidos }}</option>
+                                            @endforeach
+                                        </select>
+                                        @error('arbitro_principal_id')
+                                            <span class="text-red-600 text-xs">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
                         <!-- Detalles Técnicos -->
-                        <div class="mt-8 border-b border-gray-200 pb-4">
-                            <h3 class="text-lg font-medium leading-6 text-gray-900 flex items-center">
-                                <span class="mr-2">📋</span> Detalles Técnicos
-                            </h3>
-                        </div>
-
-                        <div class="grid grid-cols-6 gap-6">
-                            <div class="col-span-6 sm:col-span-3">
-                                <label for="no_rondas" class="block text-sm font-medium text-gray-700 flex items-center">
-                                    <span class="mr-2">🔄</span> Número de Rondas *
-                                    <span class="ml-1 text-gray-500 text-xs">(Mínimo 3, máximo 9)</span>
-                                </label>
-                                <input type="number" name="no_rondas" id="no_rondas" min="3" max="9"
-                                       class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                                       required>
-                                @error('no_rondas')
-                                    <span class="text-red-600 text-xs">{{ $message }}</span>
-                                @enderror
+                        <div class="card mb-4">
+                            <div class="card-header bg-light py-2">
+                                <h6 class="mb-0 fw-bold fs-5 flex items-center">
+                                    <span class="mr-2">📋</span> Detalles Técnicos
+                                </h6>
                             </div>
+                            <div class="card-body py-3">
+                                <div class="grid grid-cols-6 gap-6">
+                                    <div class="col-span-6 sm:col-span-3">
+                                        <label for="no_rondas" class="block text-sm font-medium text-gray-700 flex items-center">
+                                            <span class="mr-2">🔄</span> Número de Rondas *
+                                            <span class="ml-1 text-gray-500 text-xs">(Mínimo 3, máximo 9)</span>
+                                        </label>
+                                        <input type="number" name="no_rondas" id="no_rondas" min="3" max="9"
+                                               class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border border-gray-300 rounded-md py-2"
+                                               style="-moz-appearance: textfield;"
+                                               required>
+                                        @error('no_rondas')
+                                            <span class="text-red-600 text-xs">{{ $message }}</span>
+                                        @enderror
+                                    </div>
 
-                            <div class="col-span-6 sm:col-span-3">
-                                <label for="categoriaTorneo_id" class="block text-sm font-medium text-gray-700 flex items-center">
-                                    <span class="mr-2">🏆</span> Categoría *
-                                </label>
-                                <select name="categoriaTorneo_id" id="categoriaTorneo_id" 
-                                        class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                        required>
-                                    <option value="">Seleccione una categoría</option>
-                                    @foreach($categorias as $categoria)
-                                        <option value="{{ $categoria->id_torneo_categoria }}">{{ $categoria->categoria_torneo }}</option>
-                                    @endforeach
-                                </select>
-                                @error('categoriaTorneo_id')
-                                    <span class="text-red-600 text-xs">{{ $message }}</span>
-                                @enderror
-                            </div>
+                                    <div class="col-span-6 sm:col-span-3">
+                                        <label for="categoriaTorneo_id" class="block text-sm font-medium text-gray-700 flex items-center">
+                                            <span class="mr-2">🏆</span> Categoría *
+                                        </label>
+                                        <select name="categoriaTorneo_id" id="categoriaTorneo_id" 
+                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                                required>
+                                            <option value="">Seleccione una categoría</option>
+                                            @foreach($categorias as $categoria)
+                                                <option value="{{ $categoria->id_torneo_categoria }}">{{ $categoria->categoria_torneo }}</option>
+                                            @endforeach
+                                        </select>
+                                        @error('categoriaTorneo_id')
+                                            <span class="text-red-600 text-xs">{{ $message }}</span>
+                                        @enderror
+                                    </div>
 
-                            <div class="col-span-6 sm:col-span-3">
-                                <label for="sistema_emparejamiento_id" class="block text-sm font-medium text-gray-700 flex items-center">
-                                    <span class="mr-2">🧭</span> Sistema de Emparejamiento *
-                                </label>
-                                <select name="sistema_emparejamiento_id" id="sistema_emparejamiento_id" 
-                                        class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                        required>
-                                    <option value="">Seleccione un sistema</option>
-                                    @foreach($emparejamientos as $sistema)
-                                        <option value="{{ $sistema->id_emparejamiento }}">{{ $sistema->sistema }}</option>
-                                    @endforeach
-                                </select>
-                                @error('sistema_emparejamiento_id')
-                                    <span class="text-red-600 text-xs">{{ $message }}</span>
-                                @enderror
-                            </div>
+                                    <div class="col-span-6 sm:col-span-3">
+                                        <label for="sistema_emparejamiento_id" class="block text-sm font-medium text-gray-700 flex items-center">
+                                            <span class="mr-2">🧭</span> Sistema de Emparejamiento *
+                                        </label>
+                                        <select name="sistema_emparejamiento_id" id="sistema_emparejamiento_id" 
+                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                                required>
+                                            <option value="">Seleccione un sistema</option>
+                                            @foreach($emparejamientos as $sistema)
+                                                <option value="{{ $sistema->id_emparejamiento }}">{{ $sistema->sistema }}</option>
+                                            @endforeach
+                                        </select>
+                                        @error('sistema_emparejamiento_id')
+                                            <span class="text-red-600 text-xs">{{ $message }}</span>
+                                        @enderror
+                                    </div>
 
-                            <div class="col-span-6 sm:col-span-3">
-                                <label for="control_tiempo_id" class="block text-sm font-medium text-gray-700 flex items-center">
-                                    <span class="mr-2">⏱️</span> Control de Tiempo *
-                                </label>
-                                <select name="control_tiempo_id" id="control_tiempo_id" 
-                                        class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                        required>
-                                    <option value="">Seleccione un control de tiempo</option>
-                                    @foreach($controlesTiempo as $control)
-                                        <option value="{{ $control->id_control_tiempo }}">{{ $control->formato }} ({{ $control->control_tiempo }})</option>
-                                    @endforeach
-                                </select>
-                                @error('control_tiempo_id')
-                                    <span class="text-red-600 text-xs">{{ $message }}</span>
-                                @enderror
-                            </div>
-                            <div class="col-span-6 sm:col-span-3">
-                                <label for="es_por_equipos" class="block text-sm font-medium text-gray-700 flex items-center">
-                                    <span class="mr-2">👥</span> ¿Torneo por equipos?
-                                </label>
-                                <select name="es_por_equipos" id="es_por_equipos"
-                                        class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                        required>
-                                    <option value="0" selected>Individual</option>
-                                    <option value="1">Por equipos</option>
-                                </select>
-                                @error('es_por_equipos')
-                                    <span class="text-red-600 text-xs">{{ $message }}</span>
-                                @enderror
+                                    <div class="col-span-6 sm:col-span-3">
+                                        <label for="control_tiempo_id" class="block text-sm font-medium text-gray-700 flex items-center">
+                                            <span class="mr-2">⏱️</span> Control de Tiempo *
+                                        </label>
+                                        <select name="control_tiempo_id" id="control_tiempo_id" 
+                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                                required>
+                                            <option value="">Seleccione un control de tiempo</option>
+                                            @foreach($controlesTiempo as $control)
+                                                <option value="{{ $control->id_control_tiempo }}">{{ $control->formato }} ({{ $control->control_tiempo }})</option>
+                                            @endforeach
+                                        </select>
+                                        @error('control_tiempo_id')
+                                            <span class="text-red-600 text-xs">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                    <div class="col-span-6 sm:col-span-3">
+                                        <label for="es_por_equipos" class="block text-sm font-medium text-gray-700 flex items-center">
+                                            <span class="mr-2">👥</span> ¿Torneo por equipos?
+                                        </label>
+                                        <select name="es_por_equipos" id="es_por_equipos"
+                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                                required>
+                                            <option value="0" selected>Individual</option>
+                                            <option value="1">Por equipos</option>
+                                        </select>
+                                        @error('es_por_equipos')
+                                            <span class="text-red-600 text-xs">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
                         <!-- Criterios de Desempate -->
-                        <div class="mt-8 border-b border-gray-200 pb-4">
-                            <h3 class="text-lg font-medium leading-6 text-gray-900 flex items-center">
-                                <span class="mr-2">🏆</span> Criterios de Desempate
-                                <button type="button" class="ml-2 text-gray-400 hover:text-gray-500" 
-                                        data-tooltip-target="criterios-info">
-                                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-                                    </svg>
-                                </button>
-                            </h3>
-                        </div>
-
-                        <div class="space-y-4">
-                            <div class="flex items-center">
-                                <input type="checkbox" name="usar_buchholz" id="usar_buchholz" value="1"
-                                       class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
-                                <label for="usar_buchholz" class="ml-2 block text-sm text-gray-700">Buchholz</label>
+                        <div class="card mb-4">
+                            <div class="card-header bg-light py-2">
+                                <h6 class="mb-0 fw-bold fs-5 flex items-center">
+                                    <span class="mr-2">🏆</span> Criterios de Desempate
+                                    <button type="button" class="ml-2 text-gray-400 hover:text-gray-500" 
+                                            data-tooltip-target="criterios-info">
+                                        <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </button>
+                                </h6>
                             </div>
-                            <div class="flex items-center">
-                                <input type="checkbox" name="usar_sonneborn_berger" id="usar_sonneborn_berger" value="1"
-                                       class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
-                                <label for="usar_sonneborn_berger" class="ml-2 block text-sm text-gray-700">Sonneborn-Berger</label>
-                            </div>
-                            <div class="flex items-center">
-                                <input type="checkbox" name="usar_desempate_progresivo" id="usar_desempate_progresivo" value="1"
-                                       class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
-                                <label for="usar_desempate_progresivo" class="ml-2 block text-sm text-gray-700">Progresivo</label>
+                            <div class="card-body py-3">
+                                <div class="space-y-4">
+                                    <div class="flex items-center">
+                                        <input type="checkbox" name="usar_buchholz" id="usar_buchholz" value="1"
+                                               class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
+                                        <label for="usar_buchholz" class="ml-2 block text-sm text-gray-700">Buchholz</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="checkbox" name="usar_sonneborn_berger" id="usar_sonneborn_berger" value="1"
+                                               class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
+                                        <label for="usar_sonneborn_berger" class="ml-2 block text-sm text-gray-700">Sonneborn-Berger</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="checkbox" name="usar_desempate_progresivo" id="usar_desempate_progresivo" value="1"
+                                               class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
+                                        <label for="usar_desempate_progresivo" class="ml-2 block text-sm text-gray-700">Progresivo</label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -377,6 +397,41 @@
     word-wrap: break-word;
     opacity: 0;
 }
+
+/* Ocultar botones de incremento/decremento en inputs number */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+/* Definir bordes más claros para inputs */
+input[type="text"], 
+input[type="date"], 
+input[type="time"], 
+input[type="number"] {
+    border: 1px solid #d1d5db !important;
+    border-radius: 0.375rem;
+    padding-left: 12px !important;
+}
+
+/* Altura específica para número de rondas - igual que los selects */
+input#no_rondas {
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+}
+
+input[type="text"]:focus, 
+input[type="date"]:focus, 
+input[type="time"]:focus, 
+input[type="number"]:focus {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
 </style>
 @endpush
 
@@ -409,6 +464,56 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    // Validación específica para número de rondas
+    const noRondasInput = document.getElementById('no_rondas');
+    if (noRondasInput) {
+        noRondasInput.addEventListener('input', function() {
+            let value = this.value;
+            
+            // Solo permitir números
+            value = value.replace(/[^0-9]/g, '');
+            
+            // Limitar a un solo dígito (3-9)
+            if (value.length > 1) {
+                value = value.slice(0, 1);
+            }
+            
+            // Validar rango
+            if (value && (parseInt(value) < 3 || parseInt(value) > 9)) {
+                value = '';
+            }
+            
+            this.value = value;
+        });
+
+        // Prevenir entrada de caracteres no numéricos
+        noRondasInput.addEventListener('keydown', function(e) {
+            // Permitir teclas de control (backspace, delete, tab, escape, enter)
+            if ([8, 9, 27, 13, 46].indexOf(e.keyCode) !== -1 ||
+                // Permitir Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+                (e.keyCode === 65 && e.ctrlKey === true) ||
+                (e.keyCode === 67 && e.ctrlKey === true) ||
+                (e.keyCode === 86 && e.ctrlKey === true) ||
+                (e.keyCode === 88 && e.ctrlKey === true)) {
+                return;
+            }
+            // Asegurar que es un número y está en el rango 3-9
+            if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                e.preventDefault();
+            }
+        });
+
+        // Prevenir pegado de texto no numérico
+        noRondasInput.addEventListener('paste', function(e) {
+            e.preventDefault();
+            const paste = (e.clipboardData || window.clipboardData).getData('text');
+            const numericValue = paste.replace(/[^0-9]/g, '');
+            if (numericValue && parseInt(numericValue) >= 3 && parseInt(numericValue) <= 9) {
+                this.value = numericValue;
+            }
+        });
+    }
 
     // Vista previa mejorada
     document.getElementById('btnVistaPrevia').addEventListener('click', function() {

@@ -34,12 +34,20 @@ class LoginController extends Controller
             'estado' => $user ? ($user->usuario_estado ? 'activo' : 'inactivo') : 'N/A'
         ]);
 
-        // Verificar si el usuario existe y está activo
-        if (!$user || !$user->usuario_estado) {
-            Log::info('LoginController@login - Autenticación fallida: usuario no existe o inactivo');
+        // Verificar si el usuario existe
+        if (!$user) {
+            Log::info('LoginController@login - Autenticación fallida: correo no registrado');
             return back()->withErrors([
-                'correo' => 'Credenciales incorrectas o usuario inactivo.',
-            ]);
+                'correo' => 'El correo electrónico no está registrado en el sistema.'
+            ])->withInput($request->only('correo'));
+        }
+
+        // Verificar si el usuario está activo
+        if (!$user->usuario_estado) {
+            Log::info('LoginController@login - Autenticación fallida: usuario inactivo');
+            return back()->withErrors([
+                'correo' => 'Su cuenta se encuentra deshabilitada.'
+            ])->withInput($request->only('correo'));
         }
         
         // Verificar la contraseña usando Hash::check
@@ -53,8 +61,8 @@ class LoginController extends Controller
 
         Log::info('LoginController@login - Autenticación fallida: contraseña incorrecta');
         return back()->withErrors([
-            'correo' => 'Credenciales incorrectas.',
-        ]);
+            'contrasena' => 'La contraseña proporcionada no es correcta.'
+        ])->withInput($request->only('correo'));
     }
 
     protected function authenticated(Request $request, $user) {

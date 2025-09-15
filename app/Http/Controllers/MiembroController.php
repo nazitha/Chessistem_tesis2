@@ -50,12 +50,12 @@ class MiembroController extends Controller
                 $data = $this->prepareData($request);
                 $miembro = Miembro::create($data);
                 
-                $this->logAuditoria(
+                $datosFormateados = $this->formatearDatosMiembro($data);
+                $this->crearAuditoria(
                     Auth::user()->correo,
-                    'Miembros',
-                    'Inserción',
+                    'Creación',
                     null,
-                    $data 
+                    json_encode($datosFormateados)
                 );
 
                 return redirect()->route('miembros.show', $miembro)
@@ -74,12 +74,14 @@ class MiembroController extends Controller
         return \DB::transaction(function () use ($request, $miembro) {
             $originalData = $miembro->getOriginal();
             $miembro->update($this->prepareData($request));
-            $this->logAuditoria(
+            $datosAnteriores = $this->formatearDatosMiembro($originalData);
+            $datosNuevos = $this->formatearDatosMiembro($miembro->toArray());
+            
+            $this->crearAuditoria(
                 $request->mail_log ?? (auth()->user() ? auth()->user()->correo : 'sistema'),
-                'Miembros',
-                'Modificación',
-                $originalData,
-                $miembro->getChanges()
+                'Edición',
+                json_encode($datosAnteriores),
+                json_encode($datosNuevos)
             );
             return redirect()->route('miembros.show', $miembro)
                 ->with('success', '¡Miembro actualizado exitosamente!');
@@ -99,11 +101,11 @@ class MiembroController extends Controller
                 
                 $miembro->delete();
                 
-                $this->logAuditoria(
+                $datosFormateados = $this->formatearDatosMiembro($originalData);
+                $this->crearAuditoria(
                     Auth::user()->correo,
-                    'Miembros',
                     'Eliminación',
-                    $originalData,
+                    json_encode($datosFormateados),
                     null
                 );
             });
@@ -155,14 +157,17 @@ class MiembroController extends Controller
          * @var \Illuminate\Support\Facades\Auth $auth
          * @method \App\Models\User|null user()
          */
+        // Usar la zona horaria de Guatemala
+        $fechaHora = now()->setTimezone('America/Guatemala');
+        
         Auditoria::create([
             'correo_id' => $correo,
             'tabla_afectada' => $tabla,
             'accion' => $accion,
             'valor_previo' => $this->formatAuditData($previo),
             'valor_posterior' => $this->formatAuditData($posterior),
-            'fecha' => now()->toDateString(),
-            'hora' => now()->toTimeString(),
+            'fecha' => $fechaHora->toDateString(),
+            'hora' => $fechaHora->toTimeString(),
             'equipo' => request()->ip()
         ]);
     }
@@ -184,5 +189,63 @@ class MiembroController extends Controller
                 default => $value
             };
         })->toJson();
+    }
+
+    private function formatearDatosMiembro($datos)
+    {
+        // Obtener nombre de la academia si existe
+        $academiaNombre = '';
+        if (isset($datos['academia_id']) && $datos['academia_id']) {
+            $academia = \App\Models\Academia::find($datos['academia_id']);
+            $academiaNombre = $academia ? $academia->nombre_academia : 'Sin academia';
+        }
+        
+        // Solo los campos que se muestran en la tabla de miembros
+        return [
+            'cedula' => $datos['cedula'] ?? '',
+            'nombres' => $datos['nombres'] ?? '',
+            'apellidos' => $datos['apellidos'] ?? '',
+            'sexo' => $datos['sexo'] ?? '',
+            'fecha_nacimiento' => $datos['fecha_nacimiento'] ?? '',
+            'fecha_inscripcion' => $datos['fecha_inscripcion'] ?? '',
+            'estado' => isset($datos['estado_miembro']) ? ($datos['estado_miembro'] ? 'Activo' : 'Inactivo') : '',
+            'academia' => $academiaNombre,
+            'elo' => $datos['elo'] ?? '',
+            'correo' => $datos['correo'] ?? ''
+        ];
+    }
+
+    private function crearAuditoria($correo, $accion, $previo, $posterior = null)
+    {
+        // Usar la zona horaria de Guatemala
+        $fechaHora = now()->setTimezone('America/Guatemala');
+        
+        Auditoria::create([
+            'correo_id' => $correo,
+            'tabla_afectada' => 'Miembros',
+            'accion' => $accion,
+            'valor_previo' => $previo,
+            'valor_posterior' => $posterior ?? '-',
+            'fecha' => $fechaHora->toDateString(),
+            'hora' => $fechaHora->toTimeString(),
+            'equipo' => request()->ip()
+        ]);
+    }
+
+    public function exportMiembros()
+    {
+        // Solo registrar auditoría
+        Auditoria::create([
+            'correo_id' => Auth::user()->correo,
+            'tabla_afectada' => 'Miembros',
+            'accion' => 'Exportación',
+            'valor_previo' => null,
+            'valor_posterior' => 'Registros exportados en documento .csv',
+            'fecha' => now()->toDateString(),
+            'hora' => now()->toTimeString(),
+            'equipo' => request()->ip()
+        ]);
+
+        return response()->json(['success' => true]);
     }
 }

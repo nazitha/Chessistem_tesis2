@@ -25,66 +25,129 @@
         <form id="form-editar-miembro" method="POST" action="{{ route('miembros.update', $miembro) }}">
             @csrf
             @method('PUT')
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label class="block font-semibold mb-1">Cédula</label>
-                    <input type="text" name="cedula" value="{{ old('cedula', $miembro->cedula) }}" class="form-input w-full rounded border-gray-300" required readonly>
+            
+            <!-- Card Datos Personales -->
+            <div class="card mb-4">
+                <div class="card-header bg-light py-2">
+                    <h6 class="mb-0 fw-bold fs-5 d-flex align-items-center">
+                        <svg class="w-5 h-5 me-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                        </svg>
+                        Datos Personales
+                    </h6>
                 </div>
-                <div>
-                    <label class="block font-semibold mb-1">Nombres</label>
-                    <input type="text" name="nombres" value="{{ old('nombres', $miembro->nombres) }}" class="form-input w-full rounded border-gray-300" required>
+                <div class="card-body py-3">
+                    <!-- Cédula -->
+                    <div class="mb-2">
+                        <label for="cedula" class="form-label fw-bold fs-6">Cédula</label>
+                        <input type="text" name="cedula" id="cedula" value="{{ old('cedula', $miembro->cedula) }}" 
+                               class="form-control form-control-sm fs-6 bg-white" required readonly>
+                    </div>
+
+                    <!-- Nombres y Apellidos -->
+                    <div class="row g-2">
+                        <!-- Nombres -->
+                        <div class="col-md-6">
+                            <label for="nombres" class="form-label fw-bold fs-6">Nombres</label>
+                            <input type="text" name="nombres" id="nombres" value="{{ old('nombres', $miembro->nombres) }}" 
+                                   class="form-control form-control-sm fs-6 bg-white" required>
+                        </div>
+
+                        <!-- Apellidos -->
+                        <div class="col-md-6">
+                            <label for="apellidos" class="form-label fw-bold fs-6">Apellidos</label>
+                            <input type="text" name="apellidos" id="apellidos" value="{{ old('apellidos', $miembro->apellidos) }}" 
+                                   class="form-control form-control-sm fs-6 bg-white" required>
+                        </div>
+                    </div>
+
+                    <!-- Sexo -->
+                    <div class="mt-2">
+                        <label for="sexo" class="form-label fw-bold fs-6">Sexo</label>
+                        <select name="sexo" id="sexo" class="form-select form-select-sm fs-6 bg-white" required>
+                            <option value="M" @if(old('sexo', $miembro->sexo) == 'M') selected @endif>Masculino</option>
+                            <option value="F" @if(old('sexo', $miembro->sexo) == 'F') selected @endif>Femenino</option>
+                        </select>
+                    </div>
+
+                    <!-- Fecha de nacimiento -->
+                    <div class="mt-2">
+                        <label for="fecha_nacimiento" class="form-label fw-bold fs-6">Fecha de nacimiento</label>
+                        <input type="date" name="fecha_nacimiento" id="fecha_nacimiento" 
+                               value="{{ old('fecha_nacimiento', $miembro->fecha_nacimiento ? \Carbon\Carbon::parse($miembro->fecha_nacimiento)->format('Y-m-d') : '') }}" 
+                               class="form-control form-control-sm fs-6 bg-white" required>
+                    </div>
+
+                    <!-- Estado -->
+                    <div class="mt-2">
+                        <div class="d-flex align-items-center space-x-3">
+                            <label class="form-label fw-bold fs-6 mb-0">Estado</label>
+                            <input type="checkbox" name="estado_miembro" value="1" 
+                                   {{ old('estado_miembro', $miembro->estado_miembro) == '1' ? 'checked' : '' }}
+                                   class="hidden" id="switch_miembro">
+                            <button type="button" id="switch_button_miembro" class="relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 {{ old('estado_miembro', $miembro->estado_miembro) == '1' ? 'bg-green-500' : 'bg-red-500' }}" aria-pressed="true">
+                                <span class="sr-only">Estado del miembro</span>
+                                <span id="switch_thumb_miembro" class="inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow-sm transition-transform duration-200 {{ old('estado_miembro', $miembro->estado_miembro) == '1' ? 'translate-x-4' : 'translate-x-0' }}"></span>
+                            </button>
+                            <span id="switchLabel_miembro" class="text-sm font-medium {{ old('estado_miembro', $miembro->estado_miembro) == '1' ? 'text-green-600' : 'text-red-600' }}">{{ old('estado_miembro', $miembro->estado_miembro) == '1' ? 'Activo' : 'Inactivo' }}</span>
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <label class="block font-semibold mb-1">Apellidos</label>
-                    <input type="text" name="apellidos" value="{{ old('apellidos', $miembro->apellidos) }}" class="form-input w-full rounded border-gray-300" required>
+            </div>
+
+            <!-- Card Datos Académicos -->
+            <div class="card mb-4">
+                <div class="card-header bg-light py-2">
+                    <h6 class="mb-0 fw-bold fs-5 d-flex align-items-center">
+                        <svg class="w-5 h-5 me-2 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/>
+                        </svg>
+                        Datos Académicos
+                    </h6>
                 </div>
-                <div>
-                    <label class="block font-semibold mb-1">Sexo</label>
-                    <select name="sexo" class="form-input w-full rounded border-gray-300" required>
-                        <option value="M" @if(old('sexo', $miembro->sexo) == 'M') selected @endif>Masculino</option>
-                        <option value="F" @if(old('sexo', $miembro->sexo) == 'F') selected @endif>Femenino</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block font-semibold mb-1">Fecha de nacimiento</label>
-                    <input type="date" name="fecha_nacimiento" value="{{ old('fecha_nacimiento', $miembro->fecha_nacimiento ? \Carbon\Carbon::parse($miembro->fecha_nacimiento)->format('Y-m-d') : '') }}" class="form-input w-full rounded border-gray-300" required>
-                </div>
-                <div>
-                    <label class="block font-semibold mb-1">Fecha de inscripción</label>
-                    <input type="date" name="fecha_inscripcion" value="{{ old('fecha_inscripcion', $miembro->fecha_inscripcion ? \Carbon\Carbon::parse($miembro->fecha_inscripcion)->format('Y-m-d') : '') }}" class="form-input w-full rounded border-gray-300" required>
-                </div>
-                <div>
-                    <label class="block font-semibold mb-1">Estado</label>
-                    <select name="estado_miembro" class="form-input w-full rounded border-gray-300" required>
-                        <option value="1" @if(old('estado_miembro', $miembro->estado_miembro)) selected @endif>Activo</option>
-                        <option value="0" @if(!old('estado_miembro', $miembro->estado_miembro)) selected @endif>Inactivo</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block font-semibold mb-1">Academia</label>
-                    <select name="academia_id" class="form-input w-full rounded border-gray-300" required>
-                        <option value="">-</option>
-                        @foreach($academias as $academia)
-                            <option value="{{ $academia->id_academia }}" @if(old('academia_id', $miembro->academia_id) == $academia->id_academia) selected @endif>{{ $academia->nombre_academia }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div>
-                    <label class="block font-semibold mb-1">ELO</label>
-                    <input type="number" name="elo" value="{{ old('elo', $miembro->elo) }}" 
-                           class="form-input w-full rounded border-gray-300" 
-                           placeholder="Ej: 1500" min="0" max="3000">
-                </div>
-                <div>
-                    <label class="block font-semibold mb-1">Correo</label>
-                    <select name="correo_sistema_id" class="form-input w-full rounded border-gray-300">
-                        <option value="">Sin correo asignado</option>
-                        @foreach(App\Models\User::active()->get() as $user)
-                            <option value="{{ $user->correo }}" @if(old('correo_sistema_id', $miembro->correo_sistema_id) == $user->correo) selected @endif>
-                                {{ $user->correo }}
-                            </option>
-                        @endforeach
-                    </select>
+                <div class="card-body py-3">
+                    <div class="row g-2">
+                        <!-- Academia -->
+                        <div class="col-md-6">
+                            <label for="academia_id" class="form-label fw-bold fs-6">Academia</label>
+                            <select name="academia_id" id="academia_id" class="form-select form-select-sm fs-6 bg-white" required>
+                                <option value="">-</option>
+                                @foreach($academias as $academia)
+                                    <option value="{{ $academia->id_academia }}" @if(old('academia_id', $miembro->academia_id) == $academia->id_academia) selected @endif>{{ $academia->nombre_academia }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- Fecha de inscripción -->
+                        <div class="col-md-6">
+                            <label for="fecha_inscripcion" class="form-label fw-bold fs-6">Fecha de inscripción</label>
+                            <input type="date" name="fecha_inscripcion" id="fecha_inscripcion" 
+                                   value="{{ old('fecha_inscripcion', $miembro->fecha_inscripcion ? \Carbon\Carbon::parse($miembro->fecha_inscripcion)->format('Y-m-d') : '') }}" 
+                                   class="form-control form-control-sm fs-6 bg-white" required>
+                        </div>
+                    </div>
+
+                    <!-- ELO -->
+                    <div class="mt-2">
+                        <label for="elo" class="form-label fw-bold fs-6">ELO</label>
+                        <input type="text" name="elo" id="elo" value="{{ old('elo', $miembro->elo) }}" 
+                               class="form-control form-control-sm fs-6 bg-white" 
+                               placeholder="Ej: 1500" maxlength="4">
+                    </div>
+
+                    <!-- Correo -->
+                    <div class="mt-2">
+                        <label for="correo_sistema_id" class="form-label fw-bold fs-6">Correo del sistema</label>
+                        <select name="correo_sistema_id" id="correo_sistema_id" class="form-select form-select-sm fs-6 bg-white">
+                            <option value="">Sin correo asignado</option>
+                            @foreach(App\Models\User::active()->get() as $user)
+                                <option value="{{ $user->correo }}" @if(old('correo_sistema_id', $miembro->correo_sistema_id) == $user->correo) selected @endif>
+                                    {{ $user->correo }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
             </div>
             <div class="mt-8 flex justify-end">
@@ -94,4 +157,71 @@
         </form>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Funcionalidad del switch de estado (igual que usuarios)
+    const switchButton = document.getElementById('switch_button_miembro');
+    const hiddenCheckbox = document.getElementById('switch_miembro');
+    
+    switchButton.addEventListener('click', function() {
+        const isActive = hiddenCheckbox.checked;
+        hiddenCheckbox.checked = !isActive;
+        
+        if (hiddenCheckbox.checked) {
+            // Estado Activo
+            switchButton.classList.remove('bg-red-500');
+            switchButton.classList.add('bg-green-500');
+            document.getElementById('switch_thumb_miembro').classList.remove('translate-x-0');
+            document.getElementById('switch_thumb_miembro').classList.add('translate-x-4');
+            document.getElementById('switchLabel_miembro').textContent = 'Activo';
+            document.getElementById('switchLabel_miembro').classList.remove('text-red-600');
+            document.getElementById('switchLabel_miembro').classList.add('text-green-600');
+        } else {
+            // Estado Inactivo
+            switchButton.classList.remove('bg-green-500');
+            switchButton.classList.add('bg-red-500');
+            document.getElementById('switch_thumb_miembro').classList.remove('translate-x-4');
+            document.getElementById('switch_thumb_miembro').classList.add('translate-x-0');
+            document.getElementById('switchLabel_miembro').textContent = 'Inactivo';
+            document.getElementById('switchLabel_miembro').classList.remove('text-green-600');
+            document.getElementById('switchLabel_miembro').classList.add('text-red-600');
+        }
+    });
+    
+    // Validación del input ELO - solo números enteros
+    const eloInput = document.getElementById('elo');
+    
+    eloInput.addEventListener('input', function(e) {
+        // Remover cualquier carácter que no sea número
+        let value = e.target.value.replace(/[^0-9]/g, '');
+        
+        // Limitar a 4 dígitos máximo
+        if (value.length > 4) {
+            value = value.substring(0, 4);
+        }
+        
+        // Actualizar el valor del input
+        e.target.value = value;
+    });
+    
+    // Prevenir pegar texto que contenga caracteres no numéricos
+    eloInput.addEventListener('paste', function(e) {
+        e.preventDefault();
+        const paste = (e.clipboardData || window.clipboardData).getData('text');
+        const numbersOnly = paste.replace(/[^0-9]/g, '').substring(0, 4);
+        e.target.value = numbersOnly;
+    });
+    
+    // Prevenir teclas que no sean números, backspace, delete, tab, escape, enter
+    eloInput.addEventListener('keydown', function(e) {
+        const allowedKeys = [8, 9, 27, 13, 46]; // backspace, tab, escape, enter, delete
+        const isNumber = (e.keyCode >= 48 && e.keyCode <= 57) || (e.keyCode >= 96 && e.keyCode <= 105);
+        
+        if (!allowedKeys.includes(e.keyCode) && !isNumber) {
+            e.preventDefault();
+        }
+    });
+});
+</script>
 @endsection 

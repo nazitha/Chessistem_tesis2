@@ -175,7 +175,14 @@
                                             </td>
                                             <td class="px-2 py-1 text-center font-bold">
                                                 @if(!$ronda->completada)
-                                                    <input type="text" name="resultados[{{ $partida->id }}]" class="rounded border-gray-300 text-sm w-12 text-center" placeholder="1-0/0-1/½" value="" autocomplete="off">
+                                                    <input type="text" 
+                                                           name="resultados[{{ $partida->id }}]" 
+                                                           class="resultado-input rounded border-gray-300 text-sm w-16 text-center" 
+                                                           placeholder="1-0" 
+                                                           value="" 
+                                                           autocomplete="off"
+                                                           maxlength="6"
+                                                           data-partida-id="{{ $partida->id }}">
                                                 @else
                                                     @if($partida->resultado === null)
                                                         *
@@ -288,7 +295,7 @@
                                         @if($torneo->tipo_torneo === 'Eliminación Directa')
                                             @if(!$ronda->completada)
                                                 @if($partida->jugadorNegras)
-                                                    <input type="text" name="resultados[{{ $partida->id }}]" class="rounded border-gray-300 text-sm w-12 text-center" placeholder="1-0/0-1" value="{{ $partida->getResultadoTexto() !== '*' ? $partida->getResultadoTexto() : '' }}" autocomplete="off">
+                                                    <input type="text" name="resultados[{{ $partida->id }}]" class="resultado-input rounded border-gray-300 text-sm w-16 text-center" placeholder="1-0" value="{{ $partida->getResultadoTexto() !== '*' ? $partida->getResultadoTexto() : '' }}" autocomplete="off" maxlength="6" data-partida-id="{{ $partida->id }}">
                                                 @else
                                                     BYE
                                                 @endif
@@ -306,7 +313,7 @@
                                         @else
                                             @if(!$ronda->completada)
                                                 @if($partida->jugadorNegras)
-                                                    <input type="text" name="resultados[{{ $partida->id }}]" class="rounded border-gray-300 text-sm w-12 text-center" placeholder="1-0/0-1/½" value="{{ $partida->getResultadoTexto() !== '*' ? $partida->getResultadoTexto() : '' }}" autocomplete="off">
+                                                    <input type="text" name="resultados[{{ $partida->id }}]" class="resultado-input rounded border-gray-300 text-sm w-16 text-center" placeholder="1-0" value="{{ $partida->getResultadoTexto() !== '*' ? $partida->getResultadoTexto() : '' }}" autocomplete="off" maxlength="6" data-partida-id="{{ $partida->id }}">
                                                 @else
                                                     BYE
                                                 @endif
@@ -403,4 +410,139 @@
     @endif
 
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Máscara para campos de resultado
+    const resultadoInputs = document.querySelectorAll('.resultado-input');
+    
+    resultadoInputs.forEach(input => {
+        // Manejar entrada de texto
+        input.addEventListener('input', function(e) {
+            let value = e.target.value;
+            
+            // Remover caracteres no válidos (solo números, punto y guion)
+            value = value.replace(/[^0-9.-]/g, '');
+            
+            // Procesar la lógica de autocompletado
+            value = processResultadoInput(value);
+            
+            e.target.value = value;
+        });
+        
+        // Manejar evento de borrado específicamente
+        input.addEventListener('keydown', function(e) {
+            if (e.keyCode === 8 || e.keyCode === 46) { // Backspace o Delete
+                // Limpiar completamente el input
+                e.target.value = '';
+                e.preventDefault();
+            }
+        });
+        
+        // Manejar teclas especiales - SIMPLIFICADO
+        input.addEventListener('keydown', function(e) {
+            // Si es backspace o delete, dejar que el evento anterior lo maneje
+            if (e.keyCode === 8 || e.keyCode === 46) {
+                return;
+            }
+            
+            // Permitir TODAS las teclas de control y navegación
+            if (e.keyCode === 9 ||  // Tab
+                e.keyCode === 27 || // Escape
+                e.keyCode === 37 || // Left arrow
+                e.keyCode === 38 || // Up arrow
+                e.keyCode === 39 || // Right arrow
+                e.keyCode === 40 || // Down arrow
+                e.keyCode === 35 || // End
+                e.keyCode === 36 || // Home
+                e.keyCode === 16 || // Shift
+                e.keyCode === 17 || // Ctrl
+                e.keyCode === 18 || // Alt
+                (e.keyCode === 65 && e.ctrlKey) || // Ctrl+A
+                (e.keyCode === 67 && e.ctrlKey) || // Ctrl+C
+                (e.keyCode === 86 && e.ctrlKey) || // Ctrl+V
+                (e.keyCode === 88 && e.ctrlKey) || // Ctrl+X
+                (e.keyCode === 90 && e.ctrlKey)) { // Ctrl+Z
+                return;
+            }
+            
+            // Permitir números, punto y guion
+            if ((e.keyCode >= 48 && e.keyCode <= 57) || // números 0-9
+                (e.keyCode >= 96 && e.keyCode <= 105) || // números del teclado numérico
+                e.keyCode === 190 || // punto decimal
+                e.keyCode === 189 || // guion
+                e.keyCode === 109) { // guion del teclado numérico
+                return;
+            }
+            
+            // Bloquear todo lo demás
+            e.preventDefault();
+        });
+        
+        // Manejar pegado
+        input.addEventListener('paste', function(e) {
+            e.preventDefault();
+            let paste = (e.clipboardData || window.clipboardData).getData('text');
+            
+            // Limpiar y procesar texto pegado
+            paste = paste.replace(/[^0-9.-]/g, '');
+            paste = processResultadoInput(paste);
+            
+            e.target.value = paste;
+        });
+    });
+    
+    function processResultadoInput(value) {
+        // Si está vacío, retornar vacío
+        if (!value) return '';
+        
+        // Solo autocompletar cuando sea un número completo válido
+        if (value === '1') return '1-0';
+        if (value === '0.5') return '0.5-0.5';
+        
+        // NO autocompletar solo '0' porque puede venir '0.5'
+        
+        // Si contiene guion, procesar ambos lados
+        if (value.includes('-')) {
+            const parts = value.split('-');
+            if (parts.length === 2) {
+                let left = parts[0].trim();
+                let right = parts[1].trim();
+                
+                // Validar que ambos sean números válidos
+                const validNumbers = ['0', '0.5', '1'];
+                
+                if (validNumbers.includes(left) && validNumbers.includes(right)) {
+                    return `${left}-${right}`;
+                }
+                
+                // Si solo el lado izquierdo es válido, autocompletar el derecho
+                if (validNumbers.includes(left)) {
+                    if (left === '1') return '1-0';
+                    if (left === '0') return '0-1';
+                    if (left === '0.5') return '0.5-0.5';
+                }
+                
+                // Si solo el lado derecho es válido, autocompletar el izquierdo
+                if (validNumbers.includes(right)) {
+                    if (right === '1') return '0-1';
+                    if (right === '0') return '1-0';
+                    if (right === '0.5') return '0.5-0.5';
+                }
+            }
+        }
+        
+        // Permitir escribir parcialmente (no autocompletar hasta que sea completo)
+        // Solo validar que contenga caracteres válidos
+        const validChars = /^[0-9.-]*$/;
+        if (validChars.test(value)) {
+            return value;
+        }
+        
+        // Si no es válido, retornar vacío
+        return '';
+    }
+});
+</script>
+
 @endsection 

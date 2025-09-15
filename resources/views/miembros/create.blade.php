@@ -26,83 +26,130 @@
 
         <form method="POST" action="{{ route('miembros.store') }}" class="space-y-6">
             @csrf
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label class="block font-semibold mb-1">Cédula *</label>
-                    <input type="text" name="cedula" value="{{ old('cedula') }}" 
-                           class="form-input w-full rounded border-gray-300" required>
+            
+            <!-- Card Datos Personales -->
+            <div class="card mb-4">
+                <div class="card-header bg-light py-2">
+                    <h6 class="mb-0 fw-bold fs-5 d-flex align-items-center">
+                        <svg class="w-5 h-5 me-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                        </svg>
+                        Datos Personales
+                    </h6>
                 </div>
+                <div class="card-body py-3">
+                    <!-- Cédula -->
+                    <div class="mb-2">
+                        <label for="cedula" class="form-label fw-bold fs-6">Cédula</label>
+                        <input type="text" name="cedula" id="cedula" value="{{ old('cedula') }}" 
+                               class="form-control form-control-sm fs-6 bg-white" required>
+                    </div>
 
-                <div>
-                    <label class="block font-semibold mb-1">Nombres *</label>
-                    <input type="text" name="nombres" value="{{ old('nombres') }}" 
-                           class="form-input w-full rounded border-gray-300" required>
+                    <!-- Nombres y Apellidos -->
+                    <div class="row g-2">
+                        <!-- Nombres -->
+                        <div class="col-md-6">
+                            <label for="nombres" class="form-label fw-bold fs-6">Nombres</label>
+                            <input type="text" name="nombres" id="nombres" value="{{ old('nombres') }}" 
+                                   class="form-control form-control-sm fs-6 bg-white" required>
+                        </div>
+
+                        <!-- Apellidos -->
+                        <div class="col-md-6">
+                            <label for="apellidos" class="form-label fw-bold fs-6">Apellidos</label>
+                            <input type="text" name="apellidos" id="apellidos" value="{{ old('apellidos') }}" 
+                                   class="form-control form-control-sm fs-6 bg-white" required>
+                        </div>
+                    </div>
+
+                    <!-- Sexo -->
+                    <div class="mt-2">
+                        <label for="sexo" class="form-label fw-bold fs-6">Sexo</label>
+                        <select name="sexo" id="sexo" class="form-select form-select-sm fs-6 bg-white" required>
+                            <option value="">Seleccione...</option>
+                            <option value="M" {{ old('sexo') == 'M' ? 'selected' : '' }}>Masculino</option>
+                            <option value="F" {{ old('sexo') == 'F' ? 'selected' : '' }}>Femenino</option>
+                        </select>
+                    </div>
+
+                    <!-- Fecha de nacimiento -->
+                    <div class="mt-2">
+                        <label for="fecha_nacimiento" class="form-label fw-bold fs-6">Fecha de nacimiento</label>
+                        <input type="date" name="fecha_nacimiento" id="fecha_nacimiento" value="{{ old('fecha_nacimiento') }}" 
+                               class="form-control form-control-sm fs-6 bg-white" required>
+                    </div>
+
+                    <!-- Estado -->
+                    <div class="mt-2">
+                        <div class="d-flex align-items-center space-x-3">
+                            <label class="form-label fw-bold fs-6 mb-0">Estado</label>
+                            <input type="checkbox" name="estado_miembro" value="1" 
+                                   {{ old('estado_miembro', '1') == '1' ? 'checked' : '' }}
+                                   class="hidden" id="switch_miembro">
+                            <button type="button" id="switch_button_miembro" class="relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 bg-green-500" aria-pressed="true">
+                                <span class="sr-only">Estado del miembro</span>
+                                <span id="switch_thumb_miembro" class="inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow-sm transition-transform duration-200 translate-x-4"></span>
+                            </button>
+                            <span id="switchLabel_miembro" class="text-sm font-medium text-green-600">Activo</span>
+                        </div>
+                    </div>
                 </div>
+            </div>
 
-                <div>
-                    <label class="block font-semibold mb-1">Apellidos *</label>
-                    <input type="text" name="apellidos" value="{{ old('apellidos') }}" 
-                           class="form-input w-full rounded border-gray-300" required>
+            <!-- Card Datos Académicos -->
+            <div class="card mb-4">
+                <div class="card-header bg-light py-2">
+                    <h6 class="mb-0 fw-bold fs-5 d-flex align-items-center">
+                        <svg class="w-5 h-5 me-2 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/>
+                        </svg>
+                        Datos Académicos
+                    </h6>
                 </div>
+                <div class="card-body py-3">
+                    <div class="row g-2">
+                        <!-- Academia -->
+                        <div class="col-md-6">
+                            <label for="academia_id" class="form-label fw-bold fs-6">Academia</label>
+                            <select name="academia_id" id="academia_id" class="form-select form-select-sm fs-6 bg-white" required>
+                                <option value="">Seleccione...</option>
+                                @foreach($academias as $academia)
+                                    <option value="{{ $academia->id_academia }}" {{ old('academia_id') == $academia->id_academia ? 'selected' : '' }}>
+                                        {{ $academia->nombre_academia }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
 
-                <div>
-                    <label class="block font-semibold mb-1">Sexo *</label>
-                    <select name="sexo" class="form-select w-full rounded border-gray-300" required>
-                        <option value="">Seleccione...</option>
-                        <option value="M" {{ old('sexo') == 'M' ? 'selected' : '' }}>Masculino</option>
-                        <option value="F" {{ old('sexo') == 'F' ? 'selected' : '' }}>Femenino</option>
-                    </select>
-                </div>
+                        <!-- Fecha de inscripción -->
+                        <div class="col-md-6">
+                            <label for="fecha_inscripcion" class="form-label fw-bold fs-6">Fecha de inscripción</label>
+                            <input type="date" name="fecha_inscripcion" id="fecha_inscripcion" value="{{ old('fecha_inscripcion', date('Y-m-d')) }}" 
+                                   class="form-control form-control-sm fs-6 bg-white" required>
+                        </div>
+                    </div>
 
-                <div>
-                    <label class="block font-semibold mb-1">Fecha de nacimiento *</label>
-                    <input type="date" name="fecha_nacimiento" value="{{ old('fecha_nacimiento') }}" 
-                           class="form-input w-full rounded border-gray-300" required>
-                </div>
+                    <!-- ELO -->
+                    <div class="mt-2">
+                        <label for="elo" class="form-label fw-bold fs-6">ELO</label>
+                        <input type="text" name="elo" id="elo" value="{{ old('elo') }}" 
+                               class="form-control form-control-sm fs-6 bg-white" 
+                               placeholder="Ej: 1500" maxlength="4">
+                    </div>
 
-                <div>
-                    <label class="block font-semibold mb-1">Fecha de inscripción *</label>
-                    <input type="date" name="fecha_inscripcion" value="{{ old('fecha_inscripcion', date('Y-m-d')) }}" 
-                           class="form-input w-full rounded border-gray-300" required>
-                </div>
-
-                <div>
-                    <label class="block font-semibold mb-1">Estado *</label>
-                    <select name="estado_miembro" class="form-select w-full rounded border-gray-300" required>
-                        <option value="1" {{ old('estado_miembro', '1') == '1' ? 'selected' : '' }}>Activo</option>
-                        <option value="0" {{ old('estado_miembro') == '0' ? 'selected' : '' }}>Inactivo</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block font-semibold mb-1">Academia *</label>
-                    <select name="academia_id" class="form-select w-full rounded border-gray-300" required>
-                        <option value="">Seleccione...</option>
-                        @foreach($academias as $academia)
-                            <option value="{{ $academia->id_academia }}" {{ old('academia_id') == $academia->id_academia ? 'selected' : '' }}>
-                                {{ $academia->nombre_academia }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block font-semibold mb-1">ELO</label>
-                    <input type="number" name="elo" value="{{ old('elo') }}" 
-                           class="form-input w-full rounded border-gray-300" 
-                           placeholder="Ej: 1500" min="0" max="3000">
-                </div>
-
-                <div>
-                    <label class="block font-semibold mb-1">Correo del sistema</label>
-                    <select name="correo_sistema_id" class="form-select w-full rounded border-gray-300">
-                        <option value="">Sin correo asignado</option>
-                        @foreach($usuarios as $usuario)
-                            <option value="{{ $usuario->correo }}" {{ old('correo_sistema_id') == $usuario->correo ? 'selected' : '' }}>
-                                {{ $usuario->correo }}
-                            </option>
-                        @endforeach
-                    </select>
+                    <!-- Correo -->
+                    <div class="mt-2">
+                        <label for="correo_sistema_id" class="form-label fw-bold fs-6">Correo del sistema</label>
+                        <select name="correo_sistema_id" id="correo_sistema_id" class="form-select form-select-sm fs-6 bg-white">
+                            <option value="">Sin correo asignado</option>
+                            @foreach($usuarios as $usuario)
+                                <option value="{{ $usuario->correo }}" {{ old('correo_sistema_id') == $usuario->correo ? 'selected' : '' }}>
+                                    {{ $usuario->correo }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -119,4 +166,71 @@
         </form>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Funcionalidad del switch de estado (igual que usuarios)
+    const switchButton = document.getElementById('switch_button_miembro');
+    const hiddenCheckbox = document.getElementById('switch_miembro');
+    
+    switchButton.addEventListener('click', function() {
+        const isActive = hiddenCheckbox.checked;
+        hiddenCheckbox.checked = !isActive;
+        
+        if (hiddenCheckbox.checked) {
+            // Estado Activo
+            switchButton.classList.remove('bg-red-500');
+            switchButton.classList.add('bg-green-500');
+            document.getElementById('switch_thumb_miembro').classList.remove('translate-x-0');
+            document.getElementById('switch_thumb_miembro').classList.add('translate-x-4');
+            document.getElementById('switchLabel_miembro').textContent = 'Activo';
+            document.getElementById('switchLabel_miembro').classList.remove('text-red-600');
+            document.getElementById('switchLabel_miembro').classList.add('text-green-600');
+        } else {
+            // Estado Inactivo
+            switchButton.classList.remove('bg-green-500');
+            switchButton.classList.add('bg-red-500');
+            document.getElementById('switch_thumb_miembro').classList.remove('translate-x-4');
+            document.getElementById('switch_thumb_miembro').classList.add('translate-x-0');
+            document.getElementById('switchLabel_miembro').textContent = 'Inactivo';
+            document.getElementById('switchLabel_miembro').classList.remove('text-green-600');
+            document.getElementById('switchLabel_miembro').classList.add('text-red-600');
+        }
+    });
+    
+    // Validación del input ELO - solo números enteros
+    const eloInput = document.getElementById('elo');
+    
+    eloInput.addEventListener('input', function(e) {
+        // Remover cualquier carácter que no sea número
+        let value = e.target.value.replace(/[^0-9]/g, '');
+        
+        // Limitar a 4 dígitos máximo
+        if (value.length > 4) {
+            value = value.substring(0, 4);
+        }
+        
+        // Actualizar el valor del input
+        e.target.value = value;
+    });
+    
+    // Prevenir pegar texto que contenga caracteres no numéricos
+    eloInput.addEventListener('paste', function(e) {
+        e.preventDefault();
+        const paste = (e.clipboardData || window.clipboardData).getData('text');
+        const numbersOnly = paste.replace(/[^0-9]/g, '').substring(0, 4);
+        e.target.value = numbersOnly;
+    });
+    
+    // Prevenir teclas que no sean números, backspace, delete, tab, escape, enter
+    eloInput.addEventListener('keydown', function(e) {
+        const allowedKeys = [8, 9, 27, 13, 46]; // backspace, tab, escape, enter, delete
+        const isNumber = (e.keyCode >= 48 && e.keyCode <= 57) || (e.keyCode >= 96 && e.keyCode <= 105);
+        
+        if (!allowedKeys.includes(e.keyCode) && !isNumber) {
+            e.preventDefault();
+        }
+    });
+});
+</script>
 @endsection 

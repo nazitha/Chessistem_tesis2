@@ -9,6 +9,7 @@ use App\Models\CategoriaTorneo;
 use App\Models\Emparejamiento;
 use App\Models\Partida;
 use App\Models\RondaTorneo;
+use App\Models\Auditoria;
 use App\Http\Requests\TorneoRequest;
 use App\Http\Resources\TorneoResource;
 use App\Http\Resources\FederacionResource;
@@ -25,9 +26,10 @@ use Illuminate\Http\Request;
 
 class TorneoController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $torneos = Torneo::withRelations()->paginate(10);
+        $perPage = $request->get('per_page', 10);
+        $torneos = Torneo::withRelations()->paginate($perPage);
         return view('torneos.index', compact('torneos'));
     }
 
@@ -183,6 +185,14 @@ class TorneoController extends Controller
             }
 
             $torneo = Torneo::create($datos);
+
+            // Registrar auditoría para creación de torneo
+            $this->crearAuditoria(
+                Auth::user()->correo,
+                'Inserción',
+                null,
+                "[Torneo creado: {$torneo->nombre_torneo} - Fecha: {$torneo->fecha_inicio} - Lugar: {$torneo->lugar}]"
+            );
 
             DB::commit();
 
@@ -426,10 +436,25 @@ class TorneoController extends Controller
     public function update(TorneoRequest $request, Torneo $torneo)
     {
         try {
+            // Guardar datos previos para auditoría
+            $datosPrevios = $this->formatearDatosTorneo($torneo->toArray());
+            
             $datos = $request->validated();
             // Siempre activar el torneo al actualizar
             $datos['estado_torneo'] = true;
             $torneo->update($datos);
+
+            // Formatear datos nuevos para auditoría
+            $datosNuevos = $this->formatearDatosTorneo($torneo->fresh()->toArray());
+
+            // Registrar auditoría para actualización de torneo
+            $this->crearAuditoria(
+                Auth::user()->correo,
+                'Edición',
+                json_encode($datosPrevios),
+                json_encode($datosNuevos)
+            );
+
             return redirect()
                 ->route('torneos.show', $torneo)
                 ->with('success', 'Torneo actualizado y activado exitosamente.');
@@ -443,7 +468,19 @@ class TorneoController extends Controller
     public function destroy(Torneo $torneo)
     {
         try {
+            // Guardar datos del torneo antes de eliminarlo para auditoría
+            $datosTorneo = $this->formatearDatosTorneo($torneo->toArray());
+            
             $torneo->delete();
+
+            // Registrar auditoría para eliminación de torneo
+            $this->crearAuditoria(
+                Auth::user()->correo,
+                'Eliminación',
+                json_encode($datosTorneo),
+                null
+            );
+
             return redirect()
                 ->route('torneos.index')
                 ->with('success', 'Torneo eliminado exitosamente.');
@@ -476,6 +513,14 @@ class TorneoController extends Controller
                 'motivo_cancelacion' => $request->motivo_cancelacion
             ]);
 
+            // Registrar auditoría para cancelación de torneo
+            $this->crearAuditoria(
+                Auth::user()->correo,
+                'Cancelación',
+                "[Torneo activo: {$torneo->nombre_torneo} - Fecha: {$torneo->fecha_inicio} - Lugar: {$torneo->lugar}]",
+                "[Torneo cancelado: {$torneo->nombre_torneo} - Motivo: {$request->motivo_cancelacion}]"
+            );
+
             return redirect()
                 ->route('torneos.index')
                 ->with('success', 'Torneo cancelado exitosamente.');
@@ -488,14 +533,78 @@ class TorneoController extends Controller
         }
     }
 
-    private function logAuditoria($request, $torneo, $accion, $previo = null)
+    private function formatearDatosTorneo($datos)
     {
-        AuditService::log(
-            user: $request->mail_log,
-            modelo: $torneo,
-            accion: $accion,
-            previo: $previo
-        );
+        // Obtener nombres de las relaciones
+        $categoriaNombre = '';
+        if (isset($datos['categoriaTorneo_id']) && $datos['categoriaTorneo_id']) {
+            $categoria = CategoriaTorneo::find($datos['categoriaTorneo_id']);
+            $categoriaNombre = $categoria ? $categoria->categoria_torneo : 'Sin categoría';
+        }
+        
+        $emparejamientoNombre = '';
+        if (isset($datos['sistema_emparejamiento_id']) && $datos['sistema_emparejamiento_id']) {
+            $emparejamiento = Emparejamiento::find($datos['sistema_emparejamiento_id']);
+            $emparejamientoNombre = $emparejamiento ? $emparejamiento->sistema : 'Sin sistema';
+        }
+        
+        $federacionNombre = '';
+        if (isset($datos['federacion_id']) && $datos['federacion_id']) {
+            $federacion = Federacion::find($datos['federacion_id']);
+            $federacionNombre = $federacion ? $federacion->nombre_federacion : 'Sin federación';
+        }
+        
+        // Solo los campos que se muestran en la tabla de torneos
+        return [
+            'nombre' => $datos['nombre_torneo'] ?? '',
+            'fecha' => $datos['fecha_inicio'] ?? '',
+            'categoria' => $categoriaNombre,
+            'formato' => isset($datos['es_por_equipos']) ? ($datos['es_por_equipos'] ? 'Por equipos' : 'Individual') : '',
+            'emparejamiento' => $emparejamientoNombre,
+            'lugar' => $datos['lugar'] ?? '',
+            'rondas' => $datos['no_rondas'] ?? '',
+            'federacion' => $federacionNombre,
+            'organizador' => $datos['organizador_id'] ?? '',
+            'director' => $datos['director_torneo_id'] ?? '',
+            'arbitro' => $datos['arbitro_id'] ?? '',
+            'arbitro_principal' => $datos['arbitro_principal_id'] ?? '',
+            'arbitro_adjunto' => $datos['arbitro_adjunto_id'] ?? '',
+            'estado' => isset($datos['estado_torneo']) ? ($datos['estado_torneo'] ? 'Activo' : 'Inactivo') : ''
+        ];
+    }
+
+    private function crearAuditoria($correo, $accion, $previo, $posterior = null)
+    {
+        // Usar la zona horaria de Guatemala
+        $fechaHora = now()->setTimezone('America/Guatemala');
+        
+        Auditoria::create([
+            'correo_id' => $correo,
+            'tabla_afectada' => 'Torneos',
+            'accion' => $accion,
+            'valor_previo' => $previo,
+            'valor_posterior' => $posterior ?? '-',
+            'fecha' => $fechaHora->toDateString(),
+            'hora' => $fechaHora->toTimeString(),
+            'equipo' => request()->ip()
+        ]);
+    }
+
+    public function exportTorneos()
+    {
+        // Solo registrar auditoría
+        Auditoria::create([
+            'correo_id' => Auth::user()->correo,
+            'tabla_afectada' => 'Torneos',
+            'accion' => 'Exportación',
+            'valor_previo' => null,
+            'valor_posterior' => 'Registros exportados en documento .csv',
+            'fecha' => now()->toDateString(),
+            'hora' => now()->toTimeString(),
+            'equipo' => request()->ip()
+        ]);
+
+        return response()->json(['success' => true]);
     }
 
     public function listaParaDuplicar()

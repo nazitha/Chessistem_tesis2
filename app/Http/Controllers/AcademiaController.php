@@ -133,12 +133,14 @@ class AcademiaController extends Controller
                 $originalData = $academia->toArray();
                 $academia->update($request->all());
                 
-                $this->logAuditoria(
+                $datosAnteriores = $this->formatearDatosAcademia($originalData);
+                $datosNuevos = $this->formatearDatosAcademia($academia->toArray());
+                
+                $this->crearAuditoria(
                     Auth::user()->correo,
-                    'Academias',
-                    'Modificación',
-                    $originalData,
-                    $academia->toArray()
+                    'Edición',
+                    json_encode($datosAnteriores),
+                    json_encode($datosNuevos)
                 );
 
                 return redirect()->route('academias.show', $academia)
@@ -188,14 +190,55 @@ class AcademiaController extends Controller
         ?array $previo,
         ?array $posterior
     ): void {
+        // Usar la zona horaria de Guatemala
+        $fechaHora = now()->setTimezone('America/Guatemala');
+        
         Auditoria::create([
             'correo_id' => $correo,
             'tabla_afectada' => $tabla,
             'accion' => $accion,
             'valor_previo' => $previo ? json_encode($previo) : '[-]',
             'valor_posterior' => $posterior ? json_encode($posterior) : '[-]',
-            'fecha' => now()->toDateString(),
-            'hora' => now()->toTimeString(),
+            'fecha' => $fechaHora->toDateString(),
+            'hora' => $fechaHora->toTimeString(),
+            'equipo' => request()->ip()
+        ]);
+    }
+
+    private function formatearDatosAcademia($datos)
+    {
+        // Obtener nombre de la ciudad si existe
+        $ciudadNombre = '';
+        if (isset($datos['ciudad_id']) && $datos['ciudad_id']) {
+            $ciudad = \App\Models\Ciudad::find($datos['ciudad_id']);
+            $ciudadNombre = $ciudad ? $ciudad->nombre_ciudad : 'Sin ciudad';
+        }
+        
+        // Solo los campos que se muestran en la tabla de academias
+        return [
+            'academia' => $datos['nombre_academia'] ?? '',
+            'correo' => $datos['correo_academia'] ?? '',
+            'telefono' => $datos['telefono_academia'] ?? '',
+            'director' => $datos['representante_academia'] ?? '',
+            'direccion' => $datos['direccion_academia'] ?? '',
+            'ciudad' => $ciudadNombre,
+            'estado' => isset($datos['estado_academia']) ? ($datos['estado_academia'] ? 'Activo' : 'Inactivo') : ''
+        ];
+    }
+
+    private function crearAuditoria($correo, $accion, $previo, $posterior = null)
+    {
+        // Usar la zona horaria de Guatemala
+        $fechaHora = now()->setTimezone('America/Guatemala');
+        
+        Auditoria::create([
+            'correo_id' => $correo,
+            'tabla_afectada' => 'Academias',
+            'accion' => $accion,
+            'valor_previo' => $previo,
+            'valor_posterior' => $posterior ?? '-',
+            'fecha' => $fechaHora->toDateString(),
+            'hora' => $fechaHora->toTimeString(),
             'equipo' => request()->ip()
         ]);
     }

@@ -226,30 +226,12 @@
             </table>
         </div>
         
-        <!-- Controles de paginación -->
-        <div class="px-6 py-4 border-t bg-gray-50">
-            <div class="flex justify-between items-center">
-                <div class="flex items-center gap-2">
-                    <span class="text-sm text-gray-700">Mostrar:</span>
-                    <select id="registrosPorPaginaTorneos" class="border border-gray-300 rounded-md px-2 py-1 text-sm bg-white">
-                        <option value="10">10</option>
-                        <option value="25">25</option>
-                        <option value="50">50</option>
-                        <option value="100">100</option>
-                    </select>
-                    <span class="text-sm text-gray-700">registros por página</span>
-                </div>
-                <div class="flex items-center gap-2">
-                    <button id="btnAnteriorTorneos" class="px-3 py-1 text-sm bg-gray-200 hover:bg-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed">
-                        Anterior
-                    </button>
-                    <span id="infoPaginacionTorneos" class="text-sm text-gray-700">Página 1 de 1</span>
-                    <button id="btnSiguienteTorneos" class="px-3 py-1 text-sm bg-gray-200 hover:bg-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed">
-                        Siguiente
-                    </button>
-                </div>
+        <!-- Paginación de Laravel -->
+        @if($torneos->hasPages())
+            <div class="px-6 py-4 border-t bg-gray-50">
+                {{ $torneos->links('pagination.custom') }}
             </div>
-        </div>
+        @endif
     </div>
 </div>
 
@@ -687,5 +669,26 @@ document.getElementById('modal-cancelacion').addEventListener('click', function(
         cerrarModalCancelacion();
     }
 });
+
+// Función para cambiar elementos por página
+function changePerPage(perPage) {
+    const url = new URL(window.location);
+    url.searchParams.set('per_page', perPage);
+    url.searchParams.delete('page'); // Reset a la primera página
+    window.location.href = url.toString();
+}
+
+// Función para exportar torneos
+document.getElementById('btnExportarTorneos').addEventListener('click', function() {
+    // Solo registrar auditoría
+    fetch('{{ route("torneos.export") }}', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Content-Type': 'application/json',
+        }
+    });
+});
+
 </script>
 @endpush 

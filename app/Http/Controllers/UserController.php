@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\Permission;
+use App\Models\Auditoria;
 use App\Http\Requests\UserStoreRequest;
 use App\Http\Requests\UserUpdateRequest;
 use App\Http\Requests\PermissionRequest;
@@ -279,16 +280,14 @@ class UserController extends Controller
             // Log de auditoría
             try {
                 if (Auth::check()) {
-                    $user = Auth::user();
-                    AuditService::logUserAction(
-                        $user->correo,
-                        $user,
-                        'permissions_updated',
-                        [
-                            'grupo' => $grupo,
-                            'permisos_agregados' => $permisosAAgregar ?? [],
-                            'permisos_eliminados' => $permisosAEliminar ?? []
-                        ]
+                    // Formatear datos de permisos para auditoría
+                    $datosPermisos = $this->formatearDatosPermisos($grupo, $permisosAAgregar ?? [], $permisosAEliminar ?? []);
+                    
+                    $this->crearAuditoria(
+                        Auth::user()->correo,
+                        'Edición de Permisos',
+                        json_encode($datosPermisos),
+                        null
                     );
                 } else {
                     Log::info('updateRolePermissions: Usuario no autenticado para auditoría');
@@ -394,21 +393,9 @@ class UserController extends Controller
                 
                 $data = $request->validated();
                 
-                // Validar correo manualmente si está presente
-                if (isset($data['correo'])) {
-                    // Si el correo no cambió, eliminarlo
-                    if ($data['correo'] === $user->correo) {
-                        unset($data['correo']);
-                    } else {
-                        // Validar que el nuevo correo sea único
-                        $exists = User::where('correo', $data['correo'])
-                            ->where('id_email', '!=', $id)
-                            ->exists();
-                        
-                        if ($exists) {
-                            return response()->json(['error' => 'El correo electrónico ya está en uso.'], 422);
-                        }
-                    }
+                // Si el correo no cambió, eliminarlo para no actualizar innecesariamente
+                if (isset($data['correo']) && $data['correo'] === $user->correo) {
+                    unset($data['correo']);
                 }
                 
                 // Si no se proporciona contraseña, no actualizar
@@ -418,11 +405,15 @@ class UserController extends Controller
                 
                 $user->update($data);
                 
-                AuditService::logUserAction(
+                // Formatear datos para auditoría (solo lo que se ve en la tabla)
+                $datosAnteriores = $this->formatearDatosUsuario($user->getOriginal());
+                $datosNuevos = $this->formatearDatosUsuario($user->toArray());
+                
+                $this->crearAuditoria(
                     Auth::user()->correo,
-                    $user,
-                    'updated',
-                    $user->getOriginal()
+                    'Edición',
+                    json_encode($datosAnteriores),
+                    json_encode($datosNuevos)
                 );
     
                 return response()->json(['success' => true]);
@@ -479,15 +470,19 @@ class UserController extends Controller
                 return response()->json(['error' => 'Usuario no encontrado'], 404);
             }
             
-            $correo = $user->correo;
-            
-            AuditService::logUserAction(
-                Auth::user()->correo,
-                $user,
-                'deleted'
-            );
+            // Guardar datos del usuario antes de eliminarlo para auditoría
+            $datosUsuario = $this->formatearDatosUsuario($user->toArray());
             
             $user->delete();
+            
+            // Registrar auditoría para eliminación de usuario
+            $this->crearAuditoria(
+                Auth::user()->correo,
+                'Eliminación',
+                json_encode($datosUsuario),
+                null
+            );
+            
             return response()->json(['success' => true, 'message' => 'Usuario eliminado correctamente']);
         });
     }
@@ -545,6 +540,56 @@ class UserController extends Controller
         }
     }
 
+    public function exportUsers()
+    {
+        if (!PermissionService::hasPermission('usuarios.read')) {
+            return redirect()->route('home')->with('error', 'No tienes permiso para exportar usuarios');
+        }
+
+        try {
+            $users = User::with('rol')->get();
+            
+            $filename = 'usuarios_' . now()->format('Y-m-d_H-i-s') . '.csv';
+            
+            $headers = [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            ];
+
+            $callback = function() use ($users) {
+                $file = fopen('php://output', 'w');
+                
+                // Encabezados
+                fputcsv($file, ['ID', 'Correo', 'Rol', 'Fecha Creación']);
+                
+                // Datos
+                foreach ($users as $user) {
+                    fputcsv($file, [
+                        $user->id_email,
+                        $user->correo,
+                        $user->rol ? $user->rol->nombre : 'Sin rol',
+                        $user->created_at ? $user->created_at->format('d/m/Y H:i:s') : 'N/A'
+                    ]);
+                }
+                
+                fclose($file);
+            };
+
+            // Registrar auditoría para exportación
+            $this->crearAuditoria(
+                Auth::user()->correo,
+                'Exportación',
+                null,
+                'Registros exportados en documento .csv'
+            );
+
+            return response()->stream($callback, 200, $headers);
+        } catch (\Exception $e) {
+            Log::error('Error al exportar usuarios: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error al exportar usuarios');
+        }
+    }
+
     public function apiPermisosUsuario($userId)
     {
         $user = User::with(['rol', 'permissions'])->findOrFail($userId);
@@ -560,9 +605,134 @@ class UserController extends Controller
         ]);
     }
 
+    public function exportPermissions()
+    {
+        if (!PermissionService::hasPermission('permisos.read')) {
+            return redirect()->route('home')->with('error', 'No tienes permiso para exportar permisos');
+        }
+
+        try {
+            $roles = Role::with('permissions')->get();
+            
+            $filename = 'permisos_' . now()->format('Y-m-d_H-i-s') . '.csv';
+            
+            $headers = [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            ];
+
+            $callback = function() use ($roles) {
+                $file = fopen('php://output', 'w');
+                
+                // Encabezados
+                fputcsv($file, ['Rol', 'Permiso', 'Descripción']);
+                
+                // Datos
+                foreach ($roles as $role) {
+                    if ($role->permissions->count() > 0) {
+                        foreach ($role->permissions as $permission) {
+                            fputcsv($file, [
+                                $role->nombre,
+                                $permission->permiso,
+                                $permission->descripcion ?? 'Sin descripción'
+                            ]);
+                        }
+                    } else {
+                        fputcsv($file, [
+                            $role->nombre,
+                            'Sin permisos asignados',
+                            'N/A'
+                        ]);
+                    }
+                }
+                
+                fclose($file);
+            };
+
+            // Registrar auditoría para exportación
+            $this->crearAuditoria(
+                Auth::user()->correo,
+                'Exportación',
+                null,
+                'Registros exportados en documento .csv'
+            );
+
+            return response()->stream($callback, 200, $headers);
+        } catch (\Exception $e) {
+            Log::error('Error al exportar permisos: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error al exportar permisos');
+        }
+    }
+
     public function show($id)
     {
         $user = User::with(['miembro', 'rol'])->findOrFail($id);
         return response()->json($user);
+    }
+
+    private function formatearDatosUsuario($datos)
+    {
+        // Obtener el nombre del rol si existe
+        $rolNombre = '';
+        if (isset($datos['rol_id']) && $datos['rol_id']) {
+            $rol = Role::find($datos['rol_id']);
+            $rolNombre = $rol ? $rol->nombre : 'Sin rol';
+        }
+        
+        // Solo los campos que se muestran en la tabla de usuarios
+        return [
+            'correo' => $datos['correo'] ?? '',
+            'rol' => $rolNombre,
+            'estado' => isset($datos['usuario_estado']) ? ($datos['usuario_estado'] ? 'Activo' : 'Inactivo') : ''
+        ];
+    }
+
+    private function formatearDatosPermisos($grupo, $permisosAgregados, $permisosEliminados)
+    {
+        // Obtener el rol desde la request
+        $rolNombre = '';
+        $rolId = request()->input('rol_id');
+        if ($rolId) {
+            $rol = Role::find($rolId);
+            $rolNombre = $rol ? $rol->nombre : 'Sin rol';
+        }
+        
+        // Obtener nombres de permisos agregados
+        $permisosAgregadosNombres = [];
+        if (!empty($permisosAgregados)) {
+            $permisos = Permission::whereIn('id', $permisosAgregados)->get();
+            $permisosAgregadosNombres = $permisos->pluck('permiso')->toArray();
+        }
+        
+        // Obtener nombres de permisos eliminados
+        $permisosEliminadosNombres = [];
+        if (!empty($permisosEliminados)) {
+            $permisos = Permission::whereIn('id', $permisosEliminados)->get();
+            $permisosEliminadosNombres = $permisos->pluck('permiso')->toArray();
+        }
+        
+        return [
+            'rol' => $rolNombre,
+            'grupo' => $grupo ?? 'General',
+            'permisos_agregados' => $permisosAgregadosNombres,
+            'permisos_eliminados' => $permisosEliminadosNombres
+        ];
+    }
+
+    private function crearAuditoria($correo, $accion, $previo, $posterior = null)
+    {
+        // Usar la zona horaria de Guatemala
+        $fechaHora = now()->setTimezone('America/Guatemala');
+        
+        Auditoria::create([
+            'correo_id' => $correo,
+            'tabla_afectada' => 'Usuarios',
+            'accion' => $accion,
+            'valor_previo' => $previo,
+            'valor_posterior' => $posterior ?? '-',
+            'fecha' => $fechaHora->toDateString(),
+            'hora' => $fechaHora->toTimeString(),
+            'equipo' => request()->ip()
+        ]);
     }
 }

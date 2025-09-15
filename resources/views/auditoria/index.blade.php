@@ -105,7 +105,7 @@
                     <tbody class="divide-y divide-gray-100">
                         @forelse($auditorias as $auditoria)
                         <tr class="hover:bg-gray-50 transition-colors duration-150">
-                            <td class="px-4 py-2 text-sm text-gray-900">{{ $auditoria->fecha }}</td>
+                            <td class="px-4 py-2 text-sm text-gray-900">{{ $auditoria->fecha->locale('es')->isoFormat('MMMM D, YYYY') }}</td>
                             <td class="px-4 py-2 text-sm text-gray-900">{{ $auditoria->hora }}</td>
                             <td class="px-4 py-2 text-sm text-gray-900">{{ $auditoria->correo_id }}</td>
                             <td class="px-4 py-2 text-sm text-gray-900">{{ $auditoria->accion }}</td>

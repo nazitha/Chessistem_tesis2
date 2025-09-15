@@ -34,10 +34,18 @@ class AuditService
 
     public static function logUserAction($email, User $user, $action, $prevData = null): void
     {
+        // Mapear acciones en inglés a español
+        $accionesEspanol = [
+            'deleted' => 'Eliminación',
+            'updated' => 'Edición',
+            'created' => 'Creación',
+            'permissions_updated' => 'Edición de Permisos'
+        ];
+        
         $logData = [
             'correo_id' => $email,
             'tabla_afectada' => 'Usuarios',
-            'accion' => $action,
+            'accion' => $accionesEspanol[$action] ?? $action,
             'valor_previo' => $prevData ? json_encode($prevData) : null,
             'valor_posterior' => $action !== 'deleted' ? json_encode($user) : null,
             'fecha' => now()->toDateString(),

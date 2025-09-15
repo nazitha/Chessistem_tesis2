@@ -24,42 +24,88 @@
     
     <div class="bg-white rounded-lg shadow p-8">
         <h2 class="text-2xl font-bold mb-8 text-gray-800">Detalle de la Academia</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-12">
-            <div>
-                <span class="block font-semibold text-gray-700 mb-1">Nombre</span>
-                <span class="text-gray-900">{{ $academia->nombre_academia }}</span>
+        
+        <!-- Card Generalidades -->
+        <div class="card mb-4">
+            <div class="card-header bg-light py-2">
+                <h6 class="mb-0 fw-bold fs-5 d-flex align-items-center">
+                    <svg class="w-5 h-5 me-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                    </svg>
+                    Generalidades
+                </h6>
             </div>
-            <div>
-                <span class="block font-semibold text-gray-700 mb-1">Correo</span>
-                <span class="text-gray-900">{{ $academia->correo_academia }}</span>
+            <div class="card-body py-3">
+                <div class="row g-2">
+                    <!-- Nombre -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold fs-6">Nombre</label>
+                        <div class="form-control form-control-sm fs-6 bg-light">{{ $academia->nombre_academia }}</div>
+                    </div>
+
+                    <!-- Representante -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold fs-6">Representante</label>
+                        <div class="form-control form-control-sm fs-6 bg-light">{{ $academia->representante_academia }}</div>
+                    </div>
+                </div>
+
+                <!-- Ciudad -->
+                <div class="mt-2">
+                    <label class="form-label fw-bold fs-6">Ciudad</label>
+                    <div class="form-control form-control-sm fs-6 bg-light">
+                        {{ $academia->ciudad ? $academia->ciudad->nombre_ciudad . ', ' . 
+                           ($academia->ciudad->departamento->nombre_depto ?? '-') . ' (' . 
+                           ($academia->ciudad->departamento->pais->nombre_pais ?? '-') . ')' : '-' }}
+                    </div>
+                </div>
+
+                <!-- Dirección -->
+                <div class="mt-2">
+                    <label class="form-label fw-bold fs-6">Dirección</label>
+                    <div class="form-control form-control-sm fs-6 bg-light">{{ $academia->direccion_academia }}</div>
+                </div>
+
+                <!-- Estado -->
+                <div class="mt-2">
+                    <label class="form-label fw-bold fs-6">Estado</label>
+                    <div class="d-flex align-items-center">
+                        <div class="position-relative">
+                            <div class="rounded-pill {{ $academia->estado_academia ? 'bg-success' : 'bg-danger' }}" style="width: 40px; height: 20px;"></div>
+                            <div class="position-absolute bg-white rounded-circle shadow" style="width: 16px; height: 16px; top: 2px; {{ $academia->estado_academia ? 'left: 22px;' : 'left: 2px;' }}"></div>
+                        </div>
+                        <span class="ms-2 fw-medium {{ $academia->estado_academia ? 'text-success' : 'text-danger' }}">
+                            {{ $academia->estado_academia ? 'Activo' : 'Inactivo' }}
+                        </span>
+                    </div>
+                </div>
             </div>
-            <div>
-                <span class="block font-semibold text-gray-700 mb-1">Teléfono</span>
-                <span class="text-gray-900">{{ $academia->telefono_academia }}</span>
+        </div>
+
+        <!-- Card Contacto -->
+        <div class="card mb-4">
+            <div class="card-header bg-light py-2">
+                <h6 class="mb-0 fw-bold fs-5 d-flex align-items-center">
+                    <svg class="w-5 h-5 me-2 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                    </svg>
+                    Contacto
+                </h6>
             </div>
-            <div>
-                <span class="block font-semibold text-gray-700 mb-1">Representante</span>
-                <span class="text-gray-900">{{ $academia->representante_academia }}</span>
-            </div>
-            <div>
-                <span class="block font-semibold text-gray-700 mb-1">Dirección</span>
-                <span class="text-gray-900">{{ $academia->direccion_academia }}</span>
-            </div>
-            <div>
-                <span class="block font-semibold text-gray-700 mb-1">Ciudad</span>
-                <span class="text-gray-900">
-                    {{ $academia->ciudad ? $academia->ciudad->nombre_ciudad . ', ' . 
-                       ($academia->ciudad->departamento->nombre_depto ?? '-') . ' (' . 
-                       ($academia->ciudad->departamento->pais->nombre_pais ?? '-') . ')' : '-' }}
-                </span>
-            </div>
-            <div>
-                <span class="block font-semibold text-gray-700 mb-1">Estado</span>
-                @if($academia->estado_academia)
-                    <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Activo</span>
-                @else
-                    <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs">Inactivo</span>
-                @endif
+            <div class="card-body py-3">
+                <div class="row g-2">
+                    <!-- Correo -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold fs-6">Correo</label>
+                        <div class="form-control form-control-sm fs-6 bg-light">{{ $academia->correo_academia }}</div>
+                    </div>
+
+                    <!-- Teléfono -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold fs-6">Teléfono</label>
+                        <div class="form-control form-control-sm fs-6 bg-light">{{ $academia->telefono_academia }}</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

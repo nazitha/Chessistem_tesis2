@@ -278,6 +278,30 @@ body{
     margin: 5px 0;
 }
 
+/* Estilos para mensajes de error de campo específicos */
+.field-error {
+    width: 100%;
+    padding: 6px 12px;
+    margin: 4px 0;
+    border-radius: 6px;
+    font-size: 12px;
+    text-align: left;
+    background-color: #ffebee;
+    color: #c62828;
+    border: 1px solid #ffcdd2;
+    font-weight: 500;
+}
+
+.error-input {
+    border: 2px solid #f44336 !important;
+    background-color: #ffebee;
+}
+
+.error-input:focus {
+    border: 2px solid #f44336 !important;
+    box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.1);
+}
+
 .back-to-login {
     color: #3a4852;
     text-decoration: none;
