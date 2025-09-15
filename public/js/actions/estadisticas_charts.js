@@ -65,8 +65,10 @@ let datosEstadisticasTorneos = {
  */
 async function cargarEstadisticasTorneos() {
     try {
+        console.log('📡 Cargando estadísticas de torneos desde API...');
         const response = await fetch('/api/estadisticas/mensuales');
         const result = await response.json();
+        console.log('📊 Respuesta de estadísticas de torneos:', result);
         
         if (result.success) {
             datosEstadisticasTorneos.rendimientoMensual = result.data;
@@ -92,8 +94,10 @@ async function cargarEstadisticasTorneos() {
  */
 async function cargarEstadisticasPersonales() {
     try {
+        console.log('📡 Cargando estadísticas personales desde API...');
         const response = await fetch('/api/estadisticas/personales');
         const result = await response.json();
+        console.log('📊 Respuesta de estadísticas personales:', result);
         
         if (result.success) {
             datosEstadisticasPersonales.rendimientoMensual = result.data;
@@ -464,8 +468,11 @@ function inicializarGraficoEstadisticasTorneos() {
  * Función principal para inicializar todos los gráficos
  */
 function inicializarGraficosEstadisticas() {
+    console.log('🔍 Verificando contenedores de gráficos...');
+    
     // Esperar a que el DOM esté listo
     if (document.readyState === 'loading') {
+        console.log('⏳ DOM aún cargando, esperando...');
         document.addEventListener('DOMContentLoaded', function() {
             setTimeout(inicializarGraficosEstadisticas, 100);
         });
@@ -473,12 +480,20 @@ function inicializarGraficosEstadisticas() {
     }
 
     // Inicializar gráficos si existen los contenedores
-    if (document.getElementById('grafico-historial-partidas')) {
+    const contenedorHistorial = document.getElementById('grafico-historial-partidas');
+    const contenedorEstadisticas = document.getElementById('grafico-estadisticas-torneos');
+    
+    console.log('📊 Contenedor historial-partidas:', contenedorHistorial ? 'ENCONTRADO' : 'NO ENCONTRADO');
+    console.log('📈 Contenedor estadisticas-torneos:', contenedorEstadisticas ? 'ENCONTRADO' : 'NO ENCONTRADO');
+    
+    if (contenedorHistorial) {
+        console.log('✅ Cargando estadísticas personales...');
         // Cargar datos reales y luego inicializar el gráfico
         cargarEstadisticasPersonales();
     }
 
-    if (document.getElementById('grafico-estadisticas-torneos')) {
+    if (contenedorEstadisticas) {
+        console.log('✅ Cargando estadísticas de torneos...');
         // Cargar datos reales y luego inicializar el gráfico
         cargarEstadisticasTorneos();
     }
@@ -486,6 +501,7 @@ function inicializarGraficosEstadisticas() {
 
 // Inicializar gráficos cuando se carga la página
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Inicializando gráficos de estadísticas...');
     inicializarGraficosEstadisticas();
 });
 
