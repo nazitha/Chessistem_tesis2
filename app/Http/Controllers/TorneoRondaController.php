@@ -12,6 +12,8 @@ use App\Models\EquipoMatch;
 use App\Models\PartidaIndividual;
 use App\Models\ParticipanteTorneo;
 use App\Models\Participante;
+use App\Models\Auditoria;
+use Illuminate\Support\Facades\Auth;
 
 
 class TorneoRondaController extends Controller
@@ -149,6 +151,21 @@ class TorneoRondaController extends Controller
             }
 
             DB::commit();
+
+            // Registrar auditoría para emparejamiento (como acción de Participantes)
+            $mensajeAuditoria = "Emparejamiento realizado - Torneo: {$torneo->nombre_torneo} - Ronda: {$rondaActual}";
+            
+            $fechaHora = now()->setTimezone('America/Managua');
+            Auditoria::create([
+                'correo_id' => Auth::user()->correo,
+                'tabla_afectada' => 'Participantes',
+                'accion' => 'Emparejamiento',
+                'valor_previo' => null,
+                'valor_posterior' => $mensajeAuditoria,
+                'fecha' => $fechaHora->toDateString(),
+                'hora' => $fechaHora->toTimeString(),
+                'equipo' => request()->ip()
+            ]);
 
             return redirect()
                 ->route('torneos.show', $torneo)
@@ -900,7 +917,7 @@ class TorneoRondaController extends Controller
 
     public function guardarResultadosRonda(Request $request, RondaTorneo $ronda)
     {
-        Log::info('INICIO guardarResultadosRonda', ['ronda_id' => $ronda->id, 'request' => $request->all()]);
+        Log::info('=== INICIO guardarResultadosRonda ===', ['ronda_id' => $ronda->id, 'request' => $request->all()]);
         // Forzar decodificación si es string
         if (isset($request->resultados) && is_string($request->resultados)) {
             $array = json_decode($request->resultados, true);
@@ -908,7 +925,7 @@ class TorneoRondaController extends Controller
             if (is_array($array)) {
                 $request->merge(['resultados' => $array]);
             } else {
-                return redirect()->back()->with('error', 'No se pudieron decodificar los resultados enviados.');
+                return redirect()->back()->with('error', 'Por favor, rellene todos los resultados de la ronda');
             }
         }
         Log::info('Tipo de resultados después de merge', ['tipo' => gettype($request->resultados), 'contenido' => $request->resultados]);
@@ -1068,6 +1085,13 @@ class TorneoRondaController extends Controller
                 $ronda->completada = true;
                 $ronda->save();
                 DB::commit();
+                
+                // Registrar auditoría para guardar resultados de ronda (fuera de la transacción)
+                Log::info('=== LLAMANDO AUDITORÍA DE RESULTADOS ===');
+                Log::info('Torneo: ' . $torneo->nombre_torneo);
+                Log::info('Ronda: ' . $ronda->numero_ronda);
+                $this->crearAuditoriaResultados($torneo, $ronda, $request->resultados);
+                
                 // return redirect()->route('torneos.rondas.show', [$torneo, $ronda])->with('success', 'Resultados guardados exitosamente.');
                 
                 // Verificar si es eliminación directa y generar siguiente ronda
@@ -1199,6 +1223,13 @@ class TorneoRondaController extends Controller
                 }
 
                 DB::commit();
+                
+                // Registrar auditoría para guardar resultados de ronda (fuera de la transacción)
+                Log::info('=== LLAMANDO AUDITORÍA DE RESULTADOS (COMMIT 2) ===');
+                Log::info('Torneo: ' . $torneo->nombre_torneo);
+                Log::info('Ronda: ' . $ronda->numero_ronda);
+                $this->crearAuditoriaResultados($torneo, $ronda, $request->resultados);
+                
                     if ($siguienteRonda) {
                     return redirect()
                         ->route('torneos.rondas.show', [$torneo, $siguienteRonda])
@@ -1212,6 +1243,12 @@ class TorneoRondaController extends Controller
                 if ($torneo->es_por_equipos && ($torneo->usar_buchholz || $torneo->usar_sonneborn_berger || $torneo->usar_desempate_progresivo)) {
                     // Forzar recálculo de la tabla de clasificación (show) al recargar
                 }
+              // Registrar auditoría para guardar resultados de ronda (fuera de la transacción)
+              Log::info('=== LLAMANDO AUDITORÍA DE RESULTADOS (COMMIT 3) ===');
+              Log::info('Torneo: ' . $torneo->nombre_torneo);
+              Log::info('Ronda: ' . $ronda->numero_ronda);
+              $this->crearAuditoriaResultados($torneo, $ronda, $request->resultados);
+              
               return redirect ()
                     ->route('torneos.rondas.show', [$torneo, $ronda])
                     ->with('success', 'Resultados guardados exitosamente.');
@@ -1227,7 +1264,7 @@ class TorneoRondaController extends Controller
             Log::error('Error al guardar resultados: ' . $e->getMessage());
             Log::error('Stack trace: ' . $e->getTraceAsString());
             
-            return redirect()->back()->with('error', 'Error al guardar los resultados: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Por favor, rellene todos los resultados de la ronda');
         }
     }
 
@@ -1830,5 +1867,43 @@ class TorneoRondaController extends Controller
             $equipos = collect(); // O un array vacío para individuales
         }
         return view('torneos.ronda', compact('torneo', 'ronda', 'rondas', 'partidas', 'participantes', 'equipos', 'matches'));
+    }
+    
+    /**
+     * Crear auditoría para guardar resultados de ronda
+     */
+    private function crearAuditoriaResultados($torneo, $ronda, $resultados)
+    {
+        try {
+            // Procesar resultados para cambiar null por 'BYE'
+            $resultadosProcesados = [];
+            foreach ($resultados as $partidaId => $resultado) {
+                if ($resultado === null || $resultado === '') {
+                    $resultadosProcesados[$partidaId] = 'BYE';
+                } else {
+                    $resultadosProcesados[$partidaId] = $resultado;
+                }
+            }
+            
+            $fechaHora = now()->setTimezone('America/Managua');
+            
+            $auditoria = Auditoria::create([
+                'correo_id' => Auth::user()->correo,
+                'tabla_afectada' => 'Rondas',
+                'accion' => 'Inserción',
+                'valor_previo' => null,
+                'valor_posterior' => json_encode([
+                    'torneo' => $torneo->nombre_torneo,
+                    'ronda' => $ronda->numero_ronda,
+                    'resultados' => $resultadosProcesados
+                ], JSON_UNESCAPED_UNICODE),
+                'fecha' => $fechaHora->toDateString(),
+                'hora' => $fechaHora->toTimeString(),
+                'equipo' => request()->ip()
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error al crear auditoría de resultados: ' . $e->getMessage());
+        }
     }
 } 

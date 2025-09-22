@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         try {
             Log::info('UserController@index - Iniciando listado de usuarios');
@@ -31,16 +31,58 @@ class UserController extends Controller
                 return redirect()->route('home')->with('error', 'No tienes permiso para acceder a esta sección');
             }
             
-            $users = User::with(['rol.permissions'])
-                ->orderBy('correo')
-                ->get();
+            // Parámetros de búsqueda y paginación
+            $search = $request->get('search');
+            $filtroCorreo = $request->get('filtro_correo');
+            $filtroRol = $request->get('filtro_rol');
+            $filtroEstado = $request->get('filtro_estado');
+            $perPage = $request->get('per_page', 10);
+            
+            // Query base para usuarios
+            $usersQuery = User::with(['rol.permissions']);
+            
+            // Aplicar filtros de búsqueda
+            if ($search) {
+                $usersQuery->where(function($query) use ($search) {
+                    $query->where('correo', 'like', "%{$search}%")
+                          ->orWhereHas('rol', function($q) use ($search) {
+                              $q->where('nombre', 'like', "%{$search}%");
+                          });
+                });
+            }
+            
+            if ($filtroCorreo) {
+                $usersQuery->where('correo', 'like', "%{$filtroCorreo}%");
+            }
+            
+            if ($filtroRol) {
+                $usersQuery->whereHas('rol', function($query) use ($filtroRol) {
+                    $query->where('nombre', 'like', "%{$filtroRol}%");
+                });
+            }
+            
+            if ($filtroEstado !== null && $filtroEstado !== '') {
+                $usersQuery->where('usuario_estado', $filtroEstado);
+            }
+            
+            // Ordenar y paginar
+            $users = $usersQuery->orderBy('correo')->paginate($perPage);
+            
+            // Mantener parámetros de búsqueda en la paginación
+            $users->appends($request->all());
 
-            // Obtener datos para la tabla de gestión de roles
-            $rolesData = $this->getRolesWithPermissionsData();
+            // Obtener datos para la tabla de gestión de roles con búsqueda y paginación
+            $rolesDataPaginated = $this->getRolesWithPermissionsDataPaginated($request);
 
             Log::info('UserController@index - Usuarios encontrados: ' . $users->count());
             
-            return view('admin.users.index', compact('users', 'rolesData'));
+            // Parámetros de búsqueda para permisos
+            $searchPermisos = $request->get('search_permisos');
+            $filtroRolPermisos = $request->get('filtro_rol_permisos');
+            $filtroGrupoPermisos = $request->get('filtro_grupo_permisos');
+            $filtroPermisos = $request->get('filtro_permisos');
+            
+            return view('admin.users.index', compact('users', 'rolesDataPaginated', 'search', 'filtroCorreo', 'filtroRol', 'filtroEstado', 'perPage', 'searchPermisos', 'filtroRolPermisos', 'filtroGrupoPermisos', 'filtroPermisos'));
         } catch (\Exception $e) {
             Log::error('UserController@index - Error al listar usuarios: ' . $e->getMessage());
             return redirect()->route('home')->with('error', 'Error al obtener la lista de usuarios');
@@ -48,12 +90,20 @@ class UserController extends Controller
     }
 
     /**
-     * Obtiene los datos para la tabla de gestión de roles
+     * Obtiene los datos paginados para la tabla de gestión de roles
      */
-    private function getRolesWithPermissionsData()
+    private function getRolesWithPermissionsDataPaginated($request = null)
     {
         try {
-            $rolesData = DB::select("
+            // Parámetros de búsqueda para permisos
+            $searchPermisos = $request ? $request->get('search_permisos') : '';
+            $filtroRolPermisos = $request ? $request->get('filtro_rol_permisos') : '';
+            $filtroGrupoPermisos = $request ? $request->get('filtro_grupo_permisos') : '';
+            $filtroPermisos = $request ? $request->get('filtro_permisos') : '';
+            $perPagePermisos = $request ? $request->get('per_page_permisos', 10) : 10;
+            
+            // Construir la consulta base
+            $query = "
                 SELECT
                     r.nombre AS rol,
                     g.grupo,
@@ -79,8 +129,145 @@ class UserController extends Controller
                     FROM permisos
                     WHERE id NOT IN (5, 6, 7, 8, 9, 12, 29)
                 ) g
-                ORDER BY r.nombre, g.grupo
-            ");
+            ";
+            
+            // Agregar condiciones WHERE según los filtros
+            $conditions = [];
+            
+            if ($searchPermisos) {
+                $conditions[] = "(r.nombre LIKE '%{$searchPermisos}%' OR g.grupo LIKE '%{$searchPermisos}%')";
+            }
+            
+            if ($filtroRolPermisos) {
+                $conditions[] = "r.nombre LIKE '%{$filtroRolPermisos}%'";
+            }
+            
+            if ($filtroGrupoPermisos) {
+                $conditions[] = "g.grupo LIKE '%{$filtroGrupoPermisos}%'";
+            }
+            
+            if ($filtroPermisos) {
+                $conditions[] = "EXISTS (
+                    SELECT 1 FROM permisos p
+                    INNER JOIN asignaciones_permisos a ON a.permiso_id = p.id AND a.rol_id = r.id
+                    WHERE p.grupo = g.grupo
+                      AND p.id NOT IN (5, 6, 7, 8, 9, 12, 29)
+                      AND (p.permiso LIKE '%{$filtroPermisos}%' OR p.descripcion LIKE '%{$filtroPermisos}%')
+                )";
+            }
+            
+            if (!empty($conditions)) {
+                $query .= " WHERE " . implode(' AND ', $conditions);
+            }
+            
+            $query .= " ORDER BY r.nombre, g.grupo";
+            
+            // Obtener todos los resultados para crear paginación manual
+            $allRolesData = DB::select($query);
+            
+            // Crear paginación manual
+            $currentPage = $request ? $request->get('page_permisos', 1) : 1;
+            $offset = ($currentPage - 1) * $perPagePermisos;
+            $rolesData = array_slice($allRolesData, $offset, $perPagePermisos);
+            
+            // Crear objeto de paginación manual
+            $total = count($allRolesData);
+            $lastPage = ceil($total / $perPagePermisos);
+            
+            $paginator = new \Illuminate\Pagination\LengthAwarePaginator(
+                $rolesData,
+                $total,
+                $perPagePermisos,
+                $currentPage,
+                [
+                    'path' => $request->url(),
+                    'pageName' => 'page_permisos',
+                ]
+            );
+            
+            // Agregar todos los parámetros de búsqueda a la paginación
+            $paginator->appends($request->all());
+            
+            return $paginator;
+        } catch (\Exception $e) {
+            Log::error('Error al obtener datos paginados de roles y permisos: ' . $e->getMessage());
+            return new \Illuminate\Pagination\LengthAwarePaginator([], 0, 10, 1);
+        }
+    }
+
+    /**
+     * Obtiene los datos para la tabla de gestión de roles (método original sin paginación)
+     */
+    private function getRolesWithPermissionsData($request = null)
+    {
+        try {
+            // Parámetros de búsqueda para permisos
+            $searchPermisos = $request ? $request->get('search_permisos') : '';
+            $filtroRolPermisos = $request ? $request->get('filtro_rol_permisos') : '';
+            $filtroGrupoPermisos = $request ? $request->get('filtro_grupo_permisos') : '';
+            $filtroPermisos = $request ? $request->get('filtro_permisos') : '';
+            
+            // Construir la consulta base
+            $query = "
+                SELECT
+                    r.nombre AS rol,
+                    g.grupo,
+                    COALESCE(
+                        (
+                            SELECT GROUP_CONCAT(SUBSTRING_INDEX(p.permiso, '.', -1) SEPARATOR ' | ')
+                            FROM permisos p
+                            INNER JOIN asignaciones_permisos a ON a.permiso_id = p.id AND a.rol_id = r.id
+                            WHERE p.grupo = g.grupo
+                              AND p.id NOT IN (5, 6, 7, 8, 9, 12, 29)
+                        ), '-') AS permisos,
+                    COALESCE(
+                        (
+                            SELECT GROUP_CONCAT(p.descripcion SEPARATOR ' | ')
+                            FROM permisos p
+                            INNER JOIN asignaciones_permisos a ON a.permiso_id = p.id AND a.rol_id = r.id
+                            WHERE p.grupo = g.grupo
+                              AND p.id NOT IN (5, 6, 7, 8, 9, 12, 29)
+                        ), '-') AS descripciones
+                FROM roles r
+                CROSS JOIN (
+                    SELECT DISTINCT grupo
+                    FROM permisos
+                    WHERE id NOT IN (5, 6, 7, 8, 9, 12, 29)
+                ) g
+            ";
+            
+            // Agregar condiciones WHERE según los filtros
+            $conditions = [];
+            
+            if ($searchPermisos) {
+                $conditions[] = "(r.nombre LIKE '%{$searchPermisos}%' OR g.grupo LIKE '%{$searchPermisos}%')";
+            }
+            
+            if ($filtroRolPermisos) {
+                $conditions[] = "r.nombre LIKE '%{$filtroRolPermisos}%'";
+            }
+            
+            if ($filtroGrupoPermisos) {
+                $conditions[] = "g.grupo LIKE '%{$filtroGrupoPermisos}%'";
+            }
+            
+            if ($filtroPermisos) {
+                $conditions[] = "EXISTS (
+                    SELECT 1 FROM permisos p
+                    INNER JOIN asignaciones_permisos a ON a.permiso_id = p.id AND a.rol_id = r.id
+                    WHERE p.grupo = g.grupo
+                      AND p.id NOT IN (5, 6, 7, 8, 9, 12, 29)
+                      AND (p.permiso LIKE '%{$filtroPermisos}%' OR p.descripcion LIKE '%{$filtroPermisos}%')
+                )";
+            }
+            
+            if (!empty($conditions)) {
+                $query .= " WHERE " . implode(' AND ', $conditions);
+            }
+            
+            $query .= " ORDER BY r.nombre, g.grupo";
+            
+            $rolesData = DB::select($query);
 
             return $rolesData;
         } catch (\Exception $e) {
@@ -286,7 +473,7 @@ class UserController extends Controller
                     $this->crearAuditoria(
                         Auth::user()->correo,
                         'Edición de Permisos',
-                        json_encode($datosPermisos),
+                        json_encode($datosPermisos, JSON_UNESCAPED_UNICODE),
                         null
                     );
                 } else {
@@ -412,8 +599,8 @@ class UserController extends Controller
                 $this->crearAuditoria(
                     Auth::user()->correo,
                     'Edición',
-                    json_encode($datosAnteriores),
-                    json_encode($datosNuevos)
+                    json_encode($datosAnteriores, JSON_UNESCAPED_UNICODE),
+                    json_encode($datosNuevos, JSON_UNESCAPED_UNICODE)
                 );
     
                 return response()->json(['success' => true]);
@@ -479,7 +666,7 @@ class UserController extends Controller
             $this->crearAuditoria(
                 Auth::user()->correo,
                 'Eliminación',
-                json_encode($datosUsuario),
+                json_encode($datosUsuario, JSON_UNESCAPED_UNICODE),
                 null
             );
             
@@ -721,8 +908,8 @@ class UserController extends Controller
 
     private function crearAuditoria($correo, $accion, $previo, $posterior = null)
     {
-        // Usar la zona horaria de Guatemala
-        $fechaHora = now()->setTimezone('America/Guatemala');
+        // Usar la zona horaria de Nicaragua
+        $fechaHora = now()->setTimezone('America/Managua');
         
         Auditoria::create([
             'correo_id' => $correo,

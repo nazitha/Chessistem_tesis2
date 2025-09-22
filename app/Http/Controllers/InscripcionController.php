@@ -128,8 +128,8 @@ class InscripcionController extends Controller
 
     private function crearAuditoria($correo, $accion, $previo, $posterior = null)
     {
-        // Usar la zona horaria de Guatemala
-        $fechaHora = Carbon::now()->setTimezone('America/Guatemala');
+        // Usar la zona horaria de Nicaragua
+        $fechaHora = Carbon::now()->setTimezone('America/Managua');
         
         Auditoria::create([
             'correo_id' => $correo,

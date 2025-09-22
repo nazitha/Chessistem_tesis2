@@ -35,6 +35,9 @@
         <a href="{{ route('torneos.create') }}" class="btn btn-primary flex items-center"><i class="fa fa-trophy mr-2"></i> Nuevo Torneo</a>
         <a href="{{ route('academias.index') }}" class="btn btn-success flex items-center"><i class="fa fa-school mr-2"></i> Gestionar Academias</a>
         <a href="{{ route('miembros.index') }}" class="btn btn-primary flex items-center"><i class="fa fa-users mr-2"></i> Gestionar Miembros</a>
+        @if(PermissionHelper::canViewModule('participantes'))
+        <a href="{{ route('participantes.index') }}" class="btn btn-warning flex items-center"><i class="fa fa-user-plus mr-2"></i> Gestionar Participantes</a>
+        @endif
         @if(Auth::user()->rol_id == 1)
         <a href="{{ route('usuarios.index') }}" class="btn btn-info flex items-center"><i class="fa fa-user-shield mr-2"></i> Gestionar Usuarios</a>
         @endif

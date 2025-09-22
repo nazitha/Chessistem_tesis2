@@ -13,7 +13,7 @@
         </div>
 
         <div class="mt-5 md:mt-0 md:col-span-2">
-            <form action="{{ route('torneos.store') }}" method="POST" id="formCrearTorneo">
+            <form action="{{ route('torneos.store') }}" method="POST" id="formCrearTorneo" class="needs-validation" novalidate>
                 @csrf
                 <div class="shadow sm:rounded-md sm:overflow-hidden">
                     <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
@@ -28,51 +28,75 @@
                                 <div class="grid grid-cols-6 gap-6">
                                     <div class="col-span-6 sm:col-span-3">
                                         <label for="nombre_torneo" class="block text-sm font-medium text-gray-700">
-                                            Nombre del Torneo *
+                                            Nombre del Torneo <span class="text-danger">*</span>
                                         </label>
                                         <input type="text" name="nombre_torneo" id="nombre_torneo" 
-                                               class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md py-2"
+                                               class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md py-2 @error('nombre_torneo') is-invalid @enderror"
                                                placeholder="Ejemplo: Torneo Nacional de Ajedrez 2024"
                                                required>
                                         @error('nombre_torneo')
-                                            <span class="text-red-600 text-xs">{{ $message }}</span>
+                                            <div class="invalid-feedback">
+                                                {{ $message }}
+                                            </div>
+                                        @else
+                                            <div class="invalid-feedback">
+                                                Por favor ingrese el nombre del torneo.
+                                            </div>
                                         @enderror
                                     </div>
 
                                     <div class="col-span-6 sm:col-span-3">
                                         <label for="fecha_inicio" class="block text-sm font-medium text-gray-700 flex items-center">
-                                            <span class="mr-2">📅</span> Fecha de Inicio *
+                                            <span class="mr-2">📅</span> Fecha de Inicio <span class="text-danger">*</span>
                                         </label>
                                         <input type="date" name="fecha_inicio" id="fecha_inicio" 
-                                               class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md py-2"
+                                               class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md py-2 @error('fecha_inicio') is-invalid @enderror"
                                                required>
                                         @error('fecha_inicio')
-                                            <span class="text-red-600 text-xs">{{ $message }}</span>
+                                            <div class="invalid-feedback">
+                                                {{ $message }}
+                                            </div>
+                                        @else
+                                            <div class="invalid-feedback">
+                                                Por favor seleccione la fecha de inicio.
+                                            </div>
                                         @enderror
                                     </div>
 
                                     <div class="col-span-6 sm:col-span-3">
                                         <label for="hora_inicio" class="block text-sm font-medium text-gray-700 flex items-center">
-                                            <span class="mr-2">🕒</span> Hora de Inicio *
+                                            <span class="mr-2">🕒</span> Hora de Inicio <span class="text-danger">*</span>
                                         </label>
                                         <input type="time" name="hora_inicio" id="hora_inicio" 
-                                               class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md py-2"
+                                               class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md py-2 @error('hora_inicio') is-invalid @enderror"
                                                required>
                                         @error('hora_inicio')
-                                            <span class="text-red-600 text-xs">{{ $message }}</span>
+                                            <div class="invalid-feedback">
+                                                {{ $message }}
+                                            </div>
+                                        @else
+                                            <div class="invalid-feedback">
+                                                Por favor seleccione la hora de inicio.
+                                            </div>
                                         @enderror
                                     </div>
 
                                     <div class="col-span-6 sm:col-span-3">
                                         <label for="lugar" class="block text-sm font-medium text-gray-700 flex items-center">
-                                            <span class="mr-2">📍</span> Lugar *
+                                            <span class="mr-2">📍</span> Lugar <span class="text-danger">*</span>
                                         </label>
                                         <input type="text" name="lugar" id="lugar" 
-                                               class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md py-2"
+                                               class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md py-2 @error('lugar') is-invalid @enderror"
                                                placeholder="Ejemplo: Biblioteca Nacional, Managua"
                                                required>
                                         @error('lugar')
-                                            <span class="text-red-600 text-xs">{{ $message }}</span>
+                                            <div class="invalid-feedback">
+                                                {{ $message }}
+                                            </div>
+                                        @else
+                                            <div class="invalid-feedback">
+                                                Por favor ingrese el lugar del torneo.
+                                            </div>
                                         @enderror
                                     </div>
                                 </div>
@@ -89,9 +113,9 @@
                             <div class="card-body py-3">
                                 <div class="grid grid-cols-6 gap-6">
                                     <div class="col-span-6 sm:col-span-3">
-                                        <label for="organizador_id" class="block text-sm font-medium text-gray-700">Organizador *</label>
+                                        <label for="organizador_id" class="block text-sm font-medium text-gray-700">Organizador <span class="text-danger">*</span></label>
                                         <select name="organizador_id" id="organizador_id" 
-                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm @error('organizador_id') is-invalid @enderror"
                                                 required>
                                             <option value="">Seleccione un organizador</option>
                                             @foreach($miembros as $miembro)
@@ -99,14 +123,20 @@
                                             @endforeach
                                         </select>
                                         @error('organizador_id')
-                                            <span class="text-red-600 text-xs">{{ $message }}</span>
+                                            <div class="invalid-feedback">
+                                                {{ $message }}
+                                            </div>
+                                        @else
+                                            <div class="invalid-feedback">
+                                                Por favor seleccione un organizador.
+                                            </div>
                                         @enderror
                                     </div>
 
                                     <div class="col-span-6 sm:col-span-3">
-                                        <label for="director_torneo_id" class="block text-sm font-medium text-gray-700">Director del Torneo *</label>
+                                        <label for="director_torneo_id" class="block text-sm font-medium text-gray-700">Director del Torneo <span class="text-danger">*</span></label>
                                         <select name="director_torneo_id" id="director_torneo_id" 
-                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm @error('director_torneo_id') is-invalid @enderror"
                                                 required>
                                             <option value="">Seleccione un director</option>
                                             @foreach($miembros as $miembro)
@@ -114,7 +144,13 @@
                                             @endforeach
                                         </select>
                                         @error('director_torneo_id')
-                                            <span class="text-red-600 text-xs">{{ $message }}</span>
+                                            <div class="invalid-feedback">
+                                                {{ $message }}
+                                            </div>
+                                        @else
+                                            <div class="invalid-feedback">
+                                                Por favor seleccione un director del torneo.
+                                            </div>
                                         @enderror
                                     </div>
 
@@ -122,9 +158,9 @@
 
                                 <div class="grid grid-cols-6 gap-6">
                                     <div class="col-span-6 sm:col-span-3">
-                                        <label for="arbitro_id" class="block text-sm font-medium text-gray-700">Árbitro *</label>
+                                        <label for="arbitro_id" class="block text-sm font-medium text-gray-700">Árbitro <span class="text-danger">*</span></label>
                                         <select name="arbitro_id" id="arbitro_id" 
-                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm @error('arbitro_id') is-invalid @enderror"
                                                 required>
                                             <option value="">Seleccione un árbitro</option>
                                             @foreach($miembros as $miembro)
@@ -132,16 +168,22 @@
                                             @endforeach
                                         </select>
                                         @error('arbitro_id')
-                                            <span class="text-red-600 text-xs">{{ $message }}</span>
+                                            <div class="invalid-feedback">
+                                                {{ $message }}
+                                            </div>
+                                        @else
+                                            <div class="invalid-feedback">
+                                                Por favor seleccione un árbitro.
+                                            </div>
                                         @enderror
                                     </div>
                                 </div>
 
                                 <div class="grid grid-cols-6 gap-6">
                                     <div class="col-span-6 sm:col-span-3">
-                                        <label for="arbitro_adjunto_id" class="block text-sm font-medium text-gray-700">Árbitro Adjunto *</label>
+                                        <label for="arbitro_adjunto_id" class="block text-sm font-medium text-gray-700">Árbitro Adjunto <span class="text-danger">*</span></label>
                                         <select name="arbitro_adjunto_id" id="arbitro_adjunto_id" 
-                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm @error('arbitro_adjunto_id') is-invalid @enderror"
                                                 required>
                                             <option value="">Seleccione un árbitro adjunto</option>
                                             @foreach($miembros as $miembro)
@@ -149,16 +191,22 @@
                                             @endforeach
                                         </select>
                                         @error('arbitro_adjunto_id')
-                                            <span class="text-red-600 text-xs">{{ $message }}</span>
+                                            <div class="invalid-feedback">
+                                                {{ $message }}
+                                            </div>
+                                        @else
+                                            <div class="invalid-feedback">
+                                                Por favor seleccione un árbitro adjunto.
+                                            </div>
                                         @enderror
                                     </div>
                                 </div>
 
                                 <div class="grid grid-cols-6 gap-6">
                                     <div class="col-span-6 sm:col-span-3">
-                                        <label for="arbitro_principal_id" class="block text-sm font-medium text-gray-700">Árbitro Principal *</label>
+                                        <label for="arbitro_principal_id" class="block text-sm font-medium text-gray-700">Árbitro Principal <span class="text-danger">*</span></label>
                                         <select name="arbitro_principal_id" id="arbitro_principal_id" 
-                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm @error('arbitro_principal_id') is-invalid @enderror"
                                                 required>
                                             <option value="">Seleccione un árbitro principal</option>
                                             @foreach($miembros as $miembro)
@@ -166,7 +214,13 @@
                                             @endforeach
                                         </select>
                                         @error('arbitro_principal_id')
-                                            <span class="text-red-600 text-xs">{{ $message }}</span>
+                                            <div class="invalid-feedback">
+                                                {{ $message }}
+                                            </div>
+                                        @else
+                                            <div class="invalid-feedback">
+                                                Por favor seleccione un árbitro principal.
+                                            </div>
                                         @enderror
                                     </div>
                                 </div>
@@ -184,24 +238,30 @@
                                 <div class="grid grid-cols-6 gap-6">
                                     <div class="col-span-6 sm:col-span-3">
                                         <label for="no_rondas" class="block text-sm font-medium text-gray-700 flex items-center">
-                                            <span class="mr-2">🔄</span> Número de Rondas *
+                                            <span class="mr-2">🔄</span> Número de Rondas <span class="text-danger">*</span>
                                             <span class="ml-1 text-gray-500 text-xs">(Mínimo 3, máximo 9)</span>
                                         </label>
                                         <input type="number" name="no_rondas" id="no_rondas" min="3" max="9"
-                                               class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border border-gray-300 rounded-md py-2"
+                                               class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border border-gray-300 rounded-md py-2 @error('no_rondas') is-invalid @enderror"
                                                style="-moz-appearance: textfield;"
                                                required>
                                         @error('no_rondas')
-                                            <span class="text-red-600 text-xs">{{ $message }}</span>
+                                            <div class="invalid-feedback">
+                                                {{ $message }}
+                                            </div>
+                                        @else
+                                            <div class="invalid-feedback">
+                                                Por favor ingrese el número de rondas (3-9).
+                                            </div>
                                         @enderror
                                     </div>
 
                                     <div class="col-span-6 sm:col-span-3">
                                         <label for="categoriaTorneo_id" class="block text-sm font-medium text-gray-700 flex items-center">
-                                            <span class="mr-2">🏆</span> Categoría *
+                                            <span class="mr-2">🏆</span> Categoría <span class="text-danger">*</span>
                                         </label>
                                         <select name="categoriaTorneo_id" id="categoriaTorneo_id" 
-                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm @error('categoriaTorneo_id') is-invalid @enderror"
                                                 required>
                                             <option value="">Seleccione una categoría</option>
                                             @foreach($categorias as $categoria)
@@ -209,16 +269,22 @@
                                             @endforeach
                                         </select>
                                         @error('categoriaTorneo_id')
-                                            <span class="text-red-600 text-xs">{{ $message }}</span>
+                                            <div class="invalid-feedback">
+                                                {{ $message }}
+                                            </div>
+                                        @else
+                                            <div class="invalid-feedback">
+                                                Por favor seleccione una categoría.
+                                            </div>
                                         @enderror
                                     </div>
 
                                     <div class="col-span-6 sm:col-span-3">
                                         <label for="sistema_emparejamiento_id" class="block text-sm font-medium text-gray-700 flex items-center">
-                                            <span class="mr-2">🧭</span> Sistema de Emparejamiento *
+                                            <span class="mr-2">🧭</span> Sistema de Emparejamiento <span class="text-danger">*</span>
                                         </label>
                                         <select name="sistema_emparejamiento_id" id="sistema_emparejamiento_id" 
-                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm @error('sistema_emparejamiento_id') is-invalid @enderror"
                                                 required>
                                             <option value="">Seleccione un sistema</option>
                                             @foreach($emparejamientos as $sistema)
@@ -226,16 +292,22 @@
                                             @endforeach
                                         </select>
                                         @error('sistema_emparejamiento_id')
-                                            <span class="text-red-600 text-xs">{{ $message }}</span>
+                                            <div class="invalid-feedback">
+                                                {{ $message }}
+                                            </div>
+                                        @else
+                                            <div class="invalid-feedback">
+                                                Por favor seleccione un sistema de emparejamiento.
+                                            </div>
                                         @enderror
                                     </div>
 
                                     <div class="col-span-6 sm:col-span-3">
                                         <label for="control_tiempo_id" class="block text-sm font-medium text-gray-700 flex items-center">
-                                            <span class="mr-2">⏱️</span> Control de Tiempo *
+                                            <span class="mr-2">⏱️</span> Control de Tiempo <span class="text-danger">*</span>
                                         </label>
                                         <select name="control_tiempo_id" id="control_tiempo_id" 
-                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm @error('control_tiempo_id') is-invalid @enderror"
                                                 required>
                                             <option value="">Seleccione un control de tiempo</option>
                                             @foreach($controlesTiempo as $control)
@@ -243,7 +315,13 @@
                                             @endforeach
                                         </select>
                                         @error('control_tiempo_id')
-                                            <span class="text-red-600 text-xs">{{ $message }}</span>
+                                            <div class="invalid-feedback">
+                                                {{ $message }}
+                                            </div>
+                                        @else
+                                            <div class="invalid-feedback">
+                                                Por favor seleccione un control de tiempo.
+                                            </div>
                                         @enderror
                                     </div>
                                     <div class="col-span-6 sm:col-span-3">
@@ -579,6 +657,26 @@ document.addEventListener('DOMContentLoaded', function() {
     tooltipButton.addEventListener('mouseleave', () => {
         tooltip.classList.add('invisible', 'opacity-0');
     });
+    
+    // Validación de Bootstrap
+    (function() {
+        'use strict';
+        
+        // Obtener todos los formularios que necesitan validación
+        const forms = document.querySelectorAll('.needs-validation');
+        
+        // Iterar sobre cada formulario
+        Array.prototype.slice.call(forms).forEach(function(form) {
+            form.addEventListener('submit', function(event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                
+                form.classList.add('was-validated');
+            }, false);
+        });
+    })();
 });
 </script>
 @endpush 

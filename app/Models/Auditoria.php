@@ -25,11 +25,35 @@ class Auditoria extends Model
         'hora' => 'string'
     ];
 
-    protected $appends = ['tiempo'];
+    protected $appends = ['tiempo', 'valor_previo_formateado', 'valor_posterior_formateado'];
 
     public function getTiempoAttribute()
     {
         return $this->fecha->format('Y-m-d') . ', ' . date('h:i:s A', strtotime($this->hora));
+    }
+
+    public function getValorPrevioFormateadoAttribute()
+    {
+        return $this->formatearValorJson($this->valor_previo);
+    }
+
+    public function getValorPosteriorFormateadoAttribute()
+    {
+        return $this->formatearValorJson($this->valor_posterior);
+    }
+
+    private function formatearValorJson($valor)
+    {
+        if (!$valor || $valor === '-' || $valor === '[-]') {
+            return $valor;
+        }
+
+        $decoded = json_decode($valor, true);
+        if ($decoded) {
+            return json_encode($decoded, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        }
+
+        return $valor;
     }
 
     public function usuario()

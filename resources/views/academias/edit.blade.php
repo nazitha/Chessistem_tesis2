@@ -24,7 +24,7 @@
             </div>
         @endif
 
-        <form action="{{ route('academias.update', $academia->id_academia) }}" method="POST">
+        <form action="{{ route('academias.update', $academia->id_academia) }}" method="POST" class="needs-validation" novalidate>
             @csrf
             @method('PUT')
             
@@ -42,25 +42,43 @@
                     <div class="row g-2">
                         <!-- Nombre -->
                         <div class="col-md-6">
-                            <label for="nombre_academia" class="form-label fw-bold fs-6">Nombre</label>
+                            <label for="nombre_academia" class="form-label fw-bold fs-6">Nombre <span class="text-danger">*</span></label>
                             <input type="text" name="nombre_academia" id="nombre_academia" 
                                    value="{{ old('nombre_academia', $academia->nombre_academia) }}"
-                                   class="form-control form-control-sm fs-6" required>
+                                   class="form-control form-control-sm fs-6 @error('nombre_academia') is-invalid @enderror" required>
+                            @error('nombre_academia')
+                                <div class="invalid-feedback">
+                                    {{ $message }}
+                                </div>
+                            @else
+                                <div class="invalid-feedback">
+                                    Por favor ingrese el nombre de la academia.
+                                </div>
+                            @enderror
                         </div>
 
                         <!-- Representante -->
                         <div class="col-md-6">
-                            <label for="representante_academia" class="form-label fw-bold fs-6">Representante</label>
+                            <label for="representante_academia" class="form-label fw-bold fs-6">Representante <span class="text-danger">*</span></label>
                             <input type="text" name="representante_academia" id="representante_academia" 
                                    value="{{ old('representante_academia', $academia->representante_academia) }}"
-                                   class="form-control form-control-sm fs-6" required>
+                                   class="form-control form-control-sm fs-6 @error('representante_academia') is-invalid @enderror" required>
+                            @error('representante_academia')
+                                <div class="invalid-feedback">
+                                    {{ $message }}
+                                </div>
+                            @else
+                                <div class="invalid-feedback">
+                                    Por favor ingrese el nombre del representante.
+                                </div>
+                            @enderror
                         </div>
                     </div>
 
                     <!-- Ciudad -->
                     <div class="mt-2">
-                        <label for="ciudad_id" class="form-label fw-bold fs-6">Ciudad</label>
-                        <select name="ciudad_id" id="ciudad_id" class="form-select form-select-sm fs-6" required>
+                        <label for="ciudad_id" class="form-label fw-bold fs-6">Ciudad <span class="text-danger">*</span></label>
+                        <select name="ciudad_id" id="ciudad_id" class="form-select form-select-sm fs-6 @error('ciudad_id') is-invalid @enderror" required>
                             <option value="">Seleccione una ciudad</option>
                             @foreach($ciudades as $ciudad)
                                 <option value="{{ $ciudad->id_ciudad }}" 
@@ -69,14 +87,32 @@
                                 </option>
                             @endforeach
                         </select>
+                        @error('ciudad_id')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @else
+                            <div class="invalid-feedback">
+                                Por favor seleccione una ciudad.
+                            </div>
+                        @enderror
                     </div>
 
                     <!-- Dirección -->
                     <div class="mt-2">
-                        <label for="direccion_academia" class="form-label fw-bold fs-6">Dirección</label>
+                        <label for="direccion_academia" class="form-label fw-bold fs-6">Dirección <span class="text-danger">*</span></label>
                         <input type="text" name="direccion_academia" id="direccion_academia" 
                                value="{{ old('direccion_academia', $academia->direccion_academia) }}"
-                               class="form-control form-control-sm fs-6" required>
+                               class="form-control form-control-sm fs-6 @error('direccion_academia') is-invalid @enderror" required>
+                        @error('direccion_academia')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @else
+                            <div class="invalid-feedback">
+                                Por favor ingrese la dirección de la academia.
+                            </div>
+                        @enderror
                     </div>
 
                     <!-- Estado -->
@@ -84,8 +120,10 @@
                         <label class="form-label fw-bold fs-6">Estado</label>
                         <div class="d-flex align-items-center">
                             <label class="form-check-label d-flex align-items-center cursor-pointer">
+                                <!-- Campo oculto para enviar valor cuando está inactivo -->
+                                <input type="hidden" name="estado_academia" value="0" id="estado_hidden">
                                 <input type="checkbox" name="estado_academia" value="1" 
-                                       {{ old('estado_academia', $academia->estado_academia) == '1' ? 'checked' : '' }}
+                                       {{ old('estado_academia', $academia->estado_academia ? '1' : '0') == '1' ? 'checked' : '' }}
                                        class="form-check-input d-none" id="estado_switch">
                                 <div class="position-relative">
                                     <div class="bg-secondary rounded-pill" style="width: 40px; height: 20px;" id="switch-bg"></div>
@@ -115,15 +153,29 @@
                             <label for="correo_academia" class="form-label fw-bold fs-6">Correo</label>
                             <input type="email" name="correo_academia" id="correo_academia" 
                                    value="{{ old('correo_academia', $academia->correo_academia) }}"
-                                   class="form-control form-control-sm fs-6" required>
+                                   class="form-control form-control-sm fs-6 @error('correo_academia') is-invalid @enderror">
+                            @error('correo_academia')
+                                <div class="invalid-feedback">
+                                    {{ $message }}
+                                </div>
+                            @enderror
                         </div>
 
                         <!-- Teléfono -->
                         <div class="col-md-6">
-                            <label for="telefono_academia" class="form-label fw-bold fs-6">Teléfono</label>
+                            <label for="telefono_academia" class="form-label fw-bold fs-6">Teléfono <span class="text-danger">*</span></label>
                             <input type="text" name="telefono_academia" id="telefono_academia" 
                                    value="{{ old('telefono_academia', $academia->telefono_academia) }}"
-                                   class="form-control form-control-sm fs-6" required>
+                                   class="form-control form-control-sm fs-6 @error('telefono_academia') is-invalid @enderror" required>
+                            @error('telefono_academia')
+                                <div class="invalid-feedback">
+                                    {{ $message }}
+                                </div>
+                            @else
+                                <div class="invalid-feedback">
+                                    Por favor ingrese el número de teléfono.
+                                </div>
+                            @enderror
                         </div>
                     </div>
                 </div>
@@ -145,6 +197,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Funcionalidad del switch de estado
     const estadoSwitch = document.getElementById('estado_switch');
+    const estadoHidden = document.getElementById('estado_hidden');
     const switchBg = document.getElementById('switch-bg');
     const switchKnob = document.getElementById('switch-knob');
     const estadoText = document.getElementById('estado-text');
@@ -153,22 +206,28 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateSwitchState() {
         if (estadoSwitch.checked) {
             // Activo - Verde
-            switchBg.classList.remove('bg-secondary');
+            // Limpiar todas las clases de color del switch
+            switchBg.classList.remove('bg-secondary', 'bg-danger');
             switchBg.classList.add('bg-success');
             switchKnob.style.transform = 'translateX(20px)';
             estadoText.textContent = 'Activo';
+            // Limpiar todas las clases de color del texto
             estadoText.classList.remove('text-danger');
             estadoText.classList.add('text-success');
             estadoSwitch.value = '1';
+            estadoHidden.disabled = true; // Deshabilitar el campo oculto
         } else {
             // Inactivo - Rojo
-            switchBg.classList.remove('bg-success');
+            // Limpiar todas las clases de color del switch
+            switchBg.classList.remove('bg-secondary', 'bg-success');
             switchBg.classList.add('bg-danger');
             switchKnob.style.transform = 'translateX(0px)';
             estadoText.textContent = 'Inactivo';
+            // Limpiar todas las clases de color del texto
             estadoText.classList.remove('text-success');
             estadoText.classList.add('text-danger');
             estadoSwitch.value = '0';
+            estadoHidden.disabled = false; // Habilitar el campo oculto
         }
     }
     
@@ -177,6 +236,26 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Inicializar el estado visual del switch
     updateSwitchState();
+    
+    // Validación de Bootstrap
+    (function() {
+        'use strict';
+        
+        // Obtener todos los formularios que necesitan validación
+        const forms = document.querySelectorAll('.needs-validation');
+        
+        // Iterar sobre cada formulario
+        Array.prototype.slice.call(forms).forEach(function(form) {
+            form.addEventListener('submit', function(event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                
+                form.classList.add('was-validated');
+            }, false);
+        });
+    })();
 });
 </script>
 @endsection 

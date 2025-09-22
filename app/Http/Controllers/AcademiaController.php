@@ -6,6 +6,7 @@ use App\Models\Academia;
 use App\Models\Ciudad;
 use App\Models\Auditoria;
 use App\Helpers\PermissionHelper;
+use App\Services\PermissionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -24,13 +25,62 @@ class AcademiaController extends Controller
         });
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $academias = Academia::with(['ciudad.departamento.pais'])
-            ->orderBy('nombre_academia')
-            ->get();
+        // Parámetros de búsqueda y paginación
+        $search = $request->get('search');
+        $filtroNombre = $request->get('filtro_nombre');
+        $filtroCorreo = $request->get('filtro_correo');
+        $filtroRepresentante = $request->get('filtro_representante');
+        $filtroCiudad = $request->get('filtro_ciudad');
+        $filtroEstado = $request->get('filtro_estado');
+        $perPage = $request->get('per_page', 10);
+        
+        // Query base para academias
+        $academiasQuery = Academia::with(['ciudad.departamento.pais']);
+        
+        // Aplicar filtros de búsqueda
+        if ($search) {
+            $academiasQuery->where(function($query) use ($search) {
+                $query->where('nombre_academia', 'like', "%{$search}%")
+                      ->orWhere('correo_academia', 'like', "%{$search}%")
+                      ->orWhere('representante_academia', 'like', "%{$search}%")
+                      ->orWhere('direccion_academia', 'like', "%{$search}%")
+                      ->orWhereHas('ciudad', function($q) use ($search) {
+                          $q->where('nombre_ciudad', 'like', "%{$search}%");
+                      });
+            });
+        }
+        
+        if ($filtroNombre) {
+            $academiasQuery->where('nombre_academia', 'like', "%{$filtroNombre}%");
+        }
+        
+        if ($filtroCorreo) {
+            $academiasQuery->where('correo_academia', 'like', "%{$filtroCorreo}%");
+        }
+        
+        if ($filtroRepresentante) {
+            $academiasQuery->where('representante_academia', 'like', "%{$filtroRepresentante}%");
+        }
+        
+        if ($filtroCiudad) {
+            $academiasQuery->whereHas('ciudad', function($query) use ($filtroCiudad) {
+                $query->where('nombre_ciudad', 'like', "%{$filtroCiudad}%");
+            });
+        }
+        
+        if ($filtroEstado !== null && $filtroEstado !== '') {
+            $academiasQuery->where('estado_academia', $filtroEstado);
+        }
+        
+        // Ordenar y paginar
+        $academias = $academiasQuery->orderBy('nombre_academia')->paginate($perPage);
+        
+        // Mantener parámetros de búsqueda en la paginación
+        $academias->appends($request->all());
 
-        return view('academias.index', compact('academias'));
+        return view('academias.index', compact('academias', 'search', 'filtroNombre', 'filtroCorreo', 'filtroRepresentante', 'filtroCiudad', 'filtroEstado', 'perPage'));
     }
 
     public function create()
@@ -56,24 +106,27 @@ class AcademiaController extends Controller
 
         $request->validate([
             'nombre_academia' => 'required|string|max:255|unique:academias',
-            'correo_academia' => 'required|email|max:255',
+            'correo_academia' => 'nullable|email|max:255',
             'telefono_academia' => 'required|string|max:20',
             'representante_academia' => 'required|string|max:255',
             'direccion_academia' => 'required|string|max:255',
             'ciudad_id' => 'required|exists:ciudades,id_ciudad',
-            'estado_academia' => 'required|boolean'
+            'estado_academia' => 'boolean'
         ]);
 
         try {
             return DB::transaction(function () use ($request) {
+                Log::info('Datos recibidos para crear academia:', $request->all());
                 $academia = Academia::create($request->all());
                 
-                $this->logAuditoria(
+                // Formatear datos para auditoría
+                $datosNuevos = $this->formatearDatosAcademia($academia->toArray());
+                
+                $this->crearAuditoria(
                     Auth::user()->correo,
-                    'Academias',
                     'Inserción',
                     null,
-                    $academia->toArray()
+                    json_encode($datosNuevos, JSON_UNESCAPED_UNICODE)
                 );
 
                 return redirect()->route('academias.show', $academia)
@@ -120,16 +173,17 @@ class AcademiaController extends Controller
 
         $request->validate([
             'nombre_academia' => 'required|string|max:255|unique:academias,nombre_academia,' . $academia->id_academia . ',id_academia',
-            'correo_academia' => 'required|email|max:255',
+            'correo_academia' => 'nullable|email|max:255',
             'telefono_academia' => 'required|string|max:20',
             'representante_academia' => 'required|string|max:255',
             'direccion_academia' => 'required|string|max:255',
             'ciudad_id' => 'required|exists:ciudades,id_ciudad',
-            'estado_academia' => 'required|boolean'
+            'estado_academia' => 'boolean'
         ]);
 
         try {
             return DB::transaction(function () use ($request, $academia) {
+                Log::info('Datos recibidos para actualizar academia:', $request->all());
                 $originalData = $academia->toArray();
                 $academia->update($request->all());
                 
@@ -139,8 +193,8 @@ class AcademiaController extends Controller
                 $this->crearAuditoria(
                     Auth::user()->correo,
                     'Edición',
-                    json_encode($datosAnteriores),
-                    json_encode($datosNuevos)
+                    json_encode($datosAnteriores, JSON_UNESCAPED_UNICODE),
+                    json_encode($datosNuevos, JSON_UNESCAPED_UNICODE)
                 );
 
                 return redirect()->route('academias.show', $academia)
@@ -162,14 +216,16 @@ class AcademiaController extends Controller
 
         try {
             return DB::transaction(function () use ($academia) {
-                $originalData = $academia->toArray();
+                // Guardar datos de la academia antes de eliminarla para auditoría
+                $datosAcademia = $this->formatearDatosAcademia($academia->toArray());
+                
                 $academia->delete();
                 
-                $this->logAuditoria(
+                // Registrar auditoría para eliminación de academia
+                $this->crearAuditoria(
                     Auth::user()->correo,
-                    'Academias',
                     'Eliminación',
-                    $originalData,
+                    json_encode($datosAcademia, JSON_UNESCAPED_UNICODE),
                     null
                 );
 
@@ -183,26 +239,64 @@ class AcademiaController extends Controller
         }
     }
 
-    private function logAuditoria(
-        string $correo,
-        string $tabla,
-        string $accion,
-        ?array $previo,
-        ?array $posterior
-    ): void {
-        // Usar la zona horaria de Guatemala
-        $fechaHora = now()->setTimezone('America/Guatemala');
-        
-        Auditoria::create([
-            'correo_id' => $correo,
-            'tabla_afectada' => $tabla,
-            'accion' => $accion,
-            'valor_previo' => $previo ? json_encode($previo) : '[-]',
-            'valor_posterior' => $posterior ? json_encode($posterior) : '[-]',
-            'fecha' => $fechaHora->toDateString(),
-            'hora' => $fechaHora->toTimeString(),
-            'equipo' => request()->ip()
-        ]);
+    public function exportAcademias()
+    {
+        if (!PermissionService::hasPermission('academias.read')) {
+            return redirect()->route('home')->with('error', 'No tienes permiso para exportar academias');
+        }
+
+        try {
+            $academias = Academia::with(['ciudad.departamento.pais'])->get();
+            
+            $filename = 'academias_' . now()->format('Y-m-d_H-i-s') . '.csv';
+            
+            $headers = [
+                'Content-Type' => 'text/csv; charset=UTF-8',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+                'Cache-Control' => 'no-cache, no-store, must-revalidate',
+                'Pragma' => 'no-cache',
+                'Expires' => '0'
+            ];
+
+            $callback = function() use ($academias) {
+                $file = fopen('php://output', 'w');
+                
+                // Agregar BOM UTF-8 para compatibilidad con Excel
+                fputs($file, "\xEF\xBB\xBF");
+                
+                // Encabezados
+                fputcsv($file, ['ID', 'Academia', 'Correo', 'Teléfono', 'Director', 'Dirección', 'Ciudad', 'Estado']);
+                
+                // Datos
+                foreach ($academias as $academia) {
+                    fputcsv($file, [
+                        $academia->id_academia,
+                        $academia->nombre_academia,
+                        $academia->correo_academia ?? '',
+                        $academia->telefono_academia,
+                        $academia->representante_academia,
+                        $academia->direccion_academia,
+                        $academia->ciudad ? $academia->ciudad->nombre_ciudad : 'Sin ciudad',
+                        $academia->estado_academia ? 'Activo' : 'Inactivo'
+                    ]);
+                }
+                
+                fclose($file);
+            };
+
+            // Registrar auditoría para exportación
+            $this->crearAuditoria(
+                Auth::user()->correo,
+                'Exportación',
+                null,
+                'Registros exportados en documento .csv'
+            );
+
+            return response()->stream($callback, 200, $headers);
+        } catch (\Exception $e) {
+            Log::error('Error al exportar academias: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error al exportar academias');
+        }
     }
 
     private function formatearDatosAcademia($datos)
@@ -228,8 +322,8 @@ class AcademiaController extends Controller
 
     private function crearAuditoria($correo, $accion, $previo, $posterior = null)
     {
-        // Usar la zona horaria de Guatemala
-        $fechaHora = now()->setTimezone('America/Guatemala');
+        // Usar la zona horaria de Nicaragua
+        $fechaHora = now()->setTimezone('America/Managua');
         
         Auditoria::create([
             'correo_id' => $correo,

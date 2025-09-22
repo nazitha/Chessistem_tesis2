@@ -16,9 +16,9 @@ use App\Http\Resources\FederacionResource;
 use App\Http\Resources\MiembroRolResource;
 use App\Http\Resources\FormatoResource;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Auth;
 use App\Services\AuditService;
 use App\Services\SwissPairingService;
 use App\Models\ControlTiempo;
@@ -29,8 +29,59 @@ class TorneoController extends Controller
     public function index(Request $request)
     {
         $perPage = $request->get('per_page', 10);
-        $torneos = Torneo::withRelations()->paginate($perPage);
-        return view('torneos.index', compact('torneos'));
+        $search = $request->get('search');
+        $filtroNombre = $request->get('filtro_nombre');
+        $filtroLugar = $request->get('filtro_lugar');
+        $filtroEstado = $request->get('filtro_estado');
+        
+        $query = Torneo::withRelations();
+        
+        // Aplicar filtros de búsqueda
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('nombre_torneo', 'like', "%{$search}%")
+                  ->orWhere('lugar', 'like', "%{$search}%")
+                  ->orWhereHas('categoria', function($catQuery) use ($search) {
+                      $catQuery->where('categoria_torneo', 'like', "%{$search}%");
+                  });
+            });
+        }
+        
+        // Filtros avanzados
+        if ($filtroNombre) {
+            $query->where('nombre_torneo', 'like', "%{$filtroNombre}%");
+        }
+        
+        if ($filtroLugar) {
+            $query->where('lugar', 'like', "%{$filtroLugar}%");
+        }
+        
+        if ($filtroEstado) {
+            switch ($filtroEstado) {
+                case 'Activo':
+                    $query->where('estado_torneo', true)
+                          ->where('torneo_cancelado', false)
+                          ->where('fecha_inicio', '>', now()->startOfDay());
+                    break;
+                case 'Borrador':
+                    $query->where('estado_torneo', false);
+                    break;
+                case 'Finalizado':
+                    $query->where('fecha_inicio', '<=', now()->startOfDay())
+                          ->where('torneo_cancelado', false);
+                    break;
+                case 'Cancelado':
+                    $query->where('torneo_cancelado', true);
+                    break;
+            }
+        }
+        
+        $torneos = $query->orderBy('fecha_inicio', 'desc')->paginate($perPage);
+        
+        // Mantener parámetros de búsqueda en la paginación
+        $torneos->appends($request->all());
+        
+        return view('torneos.index', compact('torneos', 'search', 'filtroNombre', 'filtroLugar', 'filtroEstado', 'perPage'));
     }
 
     public function create()
@@ -95,6 +146,13 @@ class TorneoController extends Controller
             $service = new SwissPairingService($torneo);
             $emparejamientos = $service->generarEmparejamientos($ronda);
 
+            // Preparar datos para auditoría
+            $datosEmparejamiento = [
+                'torneo' => $torneo->nombre_torneo,
+                'ronda' => $ronda->numero_ronda,
+                'emparejamientos' => []
+            ];
+
             // Guardar los emparejamientos en la base de datos
             foreach ($emparejamientos as $emparejamiento) {
                 if (isset($emparejamiento['bye'])) {
@@ -107,6 +165,13 @@ class TorneoController extends Controller
                         'resultado' => 1, // Victoria por bye
                         'color' => true // Color por defecto
                     ]);
+
+                    // Agregar a datos de auditoría
+                    $datosEmparejamiento['emparejamientos'][] = [
+                        'mesa' => $emparejamiento['mesa'],
+                        'participante' => $emparejamiento['participante1']->miembro->nombres . ' ' . $emparejamiento['participante1']->miembro->apellidos,
+                        'tipo' => 'bye'
+                    ];
                 } else {
                     // Crear partidas para ambos jugadores
                     Partida::create([
@@ -124,8 +189,35 @@ class TorneoController extends Controller
                         'mesa' => $emparejamiento['mesa'],
                         'color' => false
                     ]);
+
+                    // Agregar a datos de auditoría
+                    $datosEmparejamiento['emparejamientos'][] = [
+                        'mesa' => $emparejamiento['mesa'],
+                        'participante1' => $emparejamiento['participante1']->miembro->nombres . ' ' . $emparejamiento['participante1']->miembro->apellidos,
+                        'participante2' => $emparejamiento['participante2']->miembro->nombres . ' ' . $emparejamiento['participante2']->miembro->apellidos,
+                        'tipo' => 'partida'
+                    ];
                 }
             }
+
+            // Registrar auditoría para emparejamiento (como acción de Participantes)
+            Log::info('TorneoController: Registrando auditoría de emparejamiento');
+            $mensajeAuditoria = "Emparejamiento realizado - Torneo: {$torneo->nombre_torneo} - Ronda: {$ronda->numero_ronda}";
+            
+            // Crear auditoría directamente con tabla_afectada = 'Participantes'
+            $fechaHora = now()->setTimezone('America/Managua');
+            Auditoria::create([
+                'correo_id' => Auth::user()->correo,
+                'tabla_afectada' => 'Participantes',
+                'accion' => 'Emparejamiento',
+                'valor_previo' => null,
+                'valor_posterior' => $mensajeAuditoria,
+                'fecha' => $fechaHora->toDateString(),
+                'hora' => $fechaHora->toTimeString(),
+                'equipo' => request()->ip()
+            ]);
+            
+            Log::info('TorneoController: Auditoría de emparejamiento registrada exitosamente');
 
             return response()->json([
                 'success' => true,
@@ -575,8 +667,8 @@ class TorneoController extends Controller
 
     private function crearAuditoria($correo, $accion, $previo, $posterior = null)
     {
-        // Usar la zona horaria de Guatemala
-        $fechaHora = now()->setTimezone('America/Guatemala');
+        // Usar la zona horaria de Nicaragua
+        $fechaHora = now()->setTimezone('America/Managua');
         
         Auditoria::create([
             'correo_id' => $correo,

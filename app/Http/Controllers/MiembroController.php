@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Auditoria;
 use App\Http\Requests\MiembroRequest;
 use App\Http\Resources\MiembroResource;
+use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -16,13 +17,82 @@ use Carbon\Carbon;
 
 class MiembroController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $miembros = Miembro::with(['usuario.rol', 'ciudad.departamento.pais', 'academia'])
-            ->orderBy('cedula')
-            ->get();
+        // Parámetros de búsqueda y paginación
+        $search = $request->get('search');
+        $filtroCedula = $request->get('filtro_cedula');
+        $filtroNombres = $request->get('filtro_nombres');
+        $filtroApellidos = $request->get('filtro_apellidos');
+        $filtroAcademia = $request->get('filtro_academia');
+        $filtroEstado = $request->get('filtro_estado');
+        $perPage = $request->get('per_page', 10);
+        
+        // Log para debug
+        Log::info('Búsqueda de miembros', [
+            'search' => $search,
+            'filtro_cedula' => $filtroCedula,
+            'filtro_nombres' => $filtroNombres,
+            'filtro_apellidos' => $filtroApellidos,
+            'filtro_academia' => $filtroAcademia,
+            'filtro_estado' => $filtroEstado,
+            'per_page' => $perPage
+        ]);
+        
+        // Query base para miembros
+        $miembrosQuery = Miembro::with(['usuario.rol', 'ciudad.departamento.pais', 'academia']);
+        
+        // Aplicar filtros de búsqueda
+        if ($search) {
+            $miembrosQuery->where(function($query) use ($search) {
+                $query->where('cedula', 'like', "%{$search}%")
+                      ->orWhere('nombres', 'like', "%{$search}%")
+                      ->orWhere('apellidos', 'like', "%{$search}%")
+                      ->orWhereHas('usuario', function($q) use ($search) {
+                          $q->where('correo', 'like', "%{$search}%");
+                      })
+                      ->orWhereHas('academia', function($q) use ($search) {
+                          $q->where('nombre_academia', 'like', "%{$search}%");
+                      });
+            });
+        }
+        
+        if ($filtroCedula) {
+            $miembrosQuery->where('cedula', 'like', "%{$filtroCedula}%");
+        }
+        
+        if ($filtroNombres) {
+            $miembrosQuery->where('nombres', 'like', "%{$filtroNombres}%");
+        }
+        
+        if ($filtroApellidos) {
+            $miembrosQuery->where('apellidos', 'like', "%{$filtroApellidos}%");
+        }
+        
+        if ($filtroAcademia) {
+            $miembrosQuery->whereHas('academia', function($query) use ($filtroAcademia) {
+                $query->where('nombre_academia', 'like', "%{$filtroAcademia}%");
+            });
+        }
+        
+        if ($filtroEstado !== null && $filtroEstado !== '') {
+            $miembrosQuery->where('estado_miembro', $filtroEstado);
+        }
+        
+        // Ordenar y paginar
+        $miembros = $miembrosQuery->orderBy('cedula')->paginate($perPage);
+        
+        // Log del resultado
+        Log::info('Resultado de búsqueda', [
+            'total_miembros' => $miembros->total(),
+            'current_page' => $miembros->currentPage(),
+            'per_page' => $miembros->perPage()
+        ]);
+        
+        // Mantener parámetros de búsqueda en la paginación
+        $miembros->appends($request->all());
 
-        return view('miembros.index', compact('miembros'));
+        return view('miembros.index', compact('miembros', 'search', 'filtroCedula', 'filtroNombres', 'filtroApellidos', 'filtroAcademia', 'filtroEstado', 'perPage'));
     }
 
     public function getAcademias(): JsonResponse
@@ -157,8 +227,8 @@ class MiembroController extends Controller
          * @var \Illuminate\Support\Facades\Auth $auth
          * @method \App\Models\User|null user()
          */
-        // Usar la zona horaria de Guatemala
-        $fechaHora = now()->setTimezone('America/Guatemala');
+        // Usar la zona horaria de Nicaragua
+        $fechaHora = now()->setTimezone('America/Managua');
         
         Auditoria::create([
             'correo_id' => $correo,
@@ -217,8 +287,8 @@ class MiembroController extends Controller
 
     private function crearAuditoria($correo, $accion, $previo, $posterior = null)
     {
-        // Usar la zona horaria de Guatemala
-        $fechaHora = now()->setTimezone('America/Guatemala');
+        // Usar la zona horaria de Nicaragua
+        $fechaHora = now()->setTimezone('America/Managua');
         
         Auditoria::create([
             'correo_id' => $correo,

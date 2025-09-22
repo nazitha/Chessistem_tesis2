@@ -45,75 +45,68 @@
     </div>
 
     <!-- Controles de búsqueda -->
-    <div id="panelBusquedaMiembros" class="bg-white shadow-md rounded-lg p-4 mb-4 hidden">
+    <div id="panelBusquedaMiembros" class="bg-white shadow-md rounded-lg p-4 mb-4 {{ ($search || $filtroCedula || $filtroNombres || $filtroApellidos || $filtroAcademia || $filtroEstado) ? '' : 'hidden' }}">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg font-medium text-gray-900">Búsqueda de Miembros</h3>
             <button id="btnCancelarBusquedaMiembros" class="text-gray-500 hover:text-gray-700 text-xl font-bold">
                 ✕
             </button>
         </div>
+        
+        <form method="GET" action="{{ route('miembros.index') }}" id="formBusquedaMiembros">
         <div class="flex flex-wrap gap-4 items-center">
             <div class="flex-1 min-w-64">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Buscar:</label>
-                <input type="text" id="buscarMiembros" placeholder="Buscar por cédula, nombres, apellidos, academia..." 
+                    <input type="text" id="searchInput" name="search" value="{{ $search }}" placeholder="Buscar por cédula, nombres, apellidos..." 
                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
             <div class="flex gap-2">
-                <button id="btnBuscarAvanzadaMiembros" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md font-medium">
-                    Búsqueda Avanzada
+                    <button type="button" id="btnBuscarAvanzadaMiembros" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md font-medium">
+                        <i class="fas fa-filter mr-2"></i>Búsqueda Avanzada
                 </button>
-                <button id="btnLimpiarBusquedaMiembros" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md font-medium">
-                    Limpiar
-                </button>
-            </div>
+                    <a href="{{ route('miembros.index') }}" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md font-medium">
+                        <i class="fas fa-brush mr-2"></i>Limpiar
+                    </a>
+                </div>
         </div>
         
         <!-- Panel de búsqueda avanzada -->
-        <div id="panelBusquedaAvanzadaMiembros" class="mt-4 p-4 bg-gray-50 rounded-md hidden">
+            <div id="panelBusquedaAvanzadaMiembros" class="mt-4 p-4 bg-gray-50 rounded-md {{ ($filtroCedula || $filtroNombres || $filtroApellidos || $filtroAcademia || $filtroEstado) ? '' : 'hidden' }}">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Cédula:</label>
-                    <input type="text" id="filtroCedula" placeholder="Filtrar por cédula" 
+                        <input type="text" id="filtroCedula" name="filtro_cedula" value="{{ $filtroCedula }}" placeholder="Filtrar por cédula" 
                            class="w-full px-3 py-2 border border-gray-300 rounded-md">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Nombres:</label>
-                    <input type="text" id="filtroNombres" placeholder="Filtrar por nombres" 
+                        <input type="text" id="filtroNombres" name="filtro_nombres" value="{{ $filtroNombres }}" placeholder="Filtrar por nombres" 
                            class="w-full px-3 py-2 border border-gray-300 rounded-md">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Apellidos:</label>
-                    <input type="text" id="filtroApellidos" placeholder="Filtrar por apellidos" 
+                        <input type="text" id="filtroApellidos" name="filtro_apellidos" value="{{ $filtroApellidos }}" placeholder="Filtrar por apellidos" 
                            class="w-full px-3 py-2 border border-gray-300 rounded-md">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Sexo:</label>
-                    <select id="filtroSexo" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white">
-                        <option value="">Todos</option>
-                        <option value="Masculino">Masculino</option>
-                        <option value="Femenino">Femenino</option>
-                    </select>
-                </div>
-                <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Estado:</label>
-                    <select id="filtroEstado" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white">
+                        <select id="filtroEstado" name="filtro_estado" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white">
                         <option value="">Todos</option>
-                        <option value="Activo">Activo</option>
-                        <option value="Inactivo">Inactivo</option>
+                            <option value="1" {{ $filtroEstado === '1' ? 'selected' : '' }}>Activo</option>
+                            <option value="0" {{ $filtroEstado === '0' ? 'selected' : '' }}>Inactivo</option>
                     </select>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Academia:</label>
-                    <input type="text" id="filtroAcademia" placeholder="Filtrar por academia" 
+                        <input type="text" id="filtroAcademia" name="filtro_academia" value="{{ $filtroAcademia }}" placeholder="Filtrar por academia" 
                            class="w-full px-3 py-2 border border-gray-300 rounded-md">
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">ELO:</label>
-                    <input type="number" id="filtroElo" placeholder="Filtrar por ELO" 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md" min="0" max="3000">
                 </div>
             </div>
-        </div>
+            
+            <!-- Campo oculto para mantener per_page -->
+            <input type="hidden" name="per_page" value="{{ $perPage }}">
+        </form>
     </div>
 
     <div class="mt-6 bg-white rounded-lg shadow">
@@ -136,15 +129,27 @@
                         @endif
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+                <tbody class="bg-white divide-y divide-gray-200" id="tablaMiembrosContainer">
                     @forelse($miembros as $miembro)
-                        <tr class="hover:bg-gray-50">
+                        <tr class="hover:bg-gray-50 transition-colors duration-150">
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $miembro->cedula }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $miembro->nombres }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $miembro->apellidos }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $miembro->sexo == 'M' ? 'Masculino' : 'Femenino' }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $miembro->fecha_nacimiento ? \Carbon\Carbon::parse($miembro->fecha_nacimiento)->format('d-m-Y') : '-' }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $miembro->fecha_inscripcion ? \Carbon\Carbon::parse($miembro->fecha_inscripcion)->format('d-m-Y') : '-' }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                @if($miembro->fecha_nacimiento)
+                                    {{ \Carbon\Carbon::parse($miembro->fecha_nacimiento)->locale('es')->isoFormat('DD [de] MMMM [del] YYYY') }}
+                                @else
+                                    -
+                                @endif
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                @if($miembro->fecha_inscripcion)
+                                    {{ \Carbon\Carbon::parse($miembro->fecha_inscripcion)->locale('es')->isoFormat('DD [de] MMMM [del] YYYY') }}
+                                @else
+                                    -
+                                @endif
+                            </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
                                     @if($miembro->estado_miembro)
@@ -158,7 +163,7 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $miembro->academia->nombre_academia ?? '-' }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $miembro->elo ?? '-' }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $miembro->correo_sistema_id ?? '-' }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $miembro->usuario->correo ?? '-' }}</td>
                             @if(PermissionHelper::hasAnyMiembroActionPermission())
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <div class="flex justify-end space-x-3">
@@ -190,43 +195,44 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="11" class="px-6 py-4 text-center text-sm text-gray-500">
-                                No hay miembros registrados
+                            <td colspan="{{ PermissionHelper::hasAnyMiembroActionPermission() ? '11' : '10' }}" class="px-6 py-8 text-center text-gray-500">
+                                <div class="flex flex-col items-center">
+                                    <i class="fas fa-search text-4xl text-gray-300 mb-2"></i>
+                                    <p class="text-lg font-medium">No se encontraron resultados</p>
+                                    <p class="text-sm">Intenta ajustar los filtros de búsqueda</p>
+                                </div>
                             </td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
-        @if($miembros instanceof \Illuminate\Pagination\LengthAwarePaginator && $miembros->hasPages())
-            <div class="px-6 py-4 border-t">
-                {{ $miembros->links() }}
-            </div>
-        @endif
         
-        <!-- Controles de paginación personalizados -->
-        <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+        <!-- Paginación de Laravel -->
+        <div class="px-6 py-4 border-t bg-gray-50">
+            <div class="flex flex-col gap-4">
+                <!-- Selector de registros por página (siempre visible) -->
             <div class="flex items-center justify-between">
-                <div class="flex items-center">
-                    <label class="text-sm text-gray-700 mr-2">Mostrar:</label>
-                    <select id="registrosPorPaginaMiembros" class="border border-gray-300 rounded-md px-2 py-1 text-sm bg-white">
-                        <option value="5">5</option>
-                        <option value="10" selected>10</option>
-                        <option value="25">25</option>
-                        <option value="50">50</option>
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm text-gray-700">Mostrar:</span>
+                        <select onchange="changePerPageMiembros(this.value)" class="border border-gray-300 rounded-md px-2 py-1 text-sm bg-white">
+                            <option value="10" {{ ($perPage ?? 10) == 10 ? 'selected' : '' }}>10</option>
+                            <option value="25" {{ ($perPage ?? 10) == 25 ? 'selected' : '' }}>25</option>
+                            <option value="50" {{ ($perPage ?? 10) == 50 ? 'selected' : '' }}>50</option>
+                            <option value="100" {{ ($perPage ?? 10) == 100 ? 'selected' : '' }}>100</option>
                     </select>
-                    <span class="text-sm text-gray-700 ml-2">registros por página</span>
+                        <span class="text-sm text-gray-700">por página</span>
+                    </div>
+                    
+                    <!-- Información de paginación -->
+                    <div class="text-sm text-gray-700">
+                        Mostrando {{ $miembros->firstItem() ?? 0 }} a {{ $miembros->lastItem() ?? 0 }} registros de {{ $miembros->total() }} resultados
+                    </div>
                 </div>
-                <div class="flex items-center space-x-2">
-                    <button id="btnAnteriorMiembros" class="px-3 py-1 border border-gray-300 rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed">
-                        Anterior
-                    </button>
-                    <span id="infoPaginacionMiembros" class="text-sm text-gray-700">
-                        Página <span id="paginaActualMiembros">1</span> de <span id="totalPaginasMiembros">1</span>
-                    </span>
-                    <button id="btnSiguienteMiembros" class="px-3 py-1 border border-gray-300 rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed">
-                        Siguiente
-                    </button>
+                
+                <!-- Enlaces de paginación -->
+                <div class="flex-1 flex items-center justify-center">
+                    {{ $miembros->links('pagination.custom') }}
                 </div>
             </div>
         </div>
@@ -296,378 +302,240 @@ function cerrarModal() {
     modal.classList.remove('flex');
 }
 
-// Sistema de búsqueda y paginación personalizado para miembros
-class TablaPersonalizada {
-    constructor(tablaElement, config) {
-        this.tabla = tablaElement;
-        this.tbody = this.tabla.querySelector('tbody');
-        this.filasOriginales = Array.from(this.tbody.querySelectorAll('tr'));
-        this.filasFiltradas = [...this.filasOriginales];
-        this.paginaActual = 1;
-        this.registrosPorPagina = 10;
-        this.config = config;
-        
-        this.inicializar();
+// Variables globales para control de búsqueda
+let searchTimeout;
+let isLoading = false;
+
+// Función para realizar búsqueda AJAX
+function performSearchMiembros() {
+    if (isLoading) return;
+    
+    console.log('Iniciando búsqueda...');
+    
+    const searchInput = document.getElementById('searchInput');
+    const filtroCedula = document.getElementById('filtroCedula');
+    const filtroNombres = document.getElementById('filtroNombres');
+    const filtroApellidos = document.getElementById('filtroApellidos');
+    const filtroAcademia = document.getElementById('filtroAcademia');
+    const filtroEstado = document.getElementById('filtroEstado');
+    const perPageSelect = document.querySelector('select[onchange="changePerPageMiembros(this.value)"]');
+    
+    const params = new URLSearchParams();
+    
+    if (searchInput && searchInput.value.trim()) {
+        params.append('search', searchInput.value.trim());
+        console.log('Búsqueda general:', searchInput.value.trim());
+    }
+    if (filtroCedula && filtroCedula.value.trim()) {
+        params.append('filtro_cedula', filtroCedula.value.trim());
+    }
+    if (filtroNombres && filtroNombres.value.trim()) {
+        params.append('filtro_nombres', filtroNombres.value.trim());
+    }
+    if (filtroApellidos && filtroApellidos.value.trim()) {
+        params.append('filtro_apellidos', filtroApellidos.value.trim());
+    }
+    if (filtroAcademia && filtroAcademia.value.trim()) {
+        params.append('filtro_academia', filtroAcademia.value.trim());
+    }
+    if (filtroEstado && filtroEstado.value !== '') {
+        params.append('filtro_estado', filtroEstado.value);
+    }
+    if (perPageSelect && perPageSelect.value) {
+        params.append('per_page', perPageSelect.value);
     }
     
-    inicializar() {
-        this.configurarEventos();
-        this.verificarEstadoExportar();
-        this.aplicarPaginacion();
-    }
+    // Actualizar URL sin recargar página
+    const newUrl = '{{ route("miembros.index") }}' + (params.toString() ? '?' + params.toString() : '');
+    console.log('URL de búsqueda:', newUrl);
+    window.history.pushState({}, '', newUrl);
     
-    configurarEventos() {
-        // Registros por página
-        const selectRegistros = document.getElementById(this.config.selectRegistros);
-        if (selectRegistros) {
-            selectRegistros.addEventListener('change', (e) => {
-                this.registrosPorPagina = parseInt(e.target.value);
-                this.paginaActual = 1;
-                this.aplicarPaginacion();
-            });
-        }
-        
-        // Botón de exportación
-        const btnExportar = document.getElementById(this.config.btnExportar);
-        if (btnExportar) {
-            btnExportar.addEventListener('click', () => {
-                this.exportarDatos();
-            });
-        }
-        
-        // Botones de paginación
-        const btnAnterior = document.getElementById(this.config.btnAnterior);
-        const btnSiguiente = document.getElementById(this.config.btnSiguiente);
-        
-        if (btnAnterior) {
-            btnAnterior.addEventListener('click', () => {
-                if (this.paginaActual > 1) {
-                    this.paginaActual--;
-                    this.aplicarPaginacion();
-                }
-            });
-        }
-        
-        if (btnSiguiente) {
-            btnSiguiente.addEventListener('click', () => {
-                const totalPaginas = Math.ceil(this.filasFiltradas.length / this.registrosPorPagina);
-                if (this.paginaActual < totalPaginas) {
-                    this.paginaActual++;
-                    this.aplicarPaginacion();
-                }
-            });
-        }
-        
-        // Botón para mostrar panel de búsqueda
-        const btnMostrarBusqueda = document.getElementById(this.config.btnMostrarBusqueda);
-        if (btnMostrarBusqueda) {
-            btnMostrarBusqueda.addEventListener('click', () => {
-                this.mostrarPanelBusqueda();
-            });
-        }
-        
-        // Botón para cancelar búsqueda
-        const btnCancelarBusqueda = document.getElementById(this.config.btnCancelarBusqueda);
-        if (btnCancelarBusqueda) {
-            btnCancelarBusqueda.addEventListener('click', () => {
-                this.cancelarBusqueda();
-            });
-        }
-        
-        // Búsqueda general
-        const inputBusqueda = document.getElementById(this.config.inputBusqueda);
-        if (inputBusqueda) {
-            inputBusqueda.addEventListener('input', (e) => {
-                this.filtrar(e.target.value);
-            });
-        }
-        
-        // Búsqueda avanzada
-        const btnBuscarAvanzada = document.getElementById(this.config.btnBuscarAvanzada);
-        if (btnBuscarAvanzada) {
-            btnBuscarAvanzada.addEventListener('click', () => {
-                this.toggleBusquedaAvanzada();
-            });
-        }
-        
-        // Limpiar búsqueda
-        const btnLimpiar = document.getElementById(this.config.btnLimpiar);
-        if (btnLimpiar) {
-            btnLimpiar.addEventListener('click', () => {
-                this.limpiarFiltros();
-            });
-        }
-        
-        // Filtros avanzados
-        if (this.config.filtrosAvanzados) {
-            this.config.filtrosAvanzados.forEach(filtro => {
-                const elemento = document.getElementById(filtro.id);
-                if (elemento) {
-                    elemento.addEventListener('input', () => {
-                        this.aplicarFiltrosAvanzados();
-                    });
-                }
-            });
-        }
-    }
+    // Realizar petición AJAX
+    toggleLoadingMiembros(true);
     
-    mostrarPanelBusqueda() {
-        const panel = document.getElementById(this.config.panelBusqueda);
-        if (panel) {
-            panel.classList.remove('hidden');
+    fetch(newUrl, {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'text/html'
         }
-    }
-    
-    cancelarBusqueda() {
-        this.limpiarFiltros();
-        const panel = document.getElementById(this.config.panelBusqueda);
-        if (panel) {
-            panel.classList.add('hidden');
-        }
-    }
-    
-    filtrar(texto) {
-        this.filasFiltradas = this.filasOriginales.filter(fila => {
-            const textoFila = fila.textContent.toLowerCase();
-            return textoFila.includes(texto.toLowerCase());
-        });
+    })
+    .then(response => {
+        console.log('Respuesta recibida:', response.status);
+        return response.text();
+    })
+    .then(html => {
+        console.log('HTML recibido, longitud:', html.length);
         
-        this.paginaActual = 1;
-        this.aplicarPaginacion();
-        this.verificarEstadoExportar();
-    }
-    
-    aplicarFiltrosAvanzados() {
-        const filtros = {};
+        // Parsear la respuesta HTML
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
         
-        if (this.config.filtrosAvanzados) {
-            this.config.filtrosAvanzados.forEach(filtro => {
-                const elemento = document.getElementById(filtro.id);
-                if (elemento && elemento.value) {
-                    filtros[filtro.campo] = elemento.value.toLowerCase();
-                }
-            });
-        }
-        
-        this.filasFiltradas = this.filasOriginales.filter(fila => {
-            const celdas = fila.querySelectorAll('td');
-            
-            for (const [campo, valor] of Object.entries(filtros)) {
-                const indice = this.config.filtrosAvanzados.find(f => f.campo === campo)?.indice;
-                if (indice !== undefined && celdas[indice]) {
-                    const textoCelda = celdas[indice].textContent.toLowerCase();
-                    if (!textoCelda.includes(valor)) {
-                        return false;
-                    }
-                }
+        // Actualizar tabla de miembros
+        const newTableContainer = doc.querySelector('#tablaMiembrosContainer');
+        if (newTableContainer) {
+            const currentTableContainer = document.querySelector('#tablaMiembrosContainer');
+            if (currentTableContainer) {
+                currentTableContainer.innerHTML = newTableContainer.innerHTML;
+                console.log('Tabla actualizada');
             }
-            
-            return true;
-        });
+        } else {
+            console.log('No se encontró #tablaMiembrosContainer en la respuesta');
+        }
         
-        this.paginaActual = 1;
-        this.aplicarPaginacion();
-        this.verificarEstadoExportar();
-    }
+        // Actualizar paginación
+        const newPaginationContainer = doc.querySelector('.px-6.py-4.border-t.bg-gray-50');
+        if (newPaginationContainer) {
+            const currentPaginationContainer = document.querySelector('.px-6.py-4.border-t.bg-gray-50');
+            if (currentPaginationContainer) {
+                currentPaginationContainer.outerHTML = newPaginationContainer.outerHTML;
+                console.log('Paginación actualizada');
+            }
+        } else {
+            console.log('No se encontró paginación en la respuesta');
+        }
+        
+        toggleLoadingMiembros(false);
+    })
+    .catch(error => {
+        console.error('Error en búsqueda:', error);
+        toggleLoadingMiembros(false);
+    });
+}
+
+// Función para cambiar registros por página
+function changePerPageMiembros(value) {
+    if (isLoading) return;
     
-    toggleBusquedaAvanzada() {
-        const panel = document.getElementById(this.config.panelBusquedaAvanzada);
-        if (panel) {
-            panel.classList.toggle('hidden');
-        }
-    }
+    const params = new URLSearchParams(window.location.search);
+    params.set('per_page', value);
+    params.delete('page'); // Resetear a la primera página
     
-    limpiarFiltros() {
-        // Limpiar búsqueda general
-        const inputBusqueda = document.getElementById(this.config.inputBusqueda);
-        if (inputBusqueda) {
-            inputBusqueda.value = '';
-        }
-        
-        // Limpiar filtros avanzados
-        if (this.config.filtrosAvanzados) {
-            this.config.filtrosAvanzados.forEach(filtro => {
-                const elemento = document.getElementById(filtro.id);
-                if (elemento) {
-                    elemento.value = '';
-                }
-            });
-        }
-        
-        // Ocultar panel de búsqueda avanzada
-        const panelAvanzado = document.getElementById(this.config.panelBusquedaAvanzada);
-        if (panelAvanzado) {
-            panelAvanzado.classList.add('hidden');
-        }
-        
-        // Restaurar todas las filas y reinicializar paginación
-        this.filasFiltradas = [...this.filasOriginales];
-        this.paginaActual = 1;
-        this.aplicarPaginacion();
-        this.verificarEstadoExportar();
-    }
+    const newUrl = '{{ route("miembros.index") }}?' + params.toString();
+    window.history.pushState({}, '', newUrl);
     
-    aplicarPaginacion() {
-        // Ocultar todas las filas primero
-        this.filasOriginales.forEach(fila => {
-            fila.style.display = 'none';
-        });
+    toggleLoadingMiembros(true);
+    
+    fetch(newUrl, {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'text/html'
+        }
+    })
+    .then(response => response.text())
+    .then(html => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
         
-        // Calcular qué filas mostrar
-        const inicio = (this.paginaActual - 1) * this.registrosPorPagina;
-        const fin = inicio + this.registrosPorPagina;
-        const filasAMostrar = this.filasFiltradas.slice(inicio, fin);
-        
-        // Mostrar solo las filas de la página actual
-        filasAMostrar.forEach(fila => {
-            fila.style.display = '';
-        });
-        
-        // Actualizar información de paginación
-        const totalPaginas = Math.ceil(this.filasFiltradas.length / this.registrosPorPagina);
-        
-        const paginaActual = document.getElementById(this.config.paginaActual);
-        const totalPaginasElement = document.getElementById(this.config.totalPaginas);
-        const btnAnterior = document.getElementById(this.config.btnAnterior);
-        const btnSiguiente = document.getElementById(this.config.btnSiguiente);
-        
-        if (paginaActual) paginaActual.textContent = this.paginaActual;
-        if (totalPaginasElement) totalPaginasElement.textContent = totalPaginas;
-        
-        if (btnAnterior) {
-            const puedeAnterior = this.paginaActual > 1;
-            btnAnterior.disabled = !puedeAnterior;
-            if (!puedeAnterior) {
-                btnAnterior.classList.add('opacity-50', 'cursor-not-allowed');
-            } else {
-                btnAnterior.classList.remove('opacity-50', 'cursor-not-allowed');
+        // Actualizar tabla de miembros
+        const newTableContainer = doc.querySelector('#tablaMiembrosContainer');
+        if (newTableContainer) {
+            const currentTableContainer = document.querySelector('#tablaMiembrosContainer');
+            if (currentTableContainer) {
+                currentTableContainer.innerHTML = newTableContainer.innerHTML;
             }
         }
         
-        if (btnSiguiente) {
-            const puedeSiguiente = this.paginaActual < totalPaginas;
-            btnSiguiente.disabled = !puedeSiguiente;
-            if (!puedeSiguiente) {
-                btnSiguiente.classList.add('opacity-50', 'cursor-not-allowed');
-            } else {
-                btnSiguiente.classList.remove('opacity-50', 'cursor-not-allowed');
+        // Actualizar paginación
+        const newPaginationContainer = doc.querySelector('.px-6.py-4.border-t.bg-gray-50');
+        if (newPaginationContainer) {
+            const currentPaginationContainer = document.querySelector('.px-6.py-4.border-t.bg-gray-50');
+            if (currentPaginationContainer) {
+                currentPaginationContainer.outerHTML = newPaginationContainer.outerHTML;
             }
         }
         
-        // Verificar estado del botón exportar
-        this.verificarEstadoExportar();
-    }
-    
-    verificarEstadoExportar() {
-        const btnExportar = document.getElementById(this.config.btnExportar);
-        if (btnExportar) {
-            let tieneRegistros = false;
-            
-            // Si hay filtros aplicados, verificar las filas filtradas
-            if (this.filasFiltradas.length !== this.filasOriginales.length) {
-                tieneRegistros = this.filasFiltradas.length > 0;
-            } else {
-                // Si no hay filtros, verificar las filas originales en el DOM
-                const filasEnTabla = this.tabla.querySelectorAll('tbody tr');
-                tieneRegistros = Array.from(filasEnTabla).some(fila => {
-                    // Excluir filas que contengan mensajes como "No hay miembros registrados"
-                    const textoFila = fila.textContent.toLowerCase();
-                    return !textoFila.includes('no hay') && !textoFila.includes('registrados') && !textoFila.includes('registradas');
-                });
-            }
-            
-            btnExportar.disabled = !tieneRegistros;
-            
-            if (!tieneRegistros) {
-                btnExportar.classList.add('opacity-50', 'cursor-not-allowed');
-                btnExportar.title = 'No hay registros para exportar';
-            } else {
-                btnExportar.classList.remove('opacity-50', 'cursor-not-allowed');
-                btnExportar.title = 'Exportar registros';
-            }
-        }
-    }
-    
-    exportarDatos() {
-        // Obtener las filas filtradas (visibles)
-        const filasAExportar = this.filasFiltradas;
-        
-        // Obtener los encabezados de la tabla (excluyendo la columna de acciones)
-        const encabezados = [];
-        const filasEncabezado = this.tabla.querySelectorAll('thead th');
-        filasEncabezado.forEach((th, index) => {
-            // Excluir la última columna si es "Acciones"
-            if (index < filasEncabezado.length - 1 || !th.textContent.trim().includes('Acciones')) {
-                encabezados.push(th.textContent.trim());
-            }
-        });
-        
-        // Preparar los datos para exportar
-        const datos = [];
-        filasAExportar.forEach(fila => {
-            const filaDatos = [];
-            const celdas = fila.querySelectorAll('td');
-            
-            // Excluir la última celda si es la columna de acciones
-            const celdasAExportar = celdas.length > 0 && celdas[celdas.length - 1].querySelector('button') ? 
-                Array.from(celdas).slice(0, -1) : Array.from(celdas);
-            
-            celdasAExportar.forEach(celda => {
-                filaDatos.push(celda.textContent.trim());
-            });
-            
-            datos.push(filaDatos);
-        });
-        
-        // Crear el contenido CSV con BOM para UTF-8
-        const BOM = '\uFEFF'; // Byte Order Mark para UTF-8
-        let csvContent = BOM + encabezados.join(',') + '\n';
-        datos.forEach(fila => {
-            csvContent += fila.join(',') + '\n';
-        });
-        
-        // Crear y descargar el archivo con codificación UTF-8
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
-        const link = document.createElement('a');
-        const url = URL.createObjectURL(blob);
-        link.setAttribute('href', url);
-        link.setAttribute('download', 'miembros_exportados.csv');
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        toggleLoadingMiembros(false);
+    })
+    .catch(error => {
+        console.error('Error al cambiar página:', error);
+        toggleLoadingMiembros(false);
+    });
+}
+
+// Función para mostrar/ocultar loading
+function toggleLoadingMiembros(show) {
+    isLoading = show;
+    const tableContainer = document.querySelector('#tablaMiembrosContainer').closest('.overflow-x-auto');
+    if (tableContainer) {
+        tableContainer.style.opacity = show ? '0.6' : '1';
+        tableContainer.style.pointerEvents = show ? 'none' : 'auto';
     }
 }
 
-// Inicializar tabla de miembros cuando el DOM esté listo
+// Función debounce para optimizar búsquedas
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+// Event listeners
 document.addEventListener('DOMContentLoaded', function() {
-    // Tabla de miembros
-    const tablaMiembros = document.querySelector('.bg-white.rounded-lg.shadow table');
-    if (tablaMiembros) {
-        new TablaPersonalizada(tablaMiembros, {
-            inputBusqueda: 'buscarMiembros',
-            btnMostrarBusqueda: 'btnMostrarBusquedaMiembros',
-            btnCancelarBusqueda: 'btnCancelarBusquedaMiembros',
-            btnBuscarAvanzada: 'btnBuscarAvanzadaMiembros',
-            btnLimpiar: 'btnLimpiarBusquedaMiembros',
-            btnExportar: 'btnExportarMiembros',
-            panelBusqueda: 'panelBusquedaMiembros',
-            panelBusquedaAvanzada: 'panelBusquedaAvanzadaMiembros',
-            selectRegistros: 'registrosPorPaginaMiembros',
-            btnAnterior: 'btnAnteriorMiembros',
-            btnSiguiente: 'btnSiguienteMiembros',
-            paginaActual: 'paginaActualMiembros',
-            totalPaginas: 'totalPaginasMiembros',
-            filtrosAvanzados: [
-                { id: 'filtroCedula', campo: 'cedula', indice: 0 },
-                { id: 'filtroNombres', campo: 'nombres', indice: 1 },
-                { id: 'filtroApellidos', campo: 'apellidos', indice: 2 },
-                { id: 'filtroSexo', campo: 'sexo', indice: 3 },
-                { id: 'filtroEstado', campo: 'estado', indice: 6 },
-                { id: 'filtroAcademia', campo: 'academia', indice: 7 }
-            ]
+    // Mostrar panel de búsqueda
+    const btnMostrarBusqueda = document.getElementById('btnMostrarBusquedaMiembros');
+    if (btnMostrarBusqueda) {
+        btnMostrarBusqueda.addEventListener('click', function() {
+            const panel = document.getElementById('panelBusquedaMiembros');
+        if (panel) {
+            panel.classList.remove('hidden');
+        }
         });
     }
+    
+    // Cancelar búsqueda
+    const btnCancelarBusqueda = document.getElementById('btnCancelarBusquedaMiembros');
+    if (btnCancelarBusqueda) {
+        btnCancelarBusqueda.addEventListener('click', function() {
+            const panel = document.getElementById('panelBusquedaMiembros');
+        if (panel) {
+            panel.classList.add('hidden');
+        }
+        });
+    }
+    
+    // Búsqueda avanzada
+    const btnBuscarAvanzada = document.getElementById('btnBuscarAvanzadaMiembros');
+    if (btnBuscarAvanzada) {
+        btnBuscarAvanzada.addEventListener('click', function() {
+            const panel = document.getElementById('panelBusquedaAvanzadaMiembros');
+            if (panel) {
+                panel.classList.toggle('hidden');
+            }
+        });
+    }
+    
+    // Búsqueda en tiempo real con debounce
+    const debouncedSearch = debounce(performSearchMiembros, 500);
+    
+    // Input de búsqueda principal
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', debouncedSearch);
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                document.getElementById('formBusquedaMiembros').submit();
+            }
+        });
+    }
+    
+    // Filtros avanzados
+    const filtros = ['filtroCedula', 'filtroNombres', 'filtroApellidos', 'filtroAcademia', 'filtroEstado'];
+    filtros.forEach(id => {
+        const elemento = document.getElementById(id);
+        if (elemento) {
+            elemento.addEventListener('input', debouncedSearch);
+            elemento.addEventListener('change', debouncedSearch);
+        }
+    });
 });
 
 // Función para exportar miembros

@@ -17,6 +17,7 @@ use App\Http\Controllers\ImportarMiembrosController;
 use App\Http\Controllers\ImportarTorneosController;
 use App\Http\Controllers\MiembroController;
 use App\Http\Controllers\PartidaController;
+use App\Http\Controllers\ParticipantesController;
 use App\Http\Controllers\Auth\PasswordRecoveryController;
 use App\Http\Controllers\TorneoController;
 use App\Http\Controllers\UserController;
@@ -70,6 +71,7 @@ Route::middleware('web')->group(function () {
         Route::post('/usuarios/rol/permisos', [UserController::class, 'updateRolePermissions'])->name('usuarios.rol.permisos.update');
         Route::get('/usuarios/export', [UserController::class, 'exportUsers'])->name('usuarios.export');
         Route::get('/permisos/export', [UserController::class, 'exportPermissions'])->name('permisos.export');
+        Route::get('/academias/export', [AcademiaController::class, 'exportAcademias'])->name('academias.export');
         Route::resource('usuarios', UserController::class);
         Route::resource('academias', AcademiaController::class)->parameters([
             'academias' => 'academia'
@@ -95,6 +97,10 @@ Route::middleware('web')->group(function () {
         Route::put('torneos/{torneo}/cancelar', [TorneoController::class, 'cancelar'])->name('torneos.cancelar');
         Route::get('torneos/{torneo}/rondas/{ronda}', [TorneoRondaController::class, 'show'])
             ->name('torneos.rondas.show');
+
+        // Rutas de participantes
+        Route::get('/participantes/export', [ParticipantesController::class, 'exportParticipantes'])->name('participantes.export');
+        Route::resource('participantes', ParticipantesController::class)->only(['index', 'show', 'destroy']);
 
         // Ruta para crear equipos en un torneo
         Route::post('torneos/{torneo}/equipos', [App\Http\Controllers\EquipoTorneoController::class, 'store'])->name('equipos.store');

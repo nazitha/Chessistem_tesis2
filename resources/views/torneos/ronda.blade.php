@@ -421,10 +421,49 @@ document.addEventListener('DOMContentLoaded', function() {
         input.addEventListener('input', function(e) {
             let value = e.target.value;
             
-            // Remover caracteres no válidos (solo números, punto y guion)
-            value = value.replace(/[^0-9.-]/g, '');
+            // Validación del primer dígito - solo permitir "0" o "1"
+            if (value.length === 1) {
+                const firstChar = value[0];
+                if (firstChar !== '0' && firstChar !== '1') {
+                    // Si no es "0" o "1", limpiar el input
+                    e.target.value = '';
+                    return;
+                }
+            }
             
-            // Procesar la lógica de autocompletado
+            // Validación especial para "0"
+            if (value.startsWith('0') && value.length > 1) {
+                // Si empieza con "0", solo permitir "." o "-" como segundo carácter
+                const secondChar = value[1];
+                if (secondChar !== '.' && secondChar !== '-') {
+                    // Si no es "." o "-", revertir al valor anterior
+                    e.target.value = value.slice(0, 1);
+                    return;
+                }
+                
+                // Si empieza con "0.", solo permitir "5" como tercer carácter
+                if (value.startsWith('0.') && value.length > 2) {
+                    const thirdChar = value[2];
+                    if (thirdChar !== '5') {
+                        // Si no es "5", revertir al valor anterior
+                        e.target.value = value.slice(0, 2);
+                        return;
+                    }
+                }
+            }
+            
+            // Contar guiones - solo permitir uno
+            const guionCount = (value.match(/-/g) || []).length;
+            if (guionCount > 1) {
+                // Si hay más de un guion, eliminar los extras
+                value = value.replace(/-/g, '');
+                // Agregar solo un guion al final
+                value = value + '-';
+                e.target.value = value;
+                return;
+            }
+            
+            // Procesar la lógica de autocompletado (esto incluye la validación)
             value = processResultadoInput(value);
             
             e.target.value = value;
@@ -433,9 +472,11 @@ document.addEventListener('DOMContentLoaded', function() {
         // Manejar evento de borrado específicamente
         input.addEventListener('keydown', function(e) {
             if (e.keyCode === 8 || e.keyCode === 46) { // Backspace o Delete
-                // Limpiar completamente el input
-                e.target.value = '';
-                e.preventDefault();
+                // Si está autocompletado, limpiar completamente
+                if (e.target.value.includes('-')) {
+                    e.target.value = '';
+                    e.preventDefault();
+                }
             }
         });
         
@@ -443,6 +484,43 @@ document.addEventListener('DOMContentLoaded', function() {
         input.addEventListener('keydown', function(e) {
             // Si es backspace o delete, dejar que el evento anterior lo maneje
             if (e.keyCode === 8 || e.keyCode === 46) {
+                return;
+            }
+            
+            // Si ya está autocompletado, solo permitir teclas de control
+            if (e.target.value.includes('-')) {
+                // Permitir solo teclas de control y navegación
+                if (e.keyCode === 9 ||  // Tab
+                    e.keyCode === 27 || // Escape
+                    e.keyCode === 37 || // Left arrow
+                    e.keyCode === 38 || // Up arrow
+                    e.keyCode === 39 || // Right arrow
+                    e.keyCode === 40 || // Down arrow
+                    e.keyCode === 35 || // End
+                    e.keyCode === 36 || // Home
+                    e.keyCode === 16 || // Shift
+                    e.keyCode === 17 || // Ctrl
+                    e.keyCode === 18 || // Alt
+                    (e.keyCode === 65 && e.ctrlKey) || // Ctrl+A
+                    (e.keyCode === 67 && e.ctrlKey) || // Ctrl+C
+                    (e.keyCode === 86 && e.ctrlKey) || // Ctrl+V
+                    (e.keyCode === 88 && e.ctrlKey) || // Ctrl+X
+                    (e.keyCode === 90 && e.ctrlKey)) { // Ctrl+Z
+                    return;
+                }
+                // Bloquear cualquier otra tecla
+                e.preventDefault();
+                return;
+            }
+            
+            // Manejar la tecla guion (-) - solo permitir una vez
+            if (e.keyCode === 189 || e.keyCode === 109) { // Tecla guion en diferentes teclados
+                // Si ya hay un guion, no permitir otro
+                if (e.target.value.includes('-')) {
+                    e.preventDefault();
+                    return;
+                }
+                // Si no hay guion, permitir que se agregue
                 return;
             }
             
@@ -496,45 +574,35 @@ document.addEventListener('DOMContentLoaded', function() {
         // Si está vacío, retornar vacío
         if (!value) return '';
         
+        // Manejar guiones manuales - solo permitir uno
+        if (value.includes('-')) {
+            // Si hay más de un guion, eliminar los extras
+            const guionCount = (value.match(/-/g) || []).length;
+            if (guionCount > 1) {
+                return value.replace(/-/g, '') + '-';
+            }
+            // Si hay exactamente un guion, autocompletar según el contexto
+            if (value === '-') {
+                return '1-1';
+            }
+            // Si hay "0-", autocompletar a "0-1"
+            if (value === '0-') {
+                return '0-1';
+            }
+            // Si hay un guion con contenido, mantenerlo
+            return value;
+        }
+        
         // Solo autocompletar cuando sea un número completo válido
         if (value === '1') return '1-0';
         if (value === '0.5') return '0.5-0.5';
+        if (value === '0.') return '0.5-0.5';
         
         // NO autocompletar solo '0' porque puede venir '0.5'
         
-        // Si contiene guion, procesar ambos lados
-        if (value.includes('-')) {
-            const parts = value.split('-');
-            if (parts.length === 2) {
-                let left = parts[0].trim();
-                let right = parts[1].trim();
-                
-                // Validar que ambos sean números válidos
-                const validNumbers = ['0', '0.5', '1'];
-                
-                if (validNumbers.includes(left) && validNumbers.includes(right)) {
-                    return `${left}-${right}`;
-                }
-                
-                // Si solo el lado izquierdo es válido, autocompletar el derecho
-                if (validNumbers.includes(left)) {
-                    if (left === '1') return '1-0';
-                    if (left === '0') return '0-1';
-                    if (left === '0.5') return '0.5-0.5';
-                }
-                
-                // Si solo el lado derecho es válido, autocompletar el izquierdo
-                if (validNumbers.includes(right)) {
-                    if (right === '1') return '0-1';
-                    if (right === '0') return '1-0';
-                    if (right === '0.5') return '0.5-0.5';
-                }
-            }
-        }
-        
         // Permitir escribir parcialmente (no autocompletar hasta que sea completo)
-        // Solo validar que contenga caracteres válidos
-        const validChars = /^[0-9.-]*$/;
+        // Solo validar que contenga caracteres válidos (solo números y punto)
+        const validChars = /^[0-9.]*$/;
         if (validChars.test(value)) {
             return value;
         }

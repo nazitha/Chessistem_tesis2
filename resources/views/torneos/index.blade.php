@@ -20,7 +20,9 @@
         <h1 class="text-2xl font-semibold">Torneos</h1>
         @if(PermissionHelper::canCreate('torneos'))
             <a href="{{ route('torneos.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded hover:bg-blue-600 transition-colors duration-200">
-                <i class="fas fa-plus mr-2"></i>
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
                 Nuevo Torneo
             </a>
         @endif
@@ -52,52 +54,56 @@
 
     <!-- Controles de búsqueda -->
     <div id="panelBusquedaTorneos" class="bg-white shadow-md rounded-lg p-4 mb-4 hidden">
+        <form method="GET" action="{{ route('torneos.index') }}" id="formBusquedaTorneos">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg font-medium text-gray-900">Búsqueda de Torneos</h3>
-            <button id="btnCancelarBusquedaTorneos" class="text-gray-500 hover:text-gray-700 text-xl font-bold">
+                <button type="button" id="btnCancelarBusquedaTorneos" class="text-gray-500 hover:text-gray-700 text-xl font-bold">
                 ✕
             </button>
         </div>
         <div class="flex flex-wrap gap-4 items-center">
             <div class="flex-1 min-w-64">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Buscar:</label>
-                <input type="text" id="buscarTorneos" placeholder="Buscar por nombre, lugar, categoría..." 
+                    <input type="text" id="searchInput" name="search" value="{{ $search ?? '' }}" placeholder="Buscar por nombre, lugar, categoría..." 
                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
             <div class="flex gap-2">
-                <button id="btnBuscarAvanzadaTorneos" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md font-medium">
-                    Búsqueda Avanzada
+                    <button type="button" id="btnBuscarAvanzadaTorneos" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md font-medium">
+                        <i class="fas fa-filter mr-2"></i>Búsqueda Avanzada
                 </button>
-                <button id="btnLimpiarBusquedaTorneos" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md font-medium">
-                    Limpiar
-                </button>
+                    <a href="{{ route('torneos.index') }}" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md font-medium">
+                        <i class="fas fa-brush mr-2"></i>Limpiar
+                    </a>
             </div>
         </div>
         <!-- Panel de búsqueda avanzada -->
-        <div id="panelBusquedaAvanzadaTorneos" class="mt-4 p-4 bg-gray-50 rounded-md hidden">
+            <div id="panelBusquedaAvanzadaTorneos" class="mt-4 p-4 bg-gray-50 rounded-md {{ ($filtroNombre || $filtroLugar || $filtroEstado) ? '' : 'hidden' }}">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Nombre:</label>
-                    <input type="text" id="filtroNombre" placeholder="Filtrar por nombre" 
+                        <input type="text" id="filtroNombre" name="filtro_nombre" value="{{ $filtroNombre ?? '' }}" placeholder="Filtrar por nombre" 
                            class="w-full px-3 py-2 border border-gray-300 rounded-md">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Lugar:</label>
-                    <input type="text" id="filtroLugar" placeholder="Filtrar por lugar" 
+                        <input type="text" id="filtroLugar" name="filtro_lugar" value="{{ $filtroLugar ?? '' }}" placeholder="Filtrar por lugar" 
                            class="w-full px-3 py-2 border border-gray-300 rounded-md">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Estado:</label>
-                    <select id="filtroEstado" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white">
+                        <select id="filtroEstado" name="filtro_estado" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white">
                         <option value="">Todos los estados</option>
-                        <option value="Activo">Activo</option>
-                        <option value="Borrador">Borrador</option>
-                        <option value="Finalizado">Finalizado</option>
-                        <option value="Cancelado">Cancelado</option>
+                            <option value="Activo" {{ ($filtroEstado ?? '') == 'Activo' ? 'selected' : '' }}>Activo</option>
+                            <option value="Borrador" {{ ($filtroEstado ?? '') == 'Borrador' ? 'selected' : '' }}>Borrador</option>
+                            <option value="Finalizado" {{ ($filtroEstado ?? '') == 'Finalizado' ? 'selected' : '' }}>Finalizado</option>
+                            <option value="Cancelado" {{ ($filtroEstado ?? '') == 'Cancelado' ? 'selected' : '' }}>Cancelado</option>
                     </select>
+                    </div>
                 </div>
             </div>
-        </div>
+            <!-- Campos ocultos para mantener per_page -->
+            <input type="hidden" name="per_page" value="{{ $perPage ?? 10 }}">
+        </form>
     </div>
 
     <div class="mt-6 bg-white rounded-lg shadow">
@@ -217,8 +223,12 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="{{ PermissionHelper::hasAnyTorneoActionPermission() ? '6' : '5' }}" class="px-6 py-4 text-center text-sm text-gray-500">
-                                No hay torneos registrados
+                            <td colspan="{{ PermissionHelper::hasAnyTorneoActionPermission() ? '6' : '5' }}" class="px-6 py-8 text-center text-gray-500">
+                                <div class="flex flex-col items-center">
+                                    <i class="fas fa-search text-4xl text-gray-300 mb-2"></i>
+                                    <p class="text-lg font-medium">No se encontraron resultados</p>
+                                    <p class="text-sm">Intenta ajustar los filtros de búsqueda</p>
+                                </div>
                             </td>
                         </tr>
                     @endforelse
@@ -227,11 +237,33 @@
         </div>
         
         <!-- Paginación de Laravel -->
-        @if($torneos->hasPages())
             <div class="px-6 py-4 border-t bg-gray-50">
+            <div class="flex flex-col gap-4">
+                <!-- Selector de registros por página (siempre visible) -->
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm text-gray-700">Mostrar:</span>
+                        <select onchange="changePerPage(this.value)" class="border border-gray-300 rounded-md px-2 py-1 text-sm bg-white">
+                            <option value="10" {{ ($perPage ?? 10) == 10 ? 'selected' : '' }}>10</option>
+                            <option value="25" {{ ($perPage ?? 10) == 25 ? 'selected' : '' }}>25</option>
+                            <option value="50" {{ ($perPage ?? 10) == 50 ? 'selected' : '' }}>50</option>
+                            <option value="100" {{ ($perPage ?? 10) == 100 ? 'selected' : '' }}>100</option>
+                        </select>
+                        <span class="text-sm text-gray-700">por página</span>
+                    </div>
+                    
+                    <!-- Información de paginación -->
+                    <div class="text-sm text-gray-700">
+                        Mostrando {{ $torneos->firstItem() ?? 0 }} a {{ $torneos->lastItem() ?? 0 }} de {{ $torneos->total() }} resultados
+                    </div>
+                </div>
+                
+                <!-- Enlaces de paginación -->
+                <div class="flex justify-center">
                 {{ $torneos->links('pagination.custom') }}
+                </div>
             </div>
-        @endif
+        </div>
     </div>
 </div>
 
@@ -311,281 +343,6 @@
 
 @push('scripts')
 <script>
-// Clase para manejar la tabla personalizada
-class TablaPersonalizada {
-    constructor(tabla, config) {
-        this.tabla = tabla;
-        this.config = config;
-        this.filasOriginales = Array.from(tabla.querySelectorAll('tbody tr'));
-        this.filasFiltradas = [...this.filasOriginales];
-        this.paginaActual = 1;
-        this.registrosPorPagina = 10;
-        this.inicializar();
-    }
-
-    inicializar() {
-        // Configurar eventos de búsqueda
-        const inputBusqueda = document.getElementById(this.config.inputBusqueda);
-        if (inputBusqueda) {
-            inputBusqueda.addEventListener('input', (e) => {
-                this.filtrar(e.target.value);
-            });
-        }
-
-        // Configurar eventos de filtros avanzados
-        const filtros = ['filtroNombre', 'filtroLugar', 'filtroEstado'];
-        filtros.forEach(filtro => {
-            const elemento = document.getElementById(filtro);
-            if (elemento) {
-                elemento.addEventListener('input', () => this.aplicarFiltrosAvanzados());
-                elemento.addEventListener('change', () => this.aplicarFiltrosAvanzados());
-            }
-        });
-
-        // Configurar eventos de paginación
-        const selectRegistros = document.getElementById(this.config.selectRegistros);
-        if (selectRegistros) {
-            selectRegistros.addEventListener('change', (e) => {
-                this.registrosPorPagina = parseInt(e.target.value);
-                this.paginaActual = 1;
-                this.aplicarPaginacion();
-            });
-        }
-
-        const btnAnterior = document.getElementById(this.config.btnAnterior);
-        const btnSiguiente = document.getElementById(this.config.btnSiguiente);
-        if (btnAnterior) btnAnterior.addEventListener('click', () => this.cambiarPagina(-1));
-        if (btnSiguiente) btnSiguiente.addEventListener('click', () => this.cambiarPagina(1));
-
-        // Configurar eventos de exportación
-        const btnExportar = document.getElementById(this.config.btnExportar);
-        if (btnExportar) {
-            btnExportar.addEventListener('click', () => this.exportarDatos());
-        }
-
-        // Configurar eventos de búsqueda avanzada
-        const btnBuscarAvanzada = document.getElementById(this.config.btnBuscarAvanzada);
-        if (btnBuscarAvanzada) {
-            btnBuscarAvanzada.addEventListener('click', () => this.toggleBusquedaAvanzada());
-        }
-
-        // Configurar eventos de limpiar
-        const btnLimpiar = document.getElementById(this.config.btnLimpiar);
-        if (btnLimpiar) {
-            btnLimpiar.addEventListener('click', () => this.limpiarFiltros());
-        }
-
-        // Configurar eventos de mostrar/cancelar búsqueda
-        const btnMostrarBusqueda = document.getElementById(this.config.btnMostrarBusqueda);
-        const btnCancelarBusqueda = document.getElementById(this.config.btnCancelarBusqueda);
-        if (btnMostrarBusqueda) {
-            btnMostrarBusqueda.addEventListener('click', () => this.mostrarPanelBusqueda());
-        }
-        if (btnCancelarBusqueda) {
-            btnCancelarBusqueda.addEventListener('click', () => this.cancelarBusqueda());
-        }
-
-        // Verificar estado del botón exportar y aplicar paginación inicial
-        this.verificarEstadoExportar();
-        this.aplicarPaginacion();
-    }
-
-    filtrar(texto) {
-        const textoLower = texto.toLowerCase();
-        this.filasFiltradas = this.filasOriginales.filter(fila => {
-            const textoFila = fila.textContent.toLowerCase();
-            return textoFila.includes(textoLower);
-        });
-        this.paginaActual = 1;
-        this.aplicarPaginacion();
-        this.verificarEstadoExportar();
-    }
-
-    aplicarFiltrosAvanzados() {
-        const filtroNombre = document.getElementById('filtroNombre')?.value.toLowerCase() || '';
-        const filtroLugar = document.getElementById('filtroLugar')?.value.toLowerCase() || '';
-        const filtroEstado = document.getElementById('filtroEstado')?.value || '';
-
-        this.filasFiltradas = this.filasOriginales.filter(fila => {
-            const celdas = fila.querySelectorAll('td');
-            if (celdas.length === 0) return false;
-
-            const nombre = celdas[0]?.textContent.toLowerCase() || '';
-            const lugar = celdas[2]?.textContent.toLowerCase() || '';
-            const estado = celdas[4]?.textContent.trim() || '';
-
-            const cumpleNombre = !filtroNombre || nombre.includes(filtroNombre);
-            const cumpleLugar = !filtroLugar || lugar.includes(filtroLugar);
-            const cumpleEstado = !filtroEstado || estado === filtroEstado;
-
-            return cumpleNombre && cumpleLugar && cumpleEstado;
-        });
-
-        this.paginaActual = 1;
-        this.aplicarPaginacion();
-        this.verificarEstadoExportar();
-    }
-
-    mostrarPanelBusqueda() {
-        const panel = document.getElementById(this.config.panelBusqueda);
-        if (panel) panel.classList.remove('hidden');
-    }
-
-    cancelarBusqueda() {
-        const panel = document.getElementById(this.config.panelBusqueda);
-        if (panel) panel.classList.add('hidden');
-        this.limpiarFiltros();
-    }
-
-    toggleBusquedaAvanzada() {
-        const panel = document.getElementById(this.config.panelBusquedaAvanzada);
-        if (panel) {
-            panel.classList.toggle('hidden');
-        }
-    }
-
-    limpiarFiltros() {
-        // Limpiar inputs de búsqueda
-        const inputBusqueda = document.getElementById(this.config.inputBusqueda);
-        if (inputBusqueda) inputBusqueda.value = '';
-
-        // Limpiar filtros avanzados
-        const filtros = ['filtroNombre', 'filtroLugar', 'filtroEstado'];
-        filtros.forEach(filtro => {
-            const elemento = document.getElementById(filtro);
-            if (elemento) elemento.value = '';
-        });
-
-        // Ocultar panel de búsqueda avanzada
-        const panel = document.getElementById(this.config.panelBusquedaAvanzada);
-        if (panel) panel.classList.add('hidden');
-
-        // Restaurar todas las filas
-        this.filasFiltradas = [...this.filasOriginales];
-        this.paginaActual = 1;
-        this.aplicarPaginacion();
-        this.verificarEstadoExportar();
-    }
-
-    cambiarPagina(direccion) {
-        const totalPaginas = Math.ceil(this.filasFiltradas.length / this.registrosPorPagina);
-        this.paginaActual = Math.max(1, Math.min(totalPaginas, this.paginaActual + direccion));
-        this.aplicarPaginacion();
-    }
-
-    aplicarPaginacion() {
-        const inicio = (this.paginaActual - 1) * this.registrosPorPagina;
-        const fin = inicio + this.registrosPorPagina;
-        const filasAMostrar = this.filasFiltradas.slice(inicio, fin);
-
-        // Ocultar todas las filas
-        this.filasOriginales.forEach(fila => {
-            fila.style.display = 'none';
-        });
-
-        // Mostrar solo las filas de la página actual
-        filasAMostrar.forEach(fila => {
-            fila.style.display = '';
-        });
-
-        // Actualizar información de paginación
-        const totalPaginas = Math.ceil(this.filasFiltradas.length / this.registrosPorPagina);
-        const infoPaginacion = document.getElementById(this.config.infoPaginacion);
-        if (infoPaginacion) {
-            infoPaginacion.textContent = `Página ${this.paginaActual} de ${totalPaginas}`;
-        }
-
-        // Actualizar estado de botones
-        const btnAnterior = document.getElementById(this.config.btnAnterior);
-        const btnSiguiente = document.getElementById(this.config.btnSiguiente);
-        if (btnAnterior) btnAnterior.disabled = this.paginaActual === 1;
-        if (btnSiguiente) btnSiguiente.disabled = this.paginaActual === totalPaginas;
-        
-        // Verificar estado del botón exportar
-        this.verificarEstadoExportar();
-    }
-
-    verificarEstadoExportar() {
-        const btnExportar = document.getElementById(this.config.btnExportar);
-        if (btnExportar) {
-            let tieneRegistros = false;
-            
-            // Si hay filtros aplicados, verificar las filas filtradas
-            if (this.filasFiltradas.length !== this.filasOriginales.length) {
-                tieneRegistros = this.filasFiltradas.length > 0;
-            } else {
-                // Si no hay filtros, verificar las filas originales en el DOM
-                const filasEnTabla = this.tabla.querySelectorAll('tbody tr');
-                tieneRegistros = Array.from(filasEnTabla).some(fila => {
-                    // Excluir filas que contengan mensajes como "No hay torneos registrados"
-                    const textoFila = fila.textContent.toLowerCase();
-                    return !textoFila.includes('no hay') && !textoFila.includes('registrados') && !textoFila.includes('registradas');
-                });
-            }
-            
-            btnExportar.disabled = !tieneRegistros;
-            
-            if (!tieneRegistros) {
-                btnExportar.classList.add('opacity-50', 'cursor-not-allowed');
-                btnExportar.title = 'No hay registros para exportar';
-            } else {
-                btnExportar.classList.remove('opacity-50', 'cursor-not-allowed');
-                btnExportar.title = 'Exportar registros';
-            }
-        }
-    }
-
-    exportarDatos() {
-        // Obtener las filas filtradas (visibles)
-        const filasAExportar = this.filasFiltradas;
-        
-        // Obtener los encabezados de la tabla (excluyendo la columna de acciones)
-        const encabezados = [];
-        const filasEncabezado = this.tabla.querySelectorAll('thead th');
-        filasEncabezado.forEach((th, index) => {
-            // Excluir la última columna si es "Acciones"
-            if (index < filasEncabezado.length - 1 || !th.textContent.trim().includes('Acciones')) {
-                encabezados.push(th.textContent.trim());
-            }
-        });
-        
-        // Preparar los datos para exportar
-        const datos = [];
-        filasAExportar.forEach(fila => {
-            const filaDatos = [];
-            const celdas = fila.querySelectorAll('td');
-            
-            // Excluir la última celda si es la columna de acciones
-            const celdasAExportar = celdas.length > 0 && celdas[celdas.length - 1].querySelector('button') ? 
-                Array.from(celdas).slice(0, -1) : Array.from(celdas);
-            
-            celdasAExportar.forEach(celda => {
-                filaDatos.push(celda.textContent.trim());
-            });
-            
-            datos.push(filaDatos);
-        });
-        
-        // Crear el contenido CSV con BOM para UTF-8
-        const BOM = '\uFEFF'; // Byte Order Mark para UTF-8
-        let csvContent = BOM + encabezados.join(',') + '\n';
-        datos.forEach(fila => {
-            csvContent += fila.join(',') + '\n';
-        });
-        
-        // Crear y descargar el archivo con codificación UTF-8
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
-        const link = document.createElement('a');
-        const url = URL.createObjectURL(blob);
-        link.setAttribute('href', url);
-        link.setAttribute('download', 'torneos_exportados.csv');
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
-}
-
 document.addEventListener('DOMContentLoaded', function() {
     // Ocultar alertas después de 3 segundos
     setTimeout(function() {
@@ -599,22 +356,248 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }, 3000);
 
-    // Inicializar tabla personalizada para torneos
-    const tablaTorneos = document.querySelector('.bg-white.rounded-lg.shadow table');
-    if (tablaTorneos) {
-        new TablaPersonalizada(tablaTorneos, {
-            inputBusqueda: 'buscarTorneos',
-            panelBusqueda: 'panelBusquedaTorneos',
-            panelBusquedaAvanzada: 'panelBusquedaAvanzadaTorneos',
-            btnMostrarBusqueda: 'btnMostrarBusquedaTorneos',
-            btnCancelarBusqueda: 'btnCancelarBusquedaTorneos',
-            btnBuscarAvanzada: 'btnBuscarAvanzadaTorneos',
-            btnLimpiar: 'btnLimpiarBusquedaTorneos',
-            btnExportar: 'btnExportarTorneos',
-            selectRegistros: 'registrosPorPaginaTorneos',
-            btnAnterior: 'btnAnteriorTorneos',
-            btnSiguiente: 'btnSiguienteTorneos',
-            infoPaginacion: 'infoPaginacionTorneos'
+    // Control de visibilidad del panel de búsqueda
+    const btnMostrarBusqueda = document.getElementById('btnMostrarBusquedaTorneos');
+    const panelBusqueda = document.getElementById('panelBusquedaTorneos');
+    const btnCancelarBusqueda = document.getElementById('btnCancelarBusquedaTorneos');
+    const btnBuscarAvanzada = document.getElementById('btnBuscarAvanzadaTorneos');
+    const panelBusquedaAvanzada = document.getElementById('panelBusquedaAvanzadaTorneos');
+
+    // Mostrar/ocultar panel de búsqueda
+    if (btnMostrarBusqueda && panelBusqueda) {
+        btnMostrarBusqueda.addEventListener('click', () => {
+            panelBusqueda.classList.remove('hidden');
+            btnMostrarBusqueda.style.display = 'none';
+        });
+    }
+
+    if (btnCancelarBusqueda && panelBusqueda) {
+        btnCancelarBusqueda.addEventListener('click', () => {
+            panelBusqueda.classList.add('hidden');
+            if (btnMostrarBusqueda) btnMostrarBusqueda.style.display = 'inline-block';
+        });
+    }
+
+    // Toggle búsqueda avanzada
+    if (btnBuscarAvanzada && panelBusquedaAvanzada) {
+        btnBuscarAvanzada.addEventListener('click', () => {
+            panelBusquedaAvanzada.classList.toggle('hidden');
+        });
+    }
+
+    // Búsqueda en tiempo real
+    let searchTimeout;
+    let isLoading = false;
+    
+    // Búsqueda principal en tiempo real
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                performSearch();
+            }, 500); // Esperar 500ms después de que el usuario deje de escribir
+        });
+    }
+
+    // Filtros avanzados en tiempo real
+    const filtros = ['filtroNombre', 'filtroLugar', 'filtroEstado'];
+    filtros.forEach(filtroId => {
+        const elemento = document.getElementById(filtroId);
+        if (elemento) {
+            elemento.addEventListener('input', () => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    performSearch();
+                }, 500);
+            });
+            
+            elemento.addEventListener('change', () => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    performSearch();
+                }, 500);
+            });
+        }
+    });
+
+    // Función para mostrar/ocultar indicador de carga
+    function toggleLoading(show) {
+        const tableContainer = document.querySelector('.mt-6.bg-white.rounded-lg.shadow .overflow-x-auto');
+        if (tableContainer) {
+            if (show) {
+                tableContainer.style.opacity = '0.5';
+                tableContainer.style.pointerEvents = 'none';
+            } else {
+                tableContainer.style.opacity = '1';
+                tableContainer.style.pointerEvents = 'auto';
+            }
+        }
+    }
+
+    // Función para realizar la búsqueda
+    function performSearch() {
+        if (isLoading) return; // Evitar múltiples peticiones simultáneas
+        
+        isLoading = true;
+        toggleLoading(true);
+        
+        // Obtener valores de búsqueda
+        const searchValue = document.getElementById('searchInput')?.value || '';
+        const filtroNombre = document.getElementById('filtroNombre')?.value || '';
+        const filtroLugar = document.getElementById('filtroLugar')?.value || '';
+        const filtroEstado = document.getElementById('filtroEstado')?.value || '';
+        const perPage = document.querySelector('select[onchange*="changePerPage"]')?.value || '10';
+        
+        // Construir parámetros de búsqueda
+        const params = new URLSearchParams();
+        if (searchValue.trim()) params.set('search', searchValue.trim());
+        if (filtroNombre.trim()) params.set('filtro_nombre', filtroNombre.trim());
+        if (filtroLugar.trim()) params.set('filtro_lugar', filtroLugar.trim());
+        if (filtroEstado) params.set('filtro_estado', filtroEstado);
+        params.set('per_page', perPage);
+        params.set('page', '1'); // Reset to first page
+        
+        // Realizar petición AJAX
+        fetch(`{{ route('torneos.index') }}?${params.toString()}`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'text/html'
+            }
+        })
+        .then(response => response.text())
+        .then(html => {
+            // Crear un elemento temporal para parsear el HTML
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+            
+            // Extraer solo la tabla y paginación
+            const newTable = tempDiv.querySelector('table');
+            const newPagination = tempDiv.querySelector('.px-6.py-4.border-t.bg-gray-50');
+            
+            if (newTable) {
+                // Reemplazar la tabla actual
+                const currentTable = document.querySelector('table');
+                if (currentTable) {
+                    currentTable.parentNode.replaceChild(newTable, currentTable);
+                }
+            }
+            
+            if (newPagination) {
+                // Reemplazar la paginación actual
+                const currentPagination = document.querySelector('.px-6.py-4.border-t.bg-gray-50');
+                if (currentPagination) {
+                    currentPagination.parentNode.replaceChild(newPagination, currentPagination);
+                }
+            }
+            
+            // Actualizar la URL sin recargar la página
+            const newUrl = new URL(window.location);
+            newUrl.search = params.toString();
+            window.history.pushState({}, '', newUrl.toString());
+        })
+        .catch(error => {
+            console.error('Error en la búsqueda:', error);
+        })
+        .finally(() => {
+            isLoading = false;
+            toggleLoading(false);
+        });
+    }
+
+    // Función global para cambiar registros por página (usada por pagination.custom)
+    window.changePerPage = function(value) {
+        // Actualizar el parámetro per_page en la URL actual
+        const url = new URL(window.location);
+        url.searchParams.set('per_page', value);
+        url.searchParams.delete('page'); // Reset to first page
+        
+        // Realizar petición AJAX
+        fetch(url.toString(), {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'text/html'
+            }
+        })
+        .then(response => response.text())
+        .then(html => {
+            // Crear un elemento temporal para parsear el HTML
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+            
+            // Extraer solo la tabla y paginación
+            const newTable = tempDiv.querySelector('table');
+            const newPagination = tempDiv.querySelector('.px-6.py-4.border-t.bg-gray-50');
+            
+            if (newTable) {
+                // Reemplazar la tabla actual
+                const currentTable = document.querySelector('table');
+                if (currentTable) {
+                    currentTable.parentNode.replaceChild(newTable, currentTable);
+                }
+            }
+            
+            if (newPagination) {
+                // Reemplazar la paginación actual
+                const currentPagination = document.querySelector('.px-6.py-4.border-t.bg-gray-50');
+                if (currentPagination) {
+                    currentPagination.parentNode.replaceChild(newPagination, currentPagination);
+                }
+            }
+            
+            // Actualizar la URL sin recargar la página
+            window.history.pushState({}, '', url.toString());
+        })
+        .catch(error => {
+            console.error('Error al cambiar registros por página:', error);
+        });
+    };
+
+    // Función para exportar datos
+    const btnExportar = document.getElementById('btnExportarTorneos');
+    if (btnExportar) {
+        btnExportar.addEventListener('click', function() {
+            // Crear CSV con todos los datos visibles
+            const tabla = document.querySelector('table tbody');
+            const filas = Array.from(tabla.querySelectorAll('tr'));
+            
+            if (filas.length === 0) {
+                alert('No hay datos para exportar');
+                return;
+            }
+
+            // Obtener encabezados (excluyendo columna de acciones)
+            const encabezados = [];
+            const thElements = document.querySelectorAll('thead th');
+            thElements.forEach((th, index) => {
+                if (index < thElements.length - 1 || !th.textContent.trim().includes('Acciones')) {
+                    encabezados.push(th.textContent.trim());
+                }
+            });
+
+            const csvContent = [
+                encabezados.join(','),
+                ...filas.map(fila => {
+                    const celdas = Array.from(fila.querySelectorAll('td'));
+                    // Excluir última celda si es columna de acciones
+                    const celdasAExportar = celdas.length > 0 && celdas[celdas.length - 1].querySelector('button') ? 
+                        celdas.slice(0, -1) : celdas;
+                    return celdasAExportar.map(celda => `"${celda.textContent.trim().replace(/"/g, '""')}"`).join(',');
+                })
+            ].join('\n');
+
+            // Descargar archivo
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'torneos.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         });
     }
 });

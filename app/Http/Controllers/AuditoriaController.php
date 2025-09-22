@@ -15,42 +15,59 @@ class AuditoriaController extends Controller
             return redirect()->route('home')->with('error', 'No tienes permisos para acceder a auditorías.');
         }
 
+        // Parámetros de búsqueda y paginación
+        $search = $request->get('search');
+        $filtroUsuario = $request->get('filtro_usuario');
+        $filtroAccion = $request->get('filtro_accion');
+        $filtroTabla = $request->get('filtro_tabla');
+        $filtroFecha = $request->get('filtro_fecha');
+        $filtroEquipo = $request->get('filtro_equipo');
+        $perPage = $request->get('per_page', 20);
+
         $query = Auditoria::query();
 
-        // Filtros
-        if ($request->filled('usuario')) {
-            $query->where('correo_id', 'like', '%' . $request->usuario . '%');
-        }
-        if ($request->filled('accion')) {
-            $query->where('accion', $request->accion);
-        }
-        if ($request->filled('tabla')) {
-            $query->where('tabla_afectada', $request->tabla);
-        }
-        if ($request->filled('fecha')) {
-            $query->where('fecha', $request->fecha);
-        }
-        if ($request->filled('search')) {
-            $search = $request->search;
+        // Búsqueda general
+        if ($search) {
             $query->where(function($q) use ($search) {
-                $q->where('correo_id', 'like', "%$search%")
-                  ->orWhere('accion', 'like', "%$search%")
-                  ->orWhere('tabla_afectada', 'like', "%$search%")
-                  ->orWhere('valor_previo', 'like', "%$search%")
-                  ->orWhere('valor_posterior', 'like', "%$search%")
-                  ->orWhere('equipo', 'like', "%$search%")
-                  ->orWhere('fecha', 'like', "%$search%")
-                  ->orWhere('hora', 'like', "%$search%") ;
+                $q->where('correo_id', 'like', "%{$search}%")
+                  ->orWhere('accion', 'like', "%{$search}%")
+                  ->orWhere('tabla_afectada', 'like', "%{$search}%")
+                  ->orWhere('valor_previo', 'like', "%{$search}%")
+                  ->orWhere('valor_posterior', 'like', "%{$search}%")
+                  ->orWhere('equipo', 'like', "%{$search}%")
+                  ->orWhere('fecha', 'like', "%{$search}%")
+                  ->orWhere('hora', 'like', "%{$search}%");
             });
         }
 
-        $auditorias = $query->orderByDesc('fecha')->orderByDesc('hora')->paginate(20)->appends($request->all());
+        // Filtros específicos
+        if ($filtroUsuario) {
+            $query->where('correo_id', 'like', "%{$filtroUsuario}%");
+        }
+        if ($filtroAccion) {
+            $query->where('accion', $filtroAccion);
+        }
+        if ($filtroTabla) {
+            $query->where('tabla_afectada', $filtroTabla);
+        }
+        if ($filtroFecha) {
+            $query->where('fecha', $filtroFecha);
+        }
+        if ($filtroEquipo) {
+            $query->where('equipo', 'like', "%{$filtroEquipo}%");
+        }
 
-        // Para los selects de filtro
-        $usuarios = Auditoria::select('correo_id')->distinct()->pluck('correo_id');
-        $acciones = Auditoria::select('accion')->distinct()->pluck('accion');
-        $tablas = Auditoria::select('tabla_afectada')->distinct()->pluck('tabla_afectada');
+        // Ordenar y paginar
+        $auditorias = $query->orderByDesc('fecha')->orderByDesc('hora')->paginate($perPage);
+        
+        // Mantener parámetros de búsqueda en la paginación
+        $auditorias->appends($request->all());
 
-        return view('auditoria.index', compact('auditorias', 'usuarios', 'acciones', 'tablas'));
+        // Para los selects de filtro (solo si no hay filtros activos para optimizar)
+        $usuarios = Auditoria::select('correo_id')->distinct()->orderBy('correo_id')->pluck('correo_id');
+        $acciones = Auditoria::select('accion')->distinct()->orderBy('accion')->pluck('accion');
+        $tablas = Auditoria::select('tabla_afectada')->distinct()->orderBy('tabla_afectada')->pluck('tabla_afectada');
+
+        return view('auditoria.index', compact('auditorias', 'usuarios', 'acciones', 'tablas', 'search', 'filtroUsuario', 'filtroAccion', 'filtroTabla', 'filtroFecha', 'filtroEquipo', 'perPage'));
     }
 } 

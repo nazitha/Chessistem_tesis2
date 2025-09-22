@@ -22,7 +22,7 @@
                 </ul>
             </div>
         @endif
-        <form id="form-editar-miembro" method="POST" action="{{ route('miembros.update', $miembro) }}">
+        <form id="form-editar-miembro" method="POST" action="{{ route('miembros.update', $miembro) }}" class="needs-validation" novalidate>
             @csrf
             @method('PUT')
             
@@ -48,34 +48,54 @@
                     <div class="row g-2">
                         <!-- Nombres -->
                         <div class="col-md-6">
-                            <label for="nombres" class="form-label fw-bold fs-6">Nombres</label>
+                            <label for="nombres" class="form-label fw-bold fs-6">Nombres <span class="text-danger">*</span></label>
                             <input type="text" name="nombres" id="nombres" value="{{ old('nombres', $miembro->nombres) }}" 
-                                   class="form-control form-control-sm fs-6 bg-white" required>
+                                   class="form-control form-control-sm fs-6 bg-white @error('nombres') is-invalid @enderror" required>
+                            @error('nombres')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @else
+                                <div class="invalid-feedback">Los nombres son requeridos</div>
+                            @enderror
                         </div>
 
                         <!-- Apellidos -->
                         <div class="col-md-6">
-                            <label for="apellidos" class="form-label fw-bold fs-6">Apellidos</label>
+                            <label for="apellidos" class="form-label fw-bold fs-6">Apellidos <span class="text-danger">*</span></label>
                             <input type="text" name="apellidos" id="apellidos" value="{{ old('apellidos', $miembro->apellidos) }}" 
-                                   class="form-control form-control-sm fs-6 bg-white" required>
+                                   class="form-control form-control-sm fs-6 bg-white @error('apellidos') is-invalid @enderror" required>
+                            @error('apellidos')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @else
+                                <div class="invalid-feedback">Los apellidos son requeridos</div>
+                            @enderror
                         </div>
                     </div>
 
                     <!-- Sexo -->
                     <div class="mt-2">
-                        <label for="sexo" class="form-label fw-bold fs-6">Sexo</label>
-                        <select name="sexo" id="sexo" class="form-select form-select-sm fs-6 bg-white" required>
+                        <label for="sexo" class="form-label fw-bold fs-6">Sexo <span class="text-danger">*</span></label>
+                        <select name="sexo" id="sexo" class="form-select form-select-sm fs-6 bg-white @error('sexo') is-invalid @enderror" required>
                             <option value="M" @if(old('sexo', $miembro->sexo) == 'M') selected @endif>Masculino</option>
                             <option value="F" @if(old('sexo', $miembro->sexo) == 'F') selected @endif>Femenino</option>
                         </select>
+                        @error('sexo')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @else
+                            <div class="invalid-feedback">El sexo es requerido</div>
+                        @enderror
                     </div>
 
                     <!-- Fecha de nacimiento -->
                     <div class="mt-2">
-                        <label for="fecha_nacimiento" class="form-label fw-bold fs-6">Fecha de nacimiento</label>
+                        <label for="fecha_nacimiento" class="form-label fw-bold fs-6">Fecha de nacimiento <span class="text-danger">*</span></label>
                         <input type="date" name="fecha_nacimiento" id="fecha_nacimiento" 
                                value="{{ old('fecha_nacimiento', $miembro->fecha_nacimiento ? \Carbon\Carbon::parse($miembro->fecha_nacimiento)->format('Y-m-d') : '') }}" 
-                               class="form-control form-control-sm fs-6 bg-white" required>
+                               class="form-control form-control-sm fs-6 bg-white @error('fecha_nacimiento') is-invalid @enderror" required>
+                        @error('fecha_nacimiento')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @else
+                            <div class="invalid-feedback">La fecha de nacimiento es requerida</div>
+                        @enderror
                     </div>
 
                     <!-- Estado -->
@@ -110,21 +130,31 @@
                     <div class="row g-2">
                         <!-- Academia -->
                         <div class="col-md-6">
-                            <label for="academia_id" class="form-label fw-bold fs-6">Academia</label>
-                            <select name="academia_id" id="academia_id" class="form-select form-select-sm fs-6 bg-white" required>
+                            <label for="academia_id" class="form-label fw-bold fs-6">Academia <span class="text-danger">*</span></label>
+                            <select name="academia_id" id="academia_id" class="form-select form-select-sm fs-6 bg-white @error('academia_id') is-invalid @enderror" required>
                                 <option value="">-</option>
                                 @foreach($academias as $academia)
                                     <option value="{{ $academia->id_academia }}" @if(old('academia_id', $miembro->academia_id) == $academia->id_academia) selected @endif>{{ $academia->nombre_academia }}</option>
                                 @endforeach
                             </select>
+                            @error('academia_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @else
+                                <div class="invalid-feedback">La academia es requerida</div>
+                            @enderror
                         </div>
 
                         <!-- Fecha de inscripción -->
                         <div class="col-md-6">
-                            <label for="fecha_inscripcion" class="form-label fw-bold fs-6">Fecha de inscripción</label>
+                            <label for="fecha_inscripcion" class="form-label fw-bold fs-6">Fecha de inscripción <span class="text-danger">*</span></label>
                             <input type="date" name="fecha_inscripcion" id="fecha_inscripcion" 
                                    value="{{ old('fecha_inscripcion', $miembro->fecha_inscripcion ? \Carbon\Carbon::parse($miembro->fecha_inscripcion)->format('Y-m-d') : '') }}" 
-                                   class="form-control form-control-sm fs-6 bg-white" required>
+                                   class="form-control form-control-sm fs-6 bg-white @error('fecha_inscripcion') is-invalid @enderror" required>
+                            @error('fecha_inscripcion')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @else
+                                <div class="invalid-feedback">La fecha de inscripción es requerida</div>
+                            @enderror
                         </div>
                     </div>
 
@@ -222,6 +252,23 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
         }
     });
+    
+    // Bootstrap validation
+    (function() {
+        'use strict';
+        window.addEventListener('load', function() {
+            var forms = document.getElementsByClassName('needs-validation');
+            var validation = Array.prototype.filter.call(forms, function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    })();
 });
 </script>
 @endsection 

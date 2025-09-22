@@ -124,11 +124,8 @@
                         </tr>
                         <tr id="detalle-{{ $auditoria->id }}" style="display:none; background:#f9fafb;">
                             <td colspan="7" class="px-4 py-2">
-                                <b>Valor previo:</b> 
-                                <pre class="whitespace-pre-wrap">{{ $auditoria->valor_previo_formateado }}</pre>
-                                
-                                <b>Valor posterior:</b> 
-                                <pre class="whitespace-pre-wrap">{{ $auditoria->valor_posterior_formateado }}</pre>
+                                <b>Valor previo:</b> <pre class="whitespace-pre-wrap">{{ $auditoria->valor_previo }}</pre>
+                                <b>Valor posterior:</b> <pre class="whitespace-pre-wrap">{{ $auditoria->valor_posterior }}</pre>
                             </td>
                         </tr>
                         @empty

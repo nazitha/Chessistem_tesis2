@@ -438,10 +438,10 @@
                 </div>
                 <div class="flex gap-2">
                     <button id="btnBuscarAvanzadaParticipantes" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md font-medium">
-                        Búsqueda Avanzada
+                        <i class="fas fa-filter mr-2"></i>Búsqueda Avanzada
                     </button>
                     <button id="btnLimpiarBusquedaParticipantes" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md font-medium">
-                        Limpiar
+                        <i class="fas fa-brush mr-2"></i>Limpiar
                     </button>
                 </div>
             </div>
@@ -563,11 +563,11 @@
                                 @endif
                                 @if($torneo->estado_torneo && !$torneo->torneo_cancelado && PermissionHelper::canDelete('participantes'))
                                     <td class="px-3 py-2 text-sm text-center">
-                                        <form action="{{ route('torneos.participantes.destroy', [$torneo->id, $participante->id]) }}" method="POST" onsubmit="return confirm('¿Seguro que deseas retirar este participante?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:underline">Retirar</button>
-                                        </form>
+                                        <button type="button" 
+                                                onclick="confirmarRetiroTorneo('{{ $participante->id }}', '{{ $participante->miembro->nombres }} {{ $participante->miembro->apellidos }}', '{{ $torneo->nombre_torneo }}')"
+                                                class="text-red-600 hover:underline">
+                                            Retirar
+                                        </button>
                                     </td>
                                 @endif
                             </tr>
@@ -581,25 +581,46 @@
             
             <!-- Controles de paginación -->
             <div class="px-6 py-4 border-t bg-gray-50">
-                <div class="flex justify-between items-center">
-                    <div class="flex items-center gap-2">
-                        <span class="text-sm text-gray-700">Mostrar:</span>
-                        <select id="registrosPorPaginaParticipantes" class="border border-gray-300 rounded-md px-2 py-1 text-sm bg-white">
-                            <option value="10">10</option>
-                            <option value="25">25</option>
-                            <option value="50">50</option>
-                            <option value="100">100</option>
-                        </select>
-                        <span class="text-sm text-gray-700">registros por página</span>
+                <div class="flex flex-col gap-4">
+                    <!-- Selector de registros por página -->
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm text-gray-700">Mostrar:</span>
+                            <select id="registrosPorPaginaParticipantes" class="border border-gray-300 rounded-md px-2 py-1 text-sm bg-white">
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                            <span class="text-sm text-gray-700">por página</span>
+                        </div>
+                        
+                        <!-- Información de paginación -->
+                        <div class="text-sm text-gray-700">
+                            <span id="infoPaginacionParticipantes">Mostrando 1 a 10 de 0 resultados</span>
+                        </div>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <button id="btnAnteriorParticipantes" class="px-3 py-1 text-sm bg-gray-200 hover:bg-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed">
-                            Anterior
-                        </button>
-                        <span id="infoPaginacionParticipantes" class="text-sm text-gray-700">Página 1 de 1</span>
-                        <button id="btnSiguienteParticipantes" class="px-3 py-1 text-sm bg-gray-200 hover:bg-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed">
-                            Siguiente
-                        </button>
+                    
+                    <!-- Botones de paginación -->
+                    <div class="flex justify-center">
+                        <div class="relative z-0 inline-flex shadow-sm rounded-md">
+                            <button id="btnAnteriorParticipantes" class="relative inline-flex items-center px-2 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-l-md leading-5 hover:text-gray-400 focus:z-10 focus:outline-none focus:ring ring-gray-300 focus:border-blue-300 active:bg-gray-100 active:text-gray-500 transition ease-in-out duration-150 disabled:opacity-50 disabled:cursor-not-allowed" aria-label="Página anterior">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                            
+                            <!-- Números de páginas -->
+                            <div id="numerosPaginasParticipantes" class="flex items-center">
+                                <!-- Se generan dinámicamente -->
+                            </div>
+                            
+                            <button id="btnSiguienteParticipantes" class="relative inline-flex items-center px-2 py-2 -ml-px text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-r-md leading-5 hover:text-gray-400 focus:z-10 focus:outline-none focus:ring ring-gray-300 focus:border-blue-300 active:bg-gray-100 active:text-gray-500 transition ease-in-out duration-150 disabled:opacity-50 disabled:cursor-not-allowed" aria-label="Página siguiente">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1271,6 +1292,9 @@ class TablaParticipantesPersonalizada {
         // Configurar eventos de paginación
         const selectRegistros = document.getElementById(this.config.selectRegistros);
         if (selectRegistros) {
+            // Sincronizar el selector con el valor actual
+            selectRegistros.value = this.registrosPorPagina;
+            
             selectRegistros.addEventListener('change', (e) => {
                 this.registrosPorPagina = parseInt(e.target.value);
                 this.paginaActual = 1;
@@ -1418,7 +1442,10 @@ class TablaParticipantesPersonalizada {
         const totalPaginas = Math.ceil(this.filasFiltradas.length / this.registrosPorPagina);
         const infoPaginacion = document.getElementById(this.config.infoPaginacion);
         if (infoPaginacion) {
-            infoPaginacion.textContent = `Página ${this.paginaActual} de ${totalPaginas}`;
+            const inicio = (this.paginaActual - 1) * this.registrosPorPagina + 1;
+            const fin = Math.min(this.paginaActual * this.registrosPorPagina, this.filasFiltradas.length);
+            const total = this.filasFiltradas.length;
+            infoPaginacion.textContent = `Mostrando ${inicio} a ${fin} de ${total} resultados`;
         }
 
         // Actualizar estado de botones
@@ -1427,8 +1454,95 @@ class TablaParticipantesPersonalizada {
         if (btnAnterior) btnAnterior.disabled = this.paginaActual === 1;
         if (btnSiguiente) btnSiguiente.disabled = this.paginaActual === totalPaginas;
         
+        // Generar números de páginas
+        this.generarNumerosPaginas(totalPaginas);
+        
         // Verificar estado del botón exportar
         this.verificarEstadoExportar();
+        
+        // Sincronizar el selector de registros por página
+        this.sincronizarSelectorRegistros();
+    }
+
+    generarNumerosPaginas(totalPaginas) {
+        const contenedor = document.getElementById('numerosPaginasParticipantes');
+        if (!contenedor) return;
+
+        // Limpiar números anteriores
+        contenedor.innerHTML = '';
+
+        if (totalPaginas <= 0) return;
+
+        // Calcular rango de páginas a mostrar (máximo 5 páginas)
+        const maxPaginasVisibles = 5;
+        let inicioRango = Math.max(1, this.paginaActual - Math.floor(maxPaginasVisibles / 2));
+        let finRango = Math.min(totalPaginas, inicioRango + maxPaginasVisibles - 1);
+
+        // Ajustar inicio si estamos cerca del final
+        if (finRango - inicioRango + 1 < maxPaginasVisibles) {
+            inicioRango = Math.max(1, finRango - maxPaginasVisibles + 1);
+        }
+
+        // Mostrar "..." al inicio si es necesario
+        if (inicioRango > 1) {
+            this.crearNumeroPagina(1, false);
+            if (inicioRango > 2) {
+                this.crearPuntosSuspensivos();
+            }
+        }
+
+        // Mostrar números de páginas
+        for (let i = inicioRango; i <= finRango; i++) {
+            this.crearNumeroPagina(i, i === this.paginaActual);
+        }
+
+        // Mostrar "..." al final si es necesario
+        if (finRango < totalPaginas) {
+            if (finRango < totalPaginas - 1) {
+                this.crearPuntosSuspensivos();
+            }
+            this.crearNumeroPagina(totalPaginas, false);
+        }
+    }
+
+    crearNumeroPagina(numero, esActual) {
+        const contenedor = document.getElementById('numerosPaginasParticipantes');
+        const boton = document.createElement('button');
+        
+        if (esActual) {
+            // Página actual: fondo gris claro para distinguirla
+            boton.className = 'relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 cursor-default leading-5';
+        } else {
+            // Página normal: estilo con hover y focus
+            boton.className = 'relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 leading-5 hover:text-gray-500 focus:z-10 focus:outline-none focus:ring ring-gray-300 focus:border-blue-300 active:bg-gray-100 active:text-gray-700 transition ease-in-out duration-150';
+        }
+        
+        boton.textContent = numero;
+        boton.onclick = () => this.irAPagina(numero);
+        boton.setAttribute('aria-label', `Ir a la página ${numero}`);
+        
+        contenedor.appendChild(boton);
+    }
+
+    crearPuntosSuspensivos() {
+        const contenedor = document.getElementById('numerosPaginasParticipantes');
+        const puntos = document.createElement('span');
+        puntos.className = 'relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 cursor-default leading-5';
+        puntos.textContent = '...';
+        puntos.setAttribute('aria-disabled', 'true');
+        contenedor.appendChild(puntos);
+    }
+
+    irAPagina(numero) {
+        this.paginaActual = numero;
+        this.aplicarPaginacion();
+    }
+
+    sincronizarSelectorRegistros() {
+        const selectRegistros = document.getElementById(this.config.selectRegistros);
+        if (selectRegistros) {
+            selectRegistros.value = this.registrosPorPagina;
+        }
     }
 
     verificarEstadoExportar() {
@@ -1462,53 +1576,39 @@ class TablaParticipantesPersonalizada {
     }
 
     exportarDatos() {
-        // Obtener las filas filtradas (visibles)
-        const filasAExportar = this.filasFiltradas;
+        console.log('🔥 EXPORTAR DATOS LLAMADO');
         
-        // Obtener los encabezados de la tabla (excluyendo la columna de acciones)
-        const encabezados = [];
-        const filasEncabezado = this.tabla.querySelectorAll('thead th');
-        filasEncabezado.forEach((th, index) => {
-            // Excluir la última columna si es "Acciones"
-            if (index < filasEncabezado.length - 1 || !th.textContent.trim().includes('Acciones')) {
-                encabezados.push(th.textContent.trim());
-            }
-        });
-        
-        // Preparar los datos para exportar
-        const datos = [];
-        filasAExportar.forEach(fila => {
-            const filaDatos = [];
-            const celdas = fila.querySelectorAll('td');
+        // Mostrar spinner y deshabilitar botón
+        const btnExportar = document.getElementById(this.config.btnExportar);
+        if (btnExportar) {
+            const originalText = btnExportar.innerHTML;
+            btnExportar.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Exportando...';
+            btnExportar.disabled = true;
             
-            // Excluir la última celda si es la columna de acciones
-            const celdasAExportar = celdas.length > 0 && celdas[celdas.length - 1].querySelector('button') ? 
-                Array.from(celdas).slice(0, -1) : Array.from(celdas);
+            console.log('📝 Creando formulario para exportación');
             
-            celdasAExportar.forEach(celda => {
-                filaDatos.push(celda.textContent.trim());
-            });
+            // Crear formulario dinámicamente para exportación
+            const form = document.createElement('form');
+            form.method = 'GET';
+            form.action = '{{ route("participantes.export") }}';
+            form.target = '_self';
+            console.log('URL del formulario:', form.action);
             
-            datos.push(filaDatos);
-        });
-        
-        // Crear el contenido CSV con BOM para UTF-8
-        const BOM = '\uFEFF'; // Byte Order Mark para UTF-8
-        let csvContent = BOM + encabezados.join(',') + '\n';
-        datos.forEach(fila => {
-            csvContent += fila.join(',') + '\n';
-        });
-        
-        // Crear y descargar el archivo con codificación UTF-8
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
-        const link = document.createElement('a');
-        const url = URL.createObjectURL(blob);
-        link.setAttribute('href', url);
-        link.setAttribute('download', 'participantes_exportados.csv');
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+            document.body.appendChild(form);
+            console.log('📤 Enviando formulario...');
+            
+            // Enviar formulario
+            form.submit();
+            
+            // Limpiar formulario
+            document.body.removeChild(form);
+            
+            // Restaurar botón después de un tiempo
+            setTimeout(() => {
+                btnExportar.innerHTML = originalText;
+                btnExportar.disabled = false;
+            }, 2000);
+        }
     }
 }
 
@@ -1533,5 +1633,101 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// Función para confirmar retiro de participante con SweetAlert
+function confirmarRetiroTorneo(participanteId, nombreMiembro, nombreTorneo) {
+    Swal.fire({
+        title: '¿Retirar participante?',
+        html: `
+            <div class="text-left">
+                <p class="mb-2"><strong>Miembro:</strong> ${nombreMiembro}</p>
+                <p class="mb-4"><strong>Torneo:</strong> ${nombreTorneo}</p>
+                <p class="text-sm text-gray-600">Esta acción retirará al participante del torneo y no se puede deshacer.</p>
+            </div>
+        `,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#2563eb',
+        cancelButtonColor: '#dc2626',
+        confirmButtonText: 'Retirar',
+        cancelButtonText: 'Cancelar',
+        focusCancel: true,
+        customClass: {
+            popup: 'swal-popup-custom',
+            title: 'swal-title-custom',
+            htmlContainer: 'swal-html-custom',
+            confirmButton: 'swal-confirm-custom',
+            cancelButton: 'swal-cancel-custom'
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Crear y enviar el formulario
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `{{ route('torneos.participantes.destroy', [$torneo->id, 'PARTICIPANTE_ID']) }}`.replace('PARTICIPANTE_ID', participanteId);
+            
+            const csrfToken = document.createElement('input');
+            csrfToken.type = 'hidden';
+            csrfToken.name = '_token';
+            csrfToken.value = '{{ csrf_token() }}';
+            
+            const methodField = document.createElement('input');
+            methodField.type = 'hidden';
+            methodField.name = '_method';
+            methodField.value = 'DELETE';
+            
+            form.appendChild(csrfToken);
+            form.appendChild(methodField);
+            document.body.appendChild(form);
+            form.submit();
+        }
+    });
+}
 </script>
+
+<style>
+/* Estilos personalizados para SweetAlert */
+.swal-popup-custom {
+    border-radius: 12px !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+}
+
+.swal-title-custom {
+    color: #1f2937 !important;
+    font-size: 1.5rem !important;
+    font-weight: 600 !important;
+    margin-bottom: 1rem !important;
+}
+
+.swal-html-custom {
+    color: #374151 !important;
+    line-height: 1.5 !important;
+}
+
+.swal-confirm-custom {
+    background-color: #2563eb !important;
+    border: none !important;
+    border-radius: 6px !important;
+    padding: 0.5rem 1rem !important;
+    font-weight: 500 !important;
+    transition: background-color 0.2s !important;
+}
+
+.swal-confirm-custom:hover {
+    background-color: #1d4ed8 !important;
+}
+
+.swal-cancel-custom {
+    background-color: #dc2626 !important;
+    border: none !important;
+    border-radius: 6px !important;
+    padding: 0.5rem 1rem !important;
+    font-weight: 500 !important;
+    transition: background-color 0.2s !important;
+}
+
+.swal-cancel-custom:hover {
+    background-color: #b91c1c !important;
+}
+</style>
 @endpush 

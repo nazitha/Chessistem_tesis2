@@ -39,8 +39,11 @@
     <div class="flex justify-between items-center mb-6">
                         <h1 class="text-2xl font-bold text-gray-900">Gestión de usuarios</h1>
         @if(PermissionHelper::canCreate('usuarios'))
-            <button id="btnNuevoUsuario" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold shadow mb-4">
-                Nuevo usuario
+            <button id="btnNuevoUsuario" class="inline-flex items-center px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded hover:bg-blue-600 transition-colors duration-200 shadow mb-4">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                Nuevo Usuario
             </button>
         @endif
     </div>
@@ -70,60 +73,66 @@
     </div>
 
     <!-- Controles de búsqueda para tabla de usuarios -->
-    <div id="panelBusquedaUsuarios" class="bg-white shadow-md rounded-lg p-4 mb-4 hidden">
+    <div id="panelBusquedaUsuarios" class="bg-white shadow-md rounded-lg p-4 mb-4 {{ ($search || $filtroCorreo || $filtroRol || $filtroEstado) ? '' : 'hidden' }}">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg font-medium text-gray-900">Búsqueda de Usuarios</h3>
             <button id="btnCancelarBusquedaUsuarios" class="text-gray-500 hover:text-gray-700 text-xl font-bold">
                 ✕
             </button>
         </div>
-        <div class="flex flex-wrap gap-4 items-center">
-            <div class="flex-1 min-w-64">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Buscar:</label>
-                <input type="text" id="buscarUsuarios" placeholder="Buscar por correo, rol o estado..." 
-                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-            <div class="flex gap-2">
-                <button id="btnBuscarAvanzadaUsuarios" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md font-medium">
-                    Búsqueda Avanzada
-                </button>
-                <button id="btnLimpiarBusquedaUsuarios" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md font-medium">
-                    Limpiar
-                </button>
-            </div>
-        </div>
         
-        <!-- Panel de búsqueda avanzada -->
-        <div id="panelBusquedaAvanzadaUsuarios" class="mt-4 p-4 bg-gray-50 rounded-md hidden">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Correo:</label>
-                    <input type="text" id="filtroCorreo" placeholder="Filtrar por correo" 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md">
+        <form method="GET" action="{{ route('usuarios.index') }}" id="formBusquedaUsuarios">
+            <div class="flex flex-wrap gap-4 items-center">
+                <div class="flex-1 min-w-64">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Buscar:</label>
+                    <input type="text" id="searchInput" name="search" value="{{ $search }}" placeholder="Buscar por correo, rol..." 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Rol:</label>
-                    <select id="filtroRol" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white">
-                        <option value="">Todos los roles</option>
-                        <option value="Administrador">Administrador</option>
-                        <option value="Evaluador">Evaluador</option>
-                        <option value="Estudiante">Estudiante</option>
-                        <option value="Gestor">Gestor</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Estado:</label>
-                    <select id="filtroEstado" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white">
-                        <option value="">Todos los estados</option>
-                        <option value="Activo">Activo</option>
-                        <option value="Inactivo">Inactivo</option>
-                    </select>
+                <div class="flex gap-2">
+                    <button type="button" id="btnBuscarAvanzadaUsuarios" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md font-medium">
+                        <i class="fas fa-filter mr-2"></i>Búsqueda Avanzada
+                    </button>
+                    <a href="{{ route('usuarios.index') }}" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md font-medium">
+                        <i class="fas fa-brush mr-2"></i>Limpiar
+                    </a>
                 </div>
             </div>
-        </div>
+            
+            <!-- Panel de búsqueda avanzada -->
+            <div id="panelBusquedaAvanzadaUsuarios" class="mt-4 p-4 bg-gray-50 rounded-md {{ ($filtroCorreo || $filtroRol || $filtroEstado) ? '' : 'hidden' }}">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Correo:</label>
+                        <input type="text" id="filtroCorreo" name="filtro_correo" value="{{ $filtroCorreo }}" placeholder="Filtrar por correo" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Rol:</label>
+                        <select id="filtroRol" name="filtro_rol" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white">
+                            <option value="">Todos los roles</option>
+                            <option value="Administrador" {{ $filtroRol == 'Administrador' ? 'selected' : '' }}>Administrador</option>
+                            <option value="Evaluador" {{ $filtroRol == 'Evaluador' ? 'selected' : '' }}>Evaluador</option>
+                            <option value="Estudiante" {{ $filtroRol == 'Estudiante' ? 'selected' : '' }}>Estudiante</option>
+                            <option value="Gestor" {{ $filtroRol == 'Gestor' ? 'selected' : '' }}>Gestor</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Estado:</label>
+                        <select id="filtroEstado" name="filtro_estado" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white">
+                            <option value="">Todos los estados</option>
+                            <option value="1" {{ $filtroEstado === '1' ? 'selected' : '' }}>Activo</option>
+                            <option value="0" {{ $filtroEstado === '0' ? 'selected' : '' }}>Inactivo</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Campo oculto para mantener per_page -->
+            <input type="hidden" name="per_page" value="{{ $perPage }}">
+        </form>
     </div>
 
-    <div class="bg-white shadow-md rounded-lg overflow-hidden">
+    <div class="bg-white shadow-md rounded-lg overflow-hidden" id="tablaUsuariosContainer">
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
                 <tr>
@@ -136,59 +145,67 @@
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-                @foreach($users as $user)
-                    <tr class="hover:bg-gray-50 transition-colors duration-150">
-                        <td class="px-6 py-4 whitespace-nowrap">{{ $user->correo }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ $user->rol->nombre }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $user->usuario_estado ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                {{ $user->usuario_estado ? 'Activo' : 'Inactivo' }}
-                            </span>
-                        </td>
-                        @if(PermissionHelper::hasAnyActionPermission('usuarios'))
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <div class="flex space-x-4">
-                                    @if(PermissionHelper::canUpdate('usuarios'))
-                                        <button title="Editar" class="text-blue-600 hover:text-blue-900" onclick="editarUsuario({{ $user->id_email }})">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                    @endif
-                                    @if(PermissionHelper::canDelete('usuarios'))
-                                        <button title="Eliminar" class="text-red-600 hover:text-red-900 btnEliminar_usuario" data-id="{{ $user->id_email }}">
-                                            <i class="fas fa-trash-alt"></i>
-                                        </button>
-                                    @endif
-                                </div>
+                @if($users->count() > 0)
+                    @foreach($users as $user)
+                        <tr class="hover:bg-gray-50 transition-colors duration-150">
+                            <td class="px-6 py-4 whitespace-nowrap">{{ $user->correo }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ $user->rol->nombre }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $user->usuario_estado ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                    {{ $user->usuario_estado ? 'Activo' : 'Inactivo' }}
+                                </span>
                             </td>
-                        @endif
+                            @if(PermissionHelper::hasAnyActionPermission('usuarios'))
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <div class="flex space-x-4">
+                                        @if(PermissionHelper::canUpdate('usuarios'))
+                                            <button title="Editar" class="text-blue-600 hover:text-blue-900" onclick="editarUsuario({{ $user->id_email }})">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        @endif
+                                        @if(PermissionHelper::canDelete('usuarios'))
+                                            <button title="Eliminar" class="text-red-600 hover:text-red-900 btnEliminar_usuario" data-id="{{ $user->id_email }}">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        @endif
+                                    </div>
+                                </td>
+                            @endif
+                        </tr>
+                    @endforeach
+                @else
+                    <tr>
+                        <td colspan="{{ PermissionHelper::hasAnyActionPermission('usuarios') ? '4' : '3' }}" class="px-6 py-8 text-center text-gray-500">
+                            <div class="flex flex-col items-center">
+                                <i class="fas fa-search text-4xl text-gray-300 mb-2"></i>
+                                <p class="text-lg font-medium">No se encontraron resultados</p>
+                                <p class="text-sm">Intenta ajustar los filtros de búsqueda</p>
+                            </div>
+                        </td>
                     </tr>
-                @endforeach
+                @endif
             </tbody>
         </table>
         
-        <!-- Controles de paginación para tabla de usuarios -->
-        <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+        <!-- Paginación de Laravel -->
+        <div class="px-6 py-4 border-t bg-gray-50">
             <div class="flex items-center justify-between">
                 <div class="flex items-center">
                     <label class="text-sm text-gray-700 mr-2">Mostrar:</label>
-                    <select id="registrosPorPaginaUsuarios" class="border border-gray-300 rounded-md px-2 py-1 text-sm bg-white">
-                        <option value="5">5</option>
-                        <option value="10" selected>10</option>
-                        <option value="25">25</option>
-                        <option value="50">50</option>
+                    <select id="perPageSelectUsuarios" class="border border-gray-300 rounded-md px-2 py-1 text-sm bg-white" onchange="changePerPageUsuarios(this.value)">
+                        <option value="5" {{ $perPage == 5 ? 'selected' : '' }}>5</option>
+                        <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
+                        <option value="25" {{ $perPage == 25 ? 'selected' : '' }}>25</option>
+                        <option value="50" {{ $perPage == 50 ? 'selected' : '' }}>50</option>
+                        <option value="100" {{ $perPage == 100 ? 'selected' : '' }}>100</option>
                     </select>
                     <span class="text-sm text-gray-700 ml-2">registros por página</span>
                 </div>
-                <div class="flex items-center space-x-2">
-                    <button id="btnAnteriorUsuarios" class="px-3 py-1 border border-gray-300 rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed">
-                        Anterior
-                    </button>
-                    <span id="infoPaginacionUsuarios" class="text-sm text-gray-700">
-                        Página <span id="paginaActualUsuarios">1</span> de <span id="totalPaginasUsuarios">1</span>
-                    </span>
-                    <button id="btnSiguienteUsuarios" class="px-3 py-1 border border-gray-300 rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed">
-                        Siguiente
-                    </button>
+                <div class="flex-1 flex items-center justify-center">
+                    {{ $users->links('pagination.custom') }}
+                </div>
+                <div class="text-sm text-gray-700">
+                    Mostrando {{ $users->firstItem() ?? 0 }} a {{ $users->lastItem() ?? 0 }} registros de {{ $users->total() }} resultados
                 </div>
             </div>
         </div>
@@ -214,49 +231,59 @@
         </div>
         
         <!-- Controles de búsqueda para tabla de gestión de permisos -->
-        <div id="panelBusquedaPermisos" class="bg-white shadow-md rounded-lg p-4 mb-4 hidden">
+        <div id="panelBusquedaPermisos" class="bg-white shadow-md rounded-lg p-4 mb-4 {{ ($searchPermisos || $filtroRolPermisos || $filtroGrupoPermisos || $filtroPermisos) ? '' : 'hidden' }}">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-lg font-medium text-gray-900">Búsqueda de Permisos</h3>
                 <button id="btnCancelarBusquedaPermisos" class="text-gray-500 hover:text-gray-700 text-xl font-bold">
                     ✕
                 </button>
             </div>
-            <div class="flex flex-wrap gap-4 items-center">
-                <div class="flex-1 min-w-64">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Buscar:</label>
-                    <input type="text" id="buscarPermisos" placeholder="Buscar por rol, grupo o permisos..." 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div class="flex gap-2">
-                    <button id="btnBuscarAvanzadaPermisos" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md font-medium">
-                        Búsqueda Avanzada
-                    </button>
-                    <button id="btnLimpiarBusquedaPermisos" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md font-medium">
-                        Limpiar
-                    </button>
-                </div>
-            </div>
             
-            <!-- Panel de búsqueda avanzada -->
-            <div id="panelBusquedaAvanzadaPermisos" class="mt-4 p-4 bg-gray-50 rounded-md hidden">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Rol:</label>
-                        <input type="text" id="filtroRolPermisos" placeholder="Filtrar por rol" 
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md">
+            <form method="GET" action="{{ route('usuarios.index') }}" id="formBusquedaPermisos">
+                <div class="flex flex-wrap gap-4 items-center">
+                    <div class="flex-1 min-w-64">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Buscar:</label>
+                        <input type="text" id="searchInputPermisos" name="search_permisos" value="{{ $searchPermisos }}" placeholder="Buscar por rol, grupo..." 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Grupo:</label>
-                        <input type="text" id="filtroGrupoPermisos" placeholder="Filtrar por grupo" 
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Permisos:</label>
-                        <input type="text" id="filtroPermisos" placeholder="Filtrar por permisos" 
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                    <div class="flex gap-2">
+                        <button type="button" id="btnBuscarAvanzadaPermisos" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md font-medium">
+                            <i class="fas fa-filter mr-2"></i>Búsqueda Avanzada
+                        </button>
+                        <a href="{{ route('usuarios.index') }}" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md font-medium">
+                            <i class="fas fa-brush mr-2"></i>Limpiar
+                        </a>
                     </div>
                 </div>
-            </div>
+                
+                <!-- Panel de búsqueda avanzada -->
+                <div id="panelBusquedaAvanzadaPermisos" class="mt-4 p-4 bg-gray-50 rounded-md {{ ($filtroRolPermisos || $filtroGrupoPermisos || $filtroPermisos) ? '' : 'hidden' }}">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Rol:</label>
+                            <input type="text" id="filtroRolPermisos" name="filtro_rol_permisos" value="{{ $filtroRolPermisos }}" placeholder="Filtrar por rol" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Grupo:</label>
+                            <input type="text" id="filtroGrupoPermisos" name="filtro_grupo_permisos" value="{{ $filtroGrupoPermisos }}" placeholder="Filtrar por grupo" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Permisos:</label>
+                            <input type="text" id="filtroPermisos" name="filtro_permisos" value="{{ $filtroPermisos }}" placeholder="Filtrar por permisos" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Campos ocultos para mantener parámetros de usuarios -->
+                <input type="hidden" name="search" value="{{ $search }}">
+                <input type="hidden" name="filtro_correo" value="{{ $filtroCorreo }}">
+                <input type="hidden" name="filtro_rol" value="{{ $filtroRol }}">
+                <input type="hidden" name="filtro_estado" value="{{ $filtroEstado }}">
+                <input type="hidden" name="per_page" value="{{ $perPage }}">
+            </form>
         </div>
         
         <div class="bg-white shadow-md rounded-lg overflow-hidden">
@@ -273,47 +300,55 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    @foreach($rolesData as $roleData)
-                        <tr class="hover:bg-gray-50 transition-colors duration-150">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $roleData->rol }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $roleData->grupo }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-500">{{ $roleData->permisos }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-500">{{ $roleData->descripciones }}</td>
-                            @if($canUpdateAsignaciones)
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <button title="Asignar Permisos" class="text-green-600 hover:text-green-900" onclick="asignarPermisosRol('{{ $roleData->rol }}', '{{ $roleData->grupo }}')">
-                                    <i class="fas fa-user-shield"></i>
-                                </button>
+                    @if($rolesDataPaginated->count() > 0)
+                        @foreach($rolesDataPaginated as $roleData)
+                            <tr class="hover:bg-gray-50 transition-colors duration-150">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $roleData->rol }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $roleData->grupo }}</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">{{ $roleData->permisos }}</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">{{ $roleData->descripciones }}</td>
+                                @if($canUpdateAsignaciones)
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <button title="Asignar Permisos" class="text-green-600 hover:text-green-900" onclick="asignarPermisosRol('{{ $roleData->rol }}', '{{ $roleData->grupo }}')">
+                                        <i class="fas fa-user-shield"></i>
+                                    </button>
+                                </td>
+                                @endif
+                            </tr>
+                        @endforeach
+                    @else
+                        <tr>
+                            <td colspan="{{ $canUpdateAsignaciones ? '5' : '4' }}" class="px-6 py-8 text-center text-gray-500">
+                                <div class="flex flex-col items-center">
+                                    <i class="fas fa-search text-4xl text-gray-300 mb-2"></i>
+                                    <p class="text-lg font-medium">No se encontraron resultados</p>
+                                    <p class="text-sm">Intenta ajustar los filtros de búsqueda</p>
+                                </div>
                             </td>
-                            @endif
                         </tr>
-                    @endforeach
+                    @endif
                 </tbody>
             </table>
             
-            <!-- Controles de paginación para tabla de gestión de permisos -->
-            <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+            <!-- Paginación de Laravel para permisos -->
+            <div class="px-6 py-4 border-t bg-gray-50">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center">
                         <label class="text-sm text-gray-700 mr-2">Mostrar:</label>
-                        <select id="registrosPorPaginaPermisos" class="border border-gray-300 rounded-md px-2 py-1 text-sm bg-white">
-                            <option value="5">5</option>
-                            <option value="10" selected>10</option>
-                            <option value="25">25</option>
-                            <option value="50">50</option>
+                        <select id="perPageSelectPermisos" class="border border-gray-300 rounded-md px-2 py-1 text-sm bg-white" onchange="changePerPagePermisos(this.value)">
+                            <option value="5" {{ request('per_page_permisos', 10) == 5 ? 'selected' : '' }}>5</option>
+                            <option value="10" {{ request('per_page_permisos', 10) == 10 ? 'selected' : '' }}>10</option>
+                            <option value="25" {{ request('per_page_permisos', 10) == 25 ? 'selected' : '' }}>25</option>
+                            <option value="50" {{ request('per_page_permisos', 10) == 50 ? 'selected' : '' }}>50</option>
+                            <option value="100" {{ request('per_page_permisos', 10) == 100 ? 'selected' : '' }}>100</option>
                         </select>
                         <span class="text-sm text-gray-700 ml-2">registros por página</span>
                     </div>
-                    <div class="flex items-center space-x-2">
-                        <button id="btnAnteriorPermisos" class="px-3 py-1 border border-gray-300 rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed">
-                            Anterior
-                        </button>
-                        <span id="infoPaginacionPermisos" class="text-sm text-gray-700">
-                            Página <span id="paginaActualPermisos">1</span> de <span id="totalPaginasPermisos">1</span>
-                        </span>
-                        <button id="btnSiguientePermisos" class="px-3 py-1 border border-gray-300 rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed">
-                            Siguiente
-                        </button>
+                    <div class="flex-1 flex items-center justify-center">
+                        {{ $rolesDataPaginated->links('pagination.custom') }}
+                    </div>
+                    <div class="text-sm text-gray-700">
+                        Mostrando {{ $rolesDataPaginated->firstItem() ?? 0 }} a {{ $rolesDataPaginated->lastItem() ?? 0 }} registros de {{ $rolesDataPaginated->total() }} resultados
                     </div>
                 </div>
             </div>
@@ -401,6 +436,341 @@
 
 @push('scripts')
 <script>
+    // Variables globales para búsqueda en tiempo real
+    let searchTimeout;
+    let isLoading = false;
+
+    // Función para realizar búsqueda en tiempo real
+    function performSearchUsuarios() {
+        if (isLoading) return;
+        
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            const searchInput = document.getElementById('searchInput');
+            const filtroCorreo = document.getElementById('filtroCorreo');
+            const filtroRol = document.getElementById('filtroRol');
+            const filtroEstado = document.getElementById('filtroEstado');
+            const perPageSelect = document.getElementById('perPageSelectUsuarios');
+            
+            const params = new URLSearchParams();
+            
+            if (searchInput && searchInput.value) params.append('search', searchInput.value);
+            if (filtroCorreo && filtroCorreo.value) params.append('filtro_correo', filtroCorreo.value);
+            if (filtroRol && filtroRol.value) params.append('filtro_rol', filtroRol.value);
+            if (filtroEstado && filtroEstado.value) params.append('filtro_estado', filtroEstado.value);
+            if (perPageSelect && perPageSelect.value) params.append('per_page', perPageSelect.value);
+            
+            toggleLoadingUsuarios(true);
+            
+            fetch(`{{ route('usuarios.index') }}?${params.toString()}`)
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    
+                    // Actualizar tabla y paginación
+                    const newTable = doc.querySelector('#tablaUsuariosContainer');
+                    if (newTable) {
+                        document.getElementById('tablaUsuariosContainer').innerHTML = newTable.innerHTML;
+                    }
+                    
+                    // Actualizar URL sin recargar la página
+                    const newUrl = `{{ route('usuarios.index') }}?${params.toString()}`;
+                    window.history.pushState({}, '', newUrl);
+                    
+                    toggleLoadingUsuarios(false);
+                })
+                .catch(error => {
+                    console.error('Error en búsqueda:', error);
+                    toggleLoadingUsuarios(false);
+                });
+        }, 500);
+    }
+
+    // Función para cambiar registros por página de usuarios
+    function changePerPageUsuarios(value) {
+        if (isLoading) return;
+        
+        const searchInput = document.getElementById('searchInput');
+        const filtroCorreo = document.getElementById('filtroCorreo');
+        const filtroRol = document.getElementById('filtroRol');
+        const filtroEstado = document.getElementById('filtroEstado');
+        
+        const params = new URLSearchParams();
+        
+        if (searchInput && searchInput.value) params.append('search', searchInput.value);
+        if (filtroCorreo && filtroCorreo.value) params.append('filtro_correo', filtroCorreo.value);
+        if (filtroRol && filtroRol.value) params.append('filtro_rol', filtroRol.value);
+        if (filtroEstado && filtroEstado.value) params.append('filtro_estado', filtroEstado.value);
+        params.append('per_page', value);
+        
+        toggleLoadingUsuarios(true);
+        
+        fetch(`{{ route('usuarios.index') }}?${params.toString()}`)
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                
+                // Actualizar tabla y paginación de usuarios
+                const newTable = doc.querySelector('#tablaUsuariosContainer');
+                if (newTable) {
+                    document.getElementById('tablaUsuariosContainer').innerHTML = newTable.innerHTML;
+                }
+                
+                // Actualizar tabla de permisos
+                const newPermisosTable = doc.querySelector('.mt-8 .bg-white.shadow-md.rounded-lg.overflow-hidden table');
+                if (newPermisosTable) {
+                    const currentPermisosTable = document.querySelector('.mt-8 .bg-white.shadow-md.rounded-lg.overflow-hidden table');
+                    if (currentPermisosTable) {
+                        currentPermisosTable.outerHTML = newPermisosTable.outerHTML;
+                    }
+                }
+                
+                // Actualizar URL sin recargar la página
+                const newUrl = `{{ route('usuarios.index') }}?${params.toString()}`;
+                window.history.pushState({}, '', newUrl);
+                
+                toggleLoadingUsuarios(false);
+            })
+            .catch(error => {
+                console.error('Error al cambiar página:', error);
+                toggleLoadingUsuarios(false);
+            });
+    }
+
+    // Función para cambiar registros por página de permisos
+    function changePerPagePermisos(value) {
+        if (isLoading) return;
+        
+        const searchInput = document.getElementById('searchInput');
+        const filtroCorreo = document.getElementById('filtroCorreo');
+        const filtroRol = document.getElementById('filtroRol');
+        const filtroEstado = document.getElementById('filtroEstado');
+        const perPageSelect = document.getElementById('perPageSelectUsuarios');
+        
+        const searchInputPermisos = document.getElementById('searchInputPermisos');
+        const filtroRolPermisos = document.getElementById('filtroRolPermisos');
+        const filtroGrupoPermisos = document.getElementById('filtroGrupoPermisos');
+        const filtroPermisos = document.getElementById('filtroPermisos');
+        
+        const params = new URLSearchParams();
+        
+        // Parámetros de usuarios
+        if (searchInput && searchInput.value) params.append('search', searchInput.value);
+        if (filtroCorreo && filtroCorreo.value) params.append('filtro_correo', filtroCorreo.value);
+        if (filtroRol && filtroRol.value) params.append('filtro_rol', filtroRol.value);
+        if (filtroEstado && filtroEstado.value) params.append('filtro_estado', filtroEstado.value);
+        if (perPageSelect && perPageSelect.value) params.append('per_page', perPageSelect.value);
+        
+        // Parámetros de permisos
+        if (searchInputPermisos && searchInputPermisos.value) params.append('search_permisos', searchInputPermisos.value);
+        if (filtroRolPermisos && filtroRolPermisos.value) params.append('filtro_rol_permisos', filtroRolPermisos.value);
+        if (filtroGrupoPermisos && filtroGrupoPermisos.value) params.append('filtro_grupo_permisos', filtroGrupoPermisos.value);
+        if (filtroPermisos && filtroPermisos.value) params.append('filtro_permisos', filtroPermisos.value);
+        params.append('per_page_permisos', value);
+        
+        toggleLoadingUsuarios(true);
+        
+        fetch(`{{ route('usuarios.index') }}?${params.toString()}`)
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                
+                // Actualizar tabla y paginación de usuarios
+                const newTable = doc.querySelector('#tablaUsuariosContainer');
+                if (newTable) {
+                    document.getElementById('tablaUsuariosContainer').innerHTML = newTable.innerHTML;
+                }
+                
+                // Actualizar tabla de permisos completa (tabla + paginación)
+                const newPermisosContainer = doc.querySelector('.mt-8 .bg-white.shadow-md.rounded-lg.overflow-hidden');
+                if (newPermisosContainer) {
+                    const currentPermisosContainer = document.querySelector('.mt-8 .bg-white.shadow-md.rounded-lg.overflow-hidden');
+                    if (currentPermisosContainer) {
+                        currentPermisosContainer.outerHTML = newPermisosContainer.outerHTML;
+                    }
+                }
+                
+                // Actualizar URL sin recargar la página
+                const newUrl = `{{ route('usuarios.index') }}?${params.toString()}`;
+                window.history.pushState({}, '', newUrl);
+                
+                toggleLoadingUsuarios(false);
+            })
+            .catch(error => {
+                console.error('Error al cambiar página:', error);
+                toggleLoadingUsuarios(false);
+            });
+    }
+
+    // Función para mostrar/ocultar loading
+    function toggleLoadingUsuarios(show) {
+        isLoading = show;
+        const container = document.getElementById('tablaUsuariosContainer');
+        if (container) {
+            container.style.opacity = show ? '0.6' : '1';
+            container.style.pointerEvents = show ? 'none' : 'auto';
+        }
+    }
+
+    // Función para realizar búsqueda en tiempo real de permisos
+    function performSearchPermisos() {
+        if (isLoading) return;
+        
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            const searchInput = document.getElementById('searchInput');
+            const filtroCorreo = document.getElementById('filtroCorreo');
+            const filtroRol = document.getElementById('filtroRol');
+            const filtroEstado = document.getElementById('filtroEstado');
+            const perPageSelect = document.getElementById('perPageSelectUsuarios');
+            
+            const searchInputPermisos = document.getElementById('searchInputPermisos');
+            const filtroRolPermisos = document.getElementById('filtroRolPermisos');
+            const filtroGrupoPermisos = document.getElementById('filtroGrupoPermisos');
+            const filtroPermisos = document.getElementById('filtroPermisos');
+            const perPageSelectPermisos = document.getElementById('perPageSelectPermisos');
+            
+            const params = new URLSearchParams();
+            
+            // Parámetros de usuarios
+            if (searchInput && searchInput.value) params.append('search', searchInput.value);
+            if (filtroCorreo && filtroCorreo.value) params.append('filtro_correo', filtroCorreo.value);
+            if (filtroRol && filtroRol.value) params.append('filtro_rol', filtroRol.value);
+            if (filtroEstado && filtroEstado.value) params.append('filtro_estado', filtroEstado.value);
+            if (perPageSelect && perPageSelect.value) params.append('per_page', perPageSelect.value);
+            
+            // Parámetros de permisos
+            if (searchInputPermisos && searchInputPermisos.value) params.append('search_permisos', searchInputPermisos.value);
+            if (filtroRolPermisos && filtroRolPermisos.value) params.append('filtro_rol_permisos', filtroRolPermisos.value);
+            if (filtroGrupoPermisos && filtroGrupoPermisos.value) params.append('filtro_grupo_permisos', filtroGrupoPermisos.value);
+            if (filtroPermisos && filtroPermisos.value) params.append('filtro_permisos', filtroPermisos.value);
+            if (perPageSelectPermisos && perPageSelectPermisos.value) params.append('per_page_permisos', perPageSelectPermisos.value);
+            
+            toggleLoadingUsuarios(true);
+            
+            fetch(`{{ route('usuarios.index') }}?${params.toString()}`)
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    
+                    // Actualizar tabla y paginación de usuarios
+                    const newTable = doc.querySelector('#tablaUsuariosContainer');
+                    if (newTable) {
+                        document.getElementById('tablaUsuariosContainer').innerHTML = newTable.innerHTML;
+                    }
+                    
+                    // Actualizar tabla de permisos
+                    const newPermisosTable = doc.querySelector('.mt-8 .bg-white.shadow-md.rounded-lg.overflow-hidden table');
+                    if (newPermisosTable) {
+                        const currentPermisosTable = document.querySelector('.mt-8 .bg-white.shadow-md.rounded-lg.overflow-hidden table');
+                        if (currentPermisosTable) {
+                            currentPermisosTable.outerHTML = newPermisosTable.outerHTML;
+                        }
+                    }
+                    
+                    // Actualizar URL sin recargar la página
+                    const newUrl = `{{ route('usuarios.index') }}?${params.toString()}`;
+                    window.history.pushState({}, '', newUrl);
+                    
+                    toggleLoadingUsuarios(false);
+                })
+                .catch(error => {
+                    console.error('Error en búsqueda:', error);
+                    toggleLoadingUsuarios(false);
+                });
+        }, 500);
+    }
+
+    // Event listeners para búsqueda en tiempo real
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        const filtroCorreo = document.getElementById('filtroCorreo');
+        const filtroRol = document.getElementById('filtroRol');
+        const filtroEstado = document.getElementById('filtroEstado');
+        
+        if (searchInput) {
+            searchInput.addEventListener('input', performSearchUsuarios);
+        }
+        
+        if (filtroCorreo) {
+            filtroCorreo.addEventListener('input', performSearchUsuarios);
+        }
+        
+        if (filtroRol) {
+            filtroRol.addEventListener('change', performSearchUsuarios);
+        }
+        
+        if (filtroEstado) {
+            filtroEstado.addEventListener('change', performSearchUsuarios);
+        }
+        
+        // Event listeners para búsqueda de permisos
+        const searchInputPermisos = document.getElementById('searchInputPermisos');
+        const filtroRolPermisos = document.getElementById('filtroRolPermisos');
+        const filtroGrupoPermisos = document.getElementById('filtroGrupoPermisos');
+        const filtroPermisos = document.getElementById('filtroPermisos');
+        
+        if (searchInputPermisos) {
+            searchInputPermisos.addEventListener('input', performSearchPermisos);
+        }
+        
+        if (filtroRolPermisos) {
+            filtroRolPermisos.addEventListener('input', performSearchPermisos);
+        }
+        
+        if (filtroGrupoPermisos) {
+            filtroGrupoPermisos.addEventListener('input', performSearchPermisos);
+        }
+        
+        if (filtroPermisos) {
+            filtroPermisos.addEventListener('input', performSearchPermisos);
+        }
+        
+        // Botón para mostrar/ocultar búsqueda avanzada de usuarios
+        const btnBuscarAvanzada = document.getElementById('btnBuscarAvanzadaUsuarios');
+        const panelBusquedaAvanzada = document.getElementById('panelBusquedaAvanzadaUsuarios');
+        
+        if (btnBuscarAvanzada && panelBusquedaAvanzada) {
+            btnBuscarAvanzada.addEventListener('click', function() {
+                panelBusquedaAvanzada.classList.toggle('hidden');
+            });
+        }
+        
+        // Botón para mostrar/ocultar búsqueda avanzada de permisos
+        const btnBuscarAvanzadaPermisos = document.getElementById('btnBuscarAvanzadaPermisos');
+        const panelBusquedaAvanzadaPermisos = document.getElementById('panelBusquedaAvanzadaPermisos');
+        
+        if (btnBuscarAvanzadaPermisos && panelBusquedaAvanzadaPermisos) {
+            btnBuscarAvanzadaPermisos.addEventListener('click', function() {
+                panelBusquedaAvanzadaPermisos.classList.toggle('hidden');
+            });
+        }
+        
+        // Botón para cancelar búsqueda de usuarios
+        const btnCancelarBusqueda = document.getElementById('btnCancelarBusquedaUsuarios');
+        const panelBusqueda = document.getElementById('panelBusquedaUsuarios');
+        
+        if (btnCancelarBusqueda && panelBusqueda) {
+            btnCancelarBusqueda.addEventListener('click', function() {
+                panelBusqueda.classList.add('hidden');
+            });
+        }
+        
+        // Botón para cancelar búsqueda de permisos
+        const btnCancelarBusquedaPermisos = document.getElementById('btnCancelarBusquedaPermisos');
+        const panelBusquedaPermisos = document.getElementById('panelBusquedaPermisos');
+        
+        if (btnCancelarBusquedaPermisos && panelBusquedaPermisos) {
+            btnCancelarBusquedaPermisos.addEventListener('click', function() {
+                panelBusquedaPermisos.classList.add('hidden');
+            });
+        }
+    });
+
     function validarEmail(email) {
         const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return re.test(email);
@@ -495,6 +865,12 @@
     document.getElementById('form_add_users').addEventListener('submit', function(e) {
         e.preventDefault();
         
+        // Validación de Bootstrap primero
+        if (!this.checkValidity()) {
+            this.classList.add('was-validated');
+            return;
+        }
+        
         const isEdit = document.getElementById('modal_user_title').textContent === 'Editar usuario';
         const correo = document.getElementById('input_correo_add_user').value;
         const rol_id = document.getElementById('select_rol_add_user').value;
@@ -502,16 +878,12 @@
         let contrasena = document.getElementById('input_pass_add_user').value;
         let contrasena_confirmation = document.getElementById('input_passconfirm_add_user').value;
         
-        // Validaciones básicas
-        if (!correo || !rol_id) {
-            Swal.fire('Error', 'Por favor, complete todos los campos.', 'error');
-            return;
-        }
-        
         // Validar que las contraseñas coincidan si están visibles
         if (document.getElementById('div_pass_add_user').style.display !== 'none') {
             if (contrasena !== contrasena_confirmation) {
-                Swal.fire('Error', 'Las contraseñas no coinciden.', 'error');
+                // Bootstrap se encarga de mostrar el error en el campo
+                document.getElementById('input_passconfirm_add_user').setCustomValidity('Las contraseñas no coinciden');
+                document.getElementById('form_add_users').reportValidity();
                 return;
             }
         }
@@ -526,11 +898,14 @@
             // En UPDATE, solo enviar contraseña si se cambió de ********
             if (contrasena !== '********' && contrasena_confirmation !== '********') {
                 if (!contrasena || !contrasena_confirmation) {
-                    Swal.fire('Error', 'Por favor, complete ambos campos de contraseña.', 'error');
+                    // Bootstrap se encarga de mostrar el error en los campos
+                    document.getElementById('form_add_users').reportValidity();
                     return;
                 }
                 if (contrasena !== contrasena_confirmation) {
-                    Swal.fire('Error', 'Las contraseñas no coinciden.', 'error');
+                    // Bootstrap se encarga de mostrar el error en el campo
+                    document.getElementById('input_passconfirm_add_user').setCustomValidity('Las contraseñas no coinciden');
+                    document.getElementById('form_add_users').reportValidity();
                     return;
                 }
                 payload.contrasena = contrasena;
@@ -974,402 +1349,25 @@
         });
     }
 
-    // Sistema de búsqueda y paginación personalizado
-    class TablaPersonalizada {
-        constructor(tablaElement, config) {
-            this.tabla = tablaElement; // Ahora recibe el elemento directamente
-            this.tbody = this.tabla.querySelector('tbody');
-            this.filasOriginales = Array.from(this.tbody.querySelectorAll('tr'));
-            this.filasFiltradas = [...this.filasOriginales];
-            this.paginaActual = 1;
-            this.registrosPorPagina = 10;
-            this.config = config;
-            
-            this.inicializar();
-        }
-        
-        inicializar() {
-            this.configurarEventos();
-            this.verificarEstadoExportar();
-            this.aplicarPaginacion();
-        }
-        
-        configurarEventos() {
-            // Registros por página - PRIORIDAD ALTA
-            const selectRegistros = document.getElementById(this.config.selectRegistros);
-            if (selectRegistros) {
-                selectRegistros.addEventListener('change', (e) => {
-                    this.registrosPorPagina = parseInt(e.target.value);
-                    this.paginaActual = 1;
-                    this.aplicarPaginacion();
-                });
-            }
-            
-            // Botón de exportación
-            const btnExportar = document.getElementById(this.config.btnExportar);
-            if (btnExportar) {
-                btnExportar.addEventListener('click', () => {
-                    this.exportarDatos();
-                });
-            }
-            
-            // Botones de paginación
-            const btnAnterior = document.getElementById(this.config.btnAnterior);
-            const btnSiguiente = document.getElementById(this.config.btnSiguiente);
-            
-            if (btnAnterior) {
-                btnAnterior.addEventListener('click', () => {
-                    if (this.paginaActual > 1) {
-                        this.paginaActual--;
-                        this.aplicarPaginacion();
-                    }
-                });
-            }
-            
-            if (btnSiguiente) {
-                btnSiguiente.addEventListener('click', () => {
-                    const totalPaginas = Math.ceil(this.filasFiltradas.length / this.registrosPorPagina);
-                    if (this.paginaActual < totalPaginas) {
-                        this.paginaActual++;
-                        this.aplicarPaginacion();
-                    }
-                });
-            }
-            
-            // Otros eventos...
-            const btnMostrarBusqueda = document.getElementById(this.config.btnMostrarBusqueda);
-            if (btnMostrarBusqueda) {
-                btnMostrarBusqueda.addEventListener('click', () => {
-                    this.mostrarPanelBusqueda();
-                });
-            }
-            
-            const btnCancelarBusqueda = document.getElementById(this.config.btnCancelarBusqueda);
-            if (btnCancelarBusqueda) {
-                btnCancelarBusqueda.addEventListener('click', () => {
-                    this.cancelarBusqueda();
-                });
-            }
-            
-            const inputBusqueda = document.getElementById(this.config.inputBusqueda);
-            if (inputBusqueda) {
-                inputBusqueda.addEventListener('input', (e) => {
-                    this.filtrar(e.target.value);
-                });
-            }
-            
-            const btnBuscarAvanzada = document.getElementById(this.config.btnBuscarAvanzada);
-            if (btnBuscarAvanzada) {
-                btnBuscarAvanzada.addEventListener('click', () => {
-                    this.toggleBusquedaAvanzada();
-                });
-            }
-            
-            const btnLimpiar = document.getElementById(this.config.btnLimpiar);
-            if (btnLimpiar) {
-                btnLimpiar.addEventListener('click', () => {
-                    this.limpiarFiltros();
-                });
-            }
-            
-            if (this.config.filtrosAvanzados) {
-                this.config.filtrosAvanzados.forEach(filtro => {
-                    const elemento = document.getElementById(filtro.id);
-                    if (elemento) {
-                        elemento.addEventListener('input', () => {
-                            this.aplicarFiltrosAvanzados();
-                        });
-                    }
-                });
-            }
-        }
-        
-        exportarDatos() {
-            // Obtener las filas filtradas (visibles)
-            const filasAExportar = this.filasFiltradas;
-            
-            // Obtener los encabezados de la tabla (excluyendo la columna de acciones)
-            const encabezados = [];
-            const filasEncabezado = this.tabla.querySelectorAll('thead th');
-            filasEncabezado.forEach((th, index) => {
-                // Excluir la última columna si es "Acciones"
-                if (index < filasEncabezado.length - 1 || !th.textContent.trim().includes('Acciones')) {
-                    encabezados.push(th.textContent.trim());
-                }
-            });
-            
-            // Preparar los datos para exportar
-            const datos = [];
-            filasAExportar.forEach(fila => {
-                const filaDatos = [];
-                const celdas = fila.querySelectorAll('td');
-                
-                // Excluir la última celda si es la columna de acciones
-                const celdasAExportar = celdas.length > 0 && celdas[celdas.length - 1].querySelector('button') ? 
-                    Array.from(celdas).slice(0, -1) : Array.from(celdas);
-                
-                celdasAExportar.forEach(celda => {
-                    filaDatos.push(celda.textContent.trim());
-                });
-                
-                datos.push(filaDatos);
-            });
-            
-            // Crear el contenido CSV con BOM para UTF-8
-            const BOM = '\uFEFF'; // Byte Order Mark para UTF-8
-            let csvContent = BOM + encabezados.join(',') + '\n';
-            datos.forEach(fila => {
-                csvContent += fila.join(',') + '\n';
-            });
-            
-            // Determinar el nombre del archivo según la tabla
-            let nombreArchivo = 'datos_exportados.csv';
-            if (this.config.btnExportar === 'btnExportarUsuarios') {
-                nombreArchivo = 'usuarios_exportados.csv';
-            } else if (this.config.btnExportar === 'btnExportarPermisos') {
-                nombreArchivo = 'permisos_exportados.csv';
-            }
-            
-            // Crear y descargar el archivo con codificación UTF-8
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', nombreArchivo);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-        
-        aplicarPaginacion() {
-            // Ocultar todas las filas primero
-            this.filasOriginales.forEach(fila => {
-                fila.style.display = 'none';
-            });
-            
-            // Calcular qué filas mostrar
-            const inicio = (this.paginaActual - 1) * this.registrosPorPagina;
-            const fin = inicio + this.registrosPorPagina;
-            const filasAMostrar = this.filasFiltradas.slice(inicio, fin);
-            
-            // Mostrar solo las filas de la página actual
-            filasAMostrar.forEach(fila => {
-                fila.style.display = '';
-            });
-            
-            // Actualizar información de paginación
-            const totalPaginas = Math.ceil(this.filasFiltradas.length / this.registrosPorPagina);
-            
-            const paginaActual = document.getElementById(this.config.paginaActual);
-            const totalPaginasElement = document.getElementById(this.config.totalPaginas);
-            const btnAnterior = document.getElementById(this.config.btnAnterior);
-            const btnSiguiente = document.getElementById(this.config.btnSiguiente);
-            
-            if (paginaActual) paginaActual.textContent = this.paginaActual;
-            if (totalPaginasElement) totalPaginasElement.textContent = totalPaginas;
-            
-            if (btnAnterior) {
-                const puedeAnterior = this.paginaActual > 1;
-                btnAnterior.disabled = !puedeAnterior;
-                if (!puedeAnterior) {
-                    btnAnterior.classList.add('opacity-50', 'cursor-not-allowed');
-                } else {
-                    btnAnterior.classList.remove('opacity-50', 'cursor-not-allowed');
-                }
-            }
-            
-            if (btnSiguiente) {
-                const puedeSiguiente = this.paginaActual < totalPaginas;
-                btnSiguiente.disabled = !puedeSiguiente;
-                if (!puedeSiguiente) {
-                    btnSiguiente.classList.add('opacity-50', 'cursor-not-allowed');
-                } else {
-                    btnSiguiente.classList.remove('opacity-50', 'cursor-not-allowed');
-                }
-            }
-            
-            // Verificar estado del botón exportar
-            this.verificarEstadoExportar();
-        }
-        
-        verificarEstadoExportar() {
-            const btnExportar = document.getElementById(this.config.btnExportar);
-            if (btnExportar) {
-                let tieneRegistros = false;
-                
-                // Si hay filtros aplicados, verificar las filas filtradas
-                if (this.filasFiltradas.length !== this.filasOriginales.length) {
-                    tieneRegistros = this.filasFiltradas.length > 0;
-                } else {
-                    // Si no hay filtros, verificar las filas originales en el DOM
-                    const filasEnTabla = this.tabla.querySelectorAll('tbody tr');
-                    tieneRegistros = Array.from(filasEnTabla).some(fila => {
-                        // Excluir filas que contengan mensajes como "No hay usuarios registrados"
-                        const textoFila = fila.textContent.toLowerCase();
-                        return !textoFila.includes('no hay') && !textoFila.includes('registrados') && !textoFila.includes('registradas');
-                    });
-                }
-                
-                btnExportar.disabled = !tieneRegistros;
-                
-                if (!tieneRegistros) {
-                    btnExportar.classList.add('opacity-50', 'cursor-not-allowed');
-                    btnExportar.title = 'No hay registros para exportar';
-                } else {
-                    btnExportar.classList.remove('opacity-50', 'cursor-not-allowed');
-                    btnExportar.title = 'Exportar registros';
-                }
-            }
-        }
-        
-        mostrarPanelBusqueda() {
-            const panel = document.getElementById(this.config.panelBusqueda);
-            if (panel) {
-                panel.classList.remove('hidden');
-            }
-        }
-        
-        cancelarBusqueda() {
-            this.limpiarFiltros();
-            const panel = document.getElementById(this.config.panelBusqueda);
-            if (panel) {
-                panel.classList.add('hidden');
-            }
-        }
-        
-        filtrar(texto) {
-            this.filasFiltradas = this.filasOriginales.filter(fila => {
-                const textoFila = fila.textContent.toLowerCase();
-                return textoFila.includes(texto.toLowerCase());
-            });
-            
-            this.paginaActual = 1;
-            this.aplicarPaginacion();
-            this.verificarEstadoExportar();
-        }
-        
-        aplicarFiltrosAvanzados() {
-            const filtros = {};
-            
-            if (this.config.filtrosAvanzados) {
-                this.config.filtrosAvanzados.forEach(filtro => {
-                    const elemento = document.getElementById(filtro.id);
-                    if (elemento && elemento.value) {
-                        filtros[filtro.campo] = elemento.value.toLowerCase();
-                    }
-                });
-            }
-            
-            this.filasFiltradas = this.filasOriginales.filter(fila => {
-                const celdas = fila.querySelectorAll('td');
-                
-                for (const [campo, valor] of Object.entries(filtros)) {
-                    const indice = this.config.filtrosAvanzados.find(f => f.campo === campo)?.indice;
-                    if (indice !== undefined && celdas[indice]) {
-                        const textoCelda = celdas[indice].textContent.toLowerCase();
-                        if (!textoCelda.includes(valor)) {
-                            return false;
-                        }
-                    }
-                }
-                
-                return true;
-            });
-            
-            this.paginaActual = 1;
-            this.aplicarPaginacion();
-            this.verificarEstadoExportar();
-        }
-        
-        toggleBusquedaAvanzada() {
-            const panel = document.getElementById(this.config.panelBusquedaAvanzada);
-            if (panel) {
-                panel.classList.toggle('hidden');
-            }
-        }
-        
-        limpiarFiltros() {
-            // Limpiar búsqueda general
-            const inputBusqueda = document.getElementById(this.config.inputBusqueda);
-            if (inputBusqueda) {
-                inputBusqueda.value = '';
-            }
-            
-            // Limpiar filtros avanzados
-            if (this.config.filtrosAvanzados) {
-                this.config.filtrosAvanzados.forEach(filtro => {
-                    const elemento = document.getElementById(filtro.id);
-                    if (elemento) {
-                        elemento.value = '';
-                    }
-                });
-            }
-            
-            // Ocultar panel de búsqueda avanzada
-            const panelAvanzado = document.getElementById(this.config.panelBusquedaAvanzada);
-            if (panelAvanzado) {
-                panelAvanzado.classList.add('hidden');
-            }
-            
-            // Restaurar todas las filas y reinicializar paginación
-            this.filasFiltradas = [...this.filasOriginales];
-            this.paginaActual = 1;
-            this.aplicarPaginacion();
-            this.verificarEstadoExportar();
-        }
-    }
-    
-    // Inicializar tablas cuando el DOM esté listo
+    // Event listeners para mostrar búsqueda
     document.addEventListener('DOMContentLoaded', function() {
+        // Botón para mostrar búsqueda de usuarios
+        const btnMostrarBusquedaUsuarios = document.getElementById('btnMostrarBusquedaUsuarios');
+        const panelBusquedaUsuarios = document.getElementById('panelBusquedaUsuarios');
         
-        // Tabla de usuarios - usar un selector más específico
-        const tablaUsuarios = document.querySelector('.bg-white.shadow-md.rounded-lg.overflow-hidden table');
-        if (tablaUsuarios) {
-            new TablaPersonalizada(tablaUsuarios, {
-                inputBusqueda: 'buscarUsuarios',
-                btnMostrarBusqueda: 'btnMostrarBusquedaUsuarios',
-                btnCancelarBusqueda: 'btnCancelarBusquedaUsuarios',
-                btnBuscarAvanzada: 'btnBuscarAvanzadaUsuarios',
-                btnLimpiar: 'btnLimpiarBusquedaUsuarios',
-                btnExportar: 'btnExportarUsuarios', // Agregar el botón de exportación
-                panelBusqueda: 'panelBusquedaUsuarios',
-                panelBusquedaAvanzada: 'panelBusquedaAvanzadaUsuarios',
-                selectRegistros: 'registrosPorPaginaUsuarios',
-                btnAnterior: 'btnAnteriorUsuarios',
-                btnSiguiente: 'btnSiguienteUsuarios',
-                paginaActual: 'paginaActualUsuarios',
-                totalPaginas: 'totalPaginasUsuarios',
-                filtrosAvanzados: [
-                    { id: 'filtroCorreo', campo: 'correo', indice: 0 },
-                    { id: 'filtroRol', campo: 'rol', indice: 1 },
-                    { id: 'filtroEstado', campo: 'estado', indice: 2 }
-                ]
+        if (btnMostrarBusquedaUsuarios && panelBusquedaUsuarios) {
+            btnMostrarBusquedaUsuarios.addEventListener('click', function() {
+                panelBusquedaUsuarios.classList.remove('hidden');
             });
         }
         
-        // Tabla de gestión de permisos - usar un selector más específico
-        const tablaPermisos = document.querySelectorAll('.bg-white.shadow-md.rounded-lg.overflow-hidden table')[1];
-        if (tablaPermisos) {
-            new TablaPersonalizada(tablaPermisos, {
-                inputBusqueda: 'buscarPermisos',
-                btnMostrarBusqueda: 'btnMostrarBusquedaPermisos',
-                btnCancelarBusqueda: 'btnCancelarBusquedaPermisos',
-                btnBuscarAvanzada: 'btnBuscarAvanzadaPermisos',
-                btnLimpiar: 'btnLimpiarBusquedaPermisos',
-                btnExportar: 'btnExportarPermisos', // Agregar el botón de exportación
-                panelBusqueda: 'panelBusquedaPermisos',
-                panelBusquedaAvanzada: 'panelBusquedaAvanzadaPermisos',
-                selectRegistros: 'registrosPorPaginaPermisos',
-                btnAnterior: 'btnAnteriorPermisos',
-                btnSiguiente: 'btnSiguientePermisos',
-                paginaActual: 'paginaActualPermisos',
-                totalPaginas: 'totalPaginasPermisos',
-                filtrosAvanzados: [
-                    { id: 'filtroRolPermisos', campo: 'rol', indice: 0 },
-                    { id: 'filtroGrupoPermisos', campo: 'grupo', indice: 1 },
-                    { id: 'filtroPermisos', campo: 'permisos', indice: 2 }
-                ]
+        // Botón para mostrar búsqueda de permisos
+        const btnMostrarBusquedaPermisos = document.getElementById('btnMostrarBusquedaPermisos');
+        const panelBusquedaPermisos = document.getElementById('panelBusquedaPermisos');
+        
+        if (btnMostrarBusquedaPermisos && panelBusquedaPermisos) {
+            btnMostrarBusquedaPermisos.addEventListener('click', function() {
+                panelBusquedaPermisos.classList.remove('hidden');
             });
         }
     });

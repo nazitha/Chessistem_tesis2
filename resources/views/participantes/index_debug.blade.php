@@ -3,35 +3,11 @@
 @section('content')
 @php
     use App\Helpers\PermissionHelper;
-    use Illuminate\Support\Facades\Log;
-    
-    // Verificar primero si tiene permiso de lectura
-    if (!PermissionHelper::canViewModule('academias')) {
-        // Si no tiene permiso de lectura, redirigir al home
-        header('Location: ' . route('home'));
-        exit;
-    }
-    
-    // Debug de permisos
-    Log::info('Vista academias: Verificando permisos', [
-        'can_create' => PermissionHelper::canCreate('academias'),
-        'can_update' => PermissionHelper::canUpdate('academias'),
-        'can_delete' => PermissionHelper::canDelete('academias'),
-        'has_any_action' => PermissionHelper::hasAnyActionPermission('academias')
-    ]);
 @endphp
 
 <div class="max-w-full mx-auto px-4">
     <div class="flex justify-between items-center pb-4">
-        <h1 class="text-2xl font-semibold">Academias</h1>
-        @if(PermissionHelper::canCreate('academias'))
-        <a href="{{ route('academias.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded hover:bg-blue-600 transition-colors duration-200">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-            </svg>
-            Nueva Academia
-        </a>
-        @endif
+        <h1 class="text-2xl font-semibold">Participantes</h1>
     </div>
 
     @if(session('success'))
@@ -49,62 +25,52 @@
     <!-- Botón para mostrar controles de búsqueda -->
     <div class="mb-4">
         <div class="flex gap-2">
-            <button id="btnMostrarBusquedaAcademias" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium">
+            <button id="btnMostrarBusquedaParticipantes" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium">
                 <i class="fas fa-search mr-2"></i>Buscar
             </button>
-            <button id="btnExportarAcademias" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium">
+            <button id="btnExportarParticipantes" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium">
                 <i class="fas fa-download mr-2"></i>Exportar
             </button>
         </div>
     </div>
 
     <!-- Controles de búsqueda -->
-    <div id="panelBusquedaAcademias" class="bg-white shadow-md rounded-lg p-4 mb-4 {{ ($search || $filtroNombre || $filtroCorreo || $filtroRepresentante || $filtroCiudad || $filtroEstado) ? '' : 'hidden' }}">
+    <div id="panelBusquedaParticipantes" class="bg-white shadow-md rounded-lg p-4 mb-4 {{ ($search || $filtroMiembro || $filtroTorneo || $filtroEstado || $filtroPuntos || $filtroPosicion) ? '' : 'hidden' }}">
         <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-medium text-gray-900">Búsqueda de Academias</h3>
-            <button id="btnCancelarBusquedaAcademias" class="text-gray-500 hover:text-gray-700 text-xl font-bold">
+            <h3 class="text-lg font-medium text-gray-900">Búsqueda de Participantes</h3>
+            <button id="btnCancelarBusquedaParticipantes" class="text-gray-500 hover:text-gray-700 text-xl font-bold">
                 ✕
             </button>
         </div>
         
-        <form method="GET" action="{{ route('academias.index') }}" id="formBusquedaAcademias">
+        <form method="GET" action="{{ route('participantes.index') }}" id="formBusquedaParticipantes">
             <div class="flex flex-wrap gap-4 items-center">
                 <div class="flex-1 min-w-64">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Buscar:</label>
-                    <input type="text" id="searchInput" name="search" value="{{ $search }}" placeholder="Buscar por nombre, correo, representante..." 
+                    <input type="text" id="searchInput" name="search" value="{{ $search }}" placeholder="Buscar por miembro, torneo, número..." 
                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
                 <div class="flex gap-2">
-                    <button type="button" id="btnBuscarAvanzadaAcademias" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md font-medium">
+                    <button type="button" id="btnBuscarAvanzadaParticipantes" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md font-medium">
                         <i class="fas fa-filter mr-2"></i>Búsqueda Avanzada
                     </button>
-                    <a href="{{ route('academias.index') }}" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md font-medium">
+                    <a href="{{ route('participantes.index') }}" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md font-medium">
                         <i class="fas fa-brush mr-2"></i>Limpiar
                     </a>
                 </div>
             </div>
             
             <!-- Panel de búsqueda avanzada -->
-            <div id="panelBusquedaAvanzadaAcademias" class="mt-4 p-4 bg-gray-50 rounded-md {{ ($filtroNombre || $filtroCorreo || $filtroRepresentante || $filtroCiudad || $filtroEstado) ? '' : 'hidden' }}">
+            <div id="panelBusquedaAvanzadaParticipantes" class="mt-4 p-4 bg-gray-50 rounded-md {{ ($filtroMiembro || $filtroTorneo || $filtroEstado || $filtroPuntos || $filtroPosicion) ? '' : 'hidden' }}">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Nombre:</label>
-                        <input type="text" id="filtroNombre" name="filtro_nombre" value="{{ $filtroNombre }}" placeholder="Filtrar por nombre" 
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Miembro:</label>
+                        <input type="text" id="filtroMiembro" name="filtro_miembro" value="{{ $filtroMiembro }}" placeholder="Filtrar por miembro" 
                                class="w-full px-3 py-2 border border-gray-300 rounded-md">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Correo:</label>
-                        <input type="text" id="filtroCorreo" name="filtro_correo" value="{{ $filtroCorreo }}" placeholder="Filtrar por correo" 
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Representante:</label>
-                        <input type="text" id="filtroRepresentante" name="filtro_representante" value="{{ $filtroRepresentante }}" placeholder="Filtrar por representante" 
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Ciudad:</label>
-                        <input type="text" id="filtroCiudad" name="filtro_ciudad" value="{{ $filtroCiudad }}" placeholder="Filtrar por ciudad" 
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Torneo:</label>
+                        <input type="text" id="filtroTorneo" name="filtro_torneo" value="{{ $filtroTorneo }}" placeholder="Filtrar por torneo" 
                                class="w-full px-3 py-2 border border-gray-300 rounded-md">
                     </div>
                     <div>
@@ -114,6 +80,16 @@
                             <option value="1" {{ $filtroEstado === '1' ? 'selected' : '' }}>Activo</option>
                             <option value="0" {{ $filtroEstado === '0' ? 'selected' : '' }}>Inactivo</option>
                         </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Puntos mínimos:</label>
+                        <input type="number" id="filtroPuntos" name="filtro_puntos" value="{{ $filtroPuntos }}" placeholder="Puntos mínimos" 
+                               step="0.5" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Posición máxima:</label>
+                        <input type="number" id="filtroPosicion" name="filtro_posicion" value="{{ $filtroPosicion }}" placeholder="Posición máxima" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md">
                     </div>
                 </div>
             </div>
@@ -128,80 +104,81 @@
             <table class="min-w-full">
                 <thead>
                     <tr class="bg-gray-50 border-b">
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Correo</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Teléfono</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Representante</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dirección</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ciudad</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Miembro</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Torneo</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Número</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Puntos</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Posición</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                        @if(PermissionHelper::hasAnyAcademiaActionPermission())
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+                        @if(PermissionHelper::canDelete('participantes'))
                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
                         @endif
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200" id="tablaAcademiasContainer">
-                    @forelse($academias as $academia)
+                <tbody class="bg-white divide-y divide-gray-200" id="tablaParticipantesContainer">
+                    @forelse($participantes as $participante)
                         <tr class="hover:bg-gray-50 transition-colors duration-150">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $academia->nombre_academia }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $academia->correo_academia }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $academia->telefono_academia }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $academia->representante_academia }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $academia->direccion_academia }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">
+                                    {{ $participante->miembro->nombres }} {{ $participante->miembro->apellidos }}
+                                </div>
+                                <div class="text-sm text-gray-500">{{ $participante->miembro->cedula }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">{{ $participante->torneo->nombre_torneo }}</div>
+                                <div class="text-sm text-gray-500">
+                                    {{ $participante->torneo->fecha_inicio->locale('es')->isoFormat('DD [de] MMMM [del] YYYY') }}
+                                </div>
+                            </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ $academia->ciudad ? $academia->ciudad->nombre_ciudad . ', ' . 
-                                   ($academia->ciudad->departamento->nombre_depto ?? '-') . ' (' . 
-                                   ($academia->ciudad->departamento->pais->nombre_pais ?? '-') . ')' : '-' }}
+                                {{ $participante->numero_inicial ?? '-' }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ number_format($participante->puntos, 1) }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ $participante->posicion ?? '-' }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                    @if($academia->estado_academia)
+                                    @if($participante->activo)
                                         bg-green-100 text-green-800
                                     @else
                                         bg-gray-100 text-gray-800
                                     @endif
                                 ">
-                                    {{ $academia->estado_academia ? 'Activo' : 'Inactivo' }}
+                                    {{ $participante->activo ? 'Activo' : 'Inactivo' }}
                                 </span>
                             </td>
-                            @if(PermissionHelper::hasAnyAcademiaActionPermission())
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ $participante->created_at->locale('es')->isoFormat('DD [de] MMMM [del] YYYY') }}
+                            </td>
+                            @if(PermissionHelper::canDelete('participantes'))
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex justify-end space-x-3">
-                                    @if(PermissionHelper::canViewModule('academias'))
-                                        <a href="{{ route('academias.show', $academia) }}" 
-                                           class="text-blue-600 hover:text-blue-900 p-1 rounded-full hover:bg-blue-100 transition-colors duration-200"
-                                           data-tooltip="Ver detalles">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                    @endif
-                                    
-                                    @if(PermissionHelper::canUpdate('academias'))
-                                        <a href="{{ route('academias.edit', $academia) }}" 
-                                           class="text-yellow-600 hover:text-yellow-900 p-1 rounded-full hover:bg-yellow-100 transition-colors duration-200"
-                                           data-tooltip="Editar academia">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                    @endif
-
-                                        @if(PermissionHelper::canDelete('academias'))
-                                    <form action="{{ route('academias.destroy', $academia) }}" method="POST" class="inline">
+                                    <a href="{{ route('participantes.show', $participante) }}" 
+                                       class="text-blue-600 hover:text-blue-900 p-1 rounded-full hover:bg-blue-100 transition-colors duration-200"
+                                       data-tooltip="Ver detalles">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <form action="{{ route('participantes.destroy', $participante) }}" method="POST" class="inline">
                                         @csrf
                                         @method('DELETE')
                                         <button type="button"
-                                                onclick="confirmarEliminacion('{{ $academia->id_academia }}')"
+                                                onclick="confirmarEliminacion('{{ $participante->id }}')"
                                                 class="text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-100 transition-colors duration-200"
-                                                data-tooltip="Eliminar academia">
+                                                data-tooltip="Eliminar participante">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
-                                        @endif
                                 </div>
                             </td>
                             @endif
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="{{ PermissionHelper::hasAnyAcademiaActionPermission() ? '8' : '7' }}" class="px-6 py-8 text-center text-gray-500">
+                            <td colspan="{{ PermissionHelper::canDelete('participantes') ? '8' : '7' }}" class="px-6 py-8 text-center text-gray-500">
                                 <div class="flex flex-col items-center">
                                     <i class="fas fa-search text-4xl text-gray-300 mb-2"></i>
                                     <p class="text-lg font-medium">No se encontraron resultados</p>
@@ -221,24 +198,25 @@
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
                         <span class="text-sm text-gray-700">Mostrar:</span>
-                        <select onchange="changePerPageAcademias(this.value)" class="border border-gray-300 rounded-md px-2 py-1 text-sm bg-white">
-                            <option value="10" {{ ($perPage ?? 10) == 10 ? 'selected' : '' }}>10</option>
-                            <option value="25" {{ ($perPage ?? 10) == 25 ? 'selected' : '' }}>25</option>
-                            <option value="50" {{ ($perPage ?? 10) == 50 ? 'selected' : '' }}>50</option>
-                            <option value="100" {{ ($perPage ?? 10) == 100 ? 'selected' : '' }}>100</option>
+                        <select onchange="changePerPageParticipantes(this.value)" class="border border-gray-300 rounded-md px-2 py-1 text-sm bg-white">
+                            <option value="10" {{ ($perPage ?? 20) == 10 ? 'selected' : '' }}>10</option>
+                            <option value="20" {{ ($perPage ?? 20) == 20 ? 'selected' : '' }}>20</option>
+                            <option value="25" {{ ($perPage ?? 20) == 25 ? 'selected' : '' }}>25</option>
+                            <option value="50" {{ ($perPage ?? 20) == 50 ? 'selected' : '' }}>50</option>
+                            <option value="100" {{ ($perPage ?? 20) == 100 ? 'selected' : '' }}>100</option>
                         </select>
                         <span class="text-sm text-gray-700">por página</span>
                     </div>
                     
                     <!-- Información de paginación -->
                     <div class="text-sm text-gray-700">
-                        Mostrando {{ $academias->firstItem() ?? 0 }} a {{ $academias->lastItem() ?? 0 }} registros de {{ $academias->total() }} resultados
+                        Mostrando {{ $participantes->firstItem() ?? 0 }} a {{ $participantes->lastItem() ?? 0 }} registros de {{ $participantes->total() }} resultados
                     </div>
                 </div>
                 
                 <!-- Enlaces de paginación -->
                 <div class="flex-1 flex items-center justify-center">
-                    {{ $academias->links('pagination.custom') }}
+                    {{ $participantes->links('pagination.custom') }}
                 </div>
             </div>
         </div>
@@ -250,7 +228,7 @@
     <div class="bg-white rounded-lg p-6 max-w-sm mx-auto">
         <h3 class="text-lg font-medium text-gray-900 mb-4">Confirmar eliminación</h3>
         <p class="text-sm text-gray-500 mb-4">
-            ¿Estás seguro de que deseas eliminar esta academia? Esta acción no se puede deshacer.
+            ¿Estás seguro de que deseas eliminar este participante? Esta acción no se puede deshacer.
         </p>
         <div class="flex justify-end space-x-3">
             <button type="button" 
@@ -267,9 +245,6 @@
     </div>
 </div>
 
-@push('styles')
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-@endpush
 
 @push('scripts')
 <script>
@@ -287,7 +262,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 3000);
 });
 
-function confirmarEliminacion(academiaId) {
+function confirmarEliminacion(participanteId) {
     const modal = document.getElementById('modal-confirmacion');
     const btnConfirmar = document.getElementById('btn-confirmar-eliminacion');
     
@@ -295,7 +270,7 @@ function confirmarEliminacion(academiaId) {
     modal.classList.add('flex');
     
     btnConfirmar.onclick = function() {
-        document.querySelector(`form[action$="${academiaId}"]`).submit();
+        document.querySelector(`form[action*="${participanteId}"]`).submit();
     };
 }
 
@@ -310,47 +285,47 @@ let searchTimeout;
 let isLoading = false;
 
 // Función para realizar búsqueda AJAX
-function performSearchAcademias() {
+function performSearchParticipantes() {
     if (isLoading) return;
     
     const searchInput = document.getElementById('searchInput');
-    const filtroNombre = document.getElementById('filtroNombre');
-    const filtroCorreo = document.getElementById('filtroCorreo');
-    const filtroRepresentante = document.getElementById('filtroRepresentante');
-    const filtroCiudad = document.getElementById('filtroCiudad');
+    const filtroMiembro = document.getElementById('filtroMiembro');
+    const filtroTorneo = document.getElementById('filtroTorneo');
     const filtroEstado = document.getElementById('filtroEstado');
-    const perPageSelect = document.querySelector('select[onchange="changePerPageAcademias(this.value)"]');
+    const filtroPuntos = document.getElementById('filtroPuntos');
+    const filtroPosicion = document.getElementById('filtroPosicion');
+    const perPageSelect = document.querySelector('select[onchange="changePerPageParticipantes(this.value)"]');
     
     const params = new URLSearchParams();
     
     if (searchInput && searchInput.value.trim()) {
         params.append('search', searchInput.value.trim());
     }
-    if (filtroNombre && filtroNombre.value.trim()) {
-        params.append('filtro_nombre', filtroNombre.value.trim());
+    if (filtroMiembro && filtroMiembro.value.trim()) {
+        params.append('filtro_miembro', filtroMiembro.value.trim());
     }
-    if (filtroCorreo && filtroCorreo.value.trim()) {
-        params.append('filtro_correo', filtroCorreo.value.trim());
-    }
-    if (filtroRepresentante && filtroRepresentante.value.trim()) {
-        params.append('filtro_representante', filtroRepresentante.value.trim());
-    }
-    if (filtroCiudad && filtroCiudad.value.trim()) {
-        params.append('filtro_ciudad', filtroCiudad.value.trim());
+    if (filtroTorneo && filtroTorneo.value.trim()) {
+        params.append('filtro_torneo', filtroTorneo.value.trim());
     }
     if (filtroEstado && filtroEstado.value !== '') {
         params.append('filtro_estado', filtroEstado.value);
+    }
+    if (filtroPuntos && filtroPuntos.value) {
+        params.append('filtro_puntos', filtroPuntos.value);
+    }
+    if (filtroPosicion && filtroPosicion.value) {
+        params.append('filtro_posicion', filtroPosicion.value);
     }
     if (perPageSelect && perPageSelect.value) {
         params.append('per_page', perPageSelect.value);
     }
     
     // Actualizar URL sin recargar página
-    const newUrl = '{{ route("academias.index") }}' + (params.toString() ? '?' + params.toString() : '');
+    const newUrl = '{{ route("participantes.index") }}' + (params.toString() ? '?' + params.toString() : '');
     window.history.pushState({}, '', newUrl);
     
     // Realizar petición AJAX
-    toggleLoadingAcademias(true);
+    toggleLoadingParticipantes(true);
     
     fetch(newUrl, {
         method: 'GET',
@@ -365,44 +340,51 @@ function performSearchAcademias() {
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
         
-        // Actualizar tabla de academias
-        const newTableContainer = doc.querySelector('#tablaAcademiasContainer');
+        // Actualizar tabla de participantes
+        const newTableContainer = doc.querySelector('#tablaParticipantesContainer');
         if (newTableContainer) {
-            const currentTableContainer = document.querySelector('#tablaAcademiasContainer');
+            const currentTableContainer = document.querySelector('#tablaParticipantesContainer');
             if (currentTableContainer) {
                 currentTableContainer.innerHTML = newTableContainer.innerHTML;
             }
         }
         
-        // Actualizar paginación
+        // Actualizar paginación completa (incluyendo el texto "Mostrando n a m...")
         const newPaginationContainer = doc.querySelector('.px-6.py-4.border-t.bg-gray-50');
+        console.log('Nuevo contenedor de paginación encontrado:', !!newPaginationContainer);
         if (newPaginationContainer) {
             const currentPaginationContainer = document.querySelector('.px-6.py-4.border-t.bg-gray-50');
+            console.log('Contenedor actual de paginación encontrado:', !!currentPaginationContainer);
             if (currentPaginationContainer) {
                 currentPaginationContainer.outerHTML = newPaginationContainer.outerHTML;
+                console.log('Paginación actualizada correctamente');
+            } else {
+                console.log('No se encontró el contenedor actual de paginación');
             }
+        } else {
+            console.log('No se encontró el nuevo contenedor de paginación en la respuesta');
         }
         
-        toggleLoadingAcademias(false);
+        toggleLoadingParticipantes(false);
     })
     .catch(error => {
         console.error('Error en búsqueda:', error);
-        toggleLoadingAcademias(false);
+        toggleLoadingParticipantes(false);
     });
 }
 
 // Función para cambiar registros por página
-function changePerPageAcademias(value) {
+function changePerPageParticipantes(value) {
     if (isLoading) return;
     
     const params = new URLSearchParams(window.location.search);
     params.set('per_page', value);
     params.delete('page'); // Resetear a la primera página
     
-    const newUrl = '{{ route("academias.index") }}?' + params.toString();
+    const newUrl = '{{ route("participantes.index") }}?' + params.toString();
     window.history.pushState({}, '', newUrl);
     
-    toggleLoadingAcademias(true);
+    toggleLoadingParticipantes(true);
     
     fetch(newUrl, {
         method: 'GET',
@@ -416,36 +398,43 @@ function changePerPageAcademias(value) {
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
         
-        // Actualizar tabla de academias
-        const newTableContainer = doc.querySelector('#tablaAcademiasContainer');
+        // Actualizar tabla de participantes
+        const newTableContainer = doc.querySelector('#tablaParticipantesContainer');
         if (newTableContainer) {
-            const currentTableContainer = document.querySelector('#tablaAcademiasContainer');
+            const currentTableContainer = document.querySelector('#tablaParticipantesContainer');
             if (currentTableContainer) {
                 currentTableContainer.innerHTML = newTableContainer.innerHTML;
             }
         }
         
-        // Actualizar paginación
+        // Actualizar paginación completa (incluyendo el texto "Mostrando n a m...")
         const newPaginationContainer = doc.querySelector('.px-6.py-4.border-t.bg-gray-50');
+        console.log('Nuevo contenedor de paginación encontrado:', !!newPaginationContainer);
         if (newPaginationContainer) {
             const currentPaginationContainer = document.querySelector('.px-6.py-4.border-t.bg-gray-50');
+            console.log('Contenedor actual de paginación encontrado:', !!currentPaginationContainer);
             if (currentPaginationContainer) {
                 currentPaginationContainer.outerHTML = newPaginationContainer.outerHTML;
+                console.log('Paginación actualizada correctamente');
+            } else {
+                console.log('No se encontró el contenedor actual de paginación');
             }
+        } else {
+            console.log('No se encontró el nuevo contenedor de paginación en la respuesta');
         }
         
-        toggleLoadingAcademias(false);
+        toggleLoadingParticipantes(false);
     })
     .catch(error => {
         console.error('Error al cambiar página:', error);
-        toggleLoadingAcademias(false);
+        toggleLoadingParticipantes(false);
     });
 }
 
 // Función para mostrar/ocultar loading
-function toggleLoadingAcademias(show) {
+function toggleLoadingParticipantes(show) {
     isLoading = show;
-    const tableContainer = document.querySelector('#tablaAcademiasContainer').closest('.overflow-x-auto');
+    const tableContainer = document.querySelector('#tablaParticipantesContainer').closest('.overflow-x-auto');
     if (tableContainer) {
         tableContainer.style.opacity = show ? '0.6' : '1';
         tableContainer.style.pointerEvents = show ? 'none' : 'auto';
@@ -467,22 +456,40 @@ function debounce(func, wait) {
 
 // Event listeners
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM cargado para participantes');
+    
+    // Verificar si FontAwesome está cargado
+    console.log('Verificando FontAwesome...');
+    const fontAwesomeLink = document.querySelector('link[href*="font-awesome"]');
+    console.log('FontAwesome link encontrado:', !!fontAwesomeLink);
+    
+    // Verificar iconos en los botones
+    const botonesConIconos = document.querySelectorAll('i.fas');
+    console.log('Iconos encontrados:', botonesConIconos.length);
+    botonesConIconos.forEach((icono, index) => {
+        console.log(`Icono ${index}:`, icono.className);
+    });
+    
     // Mostrar panel de búsqueda
-    const btnMostrarBusqueda = document.getElementById('btnMostrarBusquedaAcademias');
+    const btnMostrarBusqueda = document.getElementById('btnMostrarBusquedaParticipantes');
     if (btnMostrarBusqueda) {
+        console.log('Botón de búsqueda encontrado');
         btnMostrarBusqueda.addEventListener('click', function() {
-            const panel = document.getElementById('panelBusquedaAcademias');
+            const panel = document.getElementById('panelBusquedaParticipantes');
             if (panel) {
                 panel.classList.remove('hidden');
+                console.log('Panel de búsqueda mostrado');
             }
         });
+    } else {
+        console.log('Botón de búsqueda NO encontrado');
     }
     
     // Cancelar búsqueda
-    const btnCancelarBusqueda = document.getElementById('btnCancelarBusquedaAcademias');
+    const btnCancelarBusqueda = document.getElementById('btnCancelarBusquedaParticipantes');
     if (btnCancelarBusqueda) {
         btnCancelarBusqueda.addEventListener('click', function() {
-            const panel = document.getElementById('panelBusquedaAcademias');
+            const panel = document.getElementById('panelBusquedaParticipantes');
             if (panel) {
                 panel.classList.add('hidden');
             }
@@ -490,10 +497,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Búsqueda avanzada
-    const btnBuscarAvanzada = document.getElementById('btnBuscarAvanzadaAcademias');
+    const btnBuscarAvanzada = document.getElementById('btnBuscarAvanzadaParticipantes');
     if (btnBuscarAvanzada) {
         btnBuscarAvanzada.addEventListener('click', function() {
-            const panel = document.getElementById('panelBusquedaAvanzadaAcademias');
+            const panel = document.getElementById('panelBusquedaAvanzadaParticipantes');
             if (panel) {
                 panel.classList.toggle('hidden');
             }
@@ -501,7 +508,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Búsqueda en tiempo real con debounce
-    const debouncedSearch = debounce(performSearchAcademias, 500);
+    const debouncedSearch = debounce(performSearchParticipantes, 500);
     
     // Input de búsqueda principal
     const searchInput = document.getElementById('searchInput');
@@ -510,13 +517,13 @@ document.addEventListener('DOMContentLoaded', function() {
         searchInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
-                document.getElementById('formBusquedaAcademias').submit();
+                document.getElementById('formBusquedaParticipantes').submit();
             }
         });
     }
     
     // Filtros avanzados
-    const filtros = ['filtroNombre', 'filtroCorreo', 'filtroRepresentante', 'filtroCiudad', 'filtroEstado'];
+    const filtros = ['filtroMiembro', 'filtroTorneo', 'filtroEstado', 'filtroPuntos', 'filtroPosicion'];
     filtros.forEach(id => {
         const elemento = document.getElementById(id);
         if (elemento) {
@@ -524,33 +531,8 @@ document.addEventListener('DOMContentLoaded', function() {
             elemento.addEventListener('change', debouncedSearch);
         }
     });
-    
-    // Botón de exportación
-    const btnExportarAcademias = document.getElementById('btnExportarAcademias');
-    if (btnExportarAcademias) {
-        btnExportarAcademias.addEventListener('click', function() {
-            // Mostrar indicador de carga
-            const originalText = this.innerHTML;
-            this.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Exportando...';
-            this.disabled = true;
-            
-            // Crear un enlace temporal para la descarga
-            const link = document.createElement('a');
-            link.href = '{{ route("academias.export") }}';
-            link.style.display = 'none';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            // Restaurar el botón después de un breve delay
-            setTimeout(() => {
-                this.innerHTML = originalText;
-                this.disabled = false;
-            }, 2000);
-        });
-    }
 });
 </script>
 @endpush
 
-@endsection 
+@endsection
