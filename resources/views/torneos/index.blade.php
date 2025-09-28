@@ -61,7 +61,7 @@
                 ✕
             </button>
         </div>
-        <div class="flex flex-wrap gap-4 items-center">
+        <div class="flex flex-wrap gap-4 items-end">
             <div class="flex-1 min-w-64">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Buscar:</label>
                     <input type="text" id="searchInput" name="search" value="{{ $search ?? '' }}" placeholder="Buscar por nombre, lugar, categoría..." 
@@ -77,8 +77,10 @@
             </div>
         </div>
         <!-- Panel de búsqueda avanzada -->
-            <div id="panelBusquedaAvanzadaTorneos" class="mt-4 p-4 bg-gray-50 rounded-md {{ ($filtroNombre || $filtroLugar || $filtroEstado) ? '' : 'hidden' }}">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div id="panelBusquedaAvanzadaTorneos" class="mt-4 p-4 bg-gray-50 rounded-md hidden">
+            
+            <!-- Primera fila: Todos los filtros -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Nombre:</label>
                         <input type="text" id="filtroNombre" name="filtro_nombre" value="{{ $filtroNombre ?? '' }}" placeholder="Filtrar por nombre" 
@@ -98,172 +100,255 @@
                             <option value="Finalizado" {{ ($filtroEstado ?? '') == 'Finalizado' ? 'selected' : '' }}>Finalizado</option>
                             <option value="Cancelado" {{ ($filtroEstado ?? '') == 'Cancelado' ? 'selected' : '' }}>Cancelado</option>
                     </select>
-                    </div>
                 </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Min. Participantes:</label>
+                    <input type="number" id="filtroParticipantes" name="filtro_participantes" value="{{ $filtroParticipantes ?? '' }}" placeholder="Ej: 10" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md" min="1">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Min. Rondas disputadas:</label>
+                    <input type="number" id="filtroRondas" name="filtro_rondas" value="{{ $filtroRondas ?? '' }}" placeholder="Ej: 3" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md" min="0">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Total de rondas:</label>
+                    <input type="number" id="filtroRondasTotal" name="filtro_rondas_total" value="{{ $filtroRondasTotal ?? '' }}" placeholder="Ej: 7" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md" min="1">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Rondas a disputar:</label>
+                    <input type="number" id="filtroRondasDisputar" name="filtro_rondas_disputar" value="{{ $filtroRondasDisputar ?? '' }}" placeholder="Ej: 4" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md" min="0">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Categoría:</label>
+                    <select id="filtroCategoria" name="filtro_categoria" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white">
+                        <option value="">Todas las categorías</option>
+                        @foreach($categoriasTorneo as $categoria)
+                            <option value="{{ $categoria->id }}" {{ ($filtroCategoria ?? '') == $categoria->id ? 'selected' : '' }}>
+                                {{ $categoria->categoria_torneo }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Federación:</label>
+                    <select id="filtroFederacion" name="filtro_federacion" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white">
+                        <option value="">Todas las federaciones</option>
+                        @foreach($federaciones as $federacion)
+                            <option value="{{ $federacion->id_federacion }}" {{ ($filtroFederacion ?? '') == $federacion->id_federacion ? 'selected' : '' }}>
+                                {{ $federacion->nombre_federacion }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Organizador:</label>
+                    <input type="text" id="filtroOrganizador" name="filtro_organizador" value="{{ $filtroOrganizador ?? '' }}" placeholder="Nombre del organizador" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Director:</label>
+                    <input type="text" id="filtroDirector" name="filtro_director" value="{{ $filtroDirector ?? '' }}" placeholder="Nombre del director" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Árbitro:</label>
+                    <input type="text" id="filtroArbitro" name="filtro_arbitro" value="{{ $filtroArbitro ?? '' }}" placeholder="Nombre del árbitro" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Árbitro Principal:</label>
+                    <input type="text" id="filtroArbitroPrincipal" name="filtro_arbitro_principal" value="{{ $filtroArbitroPrincipal ?? '' }}" placeholder="Nombre del árbitro principal" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Árbitro Adjunto:</label>
+                    <input type="text" id="filtroArbitroAdjunto" name="filtro_arbitro_adjunto" value="{{ $filtroArbitroAdjunto ?? '' }}" placeholder="Nombre del árbitro adjunto" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                </div>
+            </div>
             </div>
             <!-- Campos ocultos para mantener per_page -->
             <input type="hidden" name="per_page" value="{{ $perPage ?? 10 }}">
         </form>
     </div>
 
-    <div class="mt-6 bg-white rounded-lg shadow">
-        <div class="overflow-x-auto">
-            <table class="min-w-full">
-                <thead>
-                    <tr class="bg-gray-50 border-b">
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lugar</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoría</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                        @if(PermissionHelper::hasAnyTorneoActionPermission())
-                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-                        @endif
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    @forelse($torneos as $torneo)
-                        <tr class="hover:bg-gray-50 transition-colors duration-150">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                {{ $torneo->nombre_torneo }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ $torneo->fecha_inicio->format('d/m/Y') }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ $torneo->lugar }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ $torneo->categoria->categoria_torneo ?? 'Sin categoría' }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                    @if($torneo->torneo_cancelado)
-                                        bg-red-100 text-red-800
-                                    @elseif($torneo->fecha_inicio && $torneo->fecha_inicio->isPast())
-                                        bg-gray-100 text-gray-800
-                                    @elseif(!$torneo->estado_torneo)
-                                        bg-yellow-100 text-yellow-800
-                                    @else
-                                        bg-green-100 text-green-800
-                                    @endif
-                                ">
-                                    @if($torneo->torneo_cancelado)
-                                        Cancelado
-                                    @elseif($torneo->fecha_inicio && $torneo->fecha_inicio->isPast())
-                                        Finalizado
-                                    @elseif(!$torneo->estado_torneo)
-                                        Borrador
-                                    @else
-                                        Activo
-                                    @endif
-                                </span>
-                            </td>
-                            @if(PermissionHelper::hasAnyTorneoActionPermission())
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <div class="flex justify-end space-x-3">
-                                        @if(PermissionService::hasPermission('torneos.details'))
-                                            <a href="{{ route('torneos.show', $torneo) }}" 
-                                               class="text-blue-600 hover:text-blue-900 p-1 rounded-full hover:bg-blue-100 transition-colors duration-200"
-                                               data-tooltip="Ver detalles">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                        @endif
-                                        
-                                        @if(PermissionHelper::canUpdate('torneos'))
-                                            <a href="{{ route('torneos.edit', $torneo) }}" 
-                                               class="text-yellow-600 hover:text-yellow-900 p-1 rounded-full hover:bg-yellow-100 transition-colors duration-200"
-                                               data-tooltip="Editar torneo">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                        @endif
-
-                                        @if(PermissionHelper::canCancel())
-                                            @if(!$torneo->torneo_cancelado && !$torneo->fecha_inicio->isPast())
-                                                <button type="button"
-                                                        onclick="confirmarCancelacion('{{ $torneo->id }}')"
-                                                        class="text-orange-600 hover:text-orange-900 p-1 rounded-full hover:bg-orange-100 transition-colors duration-200"
-                                                        data-tooltip="Cancelar torneo">
-                                                    <i class="fas fa-ban"></i>
-                                                </button>
-                                            @endif
-                                        @endif
-                                        
-                                        @if(PermissionHelper::canDelete('torneos'))
-                                            <button type="button"
-                                                    onclick="confirmarEliminacion('{{ $torneo->id }}')"
-                                                    class="text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-100 transition-colors duration-200"
-                                                    data-tooltip="Eliminar torneo">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        @endif
-                                        
-                                        @if(PermissionHelper::canDelete('torneos'))
-                                            <form id="form-eliminar-{{ $torneo->id }}" 
-                                                  action="{{ route('torneos.destroy', $torneo) }}" 
-                                                  method="POST" 
-                                                  class="hidden">
-                                                @csrf
-                                                @method('DELETE')
-                                            </form>
-                                        @endif
-
-                                        @if(PermissionHelper::canUpdate('torneos'))
-                                            <form id="form-cancelar-{{ $torneo->id }}" 
-                                                  action="{{ route('torneos.cancelar', $torneo) }}" 
-                                                  method="POST" 
-                                                  class="hidden">
-                                                @csrf
-                                                @method('PUT')
-                                            </form>
-                                        @endif
-                                    </div>
-                                </td>
-                            @endif
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="{{ PermissionHelper::hasAnyTorneoActionPermission() ? '6' : '5' }}" class="px-6 py-8 text-center text-gray-500">
-                                <div class="flex flex-col items-center">
-                                    <i class="fas fa-search text-4xl text-gray-300 mb-2"></i>
-                                    <p class="text-lg font-medium">No se encontraron resultados</p>
-                                    <p class="text-sm">Intenta ajustar los filtros de búsqueda</p>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-        
-        <!-- Paginación de Laravel -->
-            <div class="px-6 py-4 border-t bg-gray-50">
-            <div class="flex flex-col gap-4">
-                <!-- Selector de registros por página (siempre visible) -->
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <span class="text-sm text-gray-700">Mostrar:</span>
-                        <select onchange="changePerPage(this.value)" class="border border-gray-300 rounded-md px-2 py-1 text-sm bg-white">
-                            <option value="10" {{ ($perPage ?? 10) == 10 ? 'selected' : '' }}>10</option>
-                            <option value="25" {{ ($perPage ?? 10) == 25 ? 'selected' : '' }}>25</option>
-                            <option value="50" {{ ($perPage ?? 10) == 50 ? 'selected' : '' }}>50</option>
-                            <option value="100" {{ ($perPage ?? 10) == 100 ? 'selected' : '' }}>100</option>
-                        </select>
-                        <span class="text-sm text-gray-700">por página</span>
+    <!-- Contenedor de cards para torneos -->
+    <div id="torneos-cards-container" class="mt-6">
+        @forelse($torneos as $torneo)
+            <div class="bg-white shadow-md rounded-lg torneo-card mb-4">
+                
+                <!-- Header -->
+                <div class="flex justify-between items-center px-6 py-3 bg-gray-800 text-white rounded-t-lg">
+                    <div>
+                        <h5 class="text-xl font-bold mb-1">
+                            {{ $torneo->nombre_torneo }}
+                        </h5>
+                        <p class="text-sm text-gray-200">
+                            Fecha de inicio: {{ $torneo->fecha_inicio->format('j \d\e F \d\e Y') }}, {{ $torneo->hora_inicio ? $torneo->hora_inicio->format('h:i A') : 'Sin hora' }}
+                        </p>
                     </div>
-                    
-                    <!-- Información de paginación -->
-                    <div class="text-sm text-gray-700">
-                        Mostrando {{ $torneos->firstItem() ?? 0 }} a {{ $torneos->lastItem() ?? 0 }} de {{ $torneos->total() }} resultados
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium 
+                        @if($torneo->torneo_cancelado)
+                            bg-red-100 text-red-800
+                        @elseif($torneo->fecha_inicio && $torneo->fecha_inicio->isPast())
+                            bg-gray-100 text-gray-800
+                        @elseif(!$torneo->estado_torneo)
+                            bg-yellow-100 text-yellow-800
+                        @else
+                            bg-green-100 text-green-800
+                        @endif
+                    ">
+                        @if($torneo->torneo_cancelado)
+                            Cancelado
+                        @elseif($torneo->fecha_inicio && $torneo->fecha_inicio->isPast())
+                            Finalizado
+                        @elseif(!$torneo->estado_torneo)
+                            Borrador
+                        @else
+                            Activo
+                        @endif
+                    </span>
+                </div>
+
+                <!-- Body -->
+                <div class="px-6 py-4 text-gray-700">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Detalles Generales -->
+                        <div class="border rounded-lg bg-gray-50 p-4 shadow-sm">
+                            <h6 class="font-semibold text-gray-800 mb-3 border-b border-gray-300 pb-1">
+                                Detalles Generales
+                            </h6>
+                            <div class="space-y-2">
+                                <p class="text-sm"><b>Categoría:</b> {{ $torneo->categoria->categoria_torneo ?? 'Sin categoría' }}</p>
+                                <p class="text-sm"><b>Lugar:</b> {{ $torneo->lugar }}</p>
+                                <p class="text-sm"><b>Total de rondas:</b> {{ $torneo->no_rondas }}</p>
+                                <p class="text-sm"><b>Participantes inscritos:</b> {{ $torneo->participantes()->count() }}</p>
+                                <p class="text-sm"><b>Rondas disputadas:</b> {{ $torneo->rondas()->count() }}</p>
+                                <p class="text-sm"><b>Rondas a disputar:</b> {{ max(0, $torneo->no_rondas - $torneo->rondas()->count()) }}</p>
+                                @if($torneo->torneo_cancelado && $torneo->motivo_cancelacion)
+                                <p class="text-sm"><b>Motivo cancelación:</b> <span class="text-red-600">{{ $torneo->motivo_cancelacion }}</span></p>
+                                @endif
+                            </div>
+                        </div>
+
+                        <!-- Organización -->
+                        <div class="border rounded-lg bg-gray-50 p-4 shadow-sm">
+                            <h6 class="font-semibold text-gray-800 mb-3 border-b border-gray-300 pb-1">
+                                Organización
+                            </h6>
+                            <div class="space-y-2">
+                                <p class="text-sm"><b>Organizador:</b> {{ $torneo->organizador ? $torneo->organizador->nombres . ' ' . $torneo->organizador->apellidos : 'Sin asignar' }}</p>
+                                <p class="text-sm"><b>Director:</b> {{ $torneo->directorTorneo ? $torneo->directorTorneo->nombres . ' ' . $torneo->directorTorneo->apellidos : 'Sin asignar' }}</p>
+                                <p class="text-sm"><b>Árbitro:</b> {{ $torneo->arbitro ? $torneo->arbitro->nombres . ' ' . $torneo->arbitro->apellidos : 'Sin asignar' }}</p>
+                                <p class="text-sm"><b>Árbitro Principal:</b> {{ $torneo->arbitroPrincipal ? $torneo->arbitroPrincipal->nombres . ' ' . $torneo->arbitroPrincipal->apellidos : 'Sin asignar' }}</p>
+                                <p class="text-sm"><b>Árbitro Adjunto:</b> {{ $torneo->arbitroAdjunto ? $torneo->arbitroAdjunto->nombres . ' ' . $torneo->arbitroAdjunto->apellidos : 'Sin asignar' }}</p>
+                                <p class="text-sm"><b>Federación:</b> {{ $torneo->federacion->nombre_federacion ?? 'Sin federación' }}</p>
+                                <p class="text-sm"><b>Formato:</b> {{ $torneo->controlTiempo->formato ?? 'Sin formato' }}</p>
+                                <p class="text-sm"><b>Sistema:</b> {{ $torneo->emparejamiento->sistema ?? 'Sin sistema' }}</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                
-                <!-- Enlaces de paginación -->
-                <div class="flex justify-center">
-                {{ $torneos->links('pagination.custom') }}
+
+                <!-- Footer con botones -->
+                @if(PermissionHelper::hasAnyTorneoActionPermission())
+                <div class="flex gap-2 px-6 py-2 border-t bg-gray-50 rounded-b-lg justify-end">
+                    @if(PermissionService::hasPermission('torneos.details'))
+                        <a href="{{ route('torneos.show', $torneo) }}" 
+                           class="px-3 py-1.5 bg-gray-800 text-white text-sm font-medium rounded-lg shadow hover:bg-gray-700 transition">
+                            <i class="fas fa-eye"></i> Ver Detalles
+                        </a>
+                    @endif
+                    
+                    @if(PermissionHelper::canUpdate('torneos'))
+                        <a href="{{ route('torneos.edit', $torneo) }}" 
+                           class="px-3 py-1.5 bg-gray-800 text-white text-sm font-medium rounded-lg shadow hover:bg-gray-700 transition">
+                            <i class="fas fa-edit"></i> Editar
+                        </a>
+                    @endif
+
+                    @if(PermissionHelper::canCancel())
+                        @if(!$torneo->torneo_cancelado && !$torneo->fecha_inicio->isPast())
+                            <button type="button"
+                                    onclick="confirmarCancelacion('{{ $torneo->id }}')"
+                                    class="px-3 py-1.5 bg-gray-800 text-white text-sm font-medium rounded-lg shadow hover:bg-gray-700 transition">
+                                <i class="fas fa-ban"></i> Cancelar
+                            </button>
+                        @endif
+                    @endif
+                    
+                    @if(PermissionHelper::canDelete('torneos'))
+                        <button type="button"
+                                onclick="confirmarEliminacion('{{ $torneo->id }}')"
+                                class="px-3 py-1.5 bg-gray-800 text-white text-sm font-medium rounded-lg shadow hover:bg-gray-700 transition">
+                            <i class="fas fa-trash"></i> Eliminar
+                        </button>
+                    @endif
+                    
+                    @if(PermissionHelper::canDelete('torneos'))
+                        <form id="form-eliminar-{{ $torneo->id }}" 
+                              action="{{ route('torneos.destroy', $torneo) }}" 
+                              method="POST" 
+                              class="hidden">
+                            @csrf
+                            @method('DELETE')
+                        </form>
+                    @endif
+
+                    @if(PermissionHelper::canUpdate('torneos'))
+                        <form id="form-cancelar-{{ $torneo->id }}" 
+                              action="{{ route('torneos.cancelar', $torneo) }}" 
+                              method="POST" 
+                              class="hidden">
+                            @csrf
+                            @method('PUT')
+                        </form>
+                    @endif
+                </div>
+                @endif
+            </div>
+        @empty
+            <div class="bg-white shadow-md rounded-lg p-8 text-center">
+                <div class="flex flex-col items-center">
+                    <i class="fas fa-search text-4xl text-gray-300 mb-2"></i>
+                    <p class="text-lg font-medium text-gray-500">No se encontraron resultados</p>
+                    <p class="text-sm text-gray-400">Intenta ajustar los filtros de búsqueda</p>
                 </div>
             </div>
+        @endforelse
+    </div>
+
+    <!-- Paginación de Laravel -->
+    <div id="torneos-pagination" class="px-6 py-4 border-t bg-gray-50 mt-6">
+        <div class="flex flex-col gap-4">
+            <!-- Selector de registros por página (siempre visible) -->
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm text-gray-700">Mostrar:</span>
+                    <select onchange="changePerPage(this.value)" class="border border-gray-300 rounded-md px-2 py-1 text-sm bg-white">
+                        <option value="10" {{ ($perPage ?? 10) == 10 ? 'selected' : '' }}>10</option>
+                        <option value="25" {{ ($perPage ?? 10) == 25 ? 'selected' : '' }}>25</option>
+                        <option value="50" {{ ($perPage ?? 10) == 50 ? 'selected' : '' }}>50</option>
+                        <option value="100" {{ ($perPage ?? 10) == 100 ? 'selected' : '' }}>100</option>
+                    </select>
+                    <span class="text-sm text-gray-700">por página</span>
+                </div>
+                
+                <!-- Información de paginación -->
+                <div class="text-sm text-gray-700">
+                    Mostrando {{ $torneos->firstItem() ?? 0 }} a {{ $torneos->lastItem() ?? 0 }} de {{ $torneos->total() }} resultados
+                </div>
+            </div>
+            
+            <!-- Enlaces de paginación -->
+            <div class="flex justify-center">
+                {{ $torneos->links('pagination.custom') }}
+            </div>
         </div>
+    </div>
     </div>
 </div>
 
@@ -338,6 +423,19 @@
         white-space: nowrap;
         z-index: 10;
     }
+
+    /* Estilos para las cards de torneos */
+    .torneo-card {
+        border-radius: 0.75rem;
+        overflow: hidden;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .torneo-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1);
+    }
 </style>
 @endpush
 
@@ -380,6 +478,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Toggle búsqueda avanzada
     if (btnBuscarAvanzada && panelBusquedaAvanzada) {
+        // Asegurar que esté oculto al cargar la página
+        panelBusquedaAvanzada.classList.add('hidden');
+        
         btnBuscarAvanzada.addEventListener('click', () => {
             panelBusquedaAvanzada.classList.toggle('hidden');
         });
@@ -401,7 +502,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Filtros avanzados en tiempo real
-    const filtros = ['filtroNombre', 'filtroLugar', 'filtroEstado'];
+    const filtros = ['filtroNombre', 'filtroLugar', 'filtroEstado', 'filtroParticipantes', 'filtroRondas', 'filtroRondasTotal', 'filtroRondasDisputar', 'filtroCategoria', 'filtroFederacion', 'filtroOrganizador', 'filtroDirector', 'filtroArbitro', 'filtroArbitroPrincipal', 'filtroArbitroAdjunto'];
     filtros.forEach(filtroId => {
         const elemento = document.getElementById(filtroId);
         if (elemento) {
@@ -423,14 +524,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Función para mostrar/ocultar indicador de carga
     function toggleLoading(show) {
-        const tableContainer = document.querySelector('.mt-6.bg-white.rounded-lg.shadow .overflow-x-auto');
-        if (tableContainer) {
+        const cardsContainer = document.getElementById('torneos-cards-container');
+        if (cardsContainer) {
             if (show) {
-                tableContainer.style.opacity = '0.5';
-                tableContainer.style.pointerEvents = 'none';
+                cardsContainer.style.opacity = '0.5';
+                cardsContainer.style.pointerEvents = 'none';
             } else {
-                tableContainer.style.opacity = '1';
-                tableContainer.style.pointerEvents = 'auto';
+                cardsContainer.style.opacity = '1';
+                cardsContainer.style.pointerEvents = 'auto';
             }
         }
     }
@@ -447,6 +548,17 @@ document.addEventListener('DOMContentLoaded', function() {
         const filtroNombre = document.getElementById('filtroNombre')?.value || '';
         const filtroLugar = document.getElementById('filtroLugar')?.value || '';
         const filtroEstado = document.getElementById('filtroEstado')?.value || '';
+        const filtroParticipantes = document.getElementById('filtroParticipantes')?.value || '';
+        const filtroRondas = document.getElementById('filtroRondas')?.value || '';
+        const filtroRondasTotal = document.getElementById('filtroRondasTotal')?.value || '';
+        const filtroRondasDisputar = document.getElementById('filtroRondasDisputar')?.value || '';
+        const filtroCategoria = document.getElementById('filtroCategoria')?.value || '';
+        const filtroFederacion = document.getElementById('filtroFederacion')?.value || '';
+        const filtroOrganizador = document.getElementById('filtroOrganizador')?.value || '';
+        const filtroDirector = document.getElementById('filtroDirector')?.value || '';
+        const filtroArbitro = document.getElementById('filtroArbitro')?.value || '';
+        const filtroArbitroPrincipal = document.getElementById('filtroArbitroPrincipal')?.value || '';
+        const filtroArbitroAdjunto = document.getElementById('filtroArbitroAdjunto')?.value || '';
         const perPage = document.querySelector('select[onchange*="changePerPage"]')?.value || '10';
         
         // Construir parámetros de búsqueda
@@ -455,6 +567,17 @@ document.addEventListener('DOMContentLoaded', function() {
         if (filtroNombre.trim()) params.set('filtro_nombre', filtroNombre.trim());
         if (filtroLugar.trim()) params.set('filtro_lugar', filtroLugar.trim());
         if (filtroEstado) params.set('filtro_estado', filtroEstado);
+        if (filtroParticipantes.trim()) params.set('filtro_participantes', filtroParticipantes.trim());
+        if (filtroRondas.trim()) params.set('filtro_rondas', filtroRondas.trim());
+        if (filtroRondasTotal.trim()) params.set('filtro_rondas_total', filtroRondasTotal.trim());
+        if (filtroRondasDisputar.trim()) params.set('filtro_rondas_disputar', filtroRondasDisputar.trim());
+        if (filtroCategoria) params.set('filtro_categoria', filtroCategoria);
+        if (filtroFederacion) params.set('filtro_federacion', filtroFederacion);
+        if (filtroOrganizador.trim()) params.set('filtro_organizador', filtroOrganizador.trim());
+        if (filtroDirector.trim()) params.set('filtro_director', filtroDirector.trim());
+        if (filtroArbitro.trim()) params.set('filtro_arbitro', filtroArbitro.trim());
+        if (filtroArbitroPrincipal.trim()) params.set('filtro_arbitro_principal', filtroArbitroPrincipal.trim());
+        if (filtroArbitroAdjunto.trim()) params.set('filtro_arbitro_adjunto', filtroArbitroAdjunto.trim());
         params.set('per_page', perPage);
         params.set('page', '1'); // Reset to first page
         
@@ -472,23 +595,23 @@ document.addEventListener('DOMContentLoaded', function() {
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = html;
             
-            // Extraer solo la tabla y paginación
-            const newTable = tempDiv.querySelector('table');
-            const newPagination = tempDiv.querySelector('.px-6.py-4.border-t.bg-gray-50');
+            // Extraer solo las cards y paginación
+            const newCards = tempDiv.querySelector('#torneos-cards-container');
+            const newPagination = tempDiv.querySelector('#torneos-pagination');
             
-            if (newTable) {
-                // Reemplazar la tabla actual
-                const currentTable = document.querySelector('table');
-                if (currentTable) {
-                    currentTable.parentNode.replaceChild(newTable, currentTable);
+            if (newCards) {
+                // Reemplazar las cards actuales
+                const currentCards = document.getElementById('torneos-cards-container');
+                if (currentCards) {
+                    currentCards.innerHTML = newCards.innerHTML;
                 }
             }
             
             if (newPagination) {
                 // Reemplazar la paginación actual
-                const currentPagination = document.querySelector('.px-6.py-4.border-t.bg-gray-50');
+                const currentPagination = document.querySelector('#torneos-pagination');
                 if (currentPagination) {
-                    currentPagination.parentNode.replaceChild(newPagination, currentPagination);
+                    currentPagination.outerHTML = newPagination.outerHTML;
                 }
             }
             
@@ -527,23 +650,23 @@ document.addEventListener('DOMContentLoaded', function() {
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = html;
             
-            // Extraer solo la tabla y paginación
-            const newTable = tempDiv.querySelector('table');
-            const newPagination = tempDiv.querySelector('.px-6.py-4.border-t.bg-gray-50');
+            // Extraer solo las cards y paginación
+            const newCards = tempDiv.querySelector('#torneos-cards-container');
+            const newPagination = tempDiv.querySelector('#torneos-pagination');
             
-            if (newTable) {
-                // Reemplazar la tabla actual
-                const currentTable = document.querySelector('table');
-                if (currentTable) {
-                    currentTable.parentNode.replaceChild(newTable, currentTable);
+            if (newCards) {
+                // Reemplazar las cards actuales
+                const currentCards = document.getElementById('torneos-cards-container');
+                if (currentCards) {
+                    currentCards.innerHTML = newCards.innerHTML;
                 }
             }
             
             if (newPagination) {
                 // Reemplazar la paginación actual
-                const currentPagination = document.querySelector('.px-6.py-4.border-t.bg-gray-50');
+                const currentPagination = document.querySelector('#torneos-pagination');
                 if (currentPagination) {
-                    currentPagination.parentNode.replaceChild(newPagination, currentPagination);
+                    currentPagination.outerHTML = newPagination.outerHTML;
                 }
             }
             
@@ -555,53 +678,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     };
 
-    // Función para exportar datos
-    const btnExportar = document.getElementById('btnExportarTorneos');
-    if (btnExportar) {
-        btnExportar.addEventListener('click', function() {
-            // Crear CSV con todos los datos visibles
-            const tabla = document.querySelector('table tbody');
-            const filas = Array.from(tabla.querySelectorAll('tr'));
-            
-            if (filas.length === 0) {
-                alert('No hay datos para exportar');
-                return;
-            }
-
-            // Obtener encabezados (excluyendo columna de acciones)
-            const encabezados = [];
-            const thElements = document.querySelectorAll('thead th');
-            thElements.forEach((th, index) => {
-                if (index < thElements.length - 1 || !th.textContent.trim().includes('Acciones')) {
-                    encabezados.push(th.textContent.trim());
-                }
-            });
-
-            const csvContent = [
-                encabezados.join(','),
-                ...filas.map(fila => {
-                    const celdas = Array.from(fila.querySelectorAll('td'));
-                    // Excluir última celda si es columna de acciones
-                    const celdasAExportar = celdas.length > 0 && celdas[celdas.length - 1].querySelector('button') ? 
-                        celdas.slice(0, -1) : celdas;
-                    return celdasAExportar.map(celda => `"${celda.textContent.trim().replace(/"/g, '""')}"`).join(',');
-                })
-            ].join('\n');
-
-            // Descargar archivo
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', 'torneos.csv');
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        });
-    }
 });
 
+</script>
+<script>
 function confirmarEliminacion(torneoId) {
     const modal = document.getElementById('modal-confirmacion');
     const btnConfirmar = document.getElementById('btn-confirmar-eliminacion');
@@ -610,7 +690,25 @@ function confirmarEliminacion(torneoId) {
     modal.classList.add('flex');
     
     btnConfirmar.onclick = function() {
-        document.getElementById('form-eliminar-' + torneoId).submit();
+        // Crear formulario temporal para eliminación
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `${window.location.origin}/torneos/${torneoId}`;
+        
+        const csrfToken = document.createElement('input');
+        csrfToken.type = 'hidden';
+        csrfToken.name = '_token';
+        csrfToken.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        
+        const methodField = document.createElement('input');
+        methodField.type = 'hidden';
+        methodField.name = '_method';
+        methodField.value = 'DELETE';
+        
+        form.appendChild(csrfToken);
+        form.appendChild(methodField);
+        document.body.appendChild(form);
+        form.submit();
     };
 }
 
@@ -632,7 +730,7 @@ function confirmarCancelacion(torneoId) {
     const form = document.getElementById('form-cancelar-torneo');
     const motivoInput = document.getElementById('motivo_cancelacion');
     // Cambia la acción del formulario al torneo correcto
-    form.action = `/torneos/${torneoId}/cancelar`;
+    form.action = `${window.location.origin}/torneos/${torneoId}/cancelar`;
     modal.classList.remove('hidden');
     modal.classList.add('flex');
     motivoInput.value = '';
@@ -663,14 +761,7 @@ function changePerPage(perPage) {
 
 // Función para exportar torneos
 document.getElementById('btnExportarTorneos').addEventListener('click', function() {
-    // Solo registrar auditoría
-    fetch('{{ route("torneos.export") }}', {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-            'Content-Type': 'application/json',
-        }
-    });
+    window.location.href = '{{ url("api/export/torneos") }}';
 });
 
 </script>

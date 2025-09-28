@@ -33,6 +33,17 @@ class TorneoController extends Controller
         $filtroNombre = $request->get('filtro_nombre');
         $filtroLugar = $request->get('filtro_lugar');
         $filtroEstado = $request->get('filtro_estado');
+        $filtroParticipantes = $request->get('filtro_participantes');
+        $filtroRondas = $request->get('filtro_rondas');
+        $filtroRondasTotal = $request->get('filtro_rondas_total');
+        $filtroRondasDisputar = $request->get('filtro_rondas_disputar');
+        $filtroCategoria = $request->get('filtro_categoria');
+        $filtroFederacion = $request->get('filtro_federacion');
+        $filtroOrganizador = $request->get('filtro_organizador');
+        $filtroDirector = $request->get('filtro_director');
+        $filtroArbitro = $request->get('filtro_arbitro');
+        $filtroArbitroPrincipal = $request->get('filtro_arbitro_principal');
+        $filtroArbitroAdjunto = $request->get('filtro_arbitro_adjunto');
         
         $query = Torneo::withRelations();
         
@@ -76,13 +87,83 @@ class TorneoController extends Controller
             }
         }
         
+        // Filtro por participantes mínimos
+        if ($filtroParticipantes !== null && $filtroParticipantes !== '') {
+            $query->whereHas('participantes', function($q) use ($filtroParticipantes) {
+                // No necesitamos hacer nada aquí, solo verificar que tenga participantes
+            })->withCount('participantes')->having('participantes_count', '>=', $filtroParticipantes);
+        }
+        
+        // Filtro por rondas disputadas mínimas
+        if ($filtroRondas !== null && $filtroRondas !== '') {
+            $query->whereHas('rondas', function($q) use ($filtroRondas) {
+                // No necesitamos hacer nada aquí, solo verificar que tenga rondas
+            })->withCount('rondas')->having('rondas_count', '>=', $filtroRondas);
+        }
+        
+        // Filtro por total de rondas
+        if ($filtroRondasTotal !== null && $filtroRondasTotal !== '') {
+            $query->where('no_rondas', '>=', $filtroRondasTotal);
+        }
+        
+        // Filtro por rondas a disputar (rondas restantes)
+        if ($filtroRondasDisputar !== null && $filtroRondasDisputar !== '') {
+            $query->whereRaw('no_rondas - (SELECT COUNT(*) FROM rondas_torneo WHERE torneo_id = torneos.id) >= ?', [$filtroRondasDisputar]);
+        }
+        
+        // Filtro por categoría
+        if ($filtroCategoria !== null && $filtroCategoria !== '') {
+            $query->where('categoria_id', $filtroCategoria);
+        }
+        
+        // Filtro por federación
+        if ($filtroFederacion !== null && $filtroFederacion !== '') {
+            $query->where('federacion_id', $filtroFederacion);
+        }
+        
+        // Filtros por organizadores
+        if ($filtroOrganizador !== null && $filtroOrganizador !== '') {
+            $query->whereHas('organizador', function($q) use ($filtroOrganizador) {
+                $q->whereRaw("CONCAT(nombres, ' ', apellidos) LIKE ?", ["%{$filtroOrganizador}%"]);
+            });
+        }
+        
+        if ($filtroDirector !== null && $filtroDirector !== '') {
+            $query->whereHas('directorTorneo', function($q) use ($filtroDirector) {
+                $q->whereRaw("CONCAT(nombres, ' ', apellidos) LIKE ?", ["%{$filtroDirector}%"]);
+            });
+        }
+        
+        if ($filtroArbitro !== null && $filtroArbitro !== '') {
+            $query->whereHas('arbitro', function($q) use ($filtroArbitro) {
+                $q->whereRaw("CONCAT(nombres, ' ', apellidos) LIKE ?", ["%{$filtroArbitro}%"]);
+            });
+        }
+        
+        if ($filtroArbitroPrincipal !== null && $filtroArbitroPrincipal !== '') {
+            $query->whereHas('arbitroPrincipal', function($q) use ($filtroArbitroPrincipal) {
+                $q->whereRaw("CONCAT(nombres, ' ', apellidos) LIKE ?", ["%{$filtroArbitroPrincipal}%"]);
+            });
+        }
+        
+        if ($filtroArbitroAdjunto !== null && $filtroArbitroAdjunto !== '') {
+            $query->whereHas('arbitroAdjunto', function($q) use ($filtroArbitroAdjunto) {
+                $q->whereRaw("CONCAT(nombres, ' ', apellidos) LIKE ?", ["%{$filtroArbitroAdjunto}%"]);
+            });
+        }
+        
         $torneos = $query->orderBy('fecha_inicio', 'desc')->paginate($perPage);
         
         // Mantener parámetros de búsqueda en la paginación
         $torneos->appends($request->all());
         
-        return view('torneos.index', compact('torneos', 'search', 'filtroNombre', 'filtroLugar', 'filtroEstado', 'perPage'));
+        // Obtener datos para los selectores
+        $categoriasTorneo = \App\Models\CategoriaTorneo::orderBy('categoria_torneo')->get();
+        $federaciones = \App\Models\Federacion::orderBy('nombre_federacion')->get();
+        
+        return view('torneos.index', compact('torneos', 'search', 'filtroNombre', 'filtroLugar', 'filtroEstado', 'filtroParticipantes', 'filtroRondas', 'filtroRondasTotal', 'filtroRondasDisputar', 'filtroCategoria', 'filtroFederacion', 'filtroOrganizador', 'filtroDirector', 'filtroArbitro', 'filtroArbitroPrincipal', 'filtroArbitroAdjunto', 'categoriasTorneo', 'federaciones', 'perPage'));
     }
+
 
     public function create()
     {
@@ -684,19 +765,100 @@ class TorneoController extends Controller
 
     public function exportTorneos()
     {
-        // Solo registrar auditoría
-        Auditoria::create([
-            'correo_id' => Auth::user()->correo,
-            'tabla_afectada' => 'Torneos',
-            'accion' => 'Exportación',
-            'valor_previo' => null,
-            'valor_posterior' => 'Registros exportados en documento .csv',
-            'fecha' => now()->toDateString(),
-            'hora' => now()->toTimeString(),
-            'equipo' => request()->ip()
-        ]);
+        // Usar exactamente la misma consulta que se usa para llenar los cards
+        $torneos = Torneo::with([
+            'categoria',
+            'organizador',
+            'directorTorneo',
+            'arbitro',
+            'arbitroPrincipal',
+            'arbitroAdjunto',
+            'federacion',
+            'controlTiempo',
+            'emparejamiento',
+            'participantes',
+            'rondas'
+        ])->get();
+        
+        $filename = 'torneos_' . now()->format('Y-m-d_H-i-s') . '.csv';
+        
+        $callback = function() use ($torneos) {
+            $file = fopen('php://output', 'w');
+            
+            // Agregar BOM UTF-8 para reconocer acentos y ñ
+            fputs($file, "\xEF\xBB\xBF");
+            
+            // Encabezados
+            fputcsv($file, [
+                'ID',
+                'Nombre del Torneo',
+                'Fecha de Inicio',
+                'Hora de Inicio',
+                'Estado',
+                'Categoría',
+                'Lugar',
+                'Total de Rondas',
+                'Participantes Inscritos',
+                'Rondas Disputadas',
+                'Rondas a Disputar',
+                'Organizador',
+                'Director',
+                'Árbitro',
+                'Árbitro Principal',
+                'Árbitro Adjunto',
+                'Federación',
+                'Formato',
+                'Sistema',
+                'Motivo Cancelación'
+            ]);
+            
+            // Datos
+            foreach ($torneos as $torneo) {
+                // Calcular rondas a disputar
+                $rondasDisputadas = $torneo->rondas()->count();
+                $rondasADisputar = max(0, $torneo->no_rondas - $rondasDisputadas);
+                
+                // Determinar estado
+                $estado = 'Activo';
+                if ($torneo->torneo_cancelado) {
+                    $estado = 'Cancelado';
+                } elseif ($torneo->fecha_inicio && $torneo->fecha_inicio->isPast()) {
+                    $estado = 'Finalizado';
+                } elseif (!$torneo->estado_torneo) {
+                    $estado = 'Borrador';
+                }
+                
+                fputcsv($file, [
+                    $torneo->id,
+                    $torneo->nombre_torneo,
+                    $torneo->fecha_inicio ? $torneo->fecha_inicio->format('d/m/Y') : '',
+                    $torneo->hora_inicio ? $torneo->hora_inicio->format('h:i A') : '',
+                    $estado,
+                    $torneo->categoria->categoria_torneo ?? 'Sin categoría',
+                    $torneo->lugar,
+                    $torneo->no_rondas,
+                    $torneo->participantes()->count(),
+                    $rondasDisputadas,
+                    $rondasADisputar,
+                    $torneo->organizador ? $torneo->organizador->nombres . ' ' . $torneo->organizador->apellidos : 'Sin asignar',
+                    $torneo->directorTorneo ? $torneo->directorTorneo->nombres . ' ' . $torneo->directorTorneo->apellidos : 'Sin asignar',
+                    $torneo->arbitro ? $torneo->arbitro->nombres . ' ' . $torneo->arbitro->apellidos : 'Sin asignar',
+                    $torneo->arbitroPrincipal ? $torneo->arbitroPrincipal->nombres . ' ' . $torneo->arbitroPrincipal->apellidos : 'Sin asignar',
+                    $torneo->arbitroAdjunto ? $torneo->arbitroAdjunto->nombres . ' ' . $torneo->arbitroAdjunto->apellidos : 'Sin asignar',
+                    $torneo->federacion->nombre_federacion ?? 'Sin federación',
+                    $torneo->controlTiempo->formato ?? 'Sin formato',
+                    $torneo->emparejamiento->sistema ?? 'Sin sistema',
+                    $torneo->motivo_cancelacion ?? ''
+                ]);
+            }
+            
+            fclose($file);
+        };
 
-        return response()->json(['success' => true]);
+        return response()->stream($callback, 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ]);
     }
 
     public function listaParaDuplicar()

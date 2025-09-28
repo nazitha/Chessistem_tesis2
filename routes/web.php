@@ -71,7 +71,6 @@ Route::middleware('web')->group(function () {
         Route::post('/usuarios/rol/permisos', [UserController::class, 'updateRolePermissions'])->name('usuarios.rol.permisos.update');
         Route::get('/usuarios/export', [UserController::class, 'exportUsers'])->name('usuarios.export');
         Route::get('/permisos/export', [UserController::class, 'exportPermissions'])->name('permisos.export');
-        Route::get('/academias/export', [AcademiaController::class, 'exportAcademias'])->name('academias.export');
         Route::resource('usuarios', UserController::class);
         Route::resource('academias', AcademiaController::class)->parameters([
             'academias' => 'academia'
@@ -82,7 +81,6 @@ Route::middleware('web')->group(function () {
         
         // Rutas de torneos
         Route::resource('torneos', TorneoController::class);
-        Route::post('/torneos/export', [TorneoController::class, 'exportTorneos'])->name('torneos.export');
         Route::post('torneos/{torneo}/participantes', [TorneoParticipanteController::class, 'store'])
             ->name('torneos.participantes.store');
         Route::delete('torneos/{torneo}/participantes/{participante}', [TorneoParticipanteController::class, 'destroy'])
@@ -147,7 +145,6 @@ Route::middleware('web')->group(function () {
 
         // Rutas para miembros
         Route::resource('miembros', MiembroController::class);
-        Route::post('/miembros/export', [MiembroController::class, 'exportMiembros'])->name('miembros.export');
 
         // Rutas para partidas
         Route::resource('partidas', PartidaController::class);

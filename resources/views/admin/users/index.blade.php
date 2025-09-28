@@ -82,7 +82,7 @@
         </div>
         
         <form method="GET" action="{{ route('usuarios.index') }}" id="formBusquedaUsuarios">
-            <div class="flex flex-wrap gap-4 items-center">
+            <div class="flex flex-wrap gap-4 items-end">
                 <div class="flex-1 min-w-64">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Buscar:</label>
                     <input type="text" id="searchInput" name="search" value="{{ $search }}" placeholder="Buscar por correo, rol..." 
@@ -240,7 +240,7 @@
             </div>
             
             <form method="GET" action="{{ route('usuarios.index') }}" id="formBusquedaPermisos">
-                <div class="flex flex-wrap gap-4 items-center">
+                <div class="flex flex-wrap gap-4 items-end">
                     <div class="flex-1 min-w-64">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Buscar:</label>
                         <input type="text" id="searchInputPermisos" name="search_permisos" value="{{ $searchPermisos }}" placeholder="Buscar por rol, grupo..." 

@@ -98,6 +98,19 @@
                         @enderror
                     </div>
 
+                    <!-- Teléfono -->
+                    <div class="mt-2">
+                        <label for="telefono" class="form-label fw-bold fs-6">Teléfono <span class="text-danger">*</span></label>
+                        <input type="tel" name="telefono" id="telefono" value="{{ old('telefono', $miembro->telefono) }}" 
+                               class="form-control form-control-sm fs-6 bg-white @error('telefono') is-invalid @enderror" 
+                               pattern="^\+?[0-9 ]{0,13}$" maxlength="14" required>
+                        @error('telefono')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @else
+                            <div class="invalid-feedback">El teléfono es requerido</div>
+                        @enderror
+                    </div>
+
                     <!-- Estado -->
                     <div class="mt-2">
                         <div class="d-flex align-items-center space-x-3">
@@ -267,6 +280,82 @@ document.addEventListener('DOMContentLoaded', function() {
                     form.classList.add('was-validated');
                 }, false);
             });
+
+            // Validación del campo teléfono
+            const telefonoInput = document.getElementById('telefono');
+            if (telefonoInput) {
+                telefonoInput.addEventListener('input', function(e) {
+                    let value = e.target.value;
+                    
+                    // Remover caracteres no permitidos excepto + al inicio
+                    if (value.startsWith('+')) {
+                        // Si empieza con +, mantenerlo y procesar el resto
+                        let rest = value.substring(1);
+                        rest = rest.replace(/[^0-9 ]/g, '');
+                        
+                        // Validar espacios: máximo 2 y no pueden ir juntos
+                        let spaces = (rest.match(/ /g) || []).length;
+                        if (spaces > 2) {
+                            // Si hay más de 2 espacios, remover los últimos
+                            rest = rest.split(' ').slice(0, 3).join(' ');
+                        }
+                        
+                        // Remover espacios consecutivos
+                        rest = rest.replace(/  +/g, ' ');
+                        
+                        e.target.value = '+' + rest;
+                    } else {
+                        // Si no empieza con +, solo permitir números y espacios
+                        value = value.replace(/[^0-9 ]/g, '');
+                        
+                        // Validar espacios: máximo 2 y no pueden ir juntos
+                        let spaces = (value.match(/ /g) || []).length;
+                        if (spaces > 2) {
+                            value = value.split(' ').slice(0, 3).join(' ');
+                        }
+                        
+                        // Remover espacios consecutivos
+                        value = value.replace(/  +/g, ' ');
+                        
+                        e.target.value = value;
+                    }
+                    
+                    // Limitar longitud total
+                    if (e.target.value.length > 14) {
+                        e.target.value = e.target.value.substring(0, 14);
+                    }
+                });
+                
+                // Prevenir pegar contenido inválido
+                telefonoInput.addEventListener('paste', function(e) {
+                    e.preventDefault();
+                    let paste = (e.clipboardData || window.clipboardData).getData('text');
+                    
+                    // Limpiar el contenido pegado
+                    let cleaned = paste.replace(/[^0-9+ ]/g, '');
+                    if (cleaned.startsWith('+')) {
+                        let rest = cleaned.substring(1).replace(/[^0-9 ]/g, '');
+                        let spaces = (rest.match(/ /g) || []).length;
+                        if (spaces > 2) {
+                            rest = rest.split(' ').slice(0, 3).join(' ');
+                        }
+                        rest = rest.replace(/  +/g, ' ');
+                        this.value = '+' + rest;
+                    } else {
+                        cleaned = cleaned.replace(/[^0-9 ]/g, '');
+                        let spaces = (cleaned.match(/ /g) || []).length;
+                        if (spaces > 2) {
+                            cleaned = cleaned.split(' ').slice(0, 3).join(' ');
+                        }
+                        cleaned = cleaned.replace(/  +/g, ' ');
+                        this.value = cleaned;
+                    }
+                    
+                    if (this.value.length > 14) {
+                        this.value = this.value.substring(0, 14);
+                    }
+                });
+            }
         }, false);
     })();
 });

@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Auditoria;
 use App\Http\Requests\MiembroRequest;
 use App\Http\Resources\MiembroResource;
+use App\Services\PermissionService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -26,6 +27,8 @@ class MiembroController extends Controller
         $filtroApellidos = $request->get('filtro_apellidos');
         $filtroAcademia = $request->get('filtro_academia');
         $filtroEstado = $request->get('filtro_estado');
+        $filtroTorneosJugados = $request->get('filtro_torneos_jugados');
+        $filtroTorneosActivos = $request->get('filtro_torneos_activos');
         $perPage = $request->get('per_page', 10);
         
         // Log para debug
@@ -40,7 +43,7 @@ class MiembroController extends Controller
         ]);
         
         // Query base para miembros
-        $miembrosQuery = Miembro::with(['usuario.rol', 'ciudad.departamento.pais', 'academia']);
+        $miembrosQuery = Miembro::with(['usuario.rol', 'ciudad.departamento.pais', 'academia', 'participacionesTorneo.torneo']);
         
         // Aplicar filtros de búsqueda
         if ($search) {
@@ -79,6 +82,25 @@ class MiembroController extends Controller
             $miembrosQuery->where('estado_miembro', $filtroEstado);
         }
         
+        // Filtro por mínimo torneos jugados
+        if ($filtroTorneosJugados !== null && $filtroTorneosJugados !== '') {
+            $miembrosQuery->whereHas('participacionesTorneo', function($query) use ($filtroTorneosJugados) {
+                $query->groupBy('miembro_id')
+                      ->havingRaw('COUNT(*) >= ?', [$filtroTorneosJugados]);
+            });
+        }
+        
+        // Filtro por mínimo torneos activos
+        if ($filtroTorneosActivos !== null && $filtroTorneosActivos !== '') {
+            $miembrosQuery->whereHas('participacionesTorneo', function($query) use ($filtroTorneosActivos) {
+                $query->whereHas('torneo', function($subQuery) {
+                    $subQuery->where('estado_torneo', 'Activo');
+                })
+                ->groupBy('miembro_id')
+                ->havingRaw('COUNT(*) >= ?', [$filtroTorneosActivos]);
+            });
+        }
+        
         // Ordenar y paginar
         $miembros = $miembrosQuery->orderBy('cedula')->paginate($perPage);
         
@@ -92,7 +114,7 @@ class MiembroController extends Controller
         // Mantener parámetros de búsqueda en la paginación
         $miembros->appends($request->all());
 
-        return view('miembros.index', compact('miembros', 'search', 'filtroCedula', 'filtroNombres', 'filtroApellidos', 'filtroAcademia', 'filtroEstado', 'perPage'));
+        return view('miembros.index', compact('miembros', 'search', 'filtroCedula', 'filtroNombres', 'filtroApellidos', 'filtroAcademia', 'filtroEstado', 'filtroTorneosJugados', 'filtroTorneosActivos', 'perPage'));
     }
 
     public function getAcademias(): JsonResponse
@@ -276,12 +298,13 @@ class MiembroController extends Controller
             'nombres' => $datos['nombres'] ?? '',
             'apellidos' => $datos['apellidos'] ?? '',
             'sexo' => $datos['sexo'] ?? '',
-            'fecha_nacimiento' => $datos['fecha_nacimiento'] ?? '',
-            'fecha_inscripcion' => $datos['fecha_inscripcion'] ?? '',
+            'fecha_nacimiento' => isset($datos['fecha_nacimiento']) ? \Carbon\Carbon::parse($datos['fecha_nacimiento'])->format('d-m-Y') : '',
+            'fecha_inscripcion' => isset($datos['fecha_inscripcion']) ? \Carbon\Carbon::parse($datos['fecha_inscripcion'])->format('d-m-Y') : '',
             'estado' => isset($datos['estado_miembro']) ? ($datos['estado_miembro'] ? 'Activo' : 'Inactivo') : '',
             'academia' => $academiaNombre,
             'elo' => $datos['elo'] ?? '',
-            'correo' => $datos['correo'] ?? ''
+            'correo' => $datos['correo'] ?? '',
+            'telefono' => $datos['telefono'] ?? ''
         ];
     }
 
@@ -304,18 +327,72 @@ class MiembroController extends Controller
 
     public function exportMiembros()
     {
-        // Solo registrar auditoría
-        Auditoria::create([
-            'correo_id' => Auth::user()->correo,
-            'tabla_afectada' => 'Miembros',
-            'accion' => 'Exportación',
-            'valor_previo' => null,
-            'valor_posterior' => 'Registros exportados en documento .csv',
-            'fecha' => now()->toDateString(),
-            'hora' => now()->toTimeString(),
-            'equipo' => request()->ip()
-        ]);
+        // Usar exactamente la misma consulta que se usa para llenar los cards
+        $miembros = Miembro::with(['usuario.rol', 'ciudad.departamento.pais', 'academia', 'participacionesTorneo.torneo'])->get();
+        
+        $filename = 'miembros_' . now()->format('Y-m-d_H-i-s') . '.csv';
+        
+        $callback = function() use ($miembros) {
+            $file = fopen('php://output', 'w');
+            
+            // Agregar BOM UTF-8 para reconocer acentos y ñ
+            fputs($file, "\xEF\xBB\xBF");
+            
+            // Encabezados
+            fputcsv($file, [
+                'Cédula', 
+                'Nombres', 
+                'Apellidos', 
+                'Sexo', 
+                'Fecha de Nacimiento',
+                'Teléfono',
+                'Fecha de Inscripción',
+                'Estado',
+                'Academia',
+                'ELO',
+                'Correo de Acceso',
+                'Rol',
+                'Torneos Jugados',
+                'Torneos Activos a Jugar',
+                'Ciudad',
+                'País'
+            ]);
+            
+            // Datos
+            foreach ($miembros as $miembro) {
+                // Calcular torneos activos
+                $torneosActivos = $miembro->participacionesTorneo()
+                    ->whereHas('torneo', function($query) {
+                        $query->where('estado_torneo', 'Activo');
+                    })
+                    ->count();
+                
+                fputcsv($file, [
+                    $miembro->cedula,
+                    $miembro->nombres,
+                    $miembro->apellidos,
+                    $miembro->sexo == 'M' ? 'Masculino' : 'Femenino',
+                    $miembro->fecha_nacimiento ? \Carbon\Carbon::parse($miembro->fecha_nacimiento)->format('d/m/Y') : '',
+                    $miembro->telefono ?? '',
+                    $miembro->fecha_inscripcion ? \Carbon\Carbon::parse($miembro->fecha_inscripcion)->format('d/m/Y') : '',
+                    $miembro->estado_miembro ? 'Activo' : 'Inactivo',
+                    $miembro->academia->nombre_academia ?? 'Sin academia',
+                    $miembro->elo ?? '',
+                    $miembro->usuario->correo ?? '',
+                    $miembro->usuario && $miembro->usuario->rol ? $miembro->usuario->rol->nombre : '',
+                    $miembro->participacionesTorneo->count(),
+                    $torneosActivos,
+                    $miembro->ciudad ? $miembro->ciudad->nombre_ciudad : 'Sin ciudad',
+                    $miembro->ciudad && $miembro->ciudad->departamento && $miembro->ciudad->departamento->pais ? $miembro->ciudad->departamento->pais->nombre_pais : 'Sin país'
+                ]);
+            }
+            
+            fclose($file);
+        };
 
-        return response()->json(['success' => true]);
+        return response()->stream($callback, 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ]);
     }
 }

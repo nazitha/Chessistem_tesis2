@@ -20,6 +20,12 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+// Rutas de exportación (sin autenticación)
+Route::get('/export/miembros', [App\Http\Controllers\MiembroController::class, 'exportMiembros'])->name('miembros.export');
+Route::get('/export/torneos', [App\Http\Controllers\TorneoController::class, 'exportTorneos'])->name('torneos.export');
+Route::get('/export/academias', [App\Http\Controllers\AcademiaController::class, 'exportAcademias'])->name('academias.export');
+Route::get('/export/auditorias', [App\Http\Controllers\AuditoriaController::class, 'exportAuditorias'])->name('auditorias.export');
+
 Route::get('/torneos/{torneo}/emparejamientos/{ronda}', [TorneoController::class, 'generarEmparejamientos']);
 
 Route::middleware('auth:sanctum')->group(function () {

@@ -3,26 +3,24 @@
 @section('title', 'Auditoría')
 
 @section('content')
-<div class="container mx-auto py-6">
-    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-        <div class="px-6 py-5 sm:px-8 flex justify-between items-center">
-            <h1 class="text-2xl font-bold text-gray-900">Auditoría del Sistema</h1>
-        </div>
+<div class="max-w-7xl mx-auto px-4">
+    <div class="flex justify-between items-center pb-4">
+        <h1 class="text-2xl font-semibold">Auditoría del Sistema</h1>
+    </div>
 
-        <!-- Botón para mostrar controles de búsqueda -->
-        <div class="px-6 pb-4">
-            <div class="flex gap-2">
-                <button id="btnMostrarBusquedaAuditoria" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium">
-                    <i class="fas fa-search mr-2"></i>Buscar
-                </button>
-                <button id="btnExportarAuditoria" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium">
-                    <i class="fas fa-download mr-2"></i>Exportar
-                </button>
-            </div>
+    <div class="mb-4">
+        <div class="flex gap-2">
+            <button id="btnMostrarBusquedaAuditoria" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium">
+                <i class="fas fa-search mr-2"></i>Buscar
+            </button>
+            <button id="btnExportarAuditoria" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium">
+                <i class="fas fa-download mr-2"></i>Exportar
+            </button>
         </div>
+    </div>
 
-        <!-- Controles de búsqueda -->
-        <div id="panelBusquedaAuditoria" class="mx-6 mb-4 bg-gray-50 shadow-md rounded-lg p-4 {{ ($search || $filtroUsuario || $filtroAccion || $filtroTabla || $filtroFecha || $filtroEquipo) ? '' : 'hidden' }}">
+    <!-- Controles de búsqueda -->
+    <div id="panelBusquedaAuditoria" class="bg-gray-50 shadow-md rounded-lg p-4 mb-4 {{ ($search || $filtroUsuario || $filtroAccion || $filtroTabla || $filtroFecha || $filtroEquipo) ? '' : 'hidden' }}">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-lg font-medium text-gray-900">Búsqueda de Auditoría</h3>
                 <button id="btnCancelarBusquedaAuditoria" class="text-gray-500 hover:text-gray-700 text-xl font-bold">
@@ -31,7 +29,7 @@
             </div>
             
             <form method="GET" action="{{ route('auditoria.index') }}" id="formBusquedaAuditoria">
-                <div class="flex flex-wrap gap-4 items-center">
+                <div class="flex flex-wrap gap-4 items-end">
                     <div class="flex-1 min-w-64">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Buscar:</label>
                         <input type="text" id="searchInput" name="search" value="{{ $search }}" placeholder="Buscar en todos los campos..." 
@@ -95,85 +93,92 @@
             </form>
         </div>
 
-        <div class="border-t border-gray-200">
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200" id="tablaAuditoria">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-600">Fecha</th>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-600">Hora</th>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-600">Usuario</th>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-600">Acción</th>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-600">Tabla</th>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-600">Equipo/IP</th>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-600">Detalles</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100" id="tablaAuditoriaContainer">
-                        @forelse($auditorias as $auditoria)
-                        <tr class="hover:bg-gray-50 transition-colors duration-150">
-                            <td class="px-4 py-2 text-sm text-gray-900">{{ $auditoria->fecha->locale('es')->isoFormat('DD [de] MMMM [del] YYYY') }}</td>
-                            <td class="px-4 py-2 text-sm text-gray-900">{{ $auditoria->hora }}</td>
-                            <td class="px-4 py-2 text-sm text-gray-900">{{ $auditoria->correo_id }}</td>
-                            <td class="px-4 py-2 text-sm text-gray-900">{{ $auditoria->accion }}</td>
-                            <td class="px-4 py-2 text-sm text-gray-900">{{ $auditoria->tabla_afectada }}</td>
-                            <td class="px-4 py-2 text-sm text-gray-900">{{ $auditoria->equipo }}</td>
-                            <td class="px-4 py-2 text-sm text-center">
-                                <button type="button" onclick="toggleDetalle('detalle-{{ $auditoria->id }}')" class="text-blue-600 hover:underline">Ver</button>
-                            </td>
-                        </tr>
-                        <tr id="detalle-{{ $auditoria->id }}" style="display:none; background:#f9fafb;">
-                            <td colspan="7" class="px-4 py-2">
-                                <b>Valor previo:</b> 
-                                <pre class="whitespace-pre-wrap">{{ $auditoria->valor_previo_formateado }}</pre>
-                                
-                                <b>Valor posterior:</b> 
-                                <pre class="whitespace-pre-wrap">{{ $auditoria->valor_posterior_formateado }}</pre>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="7" class="px-6 py-8 text-center text-gray-500">
-                                <div class="flex flex-col items-center">
-                                    <i class="fas fa-search text-4xl text-gray-300 mb-2"></i>
-                                    <p class="text-lg font-medium">No se encontraron resultados</p>
-                                    <p class="text-sm">Intenta ajustar los filtros de búsqueda</p>
-                                </div>
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-            
-            <!-- Paginación de Laravel -->
-            <div class="px-6 py-4 border-t bg-gray-50">
-                <div class="flex flex-col gap-4">
-                    <!-- Selector de registros por página (siempre visible) -->
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <span class="text-sm text-gray-700">Mostrar:</span>
-                            <select onchange="changePerPageAuditoria(this.value)" class="border border-gray-300 rounded-md px-2 py-1 text-sm bg-white">
-                                <option value="10" {{ ($perPage ?? 20) == 10 ? 'selected' : '' }}>10</option>
-                                <option value="20" {{ ($perPage ?? 20) == 20 ? 'selected' : '' }}>20</option>
-                                <option value="25" {{ ($perPage ?? 20) == 25 ? 'selected' : '' }}>25</option>
-                                <option value="50" {{ ($perPage ?? 20) == 50 ? 'selected' : '' }}>50</option>
-                                <option value="100" {{ ($perPage ?? 20) == 100 ? 'selected' : '' }}>100</option>
-                            </select>
-                            <span class="text-sm text-gray-700">por página</span>
-                        </div>
-                        
-                        <!-- Información de paginación -->
-                        <div class="text-sm text-gray-700">
-                            Mostrando {{ $auditorias->firstItem() ?? 0 }} a {{ $auditorias->lastItem() ?? 0 }} registros de {{ $auditorias->total() }} resultados
-                        </div>
-                    </div>
-                    
-                    <!-- Enlaces de paginación -->
-                    <div class="flex-1 flex items-center justify-center">
-                        {{ $auditorias->links('pagination.custom') }}
+    <!-- Contenedor de cards para auditorías -->
+    <div id="auditorias-cards-container" class="mt-6">
+        @forelse($auditorias as $auditoria)
+            <div class="bg-white rounded-lg shadow-md mb-4 border border-gray-200">
+                <!-- Encabezado Principal -->
+                <div class="px-6 py-3 bg-gray-800 text-white rounded-t-lg">
+                    <div>
+                        <h3 class="text-lg font-semibold">
+                            {{ $auditoria->accion }} - {{ $auditoria->fecha->locale('es')->isoFormat('DD [de] MMMM [del] YYYY') }}, {{ \Carbon\Carbon::parse($auditoria->hora)->format('h:i A') }}
+                        </h3>
+                        <p class="text-sm text-gray-300 mt-1">
+                            Equipo: {{ $auditoria->equipo }} | Usuario: {{ $auditoria->correo_id }} | Módulo afectado: {{ $auditoria->tabla_afectada }}
+                        </p>
                     </div>
                 </div>
+
+                <!-- Cuerpo -->
+                <div class="px-6 py-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Grupo 1: Valor previo -->
+                        <div class="border rounded-lg bg-gray-50 p-4 shadow-sm">
+                            <h6 class="font-semibold text-gray-800 mb-3 border-b border-gray-300 pb-1">
+                                Valor previo
+                            </h6>
+                            <div class="text-sm text-gray-800">
+                                @if($auditoria->valor_previo)
+                                    <pre class="whitespace-pre-wrap font-mono text-xs">{{ $auditoria->valor_previo_formateado }}</pre>
+                                @else
+                                    <span class="text-gray-500 italic">Sin valor previo</span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <!-- Grupo 2: Valor posterior -->
+                        <div class="border rounded-lg bg-gray-50 p-4 shadow-sm">
+                            <h6 class="font-semibold text-gray-800 mb-3 border-b border-gray-300 pb-1">
+                                Valor posterior
+                            </h6>
+                            <div class="text-sm text-gray-800">
+                                @if($auditoria->valor_posterior)
+                                    <pre class="whitespace-pre-wrap font-mono text-xs">{{ $auditoria->valor_posterior_formateado }}</pre>
+                                @else
+                                    <span class="text-gray-500 italic">Sin valor posterior</span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @empty
+            <div class="bg-white rounded-lg shadow p-8 text-center">
+                <div class="flex flex-col items-center">
+                    <i class="fas fa-search text-4xl text-gray-300 mb-2"></i>
+                    <p class="text-lg font-medium text-gray-500">No se encontraron resultados</p>
+                    <p class="text-sm text-gray-400">Intenta ajustar los filtros de búsqueda</p>
+                </div>
+            </div>
+        @endforelse
+    </div>
+    
+    <!-- Paginación de Laravel -->
+    <div class="px-6 py-4 bg-gray-50">
+        <div class="flex flex-col gap-4">
+            <!-- Selector de registros por página (siempre visible) -->
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm text-gray-700">Mostrar:</span>
+                    <select onchange="changePerPageAuditoria(this.value)" class="border border-gray-300 rounded-md px-2 py-1 text-sm bg-white">
+                        <option value="10" {{ ($perPage ?? 20) == 10 ? 'selected' : '' }}>10</option>
+                        <option value="20" {{ ($perPage ?? 20) == 20 ? 'selected' : '' }}>20</option>
+                        <option value="25" {{ ($perPage ?? 20) == 25 ? 'selected' : '' }}>25</option>
+                        <option value="50" {{ ($perPage ?? 20) == 50 ? 'selected' : '' }}>50</option>
+                        <option value="100" {{ ($perPage ?? 20) == 100 ? 'selected' : '' }}>100</option>
+                    </select>
+                    <span class="text-sm text-gray-700">por página</span>
+                </div>
+                
+                <!-- Información de paginación -->
+                <div class="text-sm text-gray-700">
+                    Mostrando {{ $auditorias->firstItem() ?? 0 }} a {{ $auditorias->lastItem() ?? 0 }} registros de {{ $auditorias->total() }} resultados
+                </div>
+            </div>
+            
+            <!-- Enlaces de paginación -->
+            <div class="flex-1 flex items-center justify-center">
+                {{ $auditorias->links('pagination.custom') }}
             </div>
         </div>
     </div>
@@ -181,14 +186,6 @@
 
 @push('scripts')
 <script>
-function toggleDetalle(id) {
-    var row = document.getElementById(id);
-    if (row.style.display === 'none') {
-        row.style.display = '';
-    } else {
-        row.style.display = 'none';
-    }
-}
 
 // Variables globales para control de búsqueda
 let searchTimeout;
@@ -250,12 +247,12 @@ function performSearchAuditoria() {
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
         
-        // Actualizar tabla de auditorías
-        const newTableContainer = doc.querySelector('#tablaAuditoriaContainer');
-        if (newTableContainer) {
-            const currentTableContainer = document.querySelector('#tablaAuditoriaContainer');
-            if (currentTableContainer) {
-                currentTableContainer.innerHTML = newTableContainer.innerHTML;
+        // Actualizar cards de auditorías
+        const newCardsContainer = doc.querySelector('#auditorias-cards-container');
+        if (newCardsContainer) {
+            const currentCardsContainer = document.querySelector('#auditorias-cards-container');
+            if (currentCardsContainer) {
+                currentCardsContainer.innerHTML = newCardsContainer.innerHTML;
             }
         }
         
@@ -301,12 +298,12 @@ function changePerPageAuditoria(value) {
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
         
-        // Actualizar tabla de auditorías
-        const newTableContainer = doc.querySelector('#tablaAuditoriaContainer');
-        if (newTableContainer) {
-            const currentTableContainer = document.querySelector('#tablaAuditoriaContainer');
-            if (currentTableContainer) {
-                currentTableContainer.innerHTML = newTableContainer.innerHTML;
+        // Actualizar cards de auditorías
+        const newCardsContainer = doc.querySelector('#auditorias-cards-container');
+        if (newCardsContainer) {
+            const currentCardsContainer = document.querySelector('#auditorias-cards-container');
+            if (currentCardsContainer) {
+                currentCardsContainer.innerHTML = newCardsContainer.innerHTML;
             }
         }
         
@@ -330,10 +327,10 @@ function changePerPageAuditoria(value) {
 // Función para mostrar/ocultar loading
 function toggleLoadingAuditoria(show) {
     isLoading = show;
-    const tableContainer = document.querySelector('#tablaAuditoriaContainer').closest('.overflow-x-auto');
-    if (tableContainer) {
-        tableContainer.style.opacity = show ? '0.6' : '1';
-        tableContainer.style.pointerEvents = show ? 'none' : 'auto';
+    const cardsContainer = document.querySelector('#auditorias-cards-container');
+    if (cardsContainer) {
+        cardsContainer.style.opacity = show ? '0.6' : '1';
+        cardsContainer.style.pointerEvents = show ? 'none' : 'auto';
     }
 }
 
@@ -408,6 +405,11 @@ document.addEventListener('DOMContentLoaded', function() {
             elemento.addEventListener('input', debouncedSearch);
             elemento.addEventListener('change', debouncedSearch);
         }
+    });
+
+    // Función para exportar auditorías
+    document.getElementById('btnExportarAuditoria').addEventListener('click', function() {
+        window.location.href = '{{ url("api/export/auditorias") }}';
     });
 });
 </script>

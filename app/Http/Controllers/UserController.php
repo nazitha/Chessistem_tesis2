@@ -746,6 +746,9 @@ class UserController extends Controller
             $callback = function() use ($users) {
                 $file = fopen('php://output', 'w');
                 
+                // Agregar BOM UTF-8 para reconocer acentos y ñ
+                fputs($file, "\xEF\xBB\xBF");
+                
                 // Encabezados
                 fputcsv($file, ['ID', 'Correo', 'Rol', 'Fecha Creación']);
                 
@@ -810,6 +813,9 @@ class UserController extends Controller
 
             $callback = function() use ($roles) {
                 $file = fopen('php://output', 'w');
+                
+                // Agregar BOM UTF-8 para reconocer acentos y ñ
+                fputs($file, "\xEF\xBB\xBF");
                 
                 // Encabezados
                 fputcsv($file, ['Rol', 'Permiso', 'Descripción']);

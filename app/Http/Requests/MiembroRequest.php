@@ -19,7 +19,7 @@ class MiembroRequest extends FormRequest
             'fecha_nacimiento' => 'required|date',
             'fecha_inscripcion' => 'required|date',
             'estado_miembro' => 'boolean',
-            'telefono' => 'nullable|string|max:20',
+            'telefono' => 'required|string|max:14',
             'club' => 'nullable|string|max:255',
             'correo_sistema_id' => 'nullable|exists:usuarios,correo',
             'ciudad_id' => 'nullable|exists:ciudades,id',

@@ -5,7 +5,7 @@
     use App\Helpers\PermissionHelper;
 @endphp
 
-<div class="max-w-full mx-auto px-4">
+<div class="max-w-7xl mx-auto px-4">
     <div class="flex justify-between items-center pb-4">
         <h1 class="text-2xl font-semibold">Participantes</h1>
     </div>
@@ -45,7 +45,7 @@
         </div>
         
         <form method="GET" action="{{ route('participantes.index') }}" id="formBusquedaParticipantes">
-            <div class="flex flex-wrap gap-4 items-center">
+            <div class="flex flex-wrap gap-4 items-end">
                 <div class="flex-1 min-w-64">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Buscar:</label>
                     <input type="text" id="searchInput" name="search" value="{{ $search }}" placeholder="Buscar por miembro, torneo, número..." 

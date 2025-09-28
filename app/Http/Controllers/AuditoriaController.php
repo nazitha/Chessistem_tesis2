@@ -70,4 +70,52 @@ class AuditoriaController extends Controller
 
         return view('auditoria.index', compact('auditorias', 'usuarios', 'acciones', 'tablas', 'search', 'filtroUsuario', 'filtroAccion', 'filtroTabla', 'filtroFecha', 'filtroEquipo', 'perPage'));
     }
+
+    public function exportAuditorias()
+    {
+        // Usar exactamente la misma consulta que se usa para llenar los cards
+        $auditorias = Auditoria::orderByDesc('fecha')->orderByDesc('hora')->get();
+        
+        $filename = 'auditorias_' . now()->format('Y-m-d_H-i-s') . '.csv';
+        
+        $callback = function() use ($auditorias) {
+            $file = fopen('php://output', 'w');
+            
+            // Agregar BOM UTF-8 para reconocer acentos y ñ
+            fputs($file, "\xEF\xBB\xBF");
+            
+            // Encabezados
+            fputcsv($file, [
+                'Fecha',
+                'Hora',
+                'Acción',
+                'Equipo/IP',
+                'Usuario',
+                'Módulo Afectado',
+                'Valor Previo',
+                'Valor Posterior'
+            ]);
+            
+            // Datos
+            foreach ($auditorias as $auditoria) {
+                fputcsv($file, [
+                    $auditoria->fecha ? $auditoria->fecha->format('d/m/Y') : '',
+                    $auditoria->hora ? \Carbon\Carbon::parse($auditoria->hora)->format('h:i A') : '',
+                    $auditoria->accion,
+                    $auditoria->equipo,
+                    $auditoria->correo_id,
+                    $auditoria->tabla_afectada,
+                    $auditoria->valor_previo ?? '',
+                    $auditoria->valor_posterior ?? ''
+                ]);
+            }
+            
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ]);
+    }
 } 

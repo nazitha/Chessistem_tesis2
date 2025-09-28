@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Academia;
 use App\Models\Ciudad;
 use App\Models\Auditoria;
+use App\Models\ParticipanteTorneo;
 use App\Helpers\PermissionHelper;
 use App\Services\PermissionService;
 use Illuminate\Http\Request;
@@ -16,8 +17,12 @@ class AcademiaController extends Controller
 {
     public function __construct()
     {
-        // Verificar permiso de lectura para todas las acciones
+        // Verificar permiso de lectura para todas las acciones excepto export
         $this->middleware(function ($request, $next) {
+            if ($request->routeIs('academias.export')) {
+                return $next($request);
+            }
+            
             if (!PermissionHelper::canViewModule('academias')) {
                 return redirect()->route('home')->with('error', 'No tienes permisos para acceder a este módulo.');
             }
@@ -34,10 +39,12 @@ class AcademiaController extends Controller
         $filtroRepresentante = $request->get('filtro_representante');
         $filtroCiudad = $request->get('filtro_ciudad');
         $filtroEstado = $request->get('filtro_estado');
+        $filtroParticipantes = $request->get('filtro_participantes');
+        $filtroTorneos = $request->get('filtro_torneos');
         $perPage = $request->get('per_page', 10);
         
-        // Query base para academias
-        $academiasQuery = Academia::with(['ciudad.departamento.pais']);
+        // Query base para academias con relaciones necesarias para las cards
+        $academiasQuery = Academia::with(['ciudad.departamento.pais', 'miembros']);
         
         // Aplicar filtros de búsqueda
         if ($search) {
@@ -74,13 +81,34 @@ class AcademiaController extends Controller
             $academiasQuery->where('estado_academia', $filtroEstado);
         }
         
+        // Filtro por mínimo de participantes usando whereExists
+        if ($filtroParticipantes !== null && $filtroParticipantes !== '') {
+            $academiasQuery->whereExists(function($query) use ($filtroParticipantes) {
+                $query->select(DB::raw(1))
+                      ->from('miembros')
+                      ->whereRaw('miembros.academia_id = academias.id_academia')
+                      ->groupBy('miembros.academia_id')
+                      ->havingRaw('COUNT(*) >= ?', [$filtroParticipantes]);
+            });
+        }
+        
+        // Filtro por mínimo de torneos participados
+        if ($filtroTorneos !== null && $filtroTorneos !== '') {
+            $academiasQuery->whereHas('miembros', function($query) use ($filtroTorneos) {
+                $query->whereHas('participacionesTorneo');
+            });
+        }
+        
+        // Agregar el conteo de miembros después de todos los filtros
+        $academiasQuery->withCount('miembros');
+        
         // Ordenar y paginar
         $academias = $academiasQuery->orderBy('nombre_academia')->paginate($perPage);
         
         // Mantener parámetros de búsqueda en la paginación
         $academias->appends($request->all());
 
-        return view('academias.index', compact('academias', 'search', 'filtroNombre', 'filtroCorreo', 'filtroRepresentante', 'filtroCiudad', 'filtroEstado', 'perPage'));
+        return view('academias.index', compact('academias', 'search', 'filtroNombre', 'filtroCorreo', 'filtroRepresentante', 'filtroCiudad', 'filtroEstado', 'filtroParticipantes', 'filtroTorneos', 'perPage'));
     }
 
     public function create()
@@ -107,7 +135,7 @@ class AcademiaController extends Controller
         $request->validate([
             'nombre_academia' => 'required|string|max:255|unique:academias',
             'correo_academia' => 'nullable|email|max:255',
-            'telefono_academia' => 'required|string|max:20',
+            'telefono_academia' => 'required|string|max:14',
             'representante_academia' => 'required|string|max:255',
             'direccion_academia' => 'required|string|max:255',
             'ciudad_id' => 'required|exists:ciudades,id_ciudad',
@@ -174,7 +202,7 @@ class AcademiaController extends Controller
         $request->validate([
             'nombre_academia' => 'required|string|max:255|unique:academias,nombre_academia,' . $academia->id_academia . ',id_academia',
             'correo_academia' => 'nullable|email|max:255',
-            'telefono_academia' => 'required|string|max:20',
+            'telefono_academia' => 'required|string|max:14',
             'representante_academia' => 'required|string|max:255',
             'direccion_academia' => 'required|string|max:255',
             'ciudad_id' => 'required|exists:ciudades,id_ciudad',
@@ -241,62 +269,64 @@ class AcademiaController extends Controller
 
     public function exportAcademias()
     {
-        if (!PermissionService::hasPermission('academias.read')) {
-            return redirect()->route('home')->with('error', 'No tienes permiso para exportar academias');
-        }
-
-        try {
-            $academias = Academia::with(['ciudad.departamento.pais'])->get();
+        // Usar exactamente la misma consulta que se usa para llenar los cards
+        $academias = Academia::with(['ciudad.departamento.pais', 'miembros'])->get();
+        
+        $filename = 'academias_' . now()->format('Y-m-d_H-i-s') . '.csv';
+        
+        $callback = function() use ($academias) {
+            $file = fopen('php://output', 'w');
             
-            $filename = 'academias_' . now()->format('Y-m-d_H-i-s') . '.csv';
+            // Agregar BOM UTF-8 para reconocer acentos y ñ
+            fputs($file, "\xEF\xBB\xBF");
             
-            $headers = [
-                'Content-Type' => 'text/csv; charset=UTF-8',
-                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-                'Cache-Control' => 'no-cache, no-store, must-revalidate',
-                'Pragma' => 'no-cache',
-                'Expires' => '0'
-            ];
+            // Encabezados
+            fputcsv($file, [
+                'ID',
+                'Nombre de la Academia',
+                'Correo',
+                'Teléfono',
+                'Representante',
+                'Dirección',
+                'Ciudad',
+                'Departamento',
+                'País',
+                'Estado',
+                'Participantes Registrados',
+                'Torneos Participados'
+            ]);
+            
+            // Datos
+            foreach ($academias as $academia) {
+                // Calcular torneos participados
+                $miembrosIds = $academia->miembros()->pluck('cedula');
+                $torneosParticipados = ParticipanteTorneo::whereIn('miembro_id', $miembrosIds)
+                    ->distinct('torneo_id')
+                    ->count();
+                
+                fputcsv($file, [
+                    $academia->id_academia,
+                    $academia->nombre_academia,
+                    $academia->correo_academia ?? '',
+                    $academia->telefono_academia,
+                    $academia->representante_academia,
+                    $academia->direccion_academia,
+                    $academia->ciudad ? $academia->ciudad->nombre_ciudad : 'Sin ciudad',
+                    $academia->ciudad && $academia->ciudad->departamento ? $academia->ciudad->departamento->nombre_depto : '',
+                    $academia->ciudad && $academia->ciudad->departamento && $academia->ciudad->departamento->pais ? $academia->ciudad->departamento->pais->nombre_pais : '',
+                    $academia->estado_academia ? 'Activo' : 'Inactivo',
+                    $academia->miembros()->count(),
+                    $torneosParticipados
+                ]);
+            }
+            
+            fclose($file);
+        };
 
-            $callback = function() use ($academias) {
-                $file = fopen('php://output', 'w');
-                
-                // Agregar BOM UTF-8 para compatibilidad con Excel
-                fputs($file, "\xEF\xBB\xBF");
-                
-                // Encabezados
-                fputcsv($file, ['ID', 'Academia', 'Correo', 'Teléfono', 'Director', 'Dirección', 'Ciudad', 'Estado']);
-                
-                // Datos
-                foreach ($academias as $academia) {
-                    fputcsv($file, [
-                        $academia->id_academia,
-                        $academia->nombre_academia,
-                        $academia->correo_academia ?? '',
-                        $academia->telefono_academia,
-                        $academia->representante_academia,
-                        $academia->direccion_academia,
-                        $academia->ciudad ? $academia->ciudad->nombre_ciudad : 'Sin ciudad',
-                        $academia->estado_academia ? 'Activo' : 'Inactivo'
-                    ]);
-                }
-                
-                fclose($file);
-            };
-
-            // Registrar auditoría para exportación
-            $this->crearAuditoria(
-                Auth::user()->correo,
-                'Exportación',
-                null,
-                'Registros exportados en documento .csv'
-            );
-
-            return response()->stream($callback, 200, $headers);
-        } catch (\Exception $e) {
-            Log::error('Error al exportar academias: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Error al exportar academias');
-        }
+        return response()->stream($callback, 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ]);
     }
 
     private function formatearDatosAcademia($datos)

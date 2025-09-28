@@ -64,6 +64,12 @@
                     <div class="form-control form-control-sm fs-6 bg-white">{{ \Carbon\Carbon::parse($miembro->fecha_nacimiento)->format('d-m-Y') }}</div>
                 </div>
 
+                <!-- Teléfono -->
+                <div class="mt-2">
+                    <label class="form-label fw-bold fs-6">Teléfono</label>
+                    <div class="form-control form-control-sm fs-6 bg-white">{{ $miembro->telefono ?? 'No especificado' }}</div>
+                </div>
+
                 <!-- Estado -->
                 <div class="mt-2">
                     <label class="form-label fw-bold fs-6">Estado</label>

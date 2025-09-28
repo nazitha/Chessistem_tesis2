@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Academia extends Model
 {
@@ -67,5 +68,35 @@ class Academia extends Model
     public function scopeActive($query)
     {
         return $query->where('estado_academia', true);
+    }
+
+    /**
+     * Get all members (participantes) belonging to this academy
+     */
+    public function miembros(): HasMany
+    {
+        return $this->hasMany(Miembro::class, 'academia_id', 'id_academia');
+    }
+
+    /**
+     * Get count of registered participants in this academy
+     */
+    public function getParticipantesRegistradosAttribute()
+    {
+        return $this->miembros()->count();
+    }
+
+    /**
+     * Get count of tournaments where this academy has participated
+     */
+    public function getTorneosParticipadosAttribute()
+    {
+        // Get all members from this academy
+        $miembrosIds = $this->miembros()->pluck('cedula');
+        
+        // Count unique tournaments where these members have participated
+        return ParticipanteTorneo::whereIn('miembro_id', $miembrosIds)
+            ->distinct('torneo_id')
+            ->count();
     }
 }

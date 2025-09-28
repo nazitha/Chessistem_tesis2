@@ -21,7 +21,7 @@
     ]);
 @endphp
 
-<div class="max-w-full mx-auto px-4">
+<div class="max-w-7xl mx-auto px-4">
     <div class="flex justify-between items-center pb-4">
         <h1 class="text-2xl font-semibold">Academias</h1>
         @if(PermissionHelper::canCreate('academias'))
@@ -68,7 +68,7 @@
         </div>
         
         <form method="GET" action="{{ route('academias.index') }}" id="formBusquedaAcademias">
-            <div class="flex flex-wrap gap-4 items-center">
+            <div class="flex flex-wrap gap-4 items-end">
                 <div class="flex-1 min-w-64">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Buscar:</label>
                     <input type="text" id="searchInput" name="search" value="{{ $search }}" placeholder="Buscar por nombre, correo, representante..." 
@@ -85,7 +85,7 @@
             </div>
             
             <!-- Panel de búsqueda avanzada -->
-            <div id="panelBusquedaAvanzadaAcademias" class="mt-4 p-4 bg-gray-50 rounded-md {{ ($filtroNombre || $filtroCorreo || $filtroRepresentante || $filtroCiudad || $filtroEstado) ? '' : 'hidden' }}">
+            <div id="panelBusquedaAvanzadaAcademias" class="mt-4 p-4 bg-gray-50 rounded-md {{ ($filtroNombre || $filtroCorreo || $filtroRepresentante || $filtroCiudad || $filtroEstado || $filtroParticipantes || $filtroTorneos) ? '' : 'hidden' }}">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Nombre:</label>
@@ -115,6 +115,16 @@
                             <option value="0" {{ $filtroEstado === '0' ? 'selected' : '' }}>Inactivo</option>
                         </select>
                     </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Min. Participantes:</label>
+                        <input type="number" id="filtroParticipantes" name="filtro_participantes" value="{{ $filtroParticipantes }}" placeholder="Mínimo participantes" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md" min="0">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Min. Torneos:</label>
+                        <input type="number" id="filtroTorneos" name="filtro_torneos" value="{{ $filtroTorneos }}" placeholder="Mínimo torneos" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md" min="0">
+                    </div>
                 </div>
             </div>
             
@@ -123,99 +133,113 @@
         </form>
     </div>
 
-    <div class="mt-6 bg-white rounded-lg shadow">
-        <div class="overflow-x-auto">
-            <table class="min-w-full">
-                <thead>
-                    <tr class="bg-gray-50 border-b">
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Correo</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Teléfono</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Representante</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dirección</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ciudad</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                        @if(PermissionHelper::hasAnyAcademiaActionPermission())
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+    <!-- Container para las cards de academias -->
+    <div id="academias-cards-container" class="mt-6">
+        @forelse($academias as $academia)
+            <div class="bg-white shadow-md rounded-lg academia-card mb-4">
+                
+                <!-- Header -->
+                <div class="flex justify-between items-center px-6 py-3 bg-gray-800 text-white rounded-t-lg">
+                    <div>
+                        <h5 class="text-xl font-bold mb-1">
+                            {{ $academia->nombre_academia }}
+                        </h5>
+                    </div>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium 
+                        @if($academia->estado_academia)
+                            bg-green-100 text-green-800
+                        @else
+                            bg-gray-100 text-gray-800
                         @endif
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200" id="tablaAcademiasContainer">
-                    @forelse($academias as $academia)
-                        <tr class="hover:bg-gray-50 transition-colors duration-150">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $academia->nombre_academia }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $academia->correo_academia }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $academia->telefono_academia }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $academia->representante_academia }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $academia->direccion_academia }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ $academia->ciudad ? $academia->ciudad->nombre_ciudad . ', ' . 
-                                   ($academia->ciudad->departamento->nombre_depto ?? '-') . ' (' . 
-                                   ($academia->ciudad->departamento->pais->nombre_pais ?? '-') . ')' : '-' }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                    @if($academia->estado_academia)
-                                        bg-green-100 text-green-800
-                                    @else
-                                        bg-gray-100 text-gray-800
-                                    @endif
-                                ">
-                                    {{ $academia->estado_academia ? 'Activo' : 'Inactivo' }}
-                                </span>
-                            </td>
-                            @if(PermissionHelper::hasAnyAcademiaActionPermission())
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <div class="flex justify-end space-x-3">
-                                    @if(PermissionHelper::canViewModule('academias'))
-                                        <a href="{{ route('academias.show', $academia) }}" 
-                                           class="text-blue-600 hover:text-blue-900 p-1 rounded-full hover:bg-blue-100 transition-colors duration-200"
-                                           data-tooltip="Ver detalles">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                    @endif
-                                    
-                                    @if(PermissionHelper::canUpdate('academias'))
-                                        <a href="{{ route('academias.edit', $academia) }}" 
-                                           class="text-yellow-600 hover:text-yellow-900 p-1 rounded-full hover:bg-yellow-100 transition-colors duration-200"
-                                           data-tooltip="Editar academia">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                    @endif
+                    ">
+                        {{ $academia->estado_academia ? 'Activo' : 'Inactivo' }}
+                    </span>
+                </div>
 
-                                        @if(PermissionHelper::canDelete('academias'))
-                                    <form action="{{ route('academias.destroy', $academia) }}" method="POST" class="inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="button"
-                                                onclick="confirmarEliminacion('{{ $academia->id_academia }}')"
-                                                class="text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-100 transition-colors duration-200"
-                                                data-tooltip="Eliminar academia">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
-                                        @endif
-                                </div>
-                            </td>
-                            @endif
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="{{ PermissionHelper::hasAnyAcademiaActionPermission() ? '8' : '7' }}" class="px-6 py-8 text-center text-gray-500">
-                                <div class="flex flex-col items-center">
-                                    <i class="fas fa-search text-4xl text-gray-300 mb-2"></i>
-                                    <p class="text-lg font-medium">No se encontraron resultados</p>
-                                    <p class="text-sm">Intenta ajustar los filtros de búsqueda</p>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+                <!-- Body -->
+                <div class="px-6 py-4 text-gray-700">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Contacto -->
+                        <div class="border rounded-lg bg-gray-50 p-4 shadow-sm">
+                            <h6 class="font-semibold text-gray-800 mb-3 border-b border-gray-300 pb-1">
+                                Contacto
+                            </h6>
+                            <div class="space-y-2">
+                                <p class="text-sm"><b>Correo:</b> {{ $academia->correo_academia }}</p>
+                                <p class="text-sm"><b>Teléfono:</b> {{ $academia->telefono_academia }}</p>
+                                <p class="text-sm"><b>Representante:</b> {{ $academia->representante_academia }}</p>
+                                <p class="text-sm"><b>Dirección:</b> {{ $academia->direccion_academia }}</p>
+                                <p class="text-sm"><b>Ciudad:</b> 
+                                    {{ $academia->ciudad ? $academia->ciudad->nombre_ciudad . ', ' . 
+                                       ($academia->ciudad->departamento->nombre_depto ?? '-') . ' (' . 
+                                       ($academia->ciudad->departamento->pais->nombre_pais ?? '-') . ')' : 'Sin ciudad' }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Detalles adicionales -->
+                        <div class="border rounded-lg bg-gray-50 p-4 shadow-sm">
+                            <h6 class="font-semibold text-gray-800 mb-3 border-b border-gray-300 pb-1">
+                                Detalles adicionales
+                            </h6>
+                            <div class="space-y-2">
+                                <p class="text-sm"><b>Participantes registrados:</b> {{ $academia->participantes_registrados }}</p>
+                                <p class="text-sm"><b>Torneos participados:</b> {{ $academia->torneos_participados }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer con botones -->
+                @if(PermissionHelper::hasAnyAcademiaActionPermission())
+                <div class="flex gap-2 px-6 py-2 border-t bg-gray-50 rounded-b-lg justify-end">
+                    @if(PermissionHelper::canViewModule('academias'))
+                        <a href="{{ route('academias.show', $academia) }}" 
+                           class="px-3 py-1.5 bg-gray-800 text-white text-sm font-medium rounded-lg shadow hover:bg-gray-700 transition">
+                            <i class="fas fa-eye"></i> Ver Detalles
+                        </a>
+                    @endif
+                    
+                    @if(PermissionHelper::canUpdate('academias'))
+                        <a href="{{ route('academias.edit', $academia) }}" 
+                           class="px-3 py-1.5 bg-gray-800 text-white text-sm font-medium rounded-lg shadow hover:bg-gray-700 transition">
+                            <i class="fas fa-edit"></i> Editar
+                        </a>
+                    @endif
+                    
+                    @if(PermissionHelper::canDelete('academias'))
+                        <button type="button"
+                                onclick="confirmarEliminacion('{{ $academia->id_academia }}')"
+                                class="px-3 py-1.5 bg-gray-800 text-white text-sm font-medium rounded-lg shadow hover:bg-gray-700 transition">
+                            <i class="fas fa-trash"></i> Eliminar
+                        </button>
+                    @endif
+                    
+                    @if(PermissionHelper::canDelete('academias'))
+                        <form id="form-eliminar-{{ $academia->id_academia }}" 
+                              action="{{ route('academias.destroy', $academia) }}" 
+                              method="POST" 
+                              class="hidden">
+                            @csrf
+                            @method('DELETE')
+                        </form>
+                    @endif
+                </div>
+                @endif
+            </div>
+        @empty
+            <div class="bg-white shadow-md rounded-lg p-8 text-center">
+                <div class="flex flex-col items-center">
+                    <i class="fas fa-search text-4xl text-gray-300 mb-2"></i>
+                    <p class="text-lg font-medium text-gray-500">No se encontraron resultados</p>
+                    <p class="text-sm text-gray-400">Intenta ajustar los filtros de búsqueda</p>
+                </div>
+            </div>
+        @endforelse
+    </div>
         
         <!-- Paginación de Laravel -->
-        <div class="px-6 py-4 border-t bg-gray-50">
+        <div id="academias-pagination" class="px-6 py-4 border-t bg-gray-50">
             <div class="flex flex-col gap-4">
                 <!-- Selector de registros por página (siempre visible) -->
                 <div class="flex items-center justify-between">
@@ -319,6 +343,8 @@ function performSearchAcademias() {
     const filtroRepresentante = document.getElementById('filtroRepresentante');
     const filtroCiudad = document.getElementById('filtroCiudad');
     const filtroEstado = document.getElementById('filtroEstado');
+    const filtroParticipantes = document.getElementById('filtroParticipantes');
+    const filtroTorneos = document.getElementById('filtroTorneos');
     const perPageSelect = document.querySelector('select[onchange="changePerPageAcademias(this.value)"]');
     
     const params = new URLSearchParams();
@@ -340,6 +366,12 @@ function performSearchAcademias() {
     }
     if (filtroEstado && filtroEstado.value !== '') {
         params.append('filtro_estado', filtroEstado.value);
+    }
+    if (filtroParticipantes && filtroParticipantes.value.trim()) {
+        params.append('filtro_participantes', filtroParticipantes.value.trim());
+    }
+    if (filtroTorneos && filtroTorneos.value.trim()) {
+        params.append('filtro_torneos', filtroTorneos.value.trim());
     }
     if (perPageSelect && perPageSelect.value) {
         params.append('per_page', perPageSelect.value);
@@ -365,23 +397,24 @@ function performSearchAcademias() {
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
         
-        // Actualizar tabla de academias
-        const newTableContainer = doc.querySelector('#tablaAcademiasContainer');
-        if (newTableContainer) {
-            const currentTableContainer = document.querySelector('#tablaAcademiasContainer');
-            if (currentTableContainer) {
-                currentTableContainer.innerHTML = newTableContainer.innerHTML;
+        // Actualizar container de cards de academias
+        const newCardsContainer = doc.querySelector('#academias-cards-container');
+        if (newCardsContainer) {
+            const currentCardsContainer = document.querySelector('#academias-cards-container');
+            if (currentCardsContainer) {
+                currentCardsContainer.innerHTML = newCardsContainer.innerHTML;
             }
         }
         
         // Actualizar paginación
-        const newPaginationContainer = doc.querySelector('.px-6.py-4.border-t.bg-gray-50');
+        const newPaginationContainer = doc.querySelector('#academias-pagination');
         if (newPaginationContainer) {
-            const currentPaginationContainer = document.querySelector('.px-6.py-4.border-t.bg-gray-50');
+            const currentPaginationContainer = document.querySelector('#academias-pagination');
             if (currentPaginationContainer) {
                 currentPaginationContainer.outerHTML = newPaginationContainer.outerHTML;
             }
         }
+        
         
         toggleLoadingAcademias(false);
     })
@@ -391,64 +424,23 @@ function performSearchAcademias() {
     });
 }
 
-// Función para cambiar registros por página
+// Función para cambiar registros por página - igual que en Torneos
 function changePerPageAcademias(value) {
-    if (isLoading) return;
-    
-    const params = new URLSearchParams(window.location.search);
-    params.set('per_page', value);
-    params.delete('page'); // Resetear a la primera página
-    
-    const newUrl = '{{ route("academias.index") }}?' + params.toString();
-    window.history.pushState({}, '', newUrl);
-    
-    toggleLoadingAcademias(true);
-    
-    fetch(newUrl, {
-        method: 'GET',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'Accept': 'text/html'
-        }
-    })
-    .then(response => response.text())
-    .then(html => {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        
-        // Actualizar tabla de academias
-        const newTableContainer = doc.querySelector('#tablaAcademiasContainer');
-        if (newTableContainer) {
-            const currentTableContainer = document.querySelector('#tablaAcademiasContainer');
-            if (currentTableContainer) {
-                currentTableContainer.innerHTML = newTableContainer.innerHTML;
-            }
-        }
-        
-        // Actualizar paginación
-        const newPaginationContainer = doc.querySelector('.px-6.py-4.border-t.bg-gray-50');
-        if (newPaginationContainer) {
-            const currentPaginationContainer = document.querySelector('.px-6.py-4.border-t.bg-gray-50');
-            if (currentPaginationContainer) {
-                currentPaginationContainer.outerHTML = newPaginationContainer.outerHTML;
-            }
-        }
-        
-        toggleLoadingAcademias(false);
-    })
-    .catch(error => {
-        console.error('Error al cambiar página:', error);
-        toggleLoadingAcademias(false);
-    });
+    const url = new URL(window.location);
+    url.searchParams.set('per_page', value);
+    url.searchParams.delete('page'); // Reset a la primera página
+    window.location.href = url.toString();
 }
+
+
 
 // Función para mostrar/ocultar loading
 function toggleLoadingAcademias(show) {
     isLoading = show;
-    const tableContainer = document.querySelector('#tablaAcademiasContainer').closest('.overflow-x-auto');
-    if (tableContainer) {
-        tableContainer.style.opacity = show ? '0.6' : '1';
-        tableContainer.style.pointerEvents = show ? 'none' : 'auto';
+    const cardsContainer = document.querySelector('#academias-cards-container');
+    if (cardsContainer) {
+        cardsContainer.style.opacity = show ? '0.6' : '1';
+        cardsContainer.style.pointerEvents = show ? 'none' : 'auto';
     }
 }
 
@@ -516,7 +508,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Filtros avanzados
-    const filtros = ['filtroNombre', 'filtroCorreo', 'filtroRepresentante', 'filtroCiudad', 'filtroEstado'];
+    const filtros = ['filtroNombre', 'filtroCorreo', 'filtroRepresentante', 'filtroCiudad', 'filtroEstado', 'filtroParticipantes', 'filtroTorneos'];
     filtros.forEach(id => {
         const elemento = document.getElementById(id);
         if (elemento) {
@@ -529,26 +521,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const btnExportarAcademias = document.getElementById('btnExportarAcademias');
     if (btnExportarAcademias) {
         btnExportarAcademias.addEventListener('click', function() {
-            // Mostrar indicador de carga
-            const originalText = this.innerHTML;
-            this.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Exportando...';
-            this.disabled = true;
-            
-            // Crear un enlace temporal para la descarga
-            const link = document.createElement('a');
-            link.href = '{{ route("academias.export") }}';
-            link.style.display = 'none';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            // Restaurar el botón después de un breve delay
-            setTimeout(() => {
-                this.innerHTML = originalText;
-                this.disabled = false;
-            }, 2000);
+            window.location.href = '{{ url("api/export/academias") }}';
         });
     }
+    
 });
 </script>
 @endpush

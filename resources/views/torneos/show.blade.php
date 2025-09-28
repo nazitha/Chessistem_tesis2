@@ -64,7 +64,7 @@
                                 <label class="block text-sm font-medium text-gray-700 flex items-center">
                                     <span class="mr-2">🕒</span> Hora de Inicio
                                 </label>
-                                <div class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm sm:text-sm">{{ $torneo->hora_inicio ? $torneo->hora_inicio : 'No definida' }}</div>
+                                <div class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm sm:text-sm">{{ $torneo->hora_inicio ? \Carbon\Carbon::parse($torneo->hora_inicio)->format('h:i A') : 'No definida' }}</div>
                             </div>
 
                             <div class="col-span-6 sm:col-span-3">
@@ -430,7 +430,7 @@
                     ✕
                 </button>
             </div>
-            <div class="flex flex-wrap gap-4 items-center">
+            <div class="flex flex-wrap gap-4 items-end">
                 <div class="flex-1 min-w-64">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Buscar:</label>
                     <input type="text" id="buscarParticipantes" placeholder="Buscar por nombre, número, ELO..." 

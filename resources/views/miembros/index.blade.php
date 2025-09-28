@@ -7,7 +7,7 @@
 @endphp
 
 <meta name="csrf-token" content="{{ csrf_token() }}">
-<div class="max-w-full mx-auto px-4">
+<div class="max-w-7xl mx-auto px-4">
     <div class="flex justify-between items-center pb-4">
         <h1 class="text-2xl font-semibold">Miembros</h1>
         @if(PermissionHelper::canCreate('miembros'))
@@ -54,7 +54,7 @@
         </div>
         
         <form method="GET" action="{{ route('miembros.index') }}" id="formBusquedaMiembros">
-        <div class="flex flex-wrap gap-4 items-center">
+        <div class="flex flex-wrap gap-4 items-end">
             <div class="flex-1 min-w-64">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Buscar:</label>
                     <input type="text" id="searchInput" name="search" value="{{ $search }}" placeholder="Buscar por cédula, nombres, apellidos..." 
@@ -71,8 +71,8 @@
         </div>
         
         <!-- Panel de búsqueda avanzada -->
-            <div id="panelBusquedaAvanzadaMiembros" class="mt-4 p-4 bg-gray-50 rounded-md {{ ($filtroCedula || $filtroNombres || $filtroApellidos || $filtroAcademia || $filtroEstado) ? '' : 'hidden' }}">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div id="panelBusquedaAvanzadaMiembros" class="mt-4 p-4 bg-gray-50 rounded-md {{ ($filtroCedula || $filtroNombres || $filtroApellidos || $filtroAcademia || $filtroEstado || $filtroTorneosJugados || $filtroTorneosActivos) ? '' : 'hidden' }}">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Cédula:</label>
                         <input type="text" id="filtroCedula" name="filtro_cedula" value="{{ $filtroCedula }}" placeholder="Filtrar por cédula" 
@@ -101,6 +101,16 @@
                         <input type="text" id="filtroAcademia" name="filtro_academia" value="{{ $filtroAcademia }}" placeholder="Filtrar por academia" 
                            class="w-full px-3 py-2 border border-gray-300 rounded-md">
                 </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Min. Torneos jugados:</label>
+                        <input type="number" id="filtroTorneosJugados" name="filtro_torneos_jugados" value="{{ $filtroTorneosJugados }}" placeholder="Mínimo torneos jugados" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md" min="0">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Min. Torneos activos:</label>
+                        <input type="number" id="filtroTorneosActivos" name="filtro_torneos_activos" value="{{ $filtroTorneosActivos }}" placeholder="Mínimo torneos activos" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md" min="0">
+                </div>
                 </div>
             </div>
             
@@ -109,104 +119,133 @@
         </form>
     </div>
 
-    <div class="mt-6 bg-white rounded-lg shadow">
-        <div class="overflow-x-auto">
-            <table class="min-w-full">
-                <thead>
-                    <tr class="bg-gray-50 border-b">
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cédula</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombres</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Apellidos</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sexo</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha de nacimiento</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha de inscripción</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Academia</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ELO</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Correo</th>
-                        @if(PermissionHelper::hasAnyMiembroActionPermission())
-                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-                        @endif
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200" id="tablaMiembrosContainer">
-                    @forelse($miembros as $miembro)
-                        <tr class="hover:bg-gray-50 transition-colors duration-150">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $miembro->cedula }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $miembro->nombres }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $miembro->apellidos }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $miembro->sexo == 'M' ? 'Masculino' : 'Femenino' }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                @if($miembro->fecha_nacimiento)
-                                    {{ \Carbon\Carbon::parse($miembro->fecha_nacimiento)->locale('es')->isoFormat('DD [de] MMMM [del] YYYY') }}
+    <!-- Contenedor de cards de miembros -->
+    <div class="mt-6" id="miembros-cards-container">
+        @forelse($miembros as $miembro)
+            <div class="bg-white rounded-lg shadow-md mb-4 border border-gray-200">
+                <!-- Encabezado -->
+                <div class="px-6 py-3 bg-gray-800 text-white rounded-t-lg">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h3 class="text-lg font-semibold">{{ $miembro->nombres }} {{ $miembro->apellidos }}</h3>
+                            <div class="text-sm text-gray-300 mt-1">
+                                <span>Cédula: {{ $miembro->cedula }}</span>
+                                <span class="ml-4">Academia: {{ $miembro->academia->nombre_academia ?? 'Sin academia' }}</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                @if($miembro->estado_miembro)
+                                    bg-green-100 text-green-800
                                 @else
-                                    -
+                                    bg-gray-100 text-gray-800
                                 @endif
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                @if($miembro->fecha_inscripcion)
-                                    {{ \Carbon\Carbon::parse($miembro->fecha_inscripcion)->locale('es')->isoFormat('DD [de] MMMM [del] YYYY') }}
-                                @else
-                                    -
-                                @endif
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                    @if($miembro->estado_miembro)
-                                        bg-green-100 text-green-800
+                            ">
+                                {{ $miembro->estado_miembro ? 'Activo' : 'Inactivo' }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cuerpo -->
+                <div class="px-6 py-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Grupo 1: Datos personales -->
+                        <div class="border rounded-lg bg-gray-50 p-4 shadow-sm">
+                            <h6 class="font-semibold text-gray-800 mb-3 border-b border-gray-300 pb-1">
+                                Datos personales
+                            </h6>
+                            <div class="space-y-2">
+                                <p class="text-sm"><b>Sexo:</b> {{ $miembro->sexo == 'M' ? 'Masculino' : 'Femenino' }}</p>
+                                <p class="text-sm"><b>Fecha de nacimiento:</b> 
+                                    @if($miembro->fecha_nacimiento)
+                                        {{ \Carbon\Carbon::parse($miembro->fecha_nacimiento)->locale('es')->isoFormat('DD [de] MMMM [del] YYYY') }}
                                     @else
-                                        bg-gray-100 text-gray-800
+                                        -
                                     @endif
-                                ">
-                                    {{ $miembro->estado_miembro ? 'Activo' : 'Inactivo' }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $miembro->academia->nombre_academia ?? '-' }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $miembro->elo ?? '-' }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $miembro->usuario->correo ?? '-' }}</td>
-                            @if(PermissionHelper::hasAnyMiembroActionPermission())
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <div class="flex justify-end space-x-3">
-                                        @if(PermissionService::hasPermission('miembros.details'))
-                                            <a href="{{ route('miembros.show', $miembro) }}" 
-                                               class="text-blue-600 hover:text-blue-900 p-1 rounded-full hover:bg-blue-100 transition-colors duration-200"
-                                               data-tooltip="Ver detalles">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                        @endif
-                                        @if(PermissionHelper::canUpdate('miembros'))
-                                            <a href="{{ route('miembros.edit', $miembro) }}" 
-                                               class="text-yellow-600 hover:text-yellow-900 p-1 rounded-full hover:bg-yellow-100 transition-colors duration-200"
-                                               data-tooltip="Editar miembro">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                        @endif
-                                        @if(PermissionHelper::canDelete('miembros'))
-                                            <button type="button"
-                                                    onclick="confirmarEliminacion('{{ $miembro->cedula }}')"
-                                                    class="text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-100 transition-colors duration-200"
-                                                    data-tooltip="Eliminar miembro">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        @endif
-                                    </div>
-                                </td>
+                                </p>
+                                <p class="text-sm"><b>Teléfono:</b> {{ $miembro->telefono ?? '-' }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Grupo 2: Detalles secundarios -->
+                        <div class="border rounded-lg bg-gray-50 p-4 shadow-sm">
+                            <h6 class="font-semibold text-gray-800 mb-3 border-b border-gray-300 pb-1">
+                                Detalles secundarios
+                            </h6>
+                            <div class="space-y-2">
+                                <p class="text-sm"><b>Fecha de inscripción:</b> 
+                                    @if($miembro->fecha_inscripcion)
+                                        {{ \Carbon\Carbon::parse($miembro->fecha_inscripcion)->locale('es')->isoFormat('DD [de] MMMM [del] YYYY') }}
+                                    @else
+                                        -
+                                    @endif
+                                </p>
+                                <p class="text-sm"><b>ELO:</b> {{ $miembro->elo ?? '-' }}</p>
+                                <p class="text-sm"><b>Correo de acceso:</b> {{ $miembro->usuario->correo ?? '-' }}</p>
+                                <p class="text-sm"><b>Rol:</b> 
+                                    @if($miembro->usuario && $miembro->usuario->roles->isNotEmpty())
+                                        {{ $miembro->usuario->roles->first()->name }}
+                                    @else
+                                        -
+                                    @endif
+                                </p>
+                                <p class="text-sm"><b>Torneos jugados:</b> {{ $miembro->participacionesTorneo->count() }}</p>
+                                <p class="text-sm"><b>Torneos activos a jugar:</b> 
+                                    @php
+                                        $torneosActivos = $miembro->participacionesTorneo()
+                                            ->whereHas('torneo', function($query) {
+                                                $query->where('estado_torneo', 'Activo');
+                                            })
+                                            ->count();
+                                    @endphp
+                                    {{ $torneosActivos }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer con botones -->
+                @if(PermissionHelper::hasAnyMiembroActionPermission())
+                    <div class="px-6 py-2 bg-gray-50 rounded-b-lg border-t">
+                        <div class="flex justify-end space-x-3">
+                            @if(PermissionService::hasPermission('miembros.details'))
+                                <a href="{{ route('miembros.show', $miembro) }}" 
+                                   class="px-3 py-1.5 bg-gray-800 text-white text-sm font-medium rounded-lg shadow hover:bg-gray-700 transition"
+                                   data-tooltip="Ver detalles">
+                                    <i class="fas fa-eye mr-1"></i>Ver detalles
+                                </a>
                             @endif
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="{{ PermissionHelper::hasAnyMiembroActionPermission() ? '11' : '10' }}" class="px-6 py-8 text-center text-gray-500">
-                                <div class="flex flex-col items-center">
-                                    <i class="fas fa-search text-4xl text-gray-300 mb-2"></i>
-                                    <p class="text-lg font-medium">No se encontraron resultados</p>
-                                    <p class="text-sm">Intenta ajustar los filtros de búsqueda</p>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+                            @if(PermissionHelper::canUpdate('miembros'))
+                                <a href="{{ route('miembros.edit', $miembro) }}" 
+                                   class="px-3 py-1.5 bg-gray-800 text-white text-sm font-medium rounded-lg shadow hover:bg-gray-700 transition"
+                                   data-tooltip="Editar miembro">
+                                    <i class="fas fa-edit mr-1"></i>Editar
+                                </a>
+                            @endif
+                            @if(PermissionHelper::canDelete('miembros'))
+                                <button type="button"
+                                        onclick="confirmarEliminacion('{{ $miembro->cedula }}')"
+                                        class="px-3 py-1.5 bg-gray-800 text-white text-sm font-medium rounded-lg shadow hover:bg-gray-700 transition"
+                                        data-tooltip="Eliminar miembro">
+                                    <i class="fas fa-trash mr-1"></i>Eliminar
+                                </button>
+                            @endif
+                        </div>
+                    </div>
+                @endif
+            </div>
+        @empty
+            <div class="bg-white rounded-lg shadow p-8 text-center">
+                <div class="flex flex-col items-center">
+                    <i class="fas fa-search text-4xl text-gray-300 mb-2"></i>
+                    <p class="text-lg font-medium text-gray-500">No se encontraron resultados</p>
+                    <p class="text-sm text-gray-400">Intenta ajustar los filtros de búsqueda</p>
+                </div>
+            </div>
+        @endforelse
+    </div>
         
         <!-- Paginación de Laravel -->
         <div class="px-6 py-4 border-t bg-gray-50">
@@ -318,6 +357,8 @@ function performSearchMiembros() {
     const filtroApellidos = document.getElementById('filtroApellidos');
     const filtroAcademia = document.getElementById('filtroAcademia');
     const filtroEstado = document.getElementById('filtroEstado');
+    const filtroTorneosJugados = document.getElementById('filtroTorneosJugados');
+    const filtroTorneosActivos = document.getElementById('filtroTorneosActivos');
     const perPageSelect = document.querySelector('select[onchange="changePerPageMiembros(this.value)"]');
     
     const params = new URLSearchParams();
@@ -340,6 +381,12 @@ function performSearchMiembros() {
     }
     if (filtroEstado && filtroEstado.value !== '') {
         params.append('filtro_estado', filtroEstado.value);
+    }
+    if (filtroTorneosJugados && filtroTorneosJugados.value.trim()) {
+        params.append('filtro_torneos_jugados', filtroTorneosJugados.value.trim());
+    }
+    if (filtroTorneosActivos && filtroTorneosActivos.value.trim()) {
+        params.append('filtro_torneos_activos', filtroTorneosActivos.value.trim());
     }
     if (perPageSelect && perPageSelect.value) {
         params.append('per_page', perPageSelect.value);
@@ -371,16 +418,16 @@ function performSearchMiembros() {
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
         
-        // Actualizar tabla de miembros
-        const newTableContainer = doc.querySelector('#tablaMiembrosContainer');
-        if (newTableContainer) {
-            const currentTableContainer = document.querySelector('#tablaMiembrosContainer');
-            if (currentTableContainer) {
-                currentTableContainer.innerHTML = newTableContainer.innerHTML;
-                console.log('Tabla actualizada');
+        // Actualizar contenedor de cards de miembros
+        const newCardsContainer = doc.querySelector('#miembros-cards-container');
+        if (newCardsContainer) {
+            const currentCardsContainer = document.querySelector('#miembros-cards-container');
+            if (currentCardsContainer) {
+                currentCardsContainer.innerHTML = newCardsContainer.innerHTML;
+                console.log('Cards de miembros actualizados');
             }
         } else {
-            console.log('No se encontró #tablaMiembrosContainer en la respuesta');
+            console.log('No se encontró #miembros-cards-container en la respuesta');
         }
         
         // Actualizar paginación
@@ -428,12 +475,12 @@ function changePerPageMiembros(value) {
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
         
-        // Actualizar tabla de miembros
-        const newTableContainer = doc.querySelector('#tablaMiembrosContainer');
-        if (newTableContainer) {
-            const currentTableContainer = document.querySelector('#tablaMiembrosContainer');
-            if (currentTableContainer) {
-                currentTableContainer.innerHTML = newTableContainer.innerHTML;
+        // Actualizar contenedor de cards de miembros
+        const newCardsContainer = doc.querySelector('#miembros-cards-container');
+        if (newCardsContainer) {
+            const currentCardsContainer = document.querySelector('#miembros-cards-container');
+            if (currentCardsContainer) {
+                currentCardsContainer.innerHTML = newCardsContainer.innerHTML;
             }
         }
         
@@ -457,10 +504,10 @@ function changePerPageMiembros(value) {
 // Función para mostrar/ocultar loading
 function toggleLoadingMiembros(show) {
     isLoading = show;
-    const tableContainer = document.querySelector('#tablaMiembrosContainer').closest('.overflow-x-auto');
-    if (tableContainer) {
-        tableContainer.style.opacity = show ? '0.6' : '1';
-        tableContainer.style.pointerEvents = show ? 'none' : 'auto';
+    const cardsContainer = document.querySelector('#miembros-cards-container');
+    if (cardsContainer) {
+        cardsContainer.style.opacity = show ? '0.6' : '1';
+        cardsContainer.style.pointerEvents = show ? 'none' : 'auto';
     }
 }
 
@@ -528,7 +575,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Filtros avanzados
-    const filtros = ['filtroCedula', 'filtroNombres', 'filtroApellidos', 'filtroAcademia', 'filtroEstado'];
+    const filtros = ['filtroCedula', 'filtroNombres', 'filtroApellidos', 'filtroAcademia', 'filtroEstado', 'filtroTorneosJugados', 'filtroTorneosActivos'];
     filtros.forEach(id => {
         const elemento = document.getElementById(id);
         if (elemento) {
@@ -540,14 +587,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Función para exportar miembros
 document.getElementById('btnExportarMiembros').addEventListener('click', function() {
-    // Solo registrar auditoría
-    fetch('{{ route("miembros.export") }}', {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-            'Content-Type': 'application/json',
-        }
-    });
+    window.location.href = '{{ url("api/export/miembros") }}';
 });
 </script>
 @endpush
