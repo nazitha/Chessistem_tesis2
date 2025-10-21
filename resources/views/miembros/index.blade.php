@@ -231,6 +231,15 @@
                                         data-tooltip="Eliminar miembro">
                                     <i class="fas fa-trash mr-1"></i>Eliminar
                                 </button>
+                                
+                                <!-- Formulario oculto para eliminación -->
+                                <form id="form-eliminar-{{ $miembro->cedula }}" 
+                                      action="{{ route('miembros.destroy', $miembro) }}" 
+                                      method="POST" 
+                                      style="display: none;">
+                                    @csrf
+                                    @method('DELETE')
+                                </form>
                             @endif
                         </div>
                     </div>
