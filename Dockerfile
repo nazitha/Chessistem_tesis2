@@ -1,6 +1,8 @@
 # Usar la imagen oficial de PHP con Apache
 FROM php:8.2-apache
 
+# Forzar nuevo despliegue
+
 # Instalar dependencias del sistema
 RUN apt-get update && apt-get install -y \
     git \
