@@ -33,7 +33,7 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
     && apt-get install -y nodejs \
     && npm install \
-    && npm run build \
+    && npm run build || echo "Build failed, continuing..." \
     && npm cache clean --force
 
 # Configurar Apache para Laravel

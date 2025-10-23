@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Estilos personalizados para Chessistem */
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+/* Importar estilos existentes desde public/css */
+@import url('/css/boots_styles.css');
+@import url('/css/other_styles.css');
+@import url('/css/responsive_tables.css');
+@import url('/css/swal_styles.css');
+@import url('/css/tailwind_datatables.css');
+@import url('/css/ajust_table.css');
+@import url('/css/input.css');
+@import url('/css/login.css');
