@@ -1,5 +1,5 @@
-# Usar la imagen oficial de PHP con FPM
-FROM php:8.2-fpm
+# Usar la imagen oficial de PHP con Apache
+FROM php:8.2-apache
 
 # Instalar dependencias del sistema
 RUN apt-get update && apt-get install -y \
@@ -11,8 +11,6 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     zip \
     unzip \
-    nginx \
-    supervisor \
     postgresql-client \
     && docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd zip
 
@@ -35,23 +33,24 @@ RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
     && npm run build \
     && npm cache clean --force
 
+# Configurar Apache para Laravel
+RUN a2enmod rewrite
+COPY docker/apache.conf /etc/apache2/sites-available/000-default.conf
+
 # Configurar permisos
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage \
     && chmod -R 755 /var/www/html/bootstrap/cache
 
-# Copiar configuración de nginx
-COPY docker/nginx.conf /etc/nginx/sites-available/default
-
-# Copiar configuración de supervisor
-COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-
 # Copiar script de despliegue
 COPY docker/deploy.sh /usr/local/bin/deploy.sh
 RUN chmod +x /usr/local/bin/deploy.sh
+
+# Ejecutar script de despliegue
+RUN /usr/local/bin/deploy.sh
 
 # Exponer puerto 80
 EXPOSE 80
 
 # Comando por defecto
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+CMD ["apache2-foreground"]

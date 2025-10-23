@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: chessistem-app
+    env: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: starter
+    region: oregon
+    envVars:
+      - key: APP_NAME
+        value: Chessistem
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: APP_URL
+        value: https://chessistem-app.onrender.com
+      - key: APP_KEY
+        value: base64:wyc2nBX4l8yzhZMu6fmgsfkYCgAnxekI3bCCy/Ch15o=
+      - key: DATABASE_URL
+        value: postgresql://chessistem_user:EsZFsozCnZcU1Xlhf4lXApo1jmm8oSzN@dpg-d3t98kpbh1hs73ebdf3g-a/chessistem
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: SESSION_DRIVER
+        value: database
+      - key: CACHE_STORE
+        value: database
+      - key: QUEUE_CONNECTION
+        value: database

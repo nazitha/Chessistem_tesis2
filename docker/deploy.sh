@@ -3,17 +3,6 @@
 # Script de despliegue para Laravel en Render
 echo "🚀 Iniciando despliegue de Laravel..."
 
-# Esperar a que la base de datos esté disponible
-echo "⏳ Esperando conexión a la base de datos..."
-until php artisan migrate:status > /dev/null 2>&1; do
-    echo "Esperando conexión a la base de datos..."
-    sleep 2
-done
-
-# Ejecutar migraciones
-echo "📊 Ejecutando migraciones..."
-php artisan migrate --force
-
 # Limpiar y optimizar cache
 echo "🧹 Limpiando cache..."
 php artisan config:clear
