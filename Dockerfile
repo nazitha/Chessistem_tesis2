@@ -37,7 +37,10 @@ RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
     && npm cache clean --force
 
 # Configurar Apache para Laravel
-RUN a2enmod rewrite
+RUN a2enmod rewrite \
+    && a2enmod headers \
+    && echo "ServerTokens Prod" >> /etc/apache2/apache2.conf \
+    && echo "ServerSignature Off" >> /etc/apache2/apache2.conf
 COPY docker/apache.conf /etc/apache2/sites-available/000-default.conf
 
 # Configurar permisos
