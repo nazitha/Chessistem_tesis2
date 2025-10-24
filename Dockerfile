@@ -27,12 +27,13 @@ WORKDIR /var/www/html
 COPY . .
 
 # Instalar dependencias de PHP
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-scripts
 
 # Instalar dependencias de Node.js y compilar assets
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
     && apt-get install -y nodejs \
     && npm install \
+    && npm audit fix --force \
     && npm run build || echo "Build failed, continuing..." \
     && npm cache clean --force
 
@@ -52,8 +53,9 @@ RUN chown -R www-data:www-data /var/www/html \
 COPY docker/deploy.sh /usr/local/bin/deploy.sh
 RUN chmod +x /usr/local/bin/deploy.sh
 
-# Ejecutar script de despliegue
-RUN /usr/local/bin/deploy.sh
+# Ejecutar scripts de Composer y despliegue
+RUN composer run-script post-install-cmd || echo "Composer scripts failed, continuing..." \
+    && /usr/local/bin/deploy.sh
 
 # Exponer puerto 80
 EXPOSE 80
