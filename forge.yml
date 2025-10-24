@@ -1,0 +1,8 @@
+# Laravel Forge deployment configuration
+site: chessistem
+repository: nazitha/Chessistem_tesis2
+branch: main
+php: 8.2
+composer: true
+node: 18
+npm: true
