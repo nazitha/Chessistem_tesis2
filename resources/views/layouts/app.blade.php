@@ -210,8 +210,8 @@
             </div>
 
             <!-- Menú móvil -->
-            <div x-cloak x-show="open" x-transition.opacity class="md:hidden absolute inset-x-0 top-16 bg-gray-800 border-t border-gray-700 shadow-lg z-[70]" id="mobile-menu">
-                <div class="px-2 pt-2 pb-3 space-y-1">
+            <div x-cloak x-show="open" x-transition.opacity @click.outside="open=false" class="md:hidden fixed inset-x-0 top-16 bg-gray-800 border-t border-gray-700 shadow-lg z-[1001] max-h-[calc(100vh-64px)] overflow-y-auto" id="mobile-menu">
+                <div class="px-2 pt-2 pb-3 space-y-1 pointer-events-auto">
                     <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'bg-gray-700 text-white' : 'text-gray-300 hover:text-white hover:bg-gray-700' }} block px-3 py-2 text-base font-medium transition-colors">Home</a>
                     
                     @if(Auth::check() && Auth::user()->rol_id == 1)
@@ -237,8 +237,6 @@
                     </div>
                 </div>
             </div>
-            <!-- Backdrop móvil -->
-            <div x-cloak x-show="open" x-transition.opacity class="fixed inset-0 bg-black/30 md:hidden z-[60]" @click="open = false"></div>
         </div>
     </nav>
 
