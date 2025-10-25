@@ -1,0 +1,38 @@
+/* Modo oscuro seguro - overrides mínimos */
+
+/* Base */
+.dark body { background:#0b1220 !important; color:#e5e7eb !important; }
+.dark a { color:#93c5fd; }
+
+/* Navbar */
+.dark nav.shadow { background:#0f172a !important; }
+
+/* Contenedores comunes */
+.dark .bg-white { background:#0f172a !important; color:#e5e7eb !important; }
+.dark .shadow, .dark .shadow-inner { box-shadow: 0 1px 3px rgba(0,0,0,.6) !important; }
+.dark .border, .dark .border-gray-200, .dark .border-gray-300 { border-color:#334155 !important; }
+
+/* Footer */
+.dark footer.bg-white { background:#0f172a !important; color:#e5e7eb !important; }
+
+/* Formularios */
+.dark input, .dark select, .dark textarea { background:#0b1220 !important; color:#e5e7eb !important; border-color:#334155 !important; }
+.dark input::placeholder, .dark textarea::placeholder { color:#94a3b8 !important; }
+
+/* Botones (mantener colores de marca) */
+.dark .btn, .dark .btn-primary, .dark .btn-success, .dark .btn-info, .dark .btn-warning { filter: brightness(0.95); }
+
+/* DataTables */
+.dark table.dataTable { color:#e5e7eb; }
+.dark table.dataTable thead th { background:#111827; color:#e5e7eb; }
+.dark table.dataTable.display tbody tr { background:#0f172a; }
+.dark table.dataTable.display tbody tr:hover { background:#111827; }
+.dark .dataTables_wrapper .dataTables_paginate .paginate_button { color:#e5e7eb !important; }
+
+/* SweetAlert2 */
+.dark .swal2-popup { background:#0f172a !important; color:#e5e7eb !important; }
+
+/* Highcharts básico */
+.dark .highcharts-background { fill:#0f172a !important; }
+
+
