@@ -72,22 +72,36 @@
     <body class="flex items-center justify-center min-h-screen p-6 bg-login-grad">
         <div class="w-full max-w-4xl">
             <header class="mb-6">
-                <nav class="flex items-center justify-between text-sm">
+                <div class="flex items-center justify-between text-sm">
                     <div class="font-medium">Estrellas del Ajedrez</div>
                     <a href="{{ route('login') }}" class="inline-block px-5 py-1.5 border rounded-sm">Ingresar</a>
-                </nav>
-        </header>
+                </div>
+            </header>
 
             <main class="space-y-10">
+                @php
+                    $heroImage = file_exists(public_path('img/descarga.png')) ? 'img/descarga.png'
+                                : (file_exists(public_path('img/descarga.jpg')) ? 'img/descarga.jpg'
+                                : 'img/estrellas_del_ajedrez_logo.png');
+                @endphp
                 <section class="relative overflow-hidden rounded-lg">
-                    <img src="{{ asset('img/estrellas_del_ajedrez_logo.png') }}" alt="Estrellas del Ajedrez" class="w-full h-64 md:h-96 object-cover opacity-80">
+                    <img src="{{ asset($heroImage) }}" alt="Estrellas del Ajedrez" class="w-full h-64 md:h-96 object-cover opacity-80">
                     <div class="absolute inset-0 flex items-center">
                         <div class="p-8 md:p-14 max-w-4xl">
-                            <h1 class="text-3xl md:text-5xl font-semibold leading-tight text-white">Explora los divertidos juegos de mesa hoy</h1>
-                            <p class="mt-3 text-white">Descubre actividades y torneos para todas las edades.</p>
-                            <div class="mt-6 flex gap-3">
-                                <a href="{{ route('login') }}" class="px-5 py-2 bg-black text-white rounded-sm border border-black">Ingresar</a>
-                                <a href="#contacto" class="px-5 py-2 bg-white rounded-sm border">Contáctanos</a>
+                            <h1 class="text-3xl md:text-5xl font-semibold leading-tight text-white">Contáctanos</h1>
+                            <div class="mt-4 grid md:grid-cols-3 gap-6 text-white text-sm">
+                                <div>
+                                    <div class="opacity-90">Correo</div>
+                                    <a href="mailto:info@estrellasajedrez.com" class="underline underline-offset-4">info@estrellasajedrez.com</a>
+                                </div>
+                                <div>
+                                    <div class="opacity-90">Teléfono</div>
+                                    <a href="tel:+573000000000" class="underline underline-offset-4">+57 300 000 0000</a>
+                                </div>
+                                <div>
+                                    <div class="opacity-90">Dirección</div>
+                                    <div>Calle 123 #45-67, Ciudad</div>
+                                </div>
                             </div>
                         </div>
                 </div>
@@ -96,24 +110,6 @@
                 <section class="bg-white rounded-lg p-8 shadow-inset">
                     <h2 class="text-xl font-medium mb-3">Nuestra misión</h2>
                     <p class="text-sm">En Estrellas del Ajedrez acercamos a niños, jóvenes y adultos al mundo de los juegos de mesa y del ajedrez, fomentando el aprendizaje, la concentración y la sana competencia mediante clases, ligas internas y torneos abiertos.</p>
-                </section>
-
-                <section id="contacto" class="bg-white rounded-lg p-8 shadow-inset">
-                    <h2 class="text-xl font-medium mb-4">Contáctanos</h2>
-                    <div class="grid md:grid-cols-3 gap-6 text-sm">
-                        <div>
-                            <div>Correo</div>
-                            <a href="mailto:info@estrellasajedrez.com" class="underline underline-offset-4">info@estrellasajedrez.com</a>
-                        </div>
-                        <div>
-                            <div>Teléfono</div>
-                            <a href="tel:+573000000000" class="underline underline-offset-4">+57 300 000 0000</a>
-                        </div>
-                        <div>
-                            <div>Dirección</div>
-                            <div>Calle 123 #45-67, Ciudad</div>
-                        </div>
-                </div>
                 </section>
             </main>
         </div>
