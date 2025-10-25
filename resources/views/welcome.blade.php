@@ -32,7 +32,7 @@
                 .p-8{padding:2rem}
                 .p-14{padding:3.5rem}
                 .mb-6{margin-bottom:1.5rem}
-                .space-y-10>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(2.5rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(2.5rem*var(--tw-space-y-reverse))}
+                .space-y-10>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem*var(--tw-space-y-reverse))}
                 .rounded-lg{border-radius:.5rem}
                 .rounded-sm{border-radius:.125rem}
                 .bg-white{background-color:var(--color-white)}
@@ -84,7 +84,7 @@
     <body class="flex items-center justify-center min-h-screen p-6 bg-login-grad">
         <div class="w-full max-w-4xl">
 
-            <main class="space-y-10">
+            <main class="space-y-4">
                 @php
                     $heroCandidates = [
                         'img/landing_hero.jpg','img/landing_hero.png',
