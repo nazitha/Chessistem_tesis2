@@ -37,9 +37,9 @@ Route::middleware('web')->group(function () {
     Route::get('/torneos/lista-para-duplicar', [TorneoController::class, 'listaParaDuplicar'])->name('torneos.listaParaDuplicar');
     Route::get('/torneos/{id}/datos-para-duplicar', [TorneoController::class, 'datosParaDuplicar'])->name('torneos.datosParaDuplicar');
 
-    // Redirección Home
+    // Landing de bienvenida para invitados; redirige a /home si está autenticado
     Route::get('/', function () {
-        return Auth::check() ? redirect('/home') : redirect('/login');
+        return Auth::check() ? redirect('/home') : view('welcome');
     });
 
     // Rutas de autenticación
