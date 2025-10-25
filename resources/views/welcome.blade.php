@@ -13,7 +13,7 @@
         <!-- Styles / Scripts -->
         @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
             @vite(['resources/css/app.css', 'resources/js/app.js'])
-        @else
+        @endif
             <style>
                 /*! tailwindcss v4.0.7 | MIT License | https://tailwindcss.com */
                 :root{--font-sans:'Instrument Sans',ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";--font-serif:ui-serif,Georgia,Cambria,"Times New Roman",Times,serif;--font-mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;--color-black:#000;--color-white:#fff;--spacing:.25rem;--text-sm:.875rem;--text-base:1rem;--text-xl:1.25rem;--text-3xl:1.875rem;--text-5xl:3rem}
@@ -77,7 +77,6 @@
                 .btn-primary:hover{background-color:#111}
                 .btn-light:hover{background-color:#f5f5f5}
             </style>
-        @endif
     </head>
     <body class="flex items-center justify-center min-h-screen p-6 bg-login-grad">
         <div class="w-full max-w-4xl">
