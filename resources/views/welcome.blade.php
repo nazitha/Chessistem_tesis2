@@ -92,6 +92,18 @@
                 .content-inner{max-width:48rem;padding:2rem 1.5rem}
                 @media (min-width:768px){.content-inner{padding:3rem 3.5rem}}
                 .accent-blue{color:var(--accent-blue)}
+                /* Responsive hero */
+                .hero-title{font-size:clamp(2rem,6vw,5.25rem);line-height:1.1}
+                .hero-subtitle{font-size:clamp(1rem,2.2vw,1.25rem)}
+                .actions{display:flex;gap:.75rem;flex-wrap:wrap}
+                @media (max-width:1024px){
+                    .content-inner{max-width:40rem}
+                    .hero-image{object-position:center}
+                }
+                @media (max-width:768px){
+                    .content-inner{padding:1.5rem}
+                    .actions .btn{width:100%;text-align:center}
+                }
             </style>
     </head>
     <body class="min-h-screen">
@@ -119,11 +131,11 @@
                     <div class="hero-overlay"></div>
                     <div class="hero-content">
                         <div class="content-inner">
-                            <h1 class="font-bold text-9xl leading-tight text-left" style="letter-spacing:.5px; text-transform:uppercase;">
+                            <h1 class="font-bold text-left hero-title" style="letter-spacing:.5px; text-transform:uppercase;">
                                 <span class="accent-blue">Estrellas</span> del Ajedrez
                             </h1>
-                            <p class="text-white text-left" style="margin-top:16px;font-size:1.125rem">Lleva tu ajedrez al siguiente nivel.</p>
-                            <div class="flex gap-3" style="margin-top:28px">
+                            <p class="text-white text-left hero-subtitle" style="margin-top:16px">Lleva tu ajedrez al siguiente nivel.</p>
+                            <div class="actions" style="margin-top:28px">
                                 <a href="{{ route('login') }}" class="btn btn-primary btn-pill">Ingresar</a>
                                 <a href="https://wa.me/50584403892" target="_blank" rel="noopener" class="btn btn-light btn-pill border-white">Contactar por WhatsApp</a>
                             </div>
