@@ -58,6 +58,7 @@
                 @media (min-width:768px){.md\:h-96{height:24rem}.md\:grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.md\:text-5xl{font-size:var(--text-5xl)}}
                 .h-64{height:16rem}
                 .object-cover{object-fit:cover}
+                .object-contain{object-fit:contain}
                 .relative{position:relative}
                 .absolute{position:absolute}
                 .inset-0{top:0;right:0;bottom:0;left:0}
@@ -76,6 +77,8 @@
                 .btn-light{background-color:#fff;color:#000;border-color:#000}
                 .btn-primary:hover{background-color:#111}
                 .btn-light:hover{background-color:#f5f5f5}
+                /* Hero size */
+                .h-hero{height:55vh;max-height:720px;min-height:280px}
             </style>
     </head>
     <body class="flex items-center justify-center min-h-screen p-6 bg-login-grad">
@@ -95,14 +98,14 @@
                     }
                 @endphp
                 <section class="relative overflow-hidden rounded-lg">
-                    <img src="{{ asset($heroImage) }}" alt="Estrellas del Ajedrez" class="w-full h-64 md:h-96 object-cover">
+                    <img src="{{ asset($heroImage) }}" alt="Estrellas del Ajedrez" class="w-full h-hero object-contain bg-white">
                     <div class="hero-overlay"></div>
                     <div class="absolute inset-0">
                         <div class="p-6 flex justify-end">
                             <a href="{{ route('login') }}" class="btn btn-light">Ingresar</a>
                         </div>
                         <div class="p-8 md:p-14 max-w-4xl container" style="margin-top:20px">
-                            <h1 class="text-3xl md:text-5xl font-semibold leading-tight text-white text-center">Academia de Ajedrez Online Profesional</h1>
+                            <h1 class="text-3xl md:text-5xl font-semibold leading-tight text-white text-center">Academia Estrellas del Ajedrez</h1>
                             <p class="text-white text-center" style="margin-top:12px">Lleva tu ajedrez al siguiente nivel.</p>
                             <div class="flex gap-3 justify-center" style="margin-top:24px">
                                 <a href="{{ route('login') }}" class="btn btn-primary">Inscríbete</a>
@@ -114,7 +117,7 @@
 
                 <section class="bg-white rounded-lg p-8 shadow-inset">
                     <h2 class="text-xl font-medium mb-3">Nuestra misión</h2>
-                    <p class="text-sm">En Estrellas del Ajedrez acercamos a niños, jóvenes y adultos al mundo de los juegos de mesa y del ajedrez, fomentando el aprendizaje, la concentración y la sana competencia mediante clases, ligas internas y torneos abiertos.</p>
+                    <p class="text-sm">En Estrellas del Ajedrez acercamos a niños, jóvenes y adultos al mundo del ajedrez, fomentando el aprendizaje, la concentración y la sana competencia mediante clases, ligas internas y torneos abiertos.</p>
                 </section>
 
                 <section id="contacto" class="bg-white rounded-lg p-8 shadow-inset">
@@ -126,11 +129,11 @@
                         </div>
                         <div>
                             <div>Teléfono</div>
-                            <a href="tel:+573000000000" class="underline underline-offset-4">+57 300 000 0000</a>
+                            <a href="tel:50584403892" class="underline underline-offset-4">505 8440 3892</a>
                         </div>
                         <div>
                             <div>Dirección</div>
-                            <div>Calle 123 #45-67, Ciudad</div>
+                            <div>Ciudad Sandino Oro verde, del restaurante TipTop 1 Cuadra al norte 7 Cuadras al Este 75 varas al Norte</div>
                         </div>
                 </div>
                 </section>
