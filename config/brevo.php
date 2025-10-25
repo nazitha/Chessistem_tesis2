@@ -2,10 +2,10 @@
 
 return [
     'smtp' => [
-        'host' => 'smtp-relay.brevo.com',
-        'port' => 587,
-        'username' => '89d1d9002@smtp-brevo.com',
-        'password' => 'k694Ct8JgzyrRsD7',
-        'encryption' => 'tls',
+        'host' => env('MAIL_HOST', 'smtp-relay.brevo.com'),
+        'port' => env('MAIL_PORT', 587),
+        'username' => env('MAIL_USERNAME'),
+        'password' => env('MAIL_PASSWORD'),
+        'encryption' => env('MAIL_ENCRYPTION', 'tls'),
     ],
 ]; 
