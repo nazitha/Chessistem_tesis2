@@ -1,0 +1,30 @@
+# Configuración para base de datos externa (phpMyAdmin)
+# Copia estas variables a tu archivo .env
+
+# Conexión a la base de datos externa (phpMyAdmin)
+EXTERNAL_DB_CONNECTION=mysql
+EXTERNAL_DB_HOST=127.0.0.1
+EXTERNAL_DB_PORT=3306
+EXTERNAL_DB_DATABASE=tu_base_de_datos_externa
+EXTERNAL_DB_USERNAME=tu_usuario
+EXTERNAL_DB_PASSWORD=tu_contraseña
+EXTERNAL_DB_CHARSET=utf8mb4
+EXTERNAL_DB_COLLATION=utf8mb4_unicode_ci
+EXTERNAL_DB_PREFIX=
+
+# Ejemplo de configuración para diferentes tipos de BD:
+# Para MySQL/MariaDB:
+# EXTERNAL_DB_CONNECTION=mysql
+# EXTERNAL_DB_HOST=localhost
+# EXTERNAL_DB_PORT=3306
+
+# Para PostgreSQL:
+# EXTERNAL_DB_CONNECTION=pgsql
+# EXTERNAL_DB_HOST=localhost
+# EXTERNAL_DB_PORT=5432
+
+# Para SQL Server:
+# EXTERNAL_DB_CONNECTION=sqlsrv
+# EXTERNAL_DB_HOST=localhost
+# EXTERNAL_DB_PORT=1433
+

@@ -112,6 +112,22 @@ return [
             // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
         ],
 
+        // Conexión a base de datos externa
+        'external' => [
+            'driver' => env('EXTERNAL_DB_CONNECTION', 'mysql'),
+            'host' => env('EXTERNAL_DB_HOST', '127.0.0.1'),
+            'port' => env('EXTERNAL_DB_PORT', '3306'),
+            'database' => env('EXTERNAL_DB_DATABASE', 'external_db'),
+            'username' => env('EXTERNAL_DB_USERNAME', 'root'),
+            'password' => env('EXTERNAL_DB_PASSWORD', ''),
+            'charset' => env('EXTERNAL_DB_CHARSET', 'utf8mb4'),
+            'collation' => env('EXTERNAL_DB_COLLATION', 'utf8mb4_unicode_ci'),
+            'prefix' => env('EXTERNAL_DB_PREFIX', ''),
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
+        ],
+
     ],
 
     /*

@@ -161,43 +161,83 @@
     <!-- Navegación superior -->
     <nav class="shadow fixed top-0 left-0 right-0 z-50" style="background-color: #282c34;">
         <div class="max-w-7xl mx-auto">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center space-x-8">
-                    <div class="flex-shrink-0">
-                        <img class="h-16 w-auto" src="{{ asset('img/estrellas_del_ajedrez_logo.png') }}" alt="Escuela Estrellas del Ajedrez">
-                    </div>
-                    <div class="flex space-x-8">
-                        <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'border-b-2 border-indigo-400 text-white' : 'text-gray-300 hover:text-white' }} px-1 pt-1 text-sm font-medium no-underline">Home</a>
-                        
-                        @if(Auth::check() && Auth::user()->rol_id == 1)
-                            <a href="{{ route('usuarios.index') }}" class="{{ request()->routeIs('usuarios.*') ? 'border-b-2 border-indigo-400 text-white' : 'text-gray-300 hover:text-white' }} px-1 pt-1 text-sm font-medium">Usuarios</a>
-                        @endif
-
-                        <a href="{{ route('miembros.index') }}" class="{{ request()->routeIs('miembros.*') ? 'border-b-2 border-indigo-400 text-white' : 'text-gray-300 hover:text-white' }} px-1 pt-1 text-sm font-medium">Miembros</a>
-                        <a href="{{ route('academias.index') }}" class="{{ request()->routeIs('academias.*') ? 'border-b-2 border-indigo-400 text-white' : 'text-gray-300 hover:text-white' }} px-1 pt-1 text-sm font-medium">Academias</a>
-                        <a href="{{ route('torneos.index') }}" class="{{ request()->routeIs('torneos.*') ? 'border-b-2 border-indigo-400 text-white' : 'text-gray-300 hover:text-white' }} px-1 pt-1 text-sm font-medium">Torneos</a>
-                        @if(PermissionHelper::canViewModule('auditorias'))
-                            <a href="{{ route('auditoria.index') }}" class="{{ request()->routeIs('auditoria.index') ? 'border-b-2 border-indigo-400 text-white' : 'text-gray-300 hover:text-white' }} px-1 pt-1 text-sm font-medium">Auditoría</a>
-                        @endif
-                    </div>
+            <div class="flex justify-between items-center h-16 px-4">
+                <!-- Logo -->
+                <div class="flex-shrink-0">
+                    <img class="h-12 w-auto sm:h-16" src="{{ asset('img/estrellas_del_ajedrez_logo.png') }}" alt="Escuela Estrellas del Ajedrez">
                 </div>
-                <div class="flex items-center">
-                    <span class="text-gray-300 text-sm mr-4">Bienvenido, {{ Auth::user()->correo }}</span>
-                    <a href="{{ route('logout') }}" class="text-gray-300 hover:text-white text-sm font-medium" 
+
+                <!-- Menú desktop -->
+                <div class="hidden md:flex items-center space-x-6 lg:space-x-8">
+                    <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'border-b-2 border-indigo-400 text-white' : 'text-gray-300 hover:text-white' }} px-1 pt-1 text-sm font-medium no-underline transition-colors">Home</a>
+                    
+                    @if(Auth::check() && Auth::user()->rol_id == 1)
+                        <a href="{{ route('usuarios.index') }}" class="{{ request()->routeIs('usuarios.*') ? 'border-b-2 border-indigo-400 text-white' : 'text-gray-300 hover:text-white' }} px-1 pt-1 text-sm font-medium transition-colors">Usuarios</a>
+                    @endif
+
+                    <a href="{{ route('miembros.index') }}" class="{{ request()->routeIs('miembros.*') ? 'border-b-2 border-indigo-400 text-white' : 'text-gray-300 hover:text-white' }} px-1 pt-1 text-sm font-medium transition-colors">Miembros</a>
+                    <a href="{{ route('academias.index') }}" class="{{ request()->routeIs('academias.*') ? 'border-b-2 border-indigo-400 text-white' : 'text-gray-300 hover:text-white' }} px-1 pt-1 text-sm font-medium transition-colors">Academias</a>
+                    <a href="{{ route('torneos.index') }}" class="{{ request()->routeIs('torneos.*') ? 'border-b-2 border-indigo-400 text-white' : 'text-gray-300 hover:text-white' }} px-1 pt-1 text-sm font-medium transition-colors">Torneos</a>
+                    @if(PermissionHelper::canViewModule('auditorias'))
+                        <a href="{{ route('auditoria.index') }}" class="{{ request()->routeIs('auditoria.index') ? 'border-b-2 border-indigo-400 text-white' : 'text-gray-300 hover:text-white' }} px-1 pt-1 text-sm font-medium transition-colors">Auditoría</a>
+                    @endif
+                </div>
+
+                <!-- Usuario y logout desktop -->
+                <div class="hidden md:flex items-center space-x-4">
+                    <span class="text-gray-300 text-sm">Bienvenido, {{ Auth::user()->correo }}</span>
+                    <a href="{{ route('logout') }}" class="text-gray-300 hover:text-white text-sm font-medium transition-colors" 
                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                         Cerrar Sesión
                     </a>
-                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
-                        @csrf
-                    </form>
+                </div>
+
+                <!-- Botón hamburguesa móvil -->
+                <div class="md:hidden">
+                    <button type="button" class="text-gray-300 hover:text-white focus:outline-none focus:text-white transition-colors" id="mobile-menu-button">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Menú móvil -->
+            <div class="md:hidden hidden" id="mobile-menu">
+                <div class="px-2 pt-2 pb-3 space-y-1 bg-gray-800">
+                    <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'bg-gray-700 text-white' : 'text-gray-300 hover:text-white hover:bg-gray-700' }} block px-3 py-2 text-base font-medium transition-colors">Home</a>
+                    
+                    @if(Auth::check() && Auth::user()->rol_id == 1)
+                        <a href="{{ route('usuarios.index') }}" class="{{ request()->routeIs('usuarios.*') ? 'bg-gray-700 text-white' : 'text-gray-300 hover:text-white hover:bg-gray-700' }} block px-3 py-2 text-base font-medium transition-colors">Usuarios</a>
+                    @endif
+
+                    <a href="{{ route('miembros.index') }}" class="{{ request()->routeIs('miembros.*') ? 'bg-gray-700 text-white' : 'text-gray-300 hover:text-white hover:bg-gray-700' }} block px-3 py-2 text-base font-medium transition-colors">Miembros</a>
+                    <a href="{{ route('academias.index') }}" class="{{ request()->routeIs('academias.*') ? 'bg-gray-700 text-white' : 'text-gray-300 hover:text-white hover:bg-gray-700' }} block px-3 py-2 text-base font-medium transition-colors">Academias</a>
+                    <a href="{{ route('torneos.index') }}" class="{{ request()->routeIs('torneos.*') ? 'bg-gray-700 text-white' : 'text-gray-300 hover:text-white hover:bg-gray-700' }} block px-3 py-2 text-base font-medium transition-colors">Torneos</a>
+                    @if(PermissionHelper::canViewModule('auditorias'))
+                        <a href="{{ route('auditoria.index') }}" class="{{ request()->routeIs('auditoria.index') ? 'bg-gray-700 text-white' : 'text-gray-300 hover:text-white hover:bg-gray-700' }} block px-3 py-2 text-base font-medium transition-colors">Auditoría</a>
+                    @endif
+                    
+                    <!-- Usuario móvil -->
+                    <div class="border-t border-gray-700 pt-4">
+                        <div class="px-3 py-2">
+                            <p class="text-gray-300 text-sm">Bienvenido, {{ Auth::user()->correo }}</p>
+                        </div>
+                        <a href="{{ route('logout') }}" class="text-gray-300 hover:text-white hover:bg-gray-700 block px-3 py-2 text-base font-medium transition-colors" 
+                           onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                            Cerrar Sesión
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </nav>
 
     <!-- Contenido principal -->
-    <main class="flex-grow py-6" style="margin-top: 64px;">
-        @yield('content')
+    <main class="flex-grow py-4 sm:py-6" style="margin-top: 64px;">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            @yield('content')
+        </div>
     </main>
 
     <!-- Footer -->
@@ -218,8 +258,40 @@
 
     <!-- Script de estadísticas -->
     <script src="{{ asset('js/actions/estadisticas_charts.js') }}"></script>
+    
+    <!-- Script responsive -->
+    <script src="{{ asset('js/responsive.js') }}"></script>
 
     @stack('scripts')
+
+    <!-- JavaScript para menú móvil -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                });
+                
+                // Cerrar menú al hacer clic en un enlace
+                const mobileLinks = mobileMenu.querySelectorAll('a');
+                mobileLinks.forEach(link => {
+                    link.addEventListener('click', function() {
+                        mobileMenu.classList.add('hidden');
+                    });
+                });
+                
+                // Cerrar menú al hacer clic fuera
+                document.addEventListener('click', function(event) {
+                    if (!mobileMenuButton.contains(event.target) && !mobileMenu.contains(event.target)) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                });
+            }
+        });
+    </script>
 
     <!-- Modal para Detalle de Miembro -->
     <div class="modal fade" id="modalDetalleMiembro" tabindex="-1" role="dialog" aria-labelledby="detalleMiembroLabel" aria-hidden="true">

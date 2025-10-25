@@ -1,0 +1,269 @@
+/* Responsive Design para ChessSystem */
+
+/* Breakpoints personalizados */
+@media (max-width: 640px) {
+    /* Mobile styles */
+    .mobile-hidden {
+        display: none !important;
+    }
+    
+    .mobile-full {
+        width: 100% !important;
+    }
+    
+    .mobile-text-sm {
+        font-size: 0.875rem !important;
+    }
+    
+    .mobile-p-2 {
+        padding: 0.5rem !important;
+    }
+    
+    .mobile-mb-2 {
+        margin-bottom: 0.5rem !important;
+    }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+    /* Tablet styles */
+    .tablet-grid-2 {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+    
+    .tablet-text-base {
+        font-size: 1rem !important;
+    }
+}
+
+@media (min-width: 1025px) {
+    /* Desktop styles */
+    .desktop-grid-3 {
+        grid-template-columns: repeat(3, 1fr) !important;
+    }
+    
+    .desktop-grid-4 {
+        grid-template-columns: repeat(4, 1fr) !important;
+    }
+}
+
+/* DataTables responsive improvements */
+@media (max-width: 768px) {
+    .dataTables_wrapper {
+        overflow-x: auto;
+    }
+    
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter {
+        margin-bottom: 1rem;
+    }
+    
+    .dataTables_wrapper .dataTables_length select,
+    .dataTables_wrapper .dataTables_filter input {
+        width: 100%;
+        max-width: 200px;
+    }
+    
+    .dataTables_wrapper .dataTables_info {
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+    
+    .dataTables_wrapper .dataTables_paginate {
+        text-align: center;
+    }
+    
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        padding: 0.25rem 0.5rem;
+        margin: 0 0.125rem;
+        font-size: 0.875rem;
+    }
+}
+
+/* Botones responsive */
+@media (max-width: 640px) {
+    .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+        text-align: center;
+        padding: 0.75rem 1rem;
+    }
+    
+    .btn-group-mobile {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}
+
+@media (min-width: 641px) {
+    .btn-group-mobile {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+}
+
+/* Cards responsive */
+.card-responsive {
+    transition: all 0.3s ease;
+}
+
+@media (max-width: 640px) {
+    .card-responsive {
+        margin-bottom: 1rem;
+    }
+}
+
+/* Tables responsive */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 768px) {
+    .table-responsive table {
+        min-width: 600px;
+    }
+    
+    .table-responsive th,
+    .table-responsive td {
+        white-space: nowrap;
+        padding: 0.5rem;
+    }
+}
+
+/* Modal responsive */
+@media (max-width: 640px) {
+    .modal-dialog {
+        margin: 0.5rem;
+        max-width: calc(100% - 1rem);
+    }
+    
+    .modal-content {
+        border-radius: 0.5rem;
+    }
+}
+
+/* Form responsive */
+@media (max-width: 640px) {
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 0.75rem;
+        font-size: 1rem;
+    }
+    
+    .form-row {
+        flex-direction: column;
+    }
+    
+    .form-row .col {
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+}
+
+/* Navigation responsive */
+@media (max-width: 768px) {
+    .navbar-nav {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .navbar-nav .nav-item {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* Footer responsive */
+@media (max-width: 768px) {
+    .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        text-align: center;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .footer-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+    }
+}
+
+/* Utility classes */
+.text-responsive {
+    font-size: clamp(0.875rem, 2.5vw, 1rem);
+}
+
+.heading-responsive {
+    font-size: clamp(1.25rem, 4vw, 2rem);
+}
+
+.padding-responsive {
+    padding: clamp(1rem, 3vw, 2rem);
+}
+
+.margin-responsive {
+    margin: clamp(0.5rem, 2vw, 1rem);
+}
+
+/* Loading states */
+.loading-skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Touch improvements for mobile */
+@media (hover: none) and (pointer: coarse) {
+    .btn:hover {
+        transform: none;
+    }
+    
+    .card:hover {
+        transform: none;
+    }
+    
+    /* Increase touch targets */
+    .btn {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    .nav-link {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+/* Print styles */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    .print-break {
+        page-break-before: always;
+    }
+    
+    .print-full-width {
+        width: 100% !important;
+    }
+}

@@ -1,6 +1,7 @@
-<div id='contenedor-torneos' class="p-8 mt-6 lg:mt-0 rounded shadow bg-white mt-2">
+<div id='contenedor-torneos' class="p-4 sm:p-6 lg:p-8 mt-4 sm:mt-6 rounded shadow bg-white">
 
-    <table id="tabla-torneos" class="stripe hover" style="width:100%; padding-top: 1em;  padding-bottom: 1em;">
+    <div class="table-responsive">
+        <table id="tabla-torneos" class="stripe hover" style="width:100%; padding-top: 1em;  padding-bottom: 1em;">
         <thead>
             <tr>
                 <th data-priority="1">Torneo</th>
@@ -23,6 +24,7 @@
         <tbody>
 
         </tbody>
-    </table>
+        </table>
+    </div>
 
 </div>
