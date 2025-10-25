@@ -140,12 +140,13 @@
     
     /* Navbar fijo en la parte superior */
     nav.shadow {
-        position: relative !important;
+        position: fixed !important;
         top: 0 !important;
         left: 0 !important;
         right: 0 !important;
-        z-index: 1000 !important;
+        z-index: 2000 !important;
         order: -1 !important;
+        pointer-events: auto !important;
     }
     
     /* Contenido principal */
