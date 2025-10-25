@@ -16,7 +16,7 @@
         @endif
             <style>
                 /*! tailwindcss v4.0.7 | MIT License | https://tailwindcss.com */
-                :root{--font-sans:'Instrument Sans',ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";--font-serif:ui-serif,Georgia,Cambria,"Times New Roman",Times,serif;--font-mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;--color-black:#000;--color-white:#fff;--spacing:.25rem;--text-sm:.875rem;--text-base:1rem;--text-xl:1.25rem;--text-3xl:1.875rem;--text-5xl:3rem;--accent-blue:#3d5afe}
+                :root{--font-sans:'Instrument Sans',ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";--font-serif:ui-serif,Georgia,Cambria,"Times New Roman",Times,serif;--font-mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;--color-black:#000;--color-white:#fff;--spacing:.25rem;--text-sm:.875rem;--text-base:1rem;--text-xl:1.25rem;--text-3xl:1.875rem;--text-5xl:3rem;--accent-blue:#3d5afe;--title-gray:#cdd3d8;--title-gold:#D4AF37}
                 *,:after,:before,::backdrop{box-sizing:border-box;border:0 solid;margin:0;padding:0}
                 img{display:block;max-width:100%;height:auto}
                 a{color:inherit;text-decoration:inherit}
@@ -92,6 +92,8 @@
                 .content-inner{max-width:48rem;padding:2rem 1.5rem}
                 @media (min-width:768px){.content-inner{padding:3rem 3.5rem}}
                 .accent-blue{color:var(--accent-blue)}
+                .title-gray{color:var(--title-gray)}
+                .title-gold{color:var(--title-gold)}
                 /* Responsive hero */
                 .hero-title{font-size:clamp(2rem,6vw,5.25rem);line-height:1.1}
                 .hero-subtitle{font-size:clamp(1rem,2.2vw,1.25rem)}
@@ -132,7 +134,7 @@
                     <div class="hero-content">
                         <div class="content-inner">
                             <h1 class="font-bold text-left hero-title" style="letter-spacing:.5px; text-transform:uppercase;">
-                                <span class="accent-blue">Estrellas</span> del Ajedrez
+                                <span class="title-gray">Estrellas</span> <span class="title-gold">del Ajedrez</span>
                             </h1>
                             <p class="text-white text-left hero-subtitle" style="margin-top:16px">Lleva tu ajedrez al siguiente nivel.</p>
                             <div class="actions" style="margin-top:28px">
