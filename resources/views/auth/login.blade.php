@@ -52,7 +52,7 @@
 
                 <button type="submit">Iniciar Sesión</button>
                 <!-- En móvil mostramos el acceso a recuperar contraseña al ocultar el panel derecho -->
-                <a href="{{ route('password.request') }}" class="mobile-recover" style="display:none;">Recuperar contraseña</a>
+                <a href="{{ route('password.request') }}" class="mobile-recover" style="display:none;">RECUPERAR CONTRASEÑA</a>
             </form>
         </div>
 
