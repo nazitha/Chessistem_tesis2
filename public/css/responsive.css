@@ -121,6 +121,11 @@
     -webkit-overflow-scrolling: touch;
 }
 
+/* For tables with many columns (e.g., rondas) force a wider min width */
+.table-responsive-wide table {
+    min-width: 900px; /* ensures horizontal scroll for many columns */
+}
+
 @media (max-width: 768px) {
     .table-responsive table {
         /* Evitar forzar ancho mínimo que causa scroll horizontal */

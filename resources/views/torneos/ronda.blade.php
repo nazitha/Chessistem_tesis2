@@ -3,7 +3,7 @@
 @section('content')
 <div class="container mx-auto py-4">
     <!-- Detalle del torneo -->
-    <div class="bg-white shadow rounded-lg p-4 mb-4">
+    <div class="bg-white shadow rounded-lg p-4 mb-4 table-responsive table-responsive-wide">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between">
             <div>
                 <h2 class="text-2xl font-bold text-blue-700 mb-1">{{ $torneo->nombre }}</h2>
@@ -231,7 +231,7 @@
                         <b>Importante:</b> En eliminación directa no se permiten empates. Debe haber un ganador en cada partida. Solo se aceptan resultados <b>1-0</b> o <b>0-1</b>.
                     </div>
                 @endif
-                <div class="bg-gray-100 rounded-lg shadow p-4 mb-6">
+                <div class="bg-gray-100 rounded-lg shadow p-4 mb-6 table-responsive table-responsive-wide">
                     <table class="min-w-full mb-2">
                         <thead>
                             <tr class="bg-gray-200">
