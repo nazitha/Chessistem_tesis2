@@ -210,7 +210,7 @@
             </div>
 
             <!-- Menú móvil -->
-            <div x-cloak x-show="open" x-transition.opacity class="md:hidden absolute inset-x-0 top-16 bg-gray-800 border-t border-gray-700 shadow-lg z-[60]" id="mobile-menu">
+            <div x-cloak x-show="open" x-transition.opacity class="md:hidden absolute inset-x-0 top-16 bg-gray-800 border-t border-gray-700 shadow-lg z-[70]" id="mobile-menu">
                 <div class="px-2 pt-2 pb-3 space-y-1">
                     <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'bg-gray-700 text-white' : 'text-gray-300 hover:text-white hover:bg-gray-700' }} block px-3 py-2 text-base font-medium transition-colors">Home</a>
                     
@@ -238,7 +238,7 @@
                 </div>
             </div>
             <!-- Backdrop móvil -->
-            <div x-cloak x-show="open" x-transition.opacity class="fixed inset-0 bg-black/30 md:hidden z-[50]" @click="open = false"></div>
+            <div x-cloak x-show="open" x-transition.opacity class="fixed inset-0 bg-black/30 md:hidden z-[60]" @click="open = false"></div>
         </div>
     </nav>
 

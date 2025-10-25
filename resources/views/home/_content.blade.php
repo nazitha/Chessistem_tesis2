@@ -33,33 +33,33 @@
 <div class="mt-6 sm:mt-8">
     <h2 class="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Acciones Rápidas</h2>
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 mb-2">
-        <a href="{{ route('torneos.create') }}" class="min-h-[44px] flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm sm:text-base font-medium shadow-sm ring-1 ring-black/5 bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-colors whitespace-nowrap">
+        <a href="{{ route('torneos.create') }}" class="w-full flex items-center justify-center gap-2 rounded-lg px-3 py-3 text-sm sm:text-base font-medium shadow-sm bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-colors whitespace-nowrap">
             <i class="fa fa-trophy"></i>
-            <span class="hidden xs:inline">Nuevo Torneo</span>
-            <span class="xs:hidden">Torneo</span>
+            <span class="hidden sm:inline">Nuevo Torneo</span>
+            <span class="sm:hidden">Torneo</span>
         </a>
-        <a href="{{ route('academias.index') }}" class="min-h-[44px] flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm sm:text-base font-medium shadow-sm ring-1 ring-black/5 bg-green-600 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 transition-colors whitespace-nowrap">
+        <a href="{{ route('academias.index') }}" class="w-full flex items-center justify-center gap-2 rounded-lg px-3 py-3 text-sm sm:text-base font-medium shadow-sm bg-green-600 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 transition-colors whitespace-nowrap">
             <i class="fa fa-school"></i>
-            <span class="hidden xs:inline">Gestionar Academias</span>
-            <span class="xs:hidden">Academias</span>
+            <span class="hidden sm:inline">Gestionar Academias</span>
+            <span class="sm:hidden">Academias</span>
         </a>
-        <a href="{{ route('miembros.index') }}" class="min-h-[44px] flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm sm:text-base font-medium shadow-sm ring-1 ring-black/5 bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors whitespace-nowrap">
+        <a href="{{ route('miembros.index') }}" class="w-full flex items-center justify-center gap-2 rounded-lg px-3 py-3 text-sm sm:text-base font-medium shadow-sm bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors whitespace-nowrap">
             <i class="fa fa-users"></i>
-            <span class="hidden xs:inline">Gestionar Miembros</span>
-            <span class="xs:hidden">Miembros</span>
+            <span class="hidden sm:inline">Gestionar Miembros</span>
+            <span class="sm:hidden">Miembros</span>
         </a>
         @if(PermissionHelper::canViewModule('participantes'))
-        <a href="{{ route('participantes.index') }}" class="min-h-[44px] flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm sm:text-base font-medium shadow-sm ring-1 ring-black/5 bg-amber-500 text-white hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-300 transition-colors whitespace-nowrap">
+        <a href="{{ route('participantes.index') }}" class="w-full flex items-center justify-center gap-2 rounded-lg px-3 py-3 text-sm sm:text-base font-medium shadow-sm bg-amber-500 text-white hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-300 transition-colors whitespace-nowrap">
             <i class="fa fa-user-plus"></i>
-            <span class="hidden xs:inline">Gestionar Participantes</span>
-            <span class="xs:hidden">Participantes</span>
+            <span class="hidden sm:inline">Gestionar Participantes</span>
+            <span class="sm:hidden">Participantes</span>
         </a>
         @endif
         @if(Auth::user()->rol_id == 1)
-        <a href="{{ route('usuarios.index') }}" class="min-h-[44px] flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm sm:text-base font-medium shadow-sm ring-1 ring-black/5 bg-slate-600 text-white hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-400 transition-colors whitespace-nowrap">
+        <a href="{{ route('usuarios.index') }}" class="w-full flex items-center justify-center gap-2 rounded-lg px-3 py-3 text-sm sm:text-base font-medium shadow-sm bg-slate-600 text-white hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-400 transition-colors whitespace-nowrap">
             <i class="fa fa-user-shield"></i>
-            <span class="hidden xs:inline">Gestionar Usuarios</span>
-            <span class="xs:hidden">Usuarios</span>
+            <span class="hidden sm:inline">Gestionar Usuarios</span>
+            <span class="sm:hidden">Usuarios</span>
         </a>
         @endif
     </div>
