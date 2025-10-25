@@ -60,7 +60,7 @@
         </a>
         @endif
         @if(PermissionHelper::canViewModule('auditorias'))
-        <a href="{{ route('auditoria.index') }}" class="block w-full text-center rounded-lg p-3 min-h-[56px] bg-slate-600 text-white hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-400 transition-colors">
+        <a href="{{ route('auditoria.index') }}" class="block w-full text-center rounded-lg p-3 min-h-[56px] bg-amber-500 text-white hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-300 transition-colors">
             <div class="flex flex-col items-center gap-2">
                 <i class="fa fa-clipboard-list text-base"></i>
                 <span class="text-sm sm:text-base leading-tight">Auditoría</span>
