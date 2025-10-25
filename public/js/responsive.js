@@ -3,7 +3,11 @@
 document.addEventListener('DOMContentLoaded', function() {
     
     // Mobile menu functionality
-    initMobileMenu();
+    // Si el layout usa Alpine para el menú móvil, no re-anexar listeners
+    const usingAlpine = document.querySelector('nav[x-data]');
+    if (!usingAlpine) {
+        initMobileMenu();
+    }
     
     // DataTables responsive improvements
     initDataTablesResponsive();

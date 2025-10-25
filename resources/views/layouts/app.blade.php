@@ -117,6 +117,9 @@
             border-bottom: none !important;
         }
     </style>
+    <style>
+    [x-cloak] { display: none !important; }
+    </style>
     
     @stack('styles')
     <style>
@@ -159,7 +162,7 @@
 </head>
 <body class="min-h-screen flex flex-col bg-gray-50">
     <!-- Navegación superior -->
-    <nav class="shadow fixed top-0 left-0 right-0 z-50" style="background-color: #282c34;">
+    <nav x-data="{ open: false }" class="shadow fixed top-0 left-0 right-0 z-50" style="background-color: #282c34;">
         <div class="max-w-7xl mx-auto">
             <div class="flex justify-between items-center h-16 px-4">
                 <!-- Logo -->
@@ -198,7 +201,7 @@
 
                 <!-- Botón hamburguesa móvil -->
                 <div class="md:hidden">
-                    <button type="button" class="text-gray-300 hover:text-white focus:outline-none focus:text-white transition-colors" id="mobile-menu-button">
+                    <button type="button" class="text-gray-300 hover:text-white focus:outline-none focus:text-white transition-colors" id="mobile-menu-button" @click="open = !open" :aria-expanded="open.toString()" aria-controls="mobile-menu">
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                         </svg>
@@ -207,8 +210,8 @@
             </div>
 
             <!-- Menú móvil -->
-            <div class="md:hidden hidden" id="mobile-menu">
-                <div class="px-2 pt-2 pb-3 space-y-1 bg-gray-800">
+            <div x-cloak x-show="open" x-transition.opacity class="md:hidden absolute inset-x-0 top-16 bg-gray-800 border-t border-gray-700 shadow-lg z-[60]" id="mobile-menu">
+                <div class="px-2 pt-2 pb-3 space-y-1">
                     <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'bg-gray-700 text-white' : 'text-gray-300 hover:text-white hover:bg-gray-700' }} block px-3 py-2 text-base font-medium transition-colors">Home</a>
                     
                     @if(Auth::check() && Auth::user()->rol_id == 1)
@@ -234,6 +237,8 @@
                     </div>
                 </div>
             </div>
+            <!-- Backdrop móvil -->
+            <div x-cloak x-show="open" x-transition.opacity class="fixed inset-0 bg-black/30 md:hidden z-[50]" @click="open = false"></div>
         </div>
     </nav>
 
@@ -266,8 +271,8 @@
     <!-- Script responsive -->
     <script src="{{ asset('js/responsive.js') }}"></script>
     
-    <!-- Debug script for mobile menu -->
-    <script src="{{ asset('js/mobile-menu-debug.js') }}"></script>
+    <!-- Debug script for mobile menu (temporal) -->
+    {{-- <script src="{{ asset('js/mobile-menu-debug.js') }}"></script> --}}
 
     @stack('scripts')
 
