@@ -12,13 +12,13 @@
         <form id="form_add_users" class="needs-validation p-6" novalidate>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div class="space-y-1">
-                    <label class="block text-sm font-medium" style="color: #282c34;">Correo electrónico</label>
+                    <label class="block text-sm font-medium" style="color: #282c34;">Correo electrónico <span class="text-red-600" aria-hidden="true">*</span></label>
                     <input id="input_correo_add_user" type="email" class="w-full px-3 py-2 bg-white border rounded-md focus:outline-none focus:ring-1 focus:ring-gray-400 text-sm" style="border-color: #d1d5db;" autocomplete="off" required>
                     <div class="invalid-feedback text-xs text-red-500 mt-1">Por favor, ingrese un correo válido</div>
                 </div>
                 
                 <div class="space-y-1">
-                    <label class="block text-sm font-medium" style="color: #282c34;">Rol</label>
+                    <label class="block text-sm font-medium" style="color: #282c34;">Rol <span class="text-red-600" aria-hidden="true">*</span></label>
                     <select class="w-full px-3 py-2 bg-white border rounded-md focus:outline-none focus:ring-1 focus:ring-gray-400 text-sm" style="border-color: #d1d5db;" id="select_rol_add_user" required>
                         <option value="" selected disabled>Seleccione un rol</option>
                         <option value="1">Administrador</option>
@@ -30,14 +30,14 @@
                 </div>
                 
                 <div id="div_pass_add_user" class="space-y-1">
-                    <label class="block text-sm font-medium" style="color: #282c34;">Contraseña</label>
-                    <input id="input_pass_add_user" type="password" class="w-full px-3 py-2 bg-white border rounded-md focus:outline-none focus:ring-1 focus:ring-gray-400 text-sm" style="border-color: #d1d5db;" autocomplete="off" required minlength="5" maxlength="40">
-                    <div class="invalid-feedback text-xs text-red-500 mt-1">Mínimo 5 caracteres</div>
+                    <label class="block text-sm font-medium" style="color: #282c34;">Contraseña <span class="text-red-600" aria-hidden="true">*</span></label>
+                    <input id="input_pass_add_user" type="password" class="w-full px-3 py-2 bg-white border rounded-md focus:outline-none focus:ring-1 focus:ring-gray-400 text-sm" style="border-color: #d1d5db;" autocomplete="off" required minlength="8" maxlength="80">
+                    <div class="invalid-feedback text-xs text-red-500 mt-1">La contraseña debe tener al menos 8 caracteres</div>
                 </div>
 
                 <div id="div_passconfirm_add_user" class="space-y-1">
-                    <label class="block text-sm font-medium" style="color: #282c34;">Confirmar contraseña</label>
-                    <input id="input_passconfirm_add_user" type="password" class="w-full px-3 py-2 bg-white border rounded-md focus:outline-none focus:ring-1 focus:ring-gray-400 text-sm" style="border-color: #d1d5db;" autocomplete="off" required minlength="5" maxlength="40">
+                    <label class="block text-sm font-medium" style="color: #282c34;">Confirmar contraseña <span class="text-red-600" aria-hidden="true">*</span></label>
+                    <input id="input_passconfirm_add_user" type="password" class="w-full px-3 py-2 bg-white border rounded-md focus:outline-none focus:ring-1 focus:ring-gray-400 text-sm" style="border-color: #d1d5db;" autocomplete="off" required minlength="8" maxlength="80">
                     <div class="invalid-feedback text-xs text-red-500 mt-1">Las contraseñas deben coincidir</div>
                 </div>
                 
