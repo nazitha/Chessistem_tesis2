@@ -3,11 +3,11 @@
 @section('content')
 <div class="container mx-auto py-4">
     <!-- Detalle del torneo -->
-    <div class="bg-white dark:bg-slate-800 shadow rounded-lg p-4 mb-4 table-responsive table-responsive-wide">
+    <div class="bg-white shadow rounded-lg p-4 mb-4 table-responsive table-responsive-wide">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between">
             <div>
                 <h2 class="text-2xl font-bold text-blue-700 mb-1">{{ $torneo->nombre }}</h2>
-                <div class="text-gray-600 dark:text-gray-300 text-sm">
+                <div class="text-gray-600 text-sm">
                     <span class="mr-4"><b>Fecha:</b> {{ $torneo->fecha_inicio->format('d/m/Y') }}</span>
                     <span class="mr-4"><b>Lugar:</b> {{ $torneo->lugar }}</span>
                     <span class="mr-4"><b>Tipo:</b> {{ $torneo->es_por_equipos ? 'Por equipos' : 'Individual' }}</span>

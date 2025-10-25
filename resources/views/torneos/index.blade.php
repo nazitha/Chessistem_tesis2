@@ -17,7 +17,7 @@
 
 <div class="max-w-7xl mx-auto px-4">
     <div class="flex justify-between items-center pb-4">
-        <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Torneos</h1>
+        <h1 class="text-2xl font-semibold">Torneos</h1>
         @if(PermissionHelper::canCreate('torneos'))
             <a href="{{ route('torneos.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded hover:bg-blue-600 transition-colors duration-200">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -29,13 +29,13 @@
     </div>
 
     @if(session('success'))
-        <div class="mt-4 p-4 bg-green-100 dark:bg-green-900/30 border-l-4 border-green-500 text-green-700 dark:text-green-300" id="success-alert">
+        <div class="mt-4 p-4 bg-green-100 border-l-4 border-green-500 text-green-700" id="success-alert">
             {{ session('success') }}
         </div>
     @endif
 
     @if(session('error'))
-        <div class="mt-4 p-4 bg-red-100 dark:bg-red-900/30 border-l-4 border-red-500 text-red-700 dark:text-red-300" id="error-alert">
+        <div class="mt-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700" id="error-alert">
             {{ session('error') }}
         </div>
     @endif
@@ -53,19 +53,19 @@
     </div>
 
     <!-- Controles de búsqueda -->
-    <div id="panelBusquedaTorneos" class="bg-white dark:bg-slate-800 shadow-md rounded-lg p-4 mb-4 hidden">
+    <div id="panelBusquedaTorneos" class="bg-white shadow-md rounded-lg p-4 mb-4 hidden">
         <form method="GET" action="{{ route('torneos.index') }}" id="formBusquedaTorneos">
         <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Búsqueda de Torneos</h3>
-                <button type="button" id="btnCancelarBusquedaTorneos" class="text-gray-500 hover:text-gray-300 text-xl font-bold">
+            <h3 class="text-lg font-medium text-gray-900">Búsqueda de Torneos</h3>
+                <button type="button" id="btnCancelarBusquedaTorneos" class="text-gray-500 hover:text-gray-700 text-xl font-bold">
                 ✕
             </button>
         </div>
         <div class="flex flex-wrap gap-4 items-end">
             <div class="flex-1 min-w-64">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Buscar:</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Buscar:</label>
                     <input type="text" id="searchInput" name="search" value="{{ $search ?? '' }}" placeholder="Buscar por nombre, lugar, categoría..." 
-                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
             <div class="flex gap-2">
                     <button type="button" id="btnBuscarAvanzadaTorneos" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md font-medium">
@@ -77,23 +77,23 @@
             </div>
         </div>
         <!-- Panel de búsqueda avanzada -->
-            <div id="panelBusquedaAvanzadaTorneos" class="mt-4 p-4 bg-gray-50 dark:bg-slate-700 rounded-md hidden">
+            <div id="panelBusquedaAvanzadaTorneos" class="mt-4 p-4 bg-gray-50 rounded-md hidden">
             
             <!-- Primera fila: Todos los filtros -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Nombre:</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Nombre:</label>
                         <input type="text" id="filtroNombre" name="filtro_nombre" value="{{ $filtroNombre ?? '' }}" placeholder="Filtrar por nombre" 
-                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100">
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Lugar:</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Lugar:</label>
                         <input type="text" id="filtroLugar" name="filtro_lugar" value="{{ $filtroLugar ?? '' }}" placeholder="Filtrar por lugar" 
-                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100">
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Estado:</label>
-                        <select id="filtroEstado" name="filtro_estado" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Estado:</label>
+                        <select id="filtroEstado" name="filtro_estado" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white">
                         <option value="">Todos los estados</option>
                             <option value="Activo" {{ ($filtroEstado ?? '') == 'Activo' ? 'selected' : '' }}>Activo</option>
                             <option value="Borrador" {{ ($filtroEstado ?? '') == 'Borrador' ? 'selected' : '' }}>Borrador</option>
@@ -102,28 +102,28 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Min. Participantes:</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Min. Participantes:</label>
                     <input type="number" id="filtroParticipantes" name="filtro_participantes" value="{{ $filtroParticipantes ?? '' }}" placeholder="Ej: 10" 
-                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100" min="1">
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md" min="1">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Min. Rondas disputadas:</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Min. Rondas disputadas:</label>
                     <input type="number" id="filtroRondas" name="filtro_rondas" value="{{ $filtroRondas ?? '' }}" placeholder="Ej: 3" 
-                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100" min="0">
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md" min="0">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Total de rondas:</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Total de rondas:</label>
                     <input type="number" id="filtroRondasTotal" name="filtro_rondas_total" value="{{ $filtroRondasTotal ?? '' }}" placeholder="Ej: 7" 
-                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100" min="1">
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md" min="1">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Rondas a disputar:</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Rondas a disputar:</label>
                     <input type="number" id="filtroRondasDisputar" name="filtro_rondas_disputar" value="{{ $filtroRondasDisputar ?? '' }}" placeholder="Ej: 4" 
-                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100" min="0">
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md" min="0">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Categoría:</label>
-                    <select id="filtroCategoria" name="filtro_categoria" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Categoría:</label>
+                    <select id="filtroCategoria" name="filtro_categoria" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white">
                         <option value="">Todas las categorías</option>
                         @foreach($categoriasTorneo as $categoria)
                             <option value="{{ $categoria->id }}" {{ ($filtroCategoria ?? '') == $categoria->id ? 'selected' : '' }}>
@@ -133,8 +133,8 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Federación:</label>
-                    <select id="filtroFederacion" name="filtro_federacion" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Federación:</label>
+                    <select id="filtroFederacion" name="filtro_federacion" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white">
                         <option value="">Todas las federaciones</option>
                         @foreach($federaciones as $federacion)
                             <option value="{{ $federacion->id_federacion }}" {{ ($filtroFederacion ?? '') == $federacion->id_federacion ? 'selected' : '' }}>
@@ -144,29 +144,29 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Organizador:</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Organizador:</label>
                     <input type="text" id="filtroOrganizador" name="filtro_organizador" value="{{ $filtroOrganizador ?? '' }}" placeholder="Nombre del organizador" 
-                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100">
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Director:</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Director:</label>
                     <input type="text" id="filtroDirector" name="filtro_director" value="{{ $filtroDirector ?? '' }}" placeholder="Nombre del director" 
-                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100">
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Árbitro:</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Árbitro:</label>
                     <input type="text" id="filtroArbitro" name="filtro_arbitro" value="{{ $filtroArbitro ?? '' }}" placeholder="Nombre del árbitro" 
-                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100">
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Árbitro Principal:</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Árbitro Principal:</label>
                     <input type="text" id="filtroArbitroPrincipal" name="filtro_arbitro_principal" value="{{ $filtroArbitroPrincipal ?? '' }}" placeholder="Nombre del árbitro principal" 
-                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100">
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Árbitro Adjunto:</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Árbitro Adjunto:</label>
                     <input type="text" id="filtroArbitroAdjunto" name="filtro_arbitro_adjunto" value="{{ $filtroArbitroAdjunto ?? '' }}" placeholder="Nombre del árbitro adjunto" 
-                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100">
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md">
                 </div>
             </div>
             </div>
@@ -178,7 +178,7 @@
     <!-- Contenedor de cards para torneos -->
     <div id="torneos-cards-container" class="mt-6">
         @forelse($torneos as $torneo)
-            <div class="bg-white dark:bg-slate-800 shadow-md rounded-lg torneo-card mb-4">
+            <div class="bg-white shadow-md rounded-lg torneo-card mb-4">
                 
                 <!-- Header -->
                 <div class="flex justify-between items-center px-6 py-3 bg-gray-800 text-white rounded-t-lg">
@@ -214,11 +214,11 @@
                 </div>
 
                 <!-- Body -->
-                <div class="px-6 py-4 text-gray-700 dark:text-gray-300">
+                <div class="px-6 py-4 text-gray-700">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <!-- Detalles Generales -->
-                        <div class="border rounded-lg bg-gray-50 dark:bg-slate-700 p-4 shadow-sm">
-                            <h6 class="font-semibold text-gray-800 dark:text-gray-100 mb-3 border-b border-gray-300 dark:border-gray-600 pb-1">
+                        <div class="border rounded-lg bg-gray-50 p-4 shadow-sm">
+                            <h6 class="font-semibold text-gray-800 mb-3 border-b border-gray-300 pb-1">
                                 Detalles Generales
                             </h6>
                             <div class="space-y-2">
@@ -235,8 +235,8 @@
                         </div>
 
                         <!-- Organización -->
-                        <div class="border rounded-lg bg-gray-50 dark:bg-slate-700 p-4 shadow-sm">
-                            <h6 class="font-semibold text-gray-800 dark:text-gray-100 mb-3 border-b border-gray-300 dark:border-gray-600 pb-1">
+                        <div class="border rounded-lg bg-gray-50 p-4 shadow-sm">
+                            <h6 class="font-semibold text-gray-800 mb-3 border-b border-gray-300 pb-1">
                                 Organización
                             </h6>
                             <div class="space-y-2">
@@ -255,7 +255,7 @@
 
                 <!-- Footer con botones -->
                 @if(PermissionHelper::hasAnyTorneoActionPermission())
-                <div class="flex gap-2 px-6 py-2 border-t bg-gray-50 dark:bg-slate-700 rounded-b-lg justify-end">
+                <div class="flex gap-2 px-6 py-2 border-t bg-gray-50 rounded-b-lg justify-end">
                     @if(PermissionService::hasPermission('torneos.details'))
                         <a href="{{ route('torneos.show', $torneo) }}" 
                            class="px-3 py-1.5 bg-gray-800 text-white text-sm font-medium rounded-lg shadow hover:bg-gray-700 transition">
@@ -311,24 +311,24 @@
                 @endif
             </div>
         @empty
-            <div class="bg-white dark:bg-slate-800 shadow-md rounded-lg p-8 text-center">
+            <div class="bg-white shadow-md rounded-lg p-8 text-center">
                 <div class="flex flex-col items-center">
-                    <i class="fas fa-search text-4xl text-gray-300 dark:text-gray-500 mb-2"></i>
-                    <p class="text-lg font-medium text-gray-500 dark:text-gray-300">No se encontraron resultados</p>
-                    <p class="text-sm text-gray-400 dark:text-gray-400">Intenta ajustar los filtros de búsqueda</p>
+                    <i class="fas fa-search text-4xl text-gray-300 mb-2"></i>
+                    <p class="text-lg font-medium text-gray-500">No se encontraron resultados</p>
+                    <p class="text-sm text-gray-400">Intenta ajustar los filtros de búsqueda</p>
                 </div>
             </div>
         @endforelse
     </div>
 
     <!-- Paginación de Laravel -->
-    <div id="torneos-pagination" class="px-6 py-4 border-t bg-gray-50 dark:bg-slate-700 mt-6">
+    <div id="torneos-pagination" class="px-6 py-4 border-t bg-gray-50 mt-6">
         <div class="flex flex-col gap-4">
             <!-- Selector de registros por página (siempre visible) -->
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
-                    <span class="text-sm text-gray-700 dark:text-gray-200">Mostrar:</span>
-                    <select onchange="changePerPage(this.value)" class="border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100">
+                    <span class="text-sm text-gray-700">Mostrar:</span>
+                    <select onchange="changePerPage(this.value)" class="border border-gray-300 rounded-md px-2 py-1 text-sm bg-white">
                         <option value="10" {{ ($perPage ?? 10) == 10 ? 'selected' : '' }}>10</option>
                         <option value="25" {{ ($perPage ?? 10) == 25 ? 'selected' : '' }}>25</option>
                         <option value="50" {{ ($perPage ?? 10) == 50 ? 'selected' : '' }}>50</option>
@@ -338,7 +338,7 @@
                 </div>
                 
                 <!-- Información de paginación -->
-                <div class="text-sm text-gray-700 dark:text-gray-200">
+                <div class="text-sm text-gray-700">
                     Mostrando {{ $torneos->firstItem() ?? 0 }} a {{ $torneos->lastItem() ?? 0 }} de {{ $torneos->total() }} resultados
                 </div>
             </div>

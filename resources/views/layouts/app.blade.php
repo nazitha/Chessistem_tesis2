@@ -12,46 +12,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'ChessSystem')</title>
-    <script>(()=>{try{const s=localStorage.getItem('theme');const d=s? s==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches; if(d) document.documentElement.classList.add('dark');}catch(e){}})();</script>
-    <script>
-    (function() {
-        try {
-            var stored = localStorage.getItem('theme');
-            var systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            var isDark = stored ? stored === 'dark' : systemDark;
-            if (isDark) document.documentElement.classList.add('dark');
-        } catch (e) {}
-    })();
-    </script>
     
     <!-- Fuentes -->
     <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
     
-    <!-- Assets compilados con Vite -->
-    @vite(['resources/css/app.css','resources/js/app.js'])
-    <!-- Fallback automático a Tailwind CDN si los assets no cargan -->
-    <script>
-    window.addEventListener('DOMContentLoaded', function() {
-        try {
-            var probe = document.createElement('div');
-            probe.className = 'hidden';
-            document.body.appendChild(probe);
-            var hasTailwind = getComputedStyle(probe).display === 'none';
-            probe.remove();
-            if (!hasTailwind) {
-                var cdn = document.createElement('link');
-                cdn.rel = 'stylesheet';
-                cdn.href = 'https://unpkg.com/tailwindcss@2.2.19/dist/tailwind.min.css';
-                document.head.appendChild(cdn);
-            }
-        } catch (e) {
-            var cdn = document.createElement('link');
-            cdn.rel = 'stylesheet';
-            cdn.href = 'https://unpkg.com/tailwindcss@2.2.19/dist/tailwind.min.css';
-            document.head.appendChild(cdn);
-        }
-    });
-    </script>
+    <!-- Tailwind CSS -->
+    <link href="https://unpkg.com/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -78,7 +44,6 @@
     
     <!-- Estilos personalizados -->
     <link rel="stylesheet" href="{{ asset('css/tailwind_datatables.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/dark.css') }}">
     
     <style>
         /* Estilo global para eliminar subrayados en todos los enlaces */
@@ -161,22 +126,11 @@
     html, body {
         opacity: 1 !important;
         filter: none !important;
+        background: #f9fafb !important;
         width: 100% !important;
         max-width: 100% !important;
         overflow-x: hidden !important; /* Evitar scroll horizontal global */
     }
-    /* Tamaño consistente del logo del navbar */
-    img.nav-logo {
-        height: 48px !important;
-        width: auto !important;
-        object-fit: contain !important;
-    }
-    @media (min-width: 640px) { /* sm */
-        img.nav-logo { height: 64px !important; }
-    }
-    /* Contraste y visibilidad de enlaces del navbar (evitar que "desaparezcan") */
-    nav.shadow a { color: #e5e7eb !important; }
-    nav.shadow a:hover { color: #ffffff !important; }
     
     /* Asegurar que el navbar esté en la parte superior */
     body {
@@ -210,14 +164,14 @@
     }
     </style>
 </head>
-<body class="min-h-screen flex flex-col bg-gray-50 text-gray-900 dark:bg-slate-900 dark:text-gray-100">
+<body class="min-h-screen flex flex-col bg-gray-50">
     <!-- Navegación superior -->
     <nav x-data="{ open: false }" @scroll.window="open = false" class="shadow fixed top-0 left-0 right-0 z-50" style="background-color: #282c34;">
         <div class="max-w-7xl mx-auto">
             <div class="flex justify-between items-center h-16 px-4">
                 <!-- Logo -->
                 <div class="flex-shrink-0">
-                    <img class="nav-logo" src="{{ asset('img/estrellas_del_ajedrez_logo.png') }}" alt="Escuela Estrellas del Ajedrez">
+                    <img class="h-12 w-auto sm:h-16" src="{{ asset('img/estrellas_del_ajedrez_logo.png') }}" alt="Escuela Estrellas del Ajedrez">
                 </div>
 
                 <!-- Menú desktop -->
@@ -238,16 +192,11 @@
 
                 <!-- Usuario y logout desktop -->
                 <div class="hidden md:flex items-center space-x-4">
-                    <button x-data="{dark: document.documentElement.classList.contains('dark')}" @click="dark=!dark; document.documentElement.classList.toggle('dark', dark); localStorage.setItem('theme', dark?'dark':'light'); window.dispatchEvent(new CustomEvent('theme:changed',{detail:{dark}}))" class="p-2 rounded text-gray-300 hover:text-white focus:outline-none bg-transparent border-0" aria-label="Cambiar tema" type="button">
-                        <span x-show="!dark">🌙</span>
-                        <span x-show="dark">☀️</span>
-                    </button>
                     <span class="text-gray-300 text-sm">Bienvenido, {{ Auth::user()->correo }}</span>
                     <a href="{{ route('logout') }}" class="text-gray-300 hover:text-white text-sm font-medium transition-colors" 
                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                         Cerrar Sesión
                     </a>
-                    
                     <!-- Formulario de logout oculto -->
                     <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
                         @csrf
@@ -255,11 +204,7 @@
                 </div>
 
                 <!-- Botón hamburguesa móvil -->
-                <div class="md:hidden flex items-center">
-                    <button x-data="{dark: document.documentElement.classList.contains('dark')}" @click="dark=!dark; document.documentElement.classList.toggle('dark', dark); localStorage.setItem('theme', dark?'dark':'light'); window.dispatchEvent(new CustomEvent('theme:changed',{detail:{dark}}))" class="mr-3 p-2 rounded text-gray-300 hover:text-white focus:outline-none bg-transparent border-0" aria-label="Cambiar tema" type="button">
-                        <span x-show="!dark">🌙</span>
-                        <span x-show="dark">☀️</span>
-                    </button>
+                <div class="md:hidden">
                     <button type="button" class="text-gray-300 hover:text-white focus:outline-none focus:text-white transition-colors" id="mobile-menu-button" @click="open = !open" :aria-expanded="open.toString()" aria-controls="mobile-menu">
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />

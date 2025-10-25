@@ -7,47 +7,6 @@ body {
     font-family: 'Inter', sans-serif;
 }
 
-@layer base {
-    :root {
-        --c-bg: #f9fafb; /* gray-50 */
-        --c-surface: #ffffff; /* white */
-        --c-text: #0f172a; /* slate-900 */
-    }
-    .dark {
-        --c-bg: #0b1220; /* near slate-950 */
-        --c-surface: #0f172a; /* slate-900 */
-        --c-text: #e5e7eb; /* gray-200 */
-    }
-}
-
-/* Bootstrap base tokens */
-.dark {
-    --bs-body-bg: var(--c-bg);
-    --bs-body-color: var(--c-text);
-}
-.dark .modal-content, .dark .dropdown-menu {
-    background-color: var(--c-surface);
-    color: var(--c-text);
-}
-
-/* DataTables ajustes base en dark */
-.dark table.dataTable,
-.dark .dataTables_wrapper .dataTables_paginate .paginate_button {
-    color: var(--c-text);
-}
-.dark table.dataTable.display tbody tr {
-    background-color: var(--c-surface);
-}
-.dark table.dataTable.display tbody tr:hover {
-    background-color: #111827; /* gray-900 */
-}
-
-/* SweetAlert2 */
-.dark .swal2-popup {
-    background: var(--c-surface) !important;
-    color: var(--c-text) !important;
-}
-
 /* Importar estilos existentes desde public/css */
 @import url('/css/boots_styles.css');
 @import url('/css/other_styles.css');

@@ -5,8 +5,8 @@
     <div class="md:grid md:grid-cols-3 md:gap-6">
         <div class="md:col-span-1">
             <div class="px-4 sm:px-0">
-                <h3 class="text-lg font-medium leading-6 text-gray-900 dark:text-gray-100">Editar Torneo</h3>
-                <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">
+                <h3 class="text-lg font-medium leading-6 text-gray-900">Editar Torneo</h3>
+                <p class="mt-1 text-sm text-gray-600">
                     Modifique la información del torneo. Los campos marcados con * son obligatorios.
                 </p>
             </div>
@@ -17,7 +17,7 @@
                 @csrf
                 @method('PUT')
                 <div class="shadow sm:rounded-md sm:overflow-hidden">
-                    <div class="px-4 py-5 bg-white dark:bg-slate-800 space-y-6 sm:p-6">
+                    <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
                         <!-- Información del Torneo -->
                         <div class="card mb-4">
                             <div class="card-header bg-light py-2">
@@ -28,11 +28,11 @@
                             <div class="card-body py-3">
                                 <div class="grid grid-cols-6 gap-6">
                                     <div class="col-span-6 sm:col-span-3">
-                                        <label for="nombre_torneo" class="block text-sm font-medium text-gray-700 dark:text-gray-200">
+                                        <label for="nombre_torneo" class="block text-sm font-medium text-gray-700">
                                             Nombre del Torneo *
                                         </label>
                                         <input type="text" name="nombre_torneo" id="nombre_torneo" 
-                                               class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 dark:border-gray-600 rounded-md py-2 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100"
+                                               class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md py-2"
                                                placeholder="Ejemplo: Torneo Nacional de Ajedrez 2024"
                                                value="{{ old('nombre_torneo', $torneo->nombre_torneo) }}" required>
                                         @error('nombre_torneo')
@@ -41,11 +41,11 @@
                                     </div>
 
                                     <div class="col-span-6 sm:col-span-3">
-                                        <label for="fecha_inicio" class="block text-sm font-medium text-gray-700 dark:text-gray-200 flex items-center">
+                                        <label for="fecha_inicio" class="block text-sm font-medium text-gray-700 flex items-center">
                                             <span class="mr-2">📅</span> Fecha de Inicio *
                                         </label>
                                         <input type="date" name="fecha_inicio" id="fecha_inicio" 
-                                               class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 dark:border-gray-600 rounded-md py-2 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100"
+                                               class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md py-2"
                                                value="{{ old('fecha_inicio', $torneo->fecha_inicio ? $torneo->fecha_inicio->format('Y-m-d') : '' ) }}" required>
                                         @error('fecha_inicio')
                                             <span class="text-red-600 text-xs">{{ $message }}</span>
@@ -53,11 +53,11 @@
                                     </div>
 
                                     <div class="col-span-6 sm:col-span-3">
-                                        <label for="hora_inicio" class="block text-sm font-medium text-gray-700 dark:text-gray-200 flex items-center">
+                                        <label for="hora_inicio" class="block text-sm font-medium text-gray-700 flex items-center">
                                             <span class="mr-2">🕒</span> Hora de Inicio *
                                         </label>
                                         <input type="time" name="hora_inicio" id="hora_inicio" 
-                                               class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 dark:border-gray-600 rounded-md py-2 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100"
+                                               class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md py-2"
                                                value="{{ old('hora_inicio', $torneo->hora_inicio) }}" required>
                                         @error('hora_inicio')
                                             <span class="text-red-600 text-xs">{{ $message }}</span>
@@ -65,11 +65,11 @@
                                     </div>
 
                                     <div class="col-span-6 sm:col-span-3">
-                                        <label for="lugar" class="block text-sm font-medium text-gray-700 dark:text-gray-200 flex items-center">
+                                        <label for="lugar" class="block text-sm font-medium text-gray-700 flex items-center">
                                             <span class="mr-2">📍</span> Lugar *
                                         </label>
                                         <input type="text" name="lugar" id="lugar" 
-                                               class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 dark:border-gray-600 rounded-md py-2 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100"
+                                               class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md py-2"
                                                placeholder="Ejemplo: Biblioteca Nacional, Managua"
                                                value="{{ old('lugar', $torneo->lugar) }}" required>
                                         @error('lugar')
@@ -90,9 +90,9 @@
                             <div class="card-body py-3">
                                 <div class="grid grid-cols-6 gap-6">
                                     <div class="col-span-6 sm:col-span-3">
-                                        <label for="organizador_id" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Organizador *</label>
+                                        <label for="organizador_id" class="block text-sm font-medium text-gray-700">Organizador *</label>
                                         <select name="organizador_id" id="organizador_id" 
-                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                                                 required>
                                             <option value="">Seleccione un organizador</option>
                                             @foreach($miembros as $miembro)
@@ -105,9 +105,9 @@
                                     </div>
 
                                     <div class="col-span-6 sm:col-span-3">
-                                        <label for="director_torneo_id" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Director del Torneo *</label>
+                                        <label for="director_torneo_id" class="block text-sm font-medium text-gray-700">Director del Torneo *</label>
                                         <select name="director_torneo_id" id="director_torneo_id" 
-                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                                                 required>
                                             <option value="">Seleccione un director</option>
                                             @foreach($miembros as $miembro)
@@ -123,9 +123,9 @@
 
                                 <div class="grid grid-cols-6 gap-6">
                                     <div class="col-span-6 sm:col-span-3">
-                                        <label for="arbitro_id" class="block textsm font-medium text-gray-700 dark:text-gray-200">Árbitro <span class="text-danger">*</span></label>
+                                        <label for="arbitro_id" class="block text-sm font-medium text-gray-700">Árbitro <span class="text-danger">*</span></label>
                                         <select name="arbitro_id" id="arbitro_id" 
-                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm @error('arbitro_id') is-invalid @enderror"
+                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm @error('arbitro_id') is-invalid @enderror"
                                                 required>
                                             <option value="">Seleccione un árbitro</option>
                                             @foreach($miembros as $miembro)
@@ -202,12 +202,12 @@
                             <div class="card-body py-3">
                                 <div class="grid grid-cols-6 gap-6">
                                     <div class="col-span-6 sm:col-span-3">
-                                        <label for="no_rondas" class="block text-sm font-medium text-gray-700 dark:text-gray-200 flex items-center">
+                                        <label for="no_rondas" class="block text-sm font-medium text-gray-700 flex items-center">
                                             <span class="mr-2">🔄</span> Número de Rondas <span class="text-danger">*</span>
                                             <span class="ml-1 text-gray-500 text-xs">(Mínimo 3, máximo 9)</span>
                                         </label>
                                         <input type="number" name="no_rondas" id="no_rondas" min="3" max="9"
-                                               class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border border-gray-300 dark:border-gray-600 rounded-md py-2 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 @error('no_rondas') is-invalid @enderror"
+                                               class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border border-gray-300 rounded-md py-2 @error('no_rondas') is-invalid @enderror"
                                                style="-moz-appearance: textfield;"
                                                value="{{ old('no_rondas', $torneo->no_rondas) }}" required>
                                         @error('no_rondas')
@@ -222,11 +222,11 @@
                                     </div>
 
                                     <div class="col-span-6 sm:col-span-3">
-                                        <label for="categoriaTorneo_id" class="block text-sm font-medium text-gray-700 dark:text-gray-200 flex items-center">
+                                        <label for="categoriaTorneo_id" class="block text-sm font-medium text-gray-700 flex items-center">
                                             <span class="mr-2">🏆</span> Categoría <span class="text-danger">*</span>
                                         </label>
                                         <select name="categoriaTorneo_id" id="categoriaTorneo_id" 
-                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm @error('categoriaTorneo_id') is-invalid @enderror"
+                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm @error('categoriaTorneo_id') is-invalid @enderror"
                                                 required>
                                             <option value="">Seleccione una categoría</option>
                                             @foreach($categorias as $categoria)
@@ -245,11 +245,11 @@
                                     </div>
 
                                     <div class="col-span-6 sm:col-span-3">
-                                        <label for="sistema_emparejamiento_id" class="block text-sm font-medium text-gray-700 dark:text-gray-200 flex items-center">
+                                        <label for="sistema_emparejamiento_id" class="block text-sm font-medium text-gray-700 flex items-center">
                                             <span class="mr-2">🧭</span> Sistema de Emparejamiento <span class="text-danger">*</span>
                                         </label>
                                         <select name="sistema_emparejamiento_id" id="sistema_emparejamiento_id" 
-                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm @error('sistema_emparejamiento_id') is-invalid @enderror"
+                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm @error('sistema_emparejamiento_id') is-invalid @enderror"
                                                 required>
                                             <option value="">Seleccione un sistema</option>
                                             @foreach($emparejamientos as $sistema)
@@ -268,11 +268,11 @@
                                     </div>
 
                                     <div class="col-span-6 sm:col-span-3">
-                                        <label for="control_tiempo_id" class="block text-sm font-medium text-gray-700 dark:text-gray-200 flex items-center">
+                                        <label for="control_tiempo_id" class="block text-sm font-medium text-gray-700 flex items-center">
                                             <span class="mr-2">⏱️</span> Control de Tiempo <span class="text-danger">*</span>
                                         </label>
                                         <select name="control_tiempo_id" id="control_tiempo_id" 
-                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm @error('control_tiempo_id') is-invalid @enderror"
+                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm @error('control_tiempo_id') is-invalid @enderror"
                                                 required>
                                             <option value="">Seleccione un control de tiempo</option>
                                             @foreach($controlesTiempo as $control)
@@ -291,11 +291,11 @@
                                     </div>
 
                                     <div class="col-span-6 sm:col-span-3">
-                                        <label for="es_por_equipos" class="block text-sm font-medium text-gray-700 dark:text-gray-200 flex items-center">
+                                        <label for="es_por_equipos" class="block text-sm font-medium text-gray-700 flex items-center">
                                             <span class="mr-2">👥</span> ¿Torneo por equipos?
                                         </label>
                                         <select name="es_por_equipos" id="es_por_equipos"
-                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                                                 required>
                                             <option value="0" {{ old('es_por_equipos', $torneo->es_por_equipos) == 0 ? 'selected' : '' }}>Individual</option>
                                             <option value="1" {{ old('es_por_equipos', $torneo->es_por_equipos) == 1 ? 'selected' : '' }}>Por equipos</option>
