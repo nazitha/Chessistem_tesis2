@@ -50,6 +50,7 @@
 @media (max-width: 768px) {
     .dataTables_wrapper {
         overflow-x: auto;
+        width: 100%;
     }
     
     .dataTables_wrapper .dataTables_length,
@@ -122,7 +123,8 @@
 
 @media (max-width: 768px) {
     .table-responsive table {
-        min-width: 600px;
+        /* Evitar forzar ancho mínimo que causa scroll horizontal */
+        min-width: 100%;
     }
     
     .table-responsive th,

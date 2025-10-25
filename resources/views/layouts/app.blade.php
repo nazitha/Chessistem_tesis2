@@ -127,6 +127,9 @@
         opacity: 1 !important;
         filter: none !important;
         background: #f9fafb !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important; /* Evitar scroll horizontal global */
     }
     
     /* Asegurar que el navbar esté en la parte superior */
