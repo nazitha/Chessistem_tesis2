@@ -174,6 +174,9 @@
     @media (min-width: 640px) { /* sm */
         img.nav-logo { height: 64px !important; }
     }
+    /* Contraste y visibilidad de enlaces del navbar (evitar que "desaparezcan") */
+    nav.shadow a { color: #e5e7eb !important; }
+    nav.shadow a:hover { color: #ffffff !important; }
     
     /* Asegurar que el navbar esté en la parte superior */
     body {
@@ -235,7 +238,7 @@
 
                 <!-- Usuario y logout desktop -->
                 <div class="hidden md:flex items-center space-x-4">
-                    <button x-data="{dark: document.documentElement.classList.contains('dark')}" @click="dark=!dark; document.documentElement.classList.toggle('dark', dark); localStorage.setItem('theme', dark?'dark':'light'); window.dispatchEvent(new CustomEvent('theme:changed',{detail:{dark}}))" class="p-2 rounded text-gray-300 hover:text-white focus:outline-none" aria-label="Cambiar tema">
+                    <button x-data="{dark: document.documentElement.classList.contains('dark')}" @click="dark=!dark; document.documentElement.classList.toggle('dark', dark); localStorage.setItem('theme', dark?'dark':'light'); window.dispatchEvent(new CustomEvent('theme:changed',{detail:{dark}}))" class="p-2 rounded text-gray-300 hover:text-white focus:outline-none bg-transparent border-0" aria-label="Cambiar tema" type="button">
                         <span x-show="!dark">🌙</span>
                         <span x-show="dark">☀️</span>
                     </button>
@@ -244,13 +247,7 @@
                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                         Cerrar Sesión
                     </a>
-                    <button x-data="{dark: document.documentElement.classList.contains('dark')}"
-                            @click="dark=!dark; document.documentElement.classList.toggle('dark', dark); localStorage.setItem('theme', dark ? 'dark':'light'); window.dispatchEvent(new CustomEvent('theme:changed', {detail:{dark}}))"
-                            class="p-2 rounded text-gray-300 hover:text-white focus:outline-none"
-                            aria-label="Cambiar tema">
-                      <span x-show="!dark">🌙</span>
-                      <span x-show="dark">☀️</span>
-                    </button>
+                    
                     <!-- Formulario de logout oculto -->
                     <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
                         @csrf
@@ -259,7 +256,7 @@
 
                 <!-- Botón hamburguesa móvil -->
                 <div class="md:hidden flex items-center">
-                    <button x-data="{dark: document.documentElement.classList.contains('dark')}" @click="dark=!dark; document.documentElement.classList.toggle('dark', dark); localStorage.setItem('theme', dark?'dark':'light'); window.dispatchEvent(new CustomEvent('theme:changed',{detail:{dark}}))" class="mr-3 p-2 rounded text-gray-300 hover:text-white focus:outline-none" aria-label="Cambiar tema">
+                    <button x-data="{dark: document.documentElement.classList.contains('dark')}" @click="dark=!dark; document.documentElement.classList.toggle('dark', dark); localStorage.setItem('theme', dark?'dark':'light'); window.dispatchEvent(new CustomEvent('theme:changed',{detail:{dark}}))" class="mr-3 p-2 rounded text-gray-300 hover:text-white focus:outline-none bg-transparent border-0" aria-label="Cambiar tema" type="button">
                         <span x-show="!dark">🌙</span>
                         <span x-show="dark">☀️</span>
                     </button>
