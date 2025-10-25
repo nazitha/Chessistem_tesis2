@@ -64,17 +64,19 @@
                 .opacity-80{opacity:.8}
                 .underline{text-decoration-line:underline}
                 .underline-offset-4{text-underline-offset:4px}
+                /* Fondo igual al login */
+                .bg-login-grad{background-color:#c9d6ff;background:linear-gradient(to right,#e2e2e2,#c9d6ff)}
             </style>
         @endif
     </head>
-    <body class="flex items-center justify-center min-h-screen p-6">
+    <body class="flex items-center justify-center min-h-screen p-6 bg-login-grad">
         <div class="w-full max-w-4xl">
             <header class="mb-6">
                 <nav class="flex items-center justify-between text-sm">
                     <div class="font-medium">Estrellas del Ajedrez</div>
                     <a href="{{ route('login') }}" class="inline-block px-5 py-1.5 border rounded-sm">Ingresar</a>
                 </nav>
-            </header>
+        </header>
 
             <main class="space-y-10">
                 <section class="relative overflow-hidden rounded-lg">
@@ -88,7 +90,7 @@
                                 <a href="#contacto" class="px-5 py-2 bg-white rounded-sm border">Contáctanos</a>
                             </div>
                         </div>
-                    </div>
+                </div>
                 </section>
 
                 <section class="bg-white rounded-lg p-8 shadow-inset">
@@ -111,7 +113,7 @@
                             <div>Dirección</div>
                             <div>Calle 123 #45-67, Ciudad</div>
                         </div>
-                    </div>
+                </div>
                 </section>
             </main>
         </div>
