@@ -121,23 +121,31 @@
         <div class="mt-8">
             <div class="bg-white rounded-lg shadow-lg p-6">
                 <h2 class="text-xl font-medium text-gray-900 mb-4">Acciones Rápidas</h2>
-                <div class="grid grid-cols-4 gap-4">
-                    <a href="{{ route('torneos.create') }}" class="inline-block text-center py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600">
-                        <i class="fas fa-trophy mr-2"></i>
-                        Nuevo Torneo
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <a href="{{ route('torneos.create') }}" class="block w-full text-center rounded-lg p-3 min-h-[56px] bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors">
+                        <div class="flex flex-col items-center gap-2">
+                            <i class="fas fa-trophy text-base"></i>
+                            <span class="text-sm sm:text-base leading-tight">Nuevo Torneo</span>
+                        </div>
                     </a>
-                    <a href="{{ route('academias.index') }}" class="inline-block text-center py-2 px-4 bg-green-500 text-white rounded hover:bg-green-600">
-                        <i class="fas fa-school mr-2"></i>
-                        Gestionar Academias
+                    <a href="{{ route('academias.index') }}" class="block w-full text-center rounded-lg p-3 min-h-[56px] bg-green-600 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 transition-colors">
+                        <div class="flex flex-col items-center gap-2">
+                            <i class="fas fa-school text-base"></i>
+                            <span class="text-sm sm:text-base leading-tight">Gestionar Academias</span>
+                        </div>
                     </a>
-                    <a href="{{ route('miembros.index') }}" class="inline-block text-center py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600">
-                        <i class="fas fa-users mr-2"></i>
-                        Gestionar Miembros
+                    <a href="{{ route('miembros.index') }}" class="block w-full text-center rounded-lg p-3 min-h-[56px] bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors">
+                        <div class="flex flex-col items-center gap-2">
+                            <i class="fas fa-users text-base"></i>
+                            <span class="text-sm sm:text-base leading-tight">Gestionar Miembros</span>
+                        </div>
                     </a>
                     @if($canViewAuditorias)
-                    <a href="{{ route('auditoria.index') }}" class="inline-block text-center py-2 px-4 bg-gray-500 text-white rounded hover:bg-gray-600">
-                        <i class="fas fa-clipboard-list mr-2"></i>
-                        Auditoría
+                    <a href="{{ route('auditoria.index') }}" class="block w-full text-center rounded-lg p-3 min-h-[56px] bg-slate-600 text-white hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-400 transition-colors">
+                        <div class="flex flex-col items-center gap-2">
+                            <i class="fas fa-clipboard-list text-base"></i>
+                            <span class="text-sm sm:text-base leading-tight">Auditoría</span>
+                        </div>
                     </a>
                     @endif
                 </div>

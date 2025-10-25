@@ -162,7 +162,7 @@
 </head>
 <body class="min-h-screen flex flex-col bg-gray-50">
     <!-- Navegación superior -->
-    <nav x-data="{ open: false }" class="shadow fixed top-0 left-0 right-0 z-50" style="background-color: #282c34;">
+    <nav x-data="{ open: false }" @scroll.window="open = false" class="shadow fixed top-0 left-0 right-0 z-50" style="background-color: #282c34;">
         <div class="max-w-7xl mx-auto">
             <div class="flex justify-between items-center h-16 px-4">
                 <!-- Logo -->
@@ -210,7 +210,7 @@
             </div>
 
             <!-- Menú móvil -->
-            <div x-cloak x-show="open" x-transition.opacity @click.outside="open=false" class="md:hidden fixed inset-x-0 top-16 bg-gray-800 border-t border-gray-700 shadow-lg z-[1001] max-h-[calc(100vh-64px)] overflow-y-auto" id="mobile-menu">
+            <div x-cloak x-show="open" x-transition.opacity @click.outside="open=false" class="md:hidden absolute inset-x-0 top-16 bg-gray-800 border-t border-gray-700 shadow-lg z-[1001] max-h-[calc(100vh-64px)] overflow-y-auto" id="mobile-menu">
                 <div class="px-2 pt-2 pb-3 space-y-1 pointer-events-auto">
                     <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'bg-gray-700 text-white' : 'text-gray-300 hover:text-white hover:bg-gray-700' }} block px-3 py-2 text-base font-medium transition-colors">Home</a>
                     
