@@ -165,6 +165,15 @@
         max-width: 100% !important;
         overflow-x: hidden !important; /* Evitar scroll horizontal global */
     }
+    /* Tamaño consistente del logo del navbar */
+    img.nav-logo {
+        height: 48px !important;
+        width: auto !important;
+        object-fit: contain !important;
+    }
+    @media (min-width: 640px) { /* sm */
+        img.nav-logo { height: 64px !important; }
+    }
     
     /* Asegurar que el navbar esté en la parte superior */
     body {
@@ -205,7 +214,7 @@
             <div class="flex justify-between items-center h-16 px-4">
                 <!-- Logo -->
                 <div class="flex-shrink-0">
-                    <img class="h-12 w-auto sm:h-16" src="{{ asset('img/estrellas_del_ajedrez_logo.png') }}" alt="Escuela Estrellas del Ajedrez">
+                    <img class="nav-logo" src="{{ asset('img/estrellas_del_ajedrez_logo.png') }}" alt="Escuela Estrellas del Ajedrez">
                 </div>
 
                 <!-- Menú desktop -->
