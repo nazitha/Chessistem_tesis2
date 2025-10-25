@@ -28,6 +28,29 @@
     
     <!-- Assets compilados con Vite -->
     @vite(['resources/css/app.css','resources/js/app.js'])
+    <!-- Fallback automático a Tailwind CDN si los assets no cargan -->
+    <script>
+    window.addEventListener('DOMContentLoaded', function() {
+        try {
+            var probe = document.createElement('div');
+            probe.className = 'hidden';
+            document.body.appendChild(probe);
+            var hasTailwind = getComputedStyle(probe).display === 'none';
+            probe.remove();
+            if (!hasTailwind) {
+                var cdn = document.createElement('link');
+                cdn.rel = 'stylesheet';
+                cdn.href = 'https://unpkg.com/tailwindcss@2.2.19/dist/tailwind.min.css';
+                document.head.appendChild(cdn);
+            }
+        } catch (e) {
+            var cdn = document.createElement('link');
+            cdn.rel = 'stylesheet';
+            cdn.href = 'https://unpkg.com/tailwindcss@2.2.19/dist/tailwind.min.css';
+            document.head.appendChild(cdn);
+        }
+    });
+    </script>
     
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
