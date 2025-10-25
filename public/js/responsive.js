@@ -23,13 +23,20 @@ function initMobileMenu() {
     const mobileMenu = document.getElementById('mobile-menu');
     
     if (mobileMenuButton && mobileMenu) {
+        console.log('Mobile menu elements found:', { mobileMenuButton, mobileMenu });
+        
         mobileMenuButton.addEventListener('click', function(e) {
+            e.preventDefault();
             e.stopPropagation();
+            console.log('Mobile menu button clicked');
+            
             mobileMenu.classList.toggle('hidden');
             
             // Toggle aria-expanded
             const isExpanded = !mobileMenu.classList.contains('hidden');
             mobileMenuButton.setAttribute('aria-expanded', isExpanded);
+            
+            console.log('Mobile menu toggled, isExpanded:', isExpanded);
         });
         
         // Close menu when clicking on links
@@ -56,6 +63,8 @@ function initMobileMenu() {
                 mobileMenuButton.setAttribute('aria-expanded', 'false');
             }
         });
+    } else {
+        console.log('Mobile menu elements not found');
     }
 }
 

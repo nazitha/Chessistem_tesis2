@@ -190,6 +190,10 @@
                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                         Cerrar Sesión
                     </a>
+                    <!-- Formulario de logout oculto -->
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
+                        @csrf
+                    </form>
                 </div>
 
                 <!-- Botón hamburguesa móvil -->
@@ -261,37 +265,12 @@
     
     <!-- Script responsive -->
     <script src="{{ asset('js/responsive.js') }}"></script>
+    
+    <!-- Debug script for mobile menu -->
+    <script src="{{ asset('js/mobile-menu-debug.js') }}"></script>
 
     @stack('scripts')
 
-    <!-- JavaScript para menú móvil -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const mobileMenuButton = document.getElementById('mobile-menu-button');
-            const mobileMenu = document.getElementById('mobile-menu');
-            
-            if (mobileMenuButton && mobileMenu) {
-                mobileMenuButton.addEventListener('click', function() {
-                    mobileMenu.classList.toggle('hidden');
-                });
-                
-                // Cerrar menú al hacer clic en un enlace
-                const mobileLinks = mobileMenu.querySelectorAll('a');
-                mobileLinks.forEach(link => {
-                    link.addEventListener('click', function() {
-                        mobileMenu.classList.add('hidden');
-                    });
-                });
-                
-                // Cerrar menú al hacer clic fuera
-                document.addEventListener('click', function(event) {
-                    if (!mobileMenuButton.contains(event.target) && !mobileMenu.contains(event.target)) {
-                        mobileMenu.classList.add('hidden');
-                    }
-                });
-            }
-        });
-    </script>
 
     <!-- Modal para Detalle de Miembro -->
     <div class="modal fade" id="modalDetalleMiembro" tabindex="-1" role="dialog" aria-labelledby="detalleMiembroLabel" aria-hidden="true">
