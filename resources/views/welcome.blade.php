@@ -101,15 +101,11 @@
                     <img src="{{ asset($heroImage) }}" alt="Estrellas del Ajedrez" class="w-full h-hero object-contain bg-white">
                     <div class="hero-overlay"></div>
                     <div class="absolute inset-0">
-                        <div class="p-6 flex justify-end">
-                            <a href="{{ route('login') }}" class="btn btn-light">Ingresar</a>
-                        </div>
                         <div class="p-8 md:p-14 max-w-4xl container" style="margin-top:20px">
                             <h1 class="text-3xl md:text-5xl font-semibold leading-tight text-white text-center">Academia Estrellas del Ajedrez</h1>
                             <p class="text-white text-center" style="margin-top:12px">Lleva tu ajedrez al siguiente nivel.</p>
                             <div class="flex gap-3 justify-center" style="margin-top:24px">
-                                <a href="{{ route('login') }}" class="btn btn-primary">Inscríbete</a>
-                                <a href="#contacto" class="btn btn-light">Contáctanos</a>
+                                <a href="{{ route('login') }}" class="btn btn-primary">Ingresar</a>
                             </div>
                         </div>
                 </div>
