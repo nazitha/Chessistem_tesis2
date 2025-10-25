@@ -94,8 +94,8 @@
                 .accent-blue{color:var(--accent-blue)}
             </style>
     </head>
-    <body class="flex items-center justify-center min-h-screen p-6 bg-login-grad">
-        <div class="w-full max-w-4xl">
+    <body class="min-h-screen">
+        <div class="w-full">
 
             <main class="space-y-4">
                 @php
@@ -114,7 +114,7 @@
                         }
                     }
                 @endphp
-                <section class="hero-wrap h-hero">
+                <section class="hero-wrap h-hero" style="margin:0">
                     <img src="{{ asset($heroImage) }}" alt="Estrellas del Ajedrez" class="hero-image" />
                     <div class="hero-overlay"></div>
                     <div class="hero-content">
@@ -127,16 +127,9 @@
                                 <a href="{{ route('login') }}" class="btn btn-primary btn-pill">Ingresar</a>
                                 <a href="https://wa.me/50584403892" target="_blank" rel="noopener" class="btn btn-light btn-pill border-white">Contactar por WhatsApp</a>
                             </div>
-                        </div>
-                    </div>
+                </div>
+                </div>
                 </section>
-
-                <section class="bg-white rounded-lg p-8 shadow-inset">
-                    <h2 class="text-xl font-medium mb-3">Nuestra misión</h2>
-                    <p class="text-sm">En Estrellas del Ajedrez acercamos a niños, jóvenes y adultos al mundo del ajedrez, fomentando el aprendizaje, la concentración y la sana competencia mediante clases, ligas internas y torneos abiertos.</p>
-                </section>
-
-                
             </main>
         </div>
     </body>
