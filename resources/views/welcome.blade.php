@@ -43,12 +43,15 @@
                 .text-xl{font-size:var(--text-xl)}
                 .text-3xl{font-size:var(--text-3xl)}
                 .text-5xl{font-size:var(--text-5xl)}
+                .text-7xl{font-size:3.75rem}
                 .font-semibold{font-weight:600}
                 .font-medium{font-weight:500}
+                .font-bold{font-weight:700}
                 .leading-tight{line-height:1.25}
                 .shadow-inset{box-shadow:inset 0 0 0 1px rgba(26,26,0,.16)}
                 .border{border:1px solid}
                 .border-black{border-color:#000}
+                .border-white{border-color:#fff}
                 .gap-3{gap:.75rem}
                 .grid{display:grid}
                 .grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
@@ -68,17 +71,23 @@
                 /* Fondo igual al login */
                 .bg-login-grad{background-color:#c9d6ff;background:linear-gradient(to right,#e2e2e2,#c9d6ff)}
                 /* Hero helpers */
-                .hero-overlay{position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,.45),rgba(0,0,0,.25));}
+                .hero-overlay{position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.85) 0%, rgba(0,0,0,.6) 35%, rgba(0,0,0,.25) 65%, rgba(0,0,0,0) 100%);}                
                 .container{max-width:56rem;margin:0 auto}
                 .text-center{text-align:center}
+                .text-left{text-align:left}
                 .justify-end{justify-content:flex-end}
                 .btn{display:inline-block;padding:10px 16px;border-radius:6px;font-weight:600;text-decoration:none;border:1px solid transparent}
-                .btn-primary{background-color:#000;color:#fff;border-color:#000}
-                .btn-light{background-color:#fff;color:#000;border-color:#000}
-                .btn-primary:hover{background-color:#111}
+                .btn-primary{background-color:#3a4852;color:#fff;border-color:#3a4852}
+                .btn-light{background-color:transparent;color:#fff;border-color:#fff}
+                .btn-primary:hover{background-color:#202c34}
                 .btn-light:hover{background-color:#f5f5f5}
                 /* Hero size */
-                .h-hero{height:55vh;max-height:720px;min-height:280px}
+                .h-hero{height:100vh;min-height:520px}
+                .hero-wrap{position:relative;overflow:hidden;border-radius:.5rem}
+                .hero-image{width:100%;height:100%;object-fit:cover;object-position:right center}
+                .hero-content{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center}
+                .content-inner{max-width:48rem;padding:2rem 1.5rem}
+                @media (min-width:768px){.content-inner{padding:3rem}}
             </style>
     </head>
     <body class="flex items-center justify-center min-h-screen p-6 bg-login-grad">
@@ -86,29 +95,36 @@
 
             <main class="space-y-4">
                 @php
-                    $heroCandidates = [
-                        'img/landing_hero.jpg','img/landing_hero.png',
-                        'img/chess_hero.jpg','img/chess_hero.png',
-                        'img/descarga.jpg','img/descarga.png',
-                        'img/estrellas_del_ajedrez_logo.png'
-                    ];
-                    $heroImage = null;
-                    foreach ($heroCandidates as $c) {
-                        if (file_exists(public_path($c))) { $heroImage = $c; break; }
+                    // Preferimos landing_hero.jpg; si no existe, caemos a otras opciones
+                    $preferred = 'img/landing_hero.jpg';
+                    $heroImage = file_exists(public_path($preferred)) ? $preferred : null;
+                    if (!$heroImage) {
+                        $heroCandidates = [
+                            'img/landing_hero.png',
+                            'img/chess_hero.jpg','img/chess_hero.png',
+                            'img/descarga.jpg','img/descarga.png',
+                            'img/estrellas_del_ajedrez_logo.png'
+                        ];
+                        foreach ($heroCandidates as $c) {
+                            if (file_exists(public_path($c))) { $heroImage = $c; break; }
+                        }
                     }
                 @endphp
-                <section class="relative overflow-hidden rounded-lg">
-                    <img src="{{ asset($heroImage) }}" alt="Estrellas del Ajedrez" class="w-full h-hero object-contain bg-white">
+                <section class="hero-wrap h-hero">
+                    <img src="{{ asset($heroImage) }}" alt="Estrellas del Ajedrez" class="hero-image" />
                     <div class="hero-overlay"></div>
-                    <div class="absolute inset-0">
-                        <div class="p-8 md:p-14 max-w-4xl container" style="margin-top:20px">
-                            <h1 class="text-3xl md:text-5xl font-semibold leading-tight text-white text-center">Academia Estrellas del Ajedrez</h1>
-                            <p class="text-white text-center" style="margin-top:12px">Lleva tu ajedrez al siguiente nivel.</p>
-                            <div class="flex gap-3 justify-center" style="margin-top:24px">
+                    <div class="hero-content">
+                        <div class="content-inner">
+                            <h1 class="text-white font-bold text-7xl leading-tight text-left" style="letter-spacing:1px; text-transform:uppercase;">
+                                Estrellas del Ajedrez
+                            </h1>
+                            <p class="text-white text-left" style="margin-top:12px">Lleva tu ajedrez al siguiente nivel.</p>
+                            <div class="flex gap-3" style="margin-top:24px">
                                 <a href="{{ route('login') }}" class="btn btn-primary">Ingresar</a>
+                                <a href="https://wa.me/50584403892" target="_blank" rel="noopener" class="btn btn-light border-white">Contactar por WhatsApp</a>
                             </div>
                         </div>
-                </div>
+                    </div>
                 </section>
 
                 <section class="bg-white rounded-lg p-8 shadow-inset">
