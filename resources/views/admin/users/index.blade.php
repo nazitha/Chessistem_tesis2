@@ -911,6 +911,10 @@
                 payload.contrasena = contrasena;
                 payload.contrasena_confirmation = contrasena_confirmation;
             }
+        } else {
+            // En CREATE siempre enviar contraseña y su confirmación
+            payload.contrasena = contrasena;
+            payload.contrasena_confirmation = contrasena_confirmation;
         }
         
         const url = isEdit ? `/usuarios/${document.getElementById('edit_user_id').value}` : '/usuarios';

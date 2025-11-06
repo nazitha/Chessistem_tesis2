@@ -25,11 +25,13 @@ $(document).ready(function() {
         $('#form_add_users').removeData('edit-id');
         $('#form_add_users').removeData('original-correo');
         
-        // Ocultar campos de contraseña para CREATE
-        $('#div_pass_add_user').hide();
-        $('#div_passconfirm_add_user').hide();
-        $('#input_pass_add_user').prop('required', false);
-        $('#input_passconfirm_add_user').prop('required', false);
+        // Mostrar campos de contraseña para CREATE
+        $('#div_pass_add_user').show();
+        $('#div_passconfirm_add_user').show();
+        $('#input_pass_add_user').prop('required', true);
+        $('#input_passconfirm_add_user').prop('required', true);
+        $('#input_pass_add_user').val('');
+        $('#input_passconfirm_add_user').val('');
     });
 
     /* ********************* CARGA E INICIALIZACIÓN DE LA TABLA: USUARIOS ********************* */
@@ -276,6 +278,12 @@ $(document).ready(function() {
         }
         
         if (isEdit && contrasena && contrasena !== '********') {
+            payload.contrasena = contrasena;
+            payload.contrasena_confirmation = contrasena_confirmation;
+        }
+        
+        if (!isEdit) {
+            // En CREATE siempre enviar contraseña y su confirmación
             payload.contrasena = contrasena;
             payload.contrasena_confirmation = contrasena_confirmation;
         }
