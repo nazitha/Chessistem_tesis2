@@ -403,11 +403,21 @@ class TorneoController extends Controller
             'rondas.partidas.jugadorNegras'
         ]);
 
-        // Obtener miembros que no están participando en este torneo
-        $participantesIds = $torneo->participantes()->pluck('miembro_id')->toArray();
-        $miembrosDisponibles = Miembro::whereNotIn('cedula', $participantesIds)
-            ->orderBy('nombres')
-            ->get();
+        // Obtener miembros disponibles para inscripción según el tipo de torneo
+        if ($torneo->es_por_equipos) {
+            // Excluir miembros ya asignados a cualquier equipo del torneo
+            $equipoIds = \App\Models\EquipoTorneo::where('torneo_id', $torneo->id)->pluck('id');
+            $ocupadosIds = \App\Models\EquipoJugador::whereIn('equipo_id', $equipoIds)->pluck('miembro_id');
+            $miembrosDisponibles = Miembro::whereNotIn('cedula', $ocupadosIds)
+                ->orderBy('nombres')
+                ->get();
+        } else {
+            // Torneo individual: excluir participantes ya inscritos
+            $participantesIds = $torneo->participantes()->pluck('miembro_id');
+            $miembrosDisponibles = Miembro::whereNotIn('cedula', $participantesIds)
+                ->orderBy('nombres')
+                ->get();
+        }
 
         // Verificar si el torneo está finalizado (todas las rondas completadas)
         $torneoFinalizado = $torneo->rondas->count() >= $torneo->no_rondas;
