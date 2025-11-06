@@ -35,4 +35,16 @@ class MiembroRequest extends FormRequest
 
         return $rules;
     }
+
+    protected function prepareForValidation(): void
+    {
+        // Checkbox no marcado no envía valor: forzar a 0 si no viene
+        if (!$this->has('estado_miembro')) {
+            $this->merge(['estado_miembro' => 0]);
+        }
+        // Normalizar a boolean-like (0/1)
+        $this->merge([
+            'estado_miembro' => filter_var($this->input('estado_miembro'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? (int) $this->input('estado_miembro')
+        ]);
+    }
 }

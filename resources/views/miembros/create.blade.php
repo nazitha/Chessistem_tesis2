@@ -121,6 +121,7 @@
                     <div class="mt-2">
                         <div class="d-flex align-items-center space-x-3">
                             <label class="form-label fw-bold fs-6 mb-0">Estado</label>
+                            <input type="hidden" name="estado_miembro" value="0">
                             <input type="checkbox" name="estado_miembro" value="1" 
                                    {{ old('estado_miembro', '1') == '1' ? 'checked' : '' }}
                                    class="hidden" id="switch_miembro">
