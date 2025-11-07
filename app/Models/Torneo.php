@@ -219,7 +219,9 @@ class Torneo extends Model
     public function getMiembrosDisponiblesAttribute()
     {
         $participantesIds = $this->participantes()->pluck('miembro_id');
-        return Miembro::whereNotIn('cedula', $participantesIds)->get();
+        return Miembro::where('estado_miembro', true)
+            ->whereNotIn('cedula', $participantesIds)
+            ->get();
     }
 
     public function equipos()

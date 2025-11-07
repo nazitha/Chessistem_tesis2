@@ -168,7 +168,7 @@ class TorneoController extends Controller
     public function create()
     {
         $categorias = CategoriaTorneo::all();
-        $miembros = Miembro::all();
+        $miembros = Miembro::where('estado_miembro', true)->orderBy('nombres')->get();
         $controlesTiempo = ControlTiempo::all();
         $emparejamientos = Emparejamiento::all();
 
@@ -408,13 +408,15 @@ class TorneoController extends Controller
             // Excluir miembros ya asignados a cualquier equipo del torneo
             $equipoIds = \App\Models\EquipoTorneo::where('torneo_id', $torneo->id)->pluck('id');
             $ocupadosIds = \App\Models\EquipoJugador::whereIn('equipo_id', $equipoIds)->pluck('miembro_id');
-            $miembrosDisponibles = Miembro::whereNotIn('cedula', $ocupadosIds)
+            $miembrosDisponibles = Miembro::where('estado_miembro', true)
+                ->whereNotIn('cedula', $ocupadosIds)
                 ->orderBy('nombres')
                 ->get();
         } else {
             // Torneo individual: excluir participantes ya inscritos
             $participantesIds = $torneo->participantes()->pluck('miembro_id');
-            $miembrosDisponibles = Miembro::whereNotIn('cedula', $participantesIds)
+            $miembrosDisponibles = Miembro::where('estado_miembro', true)
+                ->whereNotIn('cedula', $participantesIds)
                 ->orderBy('nombres')
                 ->get();
         }
@@ -603,7 +605,7 @@ class TorneoController extends Controller
     public function edit(Torneo $torneo)
     {
         $categorias = CategoriaTorneo::all();
-        $miembros = Miembro::all();
+        $miembros = Miembro::where('estado_miembro', true)->orderBy('nombres')->get();
         $controlesTiempo = ControlTiempo::all();
         $emparejamientos = Emparejamiento::all();
 
