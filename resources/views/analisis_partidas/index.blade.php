@@ -2,9 +2,9 @@
 @section('content')
 
 <div class="container mx-auto px-4 py-8">
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
         <h1 class="text-2xl font-bold text-gray-900">Análisis de Partidas</h1>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#nuevoAnalisisModal">
+        <button class="btn btn-primary self-start sm:self-auto" data-bs-toggle="modal" data-bs-target="#nuevoAnalisisModal">
             <i class="fas fa-plus me-2"></i>Nuevo Análisis
         </button>
     </div>

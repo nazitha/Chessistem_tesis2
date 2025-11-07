@@ -116,6 +116,14 @@
             text-decoration: none !important;
             border-bottom: none !important;
         }
+        
+        /* Asegurar que los modales estén por encima del navbar fijo */
+        .modal {
+            z-index: 3000 !important;
+        }
+        .modal-backdrop {
+            z-index: 2990 !important;
+        }
     </style>
     <style>
     [x-cloak] { display: none !important; }
