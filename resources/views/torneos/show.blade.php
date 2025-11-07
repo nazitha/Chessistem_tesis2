@@ -1032,8 +1032,18 @@
                     </div>
                     <div class="mb-4">
                         <label class="block text-sm font-semibold mb-1">Tablero</label>
-                        <input name="tablero" type="number" min="1" max="6" value="{{ old('tablero') }}" class="block w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" required placeholder="1-6">
-                        <div class="text-xs text-red-500 mt-1 hidden" id="tablero-ocupado-{{ $equipo->id }}">Ese tablero ya está ocupado en este equipo.</div>
+                        @php $tablerosUsados = $equipo->jugadores->pluck('tablero')->toArray(); @endphp
+                        <select name="tablero" class="block w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" required>
+                            <option value="">-- Selecciona tablero --</option>
+                            @for($t = 1; $t <= 6; $t++)
+                                @if(!in_array($t, $tablerosUsados))
+                                    <option value="{{ $t }}" {{ old('tablero') == $t ? 'selected' : '' }}>{{ $t }}</option>
+                                @endif
+                            @endfor
+                        </select>
+                        @if(count($tablerosUsados) >= 6)
+                            <div class="text-xs text-red-500 mt-1">No hay tableros disponibles (máximo 6).</div>
+                        @endif
                     </div>
                     @if($equipo->jugadores->count() >= 6)
                         <div class="mb-2 text-red-600 text-sm font-semibold">Ya alcanzaste el máximo de 6 jugadores para este equipo.</div>
