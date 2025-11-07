@@ -94,10 +94,10 @@ class EquipoTorneoController extends Controller
     }
 
     // Agregar jugador a equipo
-    public function addJugador(Request $request, $equipoId)
+    public function addJugador(Request $request, $torneoId, $equipoId)
     {
         $equipo = EquipoTorneo::findOrFail($equipoId);
-        $torneoId = $equipo->torneo_id;
+        // Usar el torneoId de la ruta para validar contra otros equipos del mismo torneo
         $request->validate([
             'miembro_id' => [
                 'required',
