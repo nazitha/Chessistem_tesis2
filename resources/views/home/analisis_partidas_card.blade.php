@@ -1,10 +1,10 @@
 <div class="card shadow-sm mb-4">
     <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between gap-2 mb-3">
             <h5 class="card-title mb-0">Análisis de Partidas</h5>
 
-            <div>
-                <button class="btn btn-primary btn-sm me-2" data-bs-toggle="modal" data-bs-target="#nuevoAnalisisModal">
+            <div class="d-flex flex-row gap-2 ms-sm-auto">
+                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#nuevoAnalisisModal">
                     <i class="fas fa-plus me-1"></i>Nuevo Análisis
                 </button>
                 <a href="{{ route('analisis.index') }}" class="btn btn-outline-primary btn-sm">Ver más análisis</a>
