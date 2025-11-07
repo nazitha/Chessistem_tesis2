@@ -4,13 +4,13 @@
 
 <div x-show="openMobileMenu" class="md:hidden">
     <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-        <!-- Home -->
+        <!-- Inicio -->
         <a href="{{ route('home') }}" 
-           :class="activeMenuItem === 'Home' ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
-           @click="activeMenuItem = 'Home'; openMobileMenu = false"
+           :class="activeMenuItem === 'Inicio' ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
+           @click="activeMenuItem = 'Inicio'; openMobileMenu = false"
            class="block rounded-md px-3 py-2 text-base font-medium"
            id="home_opcion_movil">
-            Home
+            Inicio
         </a>
 
         <!-- Menú Usuarios -->

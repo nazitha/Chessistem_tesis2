@@ -171,12 +171,14 @@
             <div class="flex justify-between items-center h-16 px-4">
                 <!-- Logo -->
                 <div class="flex-shrink-0">
-                    <img class="h-12 w-auto sm:h-16" src="{{ asset('img/estrellas_del_ajedrez_logo.png') }}" alt="Escuela Estrellas del Ajedrez">
+                    <a href="{{ route('home') }}">
+                        <img class="h-12 w-auto sm:h-16" src="{{ asset('img/estrellas_del_ajedrez_logo.png') }}" alt="Escuela Estrellas del Ajedrez">
+                    </a>
                 </div>
 
                 <!-- Menú desktop -->
                 <div class="hidden md:flex items-center space-x-6 lg:space-x-8">
-                    <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'border-b-2 border-indigo-400 text-white' : 'text-gray-300 hover:text-white' }} px-1 pt-1 text-sm font-medium no-underline transition-colors">Home</a>
+                    <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'border-b-2 border-indigo-400 text-white' : 'text-gray-300 hover:text-white' }} px-1 pt-1 text-sm font-medium no-underline transition-colors">Inicio</a>
                     
                     @if(Auth::check() && Auth::user()->rol_id == 1)
                         <a href="{{ route('usuarios.index') }}" class="{{ request()->routeIs('usuarios.*') ? 'border-b-2 border-indigo-400 text-white' : 'text-gray-300 hover:text-white' }} px-1 pt-1 text-sm font-medium transition-colors">Usuarios</a>
@@ -216,7 +218,7 @@
             <!-- Menú móvil -->
             <div x-cloak x-show="open" x-transition.opacity @click.outside="open=false" class="md:hidden absolute inset-x-0 top-16 bg-gray-800 border-t border-gray-700 shadow-lg z-[1001] max-h-[calc(100vh-64px)] overflow-y-auto" id="mobile-menu">
                 <div class="px-2 pt-2 pb-3 space-y-1 pointer-events-auto">
-                    <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'bg-gray-700 text-white' : 'text-gray-300 hover:text-white hover:bg-gray-700' }} block px-3 py-2 text-base font-medium transition-colors">Home</a>
+                    <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'bg-gray-700 text-white' : 'text-gray-300 hover:text-white hover:bg-gray-700' }} block px-3 py-2 text-base font-medium transition-colors">Inicio</a>
                     
                     @if(Auth::check() && Auth::user()->rol_id == 1)
                         <a href="{{ route('usuarios.index') }}" class="{{ request()->routeIs('usuarios.*') ? 'bg-gray-700 text-white' : 'text-gray-300 hover:text-white hover:bg-gray-700' }} block px-3 py-2 text-base font-medium transition-colors">Usuarios</a>
