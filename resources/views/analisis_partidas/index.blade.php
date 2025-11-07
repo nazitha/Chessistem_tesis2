@@ -22,7 +22,8 @@
     @endif
 
     <div class="bg-white shadow-md rounded-lg overflow-hidden">
-        <table class="min-w-full divide-y divide-gray-200" id="analisisTable">
+        <div class="overflow-x-auto md:overflow-visible">
+        <table class="min-w-full divide-y divide-gray-200 text-sm md:text-base" id="analisisTable">
             <thead class="bg-gray-50">
                 <tr>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
@@ -64,6 +65,7 @@
                 @endforeach
             </tbody>
         </table>
+        </div>
     </div>
 
     
@@ -76,7 +78,7 @@
 
 <!-- Modal Nuevo Análisis -->
 <div class="modal fade" id="nuevoAnalisisModal" tabindex="-1" aria-labelledby="nuevoAnalisisModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="nuevoAnalisisModalLabel">Nuevo Análisis</h5>
@@ -99,7 +101,7 @@
           <div class="tab-pane fade show active" id="analisis-recientes" role="tabpanel" aria-labelledby="analisis-recientes-tab">
             <div class="mb-3">
               <label class="form-label">Selecciona un análisis reciente para ver detalles:</label>
-              <div class="list-group" id="analisisRecientesList">
+              <div class="list-group" id="analisisRecientesList" style="max-height: 60vh; overflow:auto;">
                 <!-- Se llenará dinámicamente -->
               </div>
             </div>

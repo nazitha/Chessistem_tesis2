@@ -11,7 +11,7 @@
             </div>
 
         </div>
-        <div class="table-responsive">
+<div class="table-responsive">
             <table class="table table-hover mb-0">
                 <thead class="table-light">
                     <tr>
@@ -68,7 +68,7 @@
 
 <!-- Modal Nuevo Análisis -->
 <div class="modal fade" id="nuevoAnalisisModal" tabindex="-1" aria-labelledby="nuevoAnalisisModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="nuevoAnalisisModalLabel">Nuevo Análisis</h5>
@@ -91,7 +91,7 @@
           <div class="tab-pane fade show active" id="analisis-recientes" role="tabpanel" aria-labelledby="analisis-recientes-tab">
             <div class="mb-3">
               <label class="form-label">Selecciona un análisis reciente para ver detalles:</label>
-              <div class="list-group" id="analisisRecientesList">
+              <div class="list-group" id="analisisRecientesList" style="max-height: 60vh; overflow:auto;">
                 <!-- Se llenará dinámicamente -->
               </div>
             </div>
