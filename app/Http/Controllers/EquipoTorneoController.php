@@ -32,9 +32,11 @@ class EquipoTorneoController extends Controller
             'capitan_id' => ['nullable', 'exists:miembros,cedula'],
             'federacion' => ['nullable', 'string', 'max:50'],
             'logo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
-            'jugadores' => ['required', 'array', 'min:2', 'max:10'],
+            // En creación inicial: exactamente 4 jugadores
+            'jugadores' => ['required', 'array', 'min:4', 'max:4'],
             'jugadores.*.miembro_id' => ['required', 'exists:miembros,cedula'],
-            'jugadores.*.tablero' => ['required', 'integer', 'min:1'],
+            // En creación inicial los tableros deben ser 1..4
+            'jugadores.*.tablero' => ['required', 'integer', 'min:1', 'max:4'],
         ]);
 
         // Validar tableros únicos
@@ -105,7 +107,8 @@ class EquipoTorneoController extends Controller
                 }),
             ],
             'tablero' => [
-                'required', 'integer', 'min:1',
+                // En agregado posterior, permitir hasta tablero 6
+                'required', 'integer', 'min:1', 'max:6',
                 Rule::unique('equipo_jugadores')->where(function ($query) use ($equipoId) {
                     return $query->where('equipo_id', $equipoId);
                 }),
@@ -118,12 +121,12 @@ class EquipoTorneoController extends Controller
                 $q->where('torneo_id', $torneoId)->where('id', '!=', $equipoId);
             })->exists();
         if ($yaAsignado) {
-            return back()->withErrors(['mensaje' => 'El jugador ya está asignado a otro equipo en este torneo.']);
+            return back()->withErrors(['mensaje' => 'El jugador ya está asignado a otro equipo en este torneo.'])->withInput();
         }
 
         // Validar máximo de jugadores
-        if ($equipo->jugadores()->count() >= 10) {
-            return back()->withErrors(['mensaje' => 'El equipo ya tiene el máximo permitido de jugadores.']);
+        if ($equipo->jugadores()->count() >= 6) {
+            return back()->withErrors(['mensaje' => 'El equipo ya tiene el máximo permitido de jugadores (6).'])->withInput();
         }
 
       

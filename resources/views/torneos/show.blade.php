@@ -318,7 +318,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-sm font-semibold mb-1">Nombre del Equipo <span class="text-red-500">*</span></label>
-                            <input type="text" name="nombre" class="mt-1 block w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" required placeholder="Ej: Caballos Negros">
+                            <input type="text" name="nombre" value="{{ old('nombre') }}" class="mt-1 block w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" required placeholder="Ej: Caballos Negros">
                             @error('nombre')<span class="text-red-500 text-xs">{{ $message }}</span>@enderror
                         </div>
                         <div>
@@ -326,14 +326,14 @@
                             <select name="capitan_id" class="mt-1 block w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                                 <option value="">-- Selecciona --</option>
                                 @foreach($miembrosDisponibles as $miembro)
-                                    <option value="{{ $miembro->cedula }}">{{ $miembro->nombres }} {{ $miembro->apellidos }}</option>
+                                    <option value="{{ $miembro->cedula }}" {{ old('capitan_id') == $miembro->cedula ? 'selected' : '' }}>{{ $miembro->nombres }} {{ $miembro->apellidos }}</option>
                                 @endforeach
                             </select>
                             @error('capitan_id')<span class="text-red-500 text-xs">{{ $message }}</span>@enderror
                         </div>
                         <div>
                             <label class="block text-sm font-semibold mb-1">Federación</label>
-                            <input type="text" name="federacion" class="mt-1 block w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="Ej: FENACOAJ">
+                            <input type="text" name="federacion" value="{{ old('federacion') }}" class="mt-1 block w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="Ej: FENACOAJ">
                             @error('federacion')<span class="text-red-500 text-xs">{{ $message }}</span>@enderror
                         </div>
                         <div>
@@ -344,23 +344,25 @@
                     </div>
                     <div>
                         <label class="block text-sm font-semibold mb-1">Notas</label>
-                        <textarea name="notas" rows="2" class="mt-1 block w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="Observaciones, detalles, etc."></textarea>
+                        <textarea name="notas" rows="2" class="mt-1 block w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="Observaciones, detalles, etc.">{{ old('notas') }}</textarea>
                         @error('notas')<span class="text-red-500 text-xs">{{ $message }}</span>@enderror
                     </div>
                     <div class="border-t pt-6 mt-2">
                         <label class="block text-base font-bold mb-2">Jugadores del Equipo <span class="text-red-500">*</span></label>
                         <div class="space-y-3">
-                            <template x-for="i in 4" :key="i">
+                            @for($i = 0; $i < 4; $i++)
                                 <div class="flex flex-col md:flex-row md:space-x-2 items-center">
-                                    <select :name="'jugadores[' + (i-1) + '][miembro_id]'" class="block w-full md:w-2/3 rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" required>
+                                    <select name="jugadores[{{ $i }}][miembro_id]" class="block w-full md:w-2/3 rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" required>
                                         <option value="">-- Selecciona jugador --</option>
                                         @foreach($miembrosDisponibles as $miembro)
-                                            <option value="{{ $miembro->cedula }}">{{ $miembro->nombres }} {{ $miembro->apellidos }}</option>
+                                            <option value="{{ $miembro->cedula }}" {{ old('jugadores.'.$i.'.miembro_id') == $miembro->cedula ? 'selected' : '' }}>
+                                                {{ $miembro->nombres }} {{ $miembro->apellidos }}
+                                            </option>
                                         @endforeach
                                     </select>
-                                    <input :name="'jugadores[' + (i-1) + '][tablero]'" type="number" min="1" class="block w-full md:w-1/3 mt-2 md:mt-0 rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="Tablero" required>
+                                    <input name="jugadores[{{ $i }}][tablero]" type="number" min="1" max="4" value="{{ old('jugadores.'.$i.'.tablero') }}" class="block w-full md:w-1/3 mt-2 md:mt-0 rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="Tablero (1-4)" required>
                                 </div>
-                            </template>
+                            @endfor
                             <p class="text-xs text-gray-500 mt-1">Puedes agregar más jugadores después de crear el equipo.</p>
                         </div>
                         @error('jugadores')<span class="text-red-500 text-xs">{{ $message }}</span>@enderror
@@ -1023,22 +1025,31 @@
                             <option value="">-- Selecciona jugador --</option>
                             @foreach($miembrosDisponibles as $miembro)
                                 @if(!$equipo->jugadores->pluck('miembro_id')->contains($miembro->cedula))
-                                    <option value="{{ $miembro->cedula }}">{{ $miembro->nombres }} {{ $miembro->apellidos }}</option>
+                                    <option value="{{ $miembro->cedula }}" {{ old('miembro_id') == $miembro->cedula ? 'selected' : '' }}>{{ $miembro->nombres }} {{ $miembro->apellidos }}</option>
                                 @endif
                             @endforeach
                         </select>
                     </div>
                     <div class="mb-4">
                         <label class="block text-sm font-semibold mb-1">Tablero</label>
-                        <input name="tablero" type="number" min="1" class="block w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" required placeholder="Ej: 1">
+                        <input name="tablero" type="number" min="1" max="6" value="{{ old('tablero') }}" class="block w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" required placeholder="1-6">
                         <div class="text-xs text-red-500 mt-1 hidden" id="tablero-ocupado-{{ $equipo->id }}">Ese tablero ya está ocupado en este equipo.</div>
                     </div>
-                    @if($equipo->jugadores->count() == 9)
-                        <div class="mb-2 text-yellow-600 text-sm font-semibold">Este será el último jugador permitido para este equipo.</div>
+                    @if($equipo->jugadores->count() >= 6)
+                        <div class="mb-2 text-red-600 text-sm font-semibold">Ya alcanzaste el máximo de 6 jugadores para este equipo.</div>
+                        <div class="flex justify-end pt-2">
+                            <button type="button" data-equipo-id="{{ $equipo->id }}" class="btn-cerrar-agregar px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 font-semibold">Cerrar</button>
+                        </div>
+                    @else
+                        @if($equipo->jugadores->count() >= 5)
+                            <div class="mb-2 text-yellow-600 text-sm font-semibold">Solo puedes agregar 1 jugador adicional (máximo 6).</div>
+                        @elseif($equipo->jugadores->count() >= 4)
+                            <div class="mb-2 text-yellow-600 text-sm font-semibold">Puedes agregar hasta 2 jugadores adicionales (máximo 6).</div>
+                        @endif
                     @endif
                     <div class="flex justify-end space-x-2 pt-4">
                         <button type="button" data-equipo-id="{{ $equipo->id }}" class="btn-cerrar-agregar px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 font-semibold">Cancelar</button>
-                        <button type="submit" class="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 font-semibold flex items-center gap-2" id="btn-agregar-jugador-{{ $equipo->id }}">
+                        <button type="submit" @if($equipo->jugadores->count() >= 6) disabled @endif class="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 font-semibold flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed" id="btn-agregar-jugador-{{ $equipo->id }}">
                             <i class="fas fa-user-plus"></i> Agregar
                         </button>
                     </div>
