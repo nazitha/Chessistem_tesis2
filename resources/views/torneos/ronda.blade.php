@@ -413,6 +413,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    const isEliminacionDirecta = {{ ($torneo->tipo_torneo === 'Eliminación Directa' && !$torneo->es_por_equipos) ? 'true' : 'false' }};
     // Máscara para campos de resultado
     const resultadoInputs = document.querySelectorAll('.resultado-input');
     
@@ -610,11 +611,18 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Solo autocompletar cuando sea un número completo válido
-        if (value === '1') return '1-0';
-        if (value === '0.5') return '0.5-0.5';
-        if (value === '0.') return '0.5-0.5';
-        if (value === '1/2') return '0.5-0.5';
-        if (value === '½') return '0.5-0.5';
+        if (value === '1') {
+            if (isEliminacionDirecta) return '1-0';
+            return value;
+        }
+        if (value === '0.5' || value === '0.') {
+            if (!isEliminacionDirecta) return '0.5-0.5';
+            return value;
+        }
+        if (value === '1/2' || value === '½') {
+            if (!isEliminacionDirecta) return '0.5-0.5';
+            return value;
+        }
         
         // NO autocompletar solo '0' porque puede venir '0.5'
         
