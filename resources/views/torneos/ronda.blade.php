@@ -413,7 +413,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const isEliminacionDirecta = {{ ($torneo->tipo_torneo === 'Eliminación Directa' && !$torneo->es_por_equipos) ? 'true' : 'false' }};
+    const isEliminacionDirecta = {{ ($torneo->tipo_torneo === 'Eliminación Directa') ? 'true' : 'false' }};
     // Máscara para campos de resultado
     const resultadoInputs = document.querySelectorAll('.resultado-input');
     
@@ -422,38 +422,37 @@ document.addEventListener('DOMContentLoaded', function() {
         input.addEventListener('input', function(e) {
             let value = e.target.value;
             
-            // Validación del primer dígito - solo permitir "0" o "1"
-            if (value.length === 1) {
-                const firstChar = value[0];
-                if (firstChar !== '0' && firstChar !== '1' && firstChar !== '½') {
-                    // Si no es "0" o "1", limpiar el input
-                    e.target.value = '';
-                    return;
-                }
-            }
-            
-            // Validación especial para "0"
-            if (value.startsWith('0') && value.length > 1) {
-                // Si empieza con "0", solo permitir "." o "-" como segundo carácter
-                const secondChar = value[1];
-                if (secondChar !== '.' && secondChar !== '-') {
-                    // Si no es "." o "-", revertir al valor anterior
-                    e.target.value = value.slice(0, 1);
-                    return;
-                }
-                
-                // Si empieza con "0.", solo permitir "5" como tercer carácter
-                if (value.startsWith('0.') && value.length > 2) {
-                    const thirdChar = value[2];
-                    if (thirdChar !== '5') {
-                        // Si no es "5", revertir al valor anterior
-                        e.target.value = value.slice(0, 2);
+            // Validación del primer dígito - solo en eliminación directa
+            if (isEliminacionDirecta) {
+                if (value.length === 1) {
+                    const firstChar = value[0];
+                    if (firstChar !== '0' && firstChar !== '1') {
+                        e.target.value = '';
                         return;
                     }
                 }
             }
             
-            // Validación especial para "1" como inicio: permitir "/" o "-" como segundo carácter
+            // Validación especial para "0" (solo en eliminación directa)
+            if (isEliminacionDirecta) {
+                if (value.startsWith('0') && value.length > 1) {
+                    const secondChar = value[1];
+                    if (secondChar !== '.' && secondChar !== '-') {
+                        e.target.value = value.slice(0, 1);
+                        return;
+                    }
+                    
+                    if (value.startsWith('0.') && value.length > 2) {
+                        const thirdChar = value[2];
+                        if (thirdChar !== '5') {
+                            e.target.value = value.slice(0, 2);
+                            return;
+                        }
+                    }
+                }
+            }
+            
+            // Validación especial para "1": permitir "/" o "-" como segundo carácter cuando aplique
             if (value.startsWith('1') && value.length > 1) {
                 const secondChar = value[1];
                 if (secondChar !== '-' && secondChar !== '/') {
@@ -564,7 +563,7 @@ document.addEventListener('DOMContentLoaded', function() {
         value = value.replace(/½/g, '0.5');
         value = value.replace(/1\/2/gi, '0.5');
         
-        // Manejar guiones manuales - solo permitir uno
+            // Manejar guiones manuales - solo permitir uno
         if (value.includes('-')) {
             // Si hay más de un guion, eliminar los extras
             const guionCount = (value.match(/-/g) || []).length;
@@ -572,13 +571,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 return value.replace(/-/g, '') + '-';
             }
             // Si hay exactamente un guion, autocompletar según el contexto
-            if (value === '-') {
-                return '1-1';
-            }
-            // Si hay "0-", autocompletar a "0-1"
-            if (value === '0-') {
-                return '0-1';
-            }
+                if (isEliminacionDirecta) {
+                    if (value === '-') {
+                        return '1-1';
+                    }
+                    if (value === '0-') {
+                        return '0-1';
+                    }
+                }
             // Si hay un guion con contenido, mantenerlo
             return value;
         }
@@ -600,8 +600,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // NO autocompletar solo '0' porque puede venir '0.5'
         
         // Permitir escribir parcialmente (no autocompletar hasta que sea completo)
-        // Solo validar que contenga caracteres válidos (solo números y punto)
-        const validChars = /^[0-9./.]*$/;
+        // Solo validar que contenga caracteres válidos (números, punto, slash y guion)
+        const validChars = /^[0-9./\-]*$/;
         if (validChars.test(value)) {
             return value;
         }
