@@ -3,6 +3,7 @@
     use App\Services\PermissionService;
     $canViewTorneos = PermissionHelper::canViewModule('torneos');
     $canViewMiembros = PermissionHelper::canViewModule('miembros');
+    $canViewAcademias = PermissionService::hasPermission('academias.read');
 @endphp
 
 <!DOCTYPE html>
@@ -193,7 +194,9 @@
                     @endif
 
                     <a href="{{ route('miembros.index') }}" class="{{ request()->routeIs('miembros.*') ? 'border-b-2 border-indigo-400 text-white' : 'text-gray-300 hover:text-white' }} px-1 pt-1 text-sm font-medium transition-colors">Miembros</a>
-                    <a href="{{ route('academias.index') }}" class="{{ request()->routeIs('academias.*') ? 'border-b-2 border-indigo-400 text-white' : 'text-gray-300 hover:text-white' }} px-1 pt-1 text-sm font-medium transition-colors">Academias</a>
+                    @if($canViewAcademias)
+                        <a href="{{ route('academias.index') }}" class="{{ request()->routeIs('academias.*') ? 'border-b-2 border-indigo-400 text-white' : 'text-gray-300 hover:text-white' }} px-1 pt-1 text-sm font-medium transition-colors">Academias</a>
+                    @endif
                     <a href="{{ route('torneos.index') }}" class="{{ request()->routeIs('torneos.*') ? 'border-b-2 border-indigo-400 text-white' : 'text-gray-300 hover:text-white' }} px-1 pt-1 text-sm font-medium transition-colors">Torneos</a>
                     @if(PermissionHelper::canViewModule('auditorias'))
                         <a href="{{ route('auditoria.index') }}" class="{{ request()->routeIs('auditoria.index') ? 'border-b-2 border-indigo-400 text-white' : 'text-gray-300 hover:text-white' }} px-1 pt-1 text-sm font-medium transition-colors">Auditoría</a>
@@ -233,7 +236,9 @@
                     @endif
 
                     <a href="{{ route('miembros.index') }}" class="{{ request()->routeIs('miembros.*') ? 'bg-gray-700 text-white' : 'text-gray-300 hover:text-white hover:bg-gray-700' }} block px-3 py-2 text-base font-medium transition-colors">Miembros</a>
-                    <a href="{{ route('academias.index') }}" class="{{ request()->routeIs('academias.*') ? 'bg-gray-700 text-white' : 'text-gray-300 hover:text-white hover:bg-gray-700' }} block px-3 py-2 text-base font-medium transition-colors">Academias</a>
+                    @if($canViewAcademias)
+                        <a href="{{ route('academias.index') }}" class="{{ request()->routeIs('academias.*') ? 'bg-gray-700 text-white' : 'text-gray-300 hover:text-white hover:bg-gray-700' }} block px-3 py-2 text-base font-medium transition-colors">Academias</a>
+                    @endif
                     <a href="{{ route('torneos.index') }}" class="{{ request()->routeIs('torneos.*') ? 'bg-gray-700 text-white' : 'text-gray-300 hover:text-white hover:bg-gray-700' }} block px-3 py-2 text-base font-medium transition-colors">Torneos</a>
                     @if(PermissionHelper::canViewModule('auditorias'))
                         <a href="{{ route('auditoria.index') }}" class="{{ request()->routeIs('auditoria.index') ? 'bg-gray-700 text-white' : 'text-gray-300 hover:text-white hover:bg-gray-700' }} block px-3 py-2 text-base font-medium transition-colors">Auditoría</a>

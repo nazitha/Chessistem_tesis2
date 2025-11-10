@@ -3,11 +3,12 @@
 @section('content')
 @php
     use App\Helpers\PermissionHelper;
+    use App\Services\PermissionService;
     use Illuminate\Support\Facades\Log;
     
     $canViewTorneos = PermissionHelper::canViewModule('torneos');
     $canViewMiembros = PermissionHelper::canViewModule('miembros');
-    $canViewAcademias = PermissionHelper::canViewModule('academias');
+    $canViewAcademias = PermissionService::hasPermission('academias.read');
     $canViewAuditorias = PermissionHelper::canViewModule('auditorias');
     $canViewMisEstadisticas = PermissionHelper::canViewMisEstadisticas();
     $canViewEstadisticasAdmin = PermissionHelper::canViewEstadisticasAdmin();
@@ -128,12 +129,14 @@
                             <span class="text-sm sm:text-base leading-tight">Nuevo Torneo</span>
                         </div>
                     </a>
-                    <a href="{{ route('academias.index') }}" class="block w-full text-center rounded-lg p-3 min-h-[56px] bg-green-600 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 transition-colors">
-                        <div class="flex flex-col items-center gap-2">
-                            <i class="fas fa-school text-base"></i>
-                            <span class="text-sm sm:text-base leading-tight">Gestionar Academias</span>
-                        </div>
-                    </a>
+                    @if($canViewAcademias)
+                        <a href="{{ route('academias.index') }}" class="block w-full text-center rounded-lg p-3 min-h-[56px] bg-green-600 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 transition-colors">
+                            <div class="flex flex-col items-center gap-2">
+                                <i class="fas fa-school text-base"></i>
+                                <span class="text-sm sm:text-base leading-tight">Gestionar Academias</span>
+                            </div>
+                        </a>
+                    @endif
                     <a href="{{ route('miembros.index') }}" class="block w-full text-center rounded-lg p-3 min-h-[56px] bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors">
                         <div class="flex flex-col items-center gap-2">
                             <i class="fas fa-users text-base"></i>
