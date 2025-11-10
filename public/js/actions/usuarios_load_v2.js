@@ -95,7 +95,7 @@ $(document).ready(function() {
                     $('#select_rol_add_user').append(
                         $('<option>', {
                             value: role.id,
-                            text: role.rol
+                            text: role.nombre
                         })
                     );
                 });
