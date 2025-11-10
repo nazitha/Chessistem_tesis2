@@ -93,6 +93,35 @@ class PermissionService
     }
 
     /**
+     * Verifica si el usuario tiene un permiso por ID
+     *
+     * @param int $permissionId ID del permiso en la tabla permisos
+     * @return bool
+     */
+    public static function hasPermissionId(int $permissionId): bool
+    {
+        $user = Auth::user();
+        if (!$user) {
+            Log::info('PermissionService: No hay usuario autenticado (hasPermissionId)');
+            return false;
+        }
+
+        $exists = DB::table('asignaciones_permisos')
+            ->where('rol_id', $user->rol_id)
+            ->where('permiso_id', $permissionId)
+            ->exists();
+
+        Log::info('PermissionService: Verificación por ID de permiso', [
+            'user_id' => $user->id_email,
+            'rol_id' => $user->rol_id,
+            'permission_id' => $permissionId,
+            'has_permission' => $exists
+        ]);
+
+        return $exists;
+    }
+
+    /**
      * Obtiene todos los permisos de un módulo específico
      *
      * @param string $module Nombre del módulo (ej: usuarios)

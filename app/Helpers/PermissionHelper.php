@@ -289,7 +289,8 @@ class PermissionHelper
     public static function canViewMisEstadisticas(): bool
     {
         $permission = "misEstadisticas.read";
-        $result = PermissionService::hasPermission($permission);
+        // Aceptar por nombre o por ID explícito (33)
+        $result = PermissionService::hasPermission($permission) || PermissionService::hasPermissionId(33);
         Log::info('PermissionHelper: Verificando permiso de estadísticas personales', [
             'permission' => $permission,
             'result' => $result,
