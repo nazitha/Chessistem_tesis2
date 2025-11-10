@@ -181,7 +181,7 @@
                                                            placeholder="1-0" 
                                                            value="" 
                                                            autocomplete="off"
-                                                           maxlength="6"
+                                                           maxlength="8"
                                                            data-partida-id="{{ $partida->id }}">
                                                 @else
                                                     @if($partida->resultado === null)
@@ -295,7 +295,7 @@
                                         @if($torneo->tipo_torneo === 'Eliminación Directa')
                                             @if(!$ronda->completada)
                                                 @if($partida->jugadorNegras)
-                                                    <input type="text" name="resultados[{{ $partida->id }}]" class="resultado-input rounded border-gray-300 text-sm w-16 text-center" placeholder="1-0" value="{{ $partida->getResultadoTexto() !== '*' ? $partida->getResultadoTexto() : '' }}" autocomplete="off" maxlength="6" data-partida-id="{{ $partida->id }}">
+                                                    <input type="text" name="resultados[{{ $partida->id }}]" class="resultado-input rounded border-gray-300 text-sm w-16 text-center" placeholder="1-0" value="{{ $partida->getResultadoTexto() !== '*' ? $partida->getResultadoTexto() : '' }}" autocomplete="off" maxlength="8" data-partida-id="{{ $partida->id }}">
                                                 @else
                                                     BYE
                                                 @endif
@@ -313,7 +313,7 @@
                                         @else
                                             @if(!$ronda->completada)
                                                 @if($partida->jugadorNegras)
-                                                    <input type="text" name="resultados[{{ $partida->id }}]" class="resultado-input rounded border-gray-300 text-sm w-16 text-center" placeholder="1-0" value="{{ $partida->getResultadoTexto() !== '*' ? $partida->getResultadoTexto() : '' }}" autocomplete="off" maxlength="6" data-partida-id="{{ $partida->id }}">
+                                                    <input type="text" name="resultados[{{ $partida->id }}]" class="resultado-input rounded border-gray-300 text-sm w-16 text-center" placeholder="1-0" value="{{ $partida->getResultadoTexto() !== '*' ? $partida->getResultadoTexto() : '' }}" autocomplete="off" maxlength="8" data-partida-id="{{ $partida->id }}">
                                                 @else
                                                     BYE
                                                 @endif
@@ -481,12 +481,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Manejar evento de borrado específicamente
         input.addEventListener('keydown', function(e) {
+            // Permitir backspace y delete normalmente
             if (e.keyCode === 8 || e.keyCode === 46) { // Backspace o Delete
-                // Si está autocompletado, limpiar completamente
-                if (e.target.value.includes('-')) {
-                    e.target.value = '';
-                    e.preventDefault();
-                }
+                return;
             }
         });
         
@@ -497,31 +494,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            // Si ya está autocompletado, solo permitir teclas de control
-            if (e.target.value.includes('-')) {
-                // Permitir solo teclas de control y navegación
-                if (e.keyCode === 9 ||  // Tab
-                    e.keyCode === 27 || // Escape
-                    e.keyCode === 37 || // Left arrow
-                    e.keyCode === 38 || // Up arrow
-                    e.keyCode === 39 || // Right arrow
-                    e.keyCode === 40 || // Down arrow
-                    e.keyCode === 35 || // End
-                    e.keyCode === 36 || // Home
-                    e.keyCode === 16 || // Shift
-                    e.keyCode === 17 || // Ctrl
-                    e.keyCode === 18 || // Alt
-                    (e.keyCode === 65 && e.ctrlKey) || // Ctrl+A
-                    (e.keyCode === 67 && e.ctrlKey) || // Ctrl+C
-                    (e.keyCode === 86 && e.ctrlKey) || // Ctrl+V
-                    (e.keyCode === 88 && e.ctrlKey) || // Ctrl+X
-                    (e.keyCode === 90 && e.ctrlKey)) { // Ctrl+Z
-                    return;
-                }
-                // Bloquear cualquier otra tecla
-                e.preventDefault();
-                return;
-            }
+            // Permitir seguir escribiendo aunque ya exista un guion (para casos 0.5-0.5 o 1/2-1/2)
             
             // Manejar la tecla guion (-) - solo permitir una vez
             if (e.keyCode === 189 || e.keyCode === 109) { // Tecla guion en diferentes teclados
