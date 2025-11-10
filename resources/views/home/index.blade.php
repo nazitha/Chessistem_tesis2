@@ -7,16 +7,18 @@
     use Illuminate\Support\Facades\Log;
     
     $canViewTorneos = PermissionHelper::canViewModule('torneos');
-    $canViewMiembros = PermissionHelper::canViewModule('miembros');
+    $canViewMiembros = PermissionService::hasPermission('miembros.read');
     $canViewAcademias = PermissionService::hasPermission('academias.read');
     $canViewAuditorias = PermissionHelper::canViewModule('auditorias');
+    $canCreateTorneos = PermissionService::hasPermission('torneos.create');
     $canViewMisEstadisticas = PermissionHelper::canViewMisEstadisticas();
     $canViewEstadisticasAdmin = PermissionHelper::canViewEstadisticasAdmin();
+    $showQuickActions = $canCreateTorneos || $canViewAcademias || $canViewMiembros || $canViewAuditorias;
     
     // Debug de permisos
     Log::info('Vista home: Verificando permisos', [
         'can_view_torneos' => $canViewTorneos,
-        'can_create_torneos' => PermissionHelper::canCreate('torneos'),
+        'can_create_torneos' => $canCreateTorneos,
         'can_view_miembros' => $canViewMiembros,
         'can_view_academias' => $canViewAcademias,
         'can_view_auditorias' => $canViewAuditorias,
@@ -118,42 +120,48 @@
             @endif
         </div>
 
-        <!-- Acciones Rápidas -->
-        <div class="mt-8">
-            <div class="bg-white rounded-lg shadow-lg p-6">
-                <h2 class="text-xl font-medium text-gray-900 mb-4">Acciones Rápidas</h2>
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    <a href="{{ route('torneos.create') }}" class="block w-full text-center rounded-lg p-3 min-h-[56px] bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors">
-                        <div class="flex flex-col items-center gap-2">
-                            <i class="fas fa-trophy text-base"></i>
-                            <span class="text-sm sm:text-base leading-tight">Nuevo Torneo</span>
-                        </div>
-                    </a>
-                    @if($canViewAcademias)
-                        <a href="{{ route('academias.index') }}" class="block w-full text-center rounded-lg p-3 min-h-[56px] bg-green-600 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 transition-colors">
-                            <div class="flex flex-col items-center gap-2">
-                                <i class="fas fa-school text-base"></i>
-                                <span class="text-sm sm:text-base leading-tight">Gestionar Academias</span>
-                            </div>
-                        </a>
-                    @endif
-                    <a href="{{ route('miembros.index') }}" class="block w-full text-center rounded-lg p-3 min-h-[56px] bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors">
-                        <div class="flex flex-col items-center gap-2">
-                            <i class="fas fa-users text-base"></i>
-                            <span class="text-sm sm:text-base leading-tight">Gestionar Miembros</span>
-                        </div>
-                    </a>
-                    @if($canViewAuditorias)
-                    <a href="{{ route('auditoria.index') }}" class="block w-full text-center rounded-lg p-3 min-h-[56px] bg-gray-600 text-white hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-grenn-400 transition-colors">
-                        <div class="flex flex-col items-center gap-2">
-                            <i class="fas fa-clipboard-list text-base"></i>
-                            <span class="text-sm sm:text-base leading-tight">Auditoría</span>
-                        </div>
-                    </a>
-                    @endif
+        @if($showQuickActions)
+            <!-- Acciones Rápidas -->
+            <div class="mt-8">
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h2 class="text-xl font-medium text-gray-900 mb-4">Acciones Rápidas</h2>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        @if($canCreateTorneos)
+                            <a href="{{ route('torneos.create') }}" class="block w-full text-center rounded-lg p-3 min-h-[56px] bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors">
+                                <div class="flex flex-col items-center gap-2">
+                                    <i class="fas fa-trophy text-base"></i>
+                                    <span class="text-sm sm:text-base leading-tight">Nuevo Torneo</span>
+                                </div>
+                            </a>
+                        @endif
+                        @if($canViewAcademias)
+                            <a href="{{ route('academias.index') }}" class="block w-full text-center rounded-lg p-3 min-h-[56px] bg-green-600 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 transition-colors">
+                                <div class="flex flex-col items-center gap-2">
+                                    <i class="fas fa-school text-base"></i>
+                                    <span class="text-sm sm:text-base leading-tight">Gestionar Academias</span>
+                                </div>
+                            </a>
+                        @endif
+                        @if($canViewMiembros)
+                            <a href="{{ route('miembros.index') }}" class="block w-full text-center rounded-lg p-3 min-h-[56px] bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors">
+                                <div class="flex flex-col items-center gap-2">
+                                    <i class="fas fa-users text-base"></i>
+                                    <span class="text-sm sm:text-base leading-tight">Gestionar Miembros</span>
+                                </div>
+                            </a>
+                        @endif
+                        @if($canViewAuditorias)
+                            <a href="{{ route('auditoria.index') }}" class="block w-full text-center rounded-lg p-3 min-h-[56px] bg-gray-600 text-white hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-grenn-400 transition-colors">
+                                <div class="flex flex-col items-center gap-2">
+                                    <i class="fas fa-clipboard-list text-base"></i>
+                                    <span class="text-sm sm:text-base leading-tight">Auditoría</span>
+                                </div>
+                            </a>
+                        @endif
+                    </div>
                 </div>
             </div>
-        </div>
+        @endif
 
         <!-- Estadísticas -->
         @if($canViewMisEstadisticas || $canViewEstadisticasAdmin)

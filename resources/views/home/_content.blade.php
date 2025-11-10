@@ -30,55 +30,71 @@
     @endforeach
 </div>
 
-<!-- Acciones rápidas -->
-<div class="mt-6 sm:mt-8">
-    <h2 class="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Acciones Rápidas</h2>
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-2">
-        <a href="{{ route('torneos.create') }}" class="block w-full text-center rounded-lg p-3 min-h-[56px] bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-colors">
-            <div class="flex flex-col items-center gap-2">
-                <i class="fa fa-trophy text-base"></i>
-                <span class="text-sm sm:text-base leading-tight">Nuevo Torneo</span>
-            </div>
-        </a>
-        @if(PermissionService::hasPermission('academias.read'))
-            <a href="{{ route('academias.index') }}" class="block w-full text-center rounded-lg p-3 min-h-[56px] bg-green-600 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 transition-colors">
-                <div class="flex flex-col items-center gap-2">
-                    <i class="fa fa-school text-base"></i>
-                    <span class="text-sm sm:text-base leading-tight">Gestionar Academias</span>
-                </div>
-            </a>
-        @endif
-        <a href="{{ route('miembros.index') }}" class="block w-full text-center rounded-lg p-3 min-h-[56px] bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors">
-            <div class="flex flex-col items-center gap-2">
-                <i class="fa fa-users text-base"></i>
-                <span class="text-sm sm:text-base leading-tight">Gestionar Miembros</span>
-            </div>
-        </a>
-        @if(PermissionHelper::canViewModule('participantes'))
-        <a href="{{ route('participantes.index') }}" class="block w-full text-center rounded-lg p-3 min-h-[56px] bg-amber-500 text-white hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-300 transition-colors">
-            <div class="flex flex-col items-center gap-2">
-                <i class="fa fa-user-plus text-base"></i>
-                <span class="text-sm sm:text-base leading-tight">Gestionar Participantes</span>
-            </div>
-        </a>
-        @endif
-        @if(PermissionHelper::canViewModule('auditorias'))
-        <a href="{{ route('auditoria.index') }}" class="block w-full text-center rounded-lg p-3 min-h-[56px] bg-amber-500 text-white hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-300 transition-colors">
-            <div class="flex flex-col items-center gap-2">
-            <i class="fa fa-user-plus text-base"></i>
-                <span class="text-sm sm:text-base leading-tight">Auditoría</span>
-            </div>
-        </a>
-        @endif
-        @if(Auth::user()->rol_id == 1)
-        <a href="{{ route('usuarios.index') }}" class="block w-full text-center rounded-lg p-3 min-h-[56px] bg-slate-600 text-white hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-400 transition-colors">
-            <div class="flex flex-col items-center gap-2">
-                <i class="fa fa-user-shield text-base"></i>
-                <span class="text-sm sm:text-base leading-tight">Gestionar Usuarios</span>
-            </div>
-        </a>
-        @endif
-    </div>
+@php
+    $canQuickTorneo = PermissionService::hasPermission('torneos.create');
+    $canQuickAcademias = PermissionService::hasPermission('academias.read');
+    $canQuickMiembros = PermissionService::hasPermission('miembros.read');
+    $canQuickParticipantes = PermissionHelper::canViewModule('participantes');
+    $canQuickAuditoria = PermissionHelper::canViewModule('auditorias');
+    $canQuickUsuarios = Auth::user()->rol_id == 1;
+    $showQuick = $canQuickTorneo || $canQuickAcademias || $canQuickMiembros || $canQuickParticipantes || $canQuickAuditoria || $canQuickUsuarios;
+@endphp
+
+@if($showQuick)
+    <!-- Acciones rápidas -->
+    <div class="mt-6 sm:mt-8">
+        <h2 class="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Acciones Rápidas</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-2">
+            @if($canQuickTorneo)
+                <a href="{{ route('torneos.create') }}" class="block w-full text-center rounded-lg p-3 min-h-[56px] bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-colors">
+                    <div class="flex flex-col items-center gap-2">
+                        <i class="fa fa-trophy text-base"></i>
+                        <span class="text-sm sm:text-base leading-tight">Nuevo Torneo</span>
+                    </div>
+                </a>
+            @endif
+            @if($canQuickAcademias)
+                <a href="{{ route('academias.index') }}" class="block w-full text-center rounded-lg p-3 min-h-[56px] bg-green-600 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 transition-colors">
+                    <div class="flex flex-col items-center gap-2">
+                        <i class="fa fa-school text-base"></i>
+                        <span class="text-sm sm:text-base leading-tight">Gestionar Academias</span>
+                    </div>
+                </a>
+            @endif
+            @if($canQuickMiembros)
+                <a href="{{ route('miembros.index') }}" class="block w-full text-center rounded-lg p-3 min-h-[56px] bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors">
+                    <div class="flex flex-col items-center gap-2">
+                        <i class="fa fa-users text-base"></i>
+                        <span class="text-sm sm:text-base leading-tight">Gestionar Miembros</span>
+                    </div>
+                </a>
+            @endif
+            @if($canQuickParticipantes)
+                <a href="{{ route('participantes.index') }}" class="block w-full text-center rounded-lg p-3 min-h-[56px] bg-amber-500 text-white hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-300 transition-colors">
+                    <div class="flex flex-col items-center gap-2">
+                        <i class="fa fa-user-plus text-base"></i>
+                        <span class="text-sm sm:text-base leading-tight">Gestionar Participantes</span>
+                    </div>
+                </a>
+            @endif
+            @if($canQuickAuditoria)
+                <a href="{{ route('auditoria.index') }}" class="block w-full text-center rounded-lg p-3 min-h-[56px] bg-amber-500 text-white hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-300 transition-colors">
+                    <div class="flex flex-col items-center gap-2">
+                    <i class="fa fa-user-plus text-base"></i>
+                        <span class="text-sm sm:text-base leading-tight">Auditoría</span>
+                    </div>
+                </a>
+            @endif
+            @if($canQuickUsuarios)
+                <a href="{{ route('usuarios.index') }}" class="block w-full text-center rounded-lg p-3 min-h-[56px] bg-slate-600 text-white hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-400 transition-colors">
+                    <div class="flex flex-col items-center gap-2">
+                        <i class="fa fa-user-shield text-base"></i>
+                        <span class="text-sm sm:text-base leading-tight">Gestionar Usuarios</span>
+                    </div>
+                </a>
+            @endif
+        </div>
+@endif
     
     <!-- Gráficos -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mt-6">

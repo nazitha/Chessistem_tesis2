@@ -2,7 +2,7 @@
     use App\Helpers\PermissionHelper;
     use App\Services\PermissionService;
     $canViewTorneos = PermissionHelper::canViewModule('torneos');
-    $canViewMiembros = PermissionHelper::canViewModule('miembros');
+    $canViewMiembros = PermissionService::hasPermission('miembros.read');
     $canViewAcademias = PermissionService::hasPermission('academias.read');
 @endphp
 
@@ -186,14 +186,16 @@
                 </div>
 
                 <!-- Menú desktop -->
-                <div class="hidden md:flex items-center space-x-6 lg:space-x-8">
+                <div class="hidden md:flex items-center justify-start space-x-6 lg:space-x-8">
                     <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'border-b-2 border-indigo-400 text-white' : 'text-gray-300 hover:text-white' }} px-1 pt-1 text-sm font-medium no-underline transition-colors">Inicio</a>
                     
                     @if(Auth::check() && Auth::user()->rol_id == 1)
                         <a href="{{ route('usuarios.index') }}" class="{{ request()->routeIs('usuarios.*') ? 'border-b-2 border-indigo-400 text-white' : 'text-gray-300 hover:text-white' }} px-1 pt-1 text-sm font-medium transition-colors">Usuarios</a>
                     @endif
-
-                    <a href="{{ route('miembros.index') }}" class="{{ request()->routeIs('miembros.*') ? 'border-b-2 border-indigo-400 text-white' : 'text-gray-300 hover:text-white' }} px-1 pt-1 text-sm font-medium transition-colors">Miembros</a>
+                    
+                    @if($canViewMiembros)
+                        <a href="{{ route('miembros.index') }}" class="{{ request()->routeIs('miembros.*') ? 'border-b-2 border-indigo-400 text-white' : 'text-gray-300 hover:text-white' }} px-1 pt-1 text-sm font-medium transition-colors">Miembros</a>
+                    @endif
                     @if($canViewAcademias)
                         <a href="{{ route('academias.index') }}" class="{{ request()->routeIs('academias.*') ? 'border-b-2 border-indigo-400 text-white' : 'text-gray-300 hover:text-white' }} px-1 pt-1 text-sm font-medium transition-colors">Academias</a>
                     @endif
@@ -235,7 +237,9 @@
                         <a href="{{ route('usuarios.index') }}" class="{{ request()->routeIs('usuarios.*') ? 'bg-gray-700 text-white' : 'text-gray-300 hover:text-white hover:bg-gray-700' }} block px-3 py-2 text-base font-medium transition-colors">Usuarios</a>
                     @endif
 
-                    <a href="{{ route('miembros.index') }}" class="{{ request()->routeIs('miembros.*') ? 'bg-gray-700 text-white' : 'text-gray-300 hover:text-white hover:bg-gray-700' }} block px-3 py-2 text-base font-medium transition-colors">Miembros</a>
+                    @if($canViewMiembros)
+                        <a href="{{ route('miembros.index') }}" class="{{ request()->routeIs('miembros.*') ? 'bg-gray-700 text-white' : 'text-gray-300 hover:text-white hover:bg-gray-700' }} block px-3 py-2 text-base font-medium transition-colors">Miembros</a>
+                    @endif
                     @if($canViewAcademias)
                         <a href="{{ route('academias.index') }}" class="{{ request()->routeIs('academias.*') ? 'bg-gray-700 text-white' : 'text-gray-300 hover:text-white hover:bg-gray-700' }} block px-3 py-2 text-base font-medium transition-colors">Academias</a>
                     @endif
