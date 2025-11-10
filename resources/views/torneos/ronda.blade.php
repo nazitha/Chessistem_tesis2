@@ -424,7 +424,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Validación del primer dígito - solo permitir "0" o "1"
             if (value.length === 1) {
                 const firstChar = value[0];
-                if (firstChar !== '0' && firstChar !== '1') {
+                if (firstChar !== '0' && firstChar !== '1' && firstChar !== '½') {
                     // Si no es "0" o "1", limpiar el input
                     e.target.value = '';
                     return;
@@ -449,6 +449,15 @@ document.addEventListener('DOMContentLoaded', function() {
                         e.target.value = value.slice(0, 2);
                         return;
                     }
+                }
+            }
+            
+            // Validación especial para "1" como inicio: permitir "/" o "-" como segundo carácter
+            if (value.startsWith('1') && value.length > 1) {
+                const secondChar = value[1];
+                if (secondChar !== '-' && secondChar !== '/') {
+                    e.target.value = value.slice(0, 1);
+                    return;
                 }
             }
             
@@ -549,6 +558,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 (e.keyCode >= 96 && e.keyCode <= 105) || // números del teclado numérico
                 e.keyCode === 190 || // punto decimal
                 e.keyCode === 189 || // guion
+                e.keyCode === 191 || // slash "/"
                 e.keyCode === 109) { // guion del teclado numérico
                 return;
             }
@@ -563,7 +573,7 @@ document.addEventListener('DOMContentLoaded', function() {
             let paste = (e.clipboardData || window.clipboardData).getData('text');
             
             // Limpiar y procesar texto pegado
-            paste = paste.replace(/[^0-9.-]/g, '');
+            paste = paste.replace(/[^0-9.\-\/,½]/g, '');
             paste = processResultadoInput(paste);
             
             e.target.value = paste;
@@ -573,6 +583,12 @@ document.addEventListener('DOMContentLoaded', function() {
     function processResultadoInput(value) {
         // Si está vacío, retornar vacío
         if (!value) return '';
+        
+        // Normalizaciones básicas: quitar espacios, convertir comas a punto, admitir "1/2" y "½"
+        value = value.replace(/\s+/g, '');
+        value = value.replace(/,/g, '.');
+        value = value.replace(/½/g, '0.5');
+        value = value.replace(/1\/2/gi, '0.5');
         
         // Manejar guiones manuales - solo permitir uno
         if (value.includes('-')) {
@@ -597,12 +613,14 @@ document.addEventListener('DOMContentLoaded', function() {
         if (value === '1') return '1-0';
         if (value === '0.5') return '0.5-0.5';
         if (value === '0.') return '0.5-0.5';
+        if (value === '1/2') return '0.5-0.5';
+        if (value === '½') return '0.5-0.5';
         
         // NO autocompletar solo '0' porque puede venir '0.5'
         
         // Permitir escribir parcialmente (no autocompletar hasta que sea completo)
         // Solo validar que contenga caracteres válidos (solo números y punto)
-        const validChars = /^[0-9.]*$/;
+        const validChars = /^[0-9./.]*$/;
         if (validChars.test(value)) {
             return value;
         }
