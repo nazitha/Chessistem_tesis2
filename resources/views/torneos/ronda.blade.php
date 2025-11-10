@@ -526,12 +526,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            // Permitir números, punto y guion
+            // Permitir números, punto, coma, guion y slash
             if ((e.keyCode >= 48 && e.keyCode <= 57) || // números 0-9
                 (e.keyCode >= 96 && e.keyCode <= 105) || // números del teclado numérico
                 e.keyCode === 190 || // punto decimal
+                e.keyCode === 110 || // punto decimal (teclado numérico)
+                e.keyCode === 188 || // coma
                 e.keyCode === 189 || // guion
-                e.keyCode === 191 || // slash "/"
+                e.keyCode === 191 || // slash "/" principal
+                e.keyCode === 111 || // slash "/" (teclado numérico)
                 e.keyCode === 109) { // guion del teclado numérico
                 return;
             }
