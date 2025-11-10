@@ -21,10 +21,6 @@
                     <label class="block text-sm font-medium" style="color: #282c34;">Rol <span class="text-red-600" aria-hidden="true">*</span></label>
                     <select class="w-full px-3 py-2 bg-white border rounded-md focus:outline-none focus:ring-1 focus:ring-gray-400 text-sm" style="border-color: #d1d5db;" id="select_rol_add_user" required>
                         <option value="" selected disabled>Seleccione un rol</option>
-                        <option value="1">Administrador</option>
-                        <option value="2">Usuario</option>
-                        <option value="3">Árbitro</option>
-                        <option value="4">Organizador</option>
                     </select>
                     <div class="invalid-feedback text-xs text-red-500 mt-1">Por favor, seleccione un rol</div>
                 </div>
@@ -120,6 +116,36 @@ document.addEventListener('DOMContentLoaded', function() {
     // También eliminar cada 500ms por si se recrea
     setInterval(eliminarBackdropsBootstrap, 500);
     
+    // Cargar roles para el select del modal
+    function cargarRolesSelectAddUser(selectedId = null) {
+        const select = document.getElementById('select_rol_add_user');
+        if (!select) return;
+        fetch('/usuarios/roles')
+            .then(res => res.json())
+            .then(data => {
+                if (!data || !data.success) return;
+                // Limpiar y poblar
+                select.innerHTML = '';
+                const placeholder = document.createElement('option');
+                placeholder.value = '';
+                placeholder.textContent = 'Seleccione un rol';
+                placeholder.disabled = true;
+                placeholder.selected = true;
+                select.appendChild(placeholder);
+                data.data.forEach(rol => {
+                    const opt = document.createElement('option');
+                    opt.value = rol.id;
+                    opt.textContent = rol.nombre;
+                    if (selectedId && String(selectedId) === String(rol.id)) {
+                        opt.selected = true;
+                    }
+                    select.appendChild(opt);
+                });
+            })
+            .catch(() => {});
+    }
+    
+    // Cargar roles al abrir el modal de nuevo usuario
     // Botón para abrir modal
     const btnNuevoUsuario = document.getElementById('btnNuevoUsuario');
     if (btnNuevoUsuario) {
@@ -127,6 +153,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('modal_add_users').classList.remove('hidden');
             // Eliminar backdrop inmediatamente al abrir
             setTimeout(eliminarBackdropsBootstrap, 10);
+            cargarRolesSelectAddUser();
         });
     }
 
@@ -148,6 +175,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }, false);
     }
+    
+    // Cargar una vez al iniciar por si el modal se abre luego
+    cargarRolesSelectAddUser();
 });
 
 // Función de cierre mejorada

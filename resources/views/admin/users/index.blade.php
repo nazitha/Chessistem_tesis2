@@ -110,10 +110,6 @@
                         <label class="block text-sm font-medium text-gray-700 mb-1">Rol:</label>
                         <select id="filtroRol" name="filtro_rol" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white">
                             <option value="">Todos los roles</option>
-                            <option value="Administrador" {{ $filtroRol == 'Administrador' ? 'selected' : '' }}>Administrador</option>
-                            <option value="Evaluador" {{ $filtroRol == 'Evaluador' ? 'selected' : '' }}>Evaluador</option>
-                            <option value="Estudiante" {{ $filtroRol == 'Estudiante' ? 'selected' : '' }}>Estudiante</option>
-                            <option value="Gestor" {{ $filtroRol == 'Gestor' ? 'selected' : '' }}>Gestor</option>
                         </select>
                     </div>
                     <div>
@@ -369,10 +365,7 @@
                 <div class="mb-4">
                     <label class="block text-gray-700 text-sm font-bold mb-2">Rol:</label>
                     <select id="rolSelect" name="rol_id" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="1">Administrador</option>
-                        <option value="2">Usuario</option>
-                        <option value="3">Arbitro</option>
-                        <option value="4">Organizador</option>
+                        <option value="">Seleccione un rol</option>
                     </select>
                 </div>
                 <div class="mb-4">
@@ -1107,6 +1100,66 @@
                         rolesMapeo[rol.nombre] = rol.id;
                     });
                     rolesCargados = true;
+                    
+                    // Poblar selects dinámicamente
+                    const filtroRolSelect = document.getElementById('filtroRol');
+                    if (filtroRolSelect) {
+                        const seleccionado = @json($filtroRol);
+                        // Mantener el primer option "Todos los roles"
+                        const firstOption = filtroRolSelect.querySelector('option[value=""]');
+                        filtroRolSelect.innerHTML = '';
+                        if (firstOption) {
+                            filtroRolSelect.appendChild(firstOption);
+                        } else {
+                            const optAll = document.createElement('option');
+                            optAll.value = '';
+                            optAll.textContent = 'Todos los roles';
+                            filtroRolSelect.appendChild(optAll);
+                        }
+                        data.data.forEach(rol => {
+                            const opt = document.createElement('option');
+                            opt.value = rol.nombre; // el filtro usa el nombre
+                            opt.textContent = rol.nombre;
+                            if (seleccionado && String(seleccionado) === String(rol.nombre)) {
+                                opt.selected = true;
+                            }
+                            filtroRolSelect.appendChild(opt);
+                        });
+                    }
+                    
+                    const permisosRolSelect = document.getElementById('rolSelect');
+                    if (permisosRolSelect) {
+                        const firstOption = permisosRolSelect.querySelector('option[value=""]');
+                        permisosRolSelect.innerHTML = '';
+                        const placeholder = firstOption || document.createElement('option');
+                        placeholder.value = '';
+                        placeholder.textContent = 'Seleccione un rol';
+                        permisosRolSelect.appendChild(placeholder);
+                        data.data.forEach(rol => {
+                            const opt = document.createElement('option');
+                            opt.value = rol.id;
+                            opt.textContent = rol.nombre;
+                            permisosRolSelect.appendChild(opt);
+                        });
+                    }
+                    
+                    const addUserRolSelect = document.getElementById('select_rol_add_user');
+                    if (addUserRolSelect) {
+                        const firstOption = addUserRolSelect.querySelector('option[value=""]');
+                        addUserRolSelect.innerHTML = '';
+                        const placeholder = firstOption || document.createElement('option');
+                        placeholder.value = '';
+                        placeholder.textContent = 'Seleccione un rol';
+                        placeholder.disabled = true;
+                        placeholder.selected = true;
+                        addUserRolSelect.appendChild(placeholder);
+                        data.data.forEach(rol => {
+                            const opt = document.createElement('option');
+                            opt.value = rol.id;
+                            opt.textContent = rol.nombre;
+                            addUserRolSelect.appendChild(opt);
+                        });
+                    }
                 } else {
                     console.error('Error en respuesta de roles:', data.error);
                 }
